@@ -133,7 +133,7 @@ impl Model {
         };
 
         if let Err(err) = self.useradd(user_name) {
-            tracing::error!("Failed to create initial user: {:?}", err);
+            tracing::error!("Failed to create first user: {:?}", err);
             return;
         }
 
