@@ -110,7 +110,9 @@ impl Model {
     fn useradd(&self, user_name: &str) -> Result<(), service::Error> {
         let useradd = ChrootCommand::new(self.install_dir.clone())?
             .cmd("useradd")
-            .args([user_name])
+            // Explicitly enforce creating home here, so even if some product has as default no
+            // home, we need it to be able to support user ssh keys.
+            .args(["-m", user_name])
             .output()?;
 
         if !useradd.status.success() {
