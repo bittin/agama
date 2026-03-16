@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Mar 16 16:53:39 UTC 2026 - José Iván López González <jlopez@suse.com>
+
+- Log actions failures (related to bsc#1259354).
+
+-------------------------------------------------------------------
 Mon Mar 16 12:56:47 UTC 2026 - David Diaz <dgonzalez@suse.com>
 
 - Change network web user interface to offer more control and

@@ -22,15 +22,18 @@
 require_relative "../../../test_helper"
 require "agama/dbus/storage/dasd"
 require "agama/storage/dasd/manager"
+require "agama/task_runner"
 require "json"
 
 RSpec.describe Agama::DBus::Storage::DASD do
-  subject { described_class.new(manager) }
+  subject { described_class.new(manager, task_runner) }
 
   let(:manager) { instance_double(Agama::Storage::DASD::Manager) }
+  let(:task_runner) { Agama::TaskRunner.new }
 
   before do
     allow_any_instance_of(DBus::Object).to receive(:emit)
+    allow(Agama::TaskRunner).to receive(:new).and_return(task_runner)
     allow(manager).to receive(:on_format_change)
     allow(manager).to receive(:on_format_finish)
     allow(manager).to receive(:probe)
@@ -160,28 +163,14 @@ RSpec.describe Agama::DBus::Storage::DASD do
         allow(subject).to receive(:serialized_system).and_return("{}")
       end
 
-      it "performs configuration in a thread" do
-        expect(Thread).to receive(:new).and_yield
+      it "performs the configuration in an async task" do
+        expect(task_runner).to receive(:async_run).and_yield
         expect(subject).to receive(:SystemChanged)
         expect(subject).to receive(:ProgressChanged)
         expect(subject).to receive(:ProgressFinished)
         expect(manager).to receive(:configure).with(config_json)
 
         subject.configure(serialized_config)
-      end
-    end
-
-    context "when already configured" do
-      let(:thread) { instance_double(Thread, alive?: true) }
-
-      before do
-        allow(manager).to receive(:configured?).with(config_json).and_return(false)
-        subject.instance_variable_set(:@configuration_thread, thread)
-      end
-
-      it "raises an error" do
-        expect { subject.configure(serialized_config) }
-          .to raise_error(RuntimeError, "Previous configuration is not finished yet")
       end
     end
   end
