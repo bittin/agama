@@ -396,7 +396,7 @@ impl MessageHandler<message::zfcp::GetIssues> for Service {
             return Ok(vec![]);
         };
 
-        let raw_json = proxy.system().await?;
+        let raw_json = proxy.issues().await?;
         Ok(try_from_string(&raw_json)?)
     }
 }

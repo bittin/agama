@@ -1,5 +1,5 @@
 -------------------------------------------------------------------
-Mon Mar 16 09:17:33 UTC 2026 - Knut Anderssen <kanderssen@suse.com>
+Mon Mar 16 13:17:33 UTC 2026 - Knut Anderssen <kanderssen@suse.com>
 
 - Extend the network service to monitor connections, access points,
   and general state changes, ensuring awareness of external
@@ -9,6 +9,11 @@ Mon Mar 16 09:17:33 UTC 2026 - Knut Anderssen <kanderssen@suse.com>
 - Notify about System changes when devices change
   (gh#agama-project/agama#3244, gh#agama-project/agama#3247,
   gh#agama-project/agama#3276).
+
+-------------------------------------------------------------------
+Mon Mar 16 12:39:37 UTC 2026 - José Iván López González <jlopez@suse.com>
+
+- Fix method for getting zFCP issues (gh#agama-project/agama#3287).
 
 -------------------------------------------------------------------
 Mon Mar 16 06:50:07 UTC 2026 - Imobach Gonzalez Sosa <igonzalezsosa@suse.com>
