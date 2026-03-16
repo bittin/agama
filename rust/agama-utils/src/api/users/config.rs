@@ -85,7 +85,7 @@ pub struct FirstUserConfig {
     pub user_name: Option<String>,
     #[merge(strategy = merge::option::overwrite_none)]
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(alias = "ssh_public_keys")]
+    #[serde(alias = "sshPublicKeys")]
     #[schema(inline)]
     pub ssh_public_key: Option<StringOrList>,
 }
@@ -168,7 +168,7 @@ pub struct RootUserConfig {
     /// Root SSH public key
     #[merge(strategy = merge::option::overwrite_none)]
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(alias = "ssh_public_keys")]
+    #[serde(alias = "sshPublicKeys")]
     #[schema(inline)]
     pub ssh_public_key: Option<StringOrList>,
 }

@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Mar 16 06:50:07 UTC 2026 - Imobach Gonzalez Sosa <igonzalezsosa@suse.com>
+
+- Fix the sshPublicKeys alias (gh#agama-project/agama#3284).
+
+-------------------------------------------------------------------
 Sat Mar 14 20:15:07 UTC 2026 - Michal Filka <mfilka@suse.com>
 
 - jsc#PED-15434
