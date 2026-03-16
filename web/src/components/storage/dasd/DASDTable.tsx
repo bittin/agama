@@ -444,7 +444,7 @@ type DASDTableState = {
   /** Current active filters applied to the device list */
   filters: DASDDevicesFilters;
   /** Currently selected devices in the UI */
-  selectedDevices: Device[];
+  selectedDevices: Device["channel"][];
   /** Devices selected for formatting */
   devicesToFormat: Device[];
   /** Device IDs currently undergoing an async operation */
@@ -518,16 +518,6 @@ const reducer = (state: DASDTableState, action: DASDTableAction): DASDTableState
 
     case "CANCEL_FORMAT_REQUEST": {
       return { ...state, devicesToFormat: [] };
-    }
-
-    case "UPDATE_DEVICE": {
-      const selectedDevices = state.selectedDevices.map((dev) =>
-        action.payload.channel === dev.channel ? action.payload : dev,
-      );
-      const devicesToFormat = state.devicesToFormat.map((dev) =>
-        action.payload.channel === dev.channel ? action.payload : dev,
-      );
-      return { ...state, selectedDevices, devicesToFormat };
     }
   }
 };
@@ -616,7 +606,7 @@ export default function DASDTable({ devices }) {
   };
 
   const onSelectionChange = (devices: Device[]) => {
-    dispatch({ type: "UPDATE_SELECTION", payload: devices });
+    dispatch({ type: "UPDATE_SELECTION", payload: devices.map((d) => d.channel) });
   };
 
   const resetFilters = () => dispatch({ type: "RESET_FILTERS" });
@@ -631,6 +621,8 @@ export default function DASDTable({ devices }) {
   const availableStatuses = [
     ...new Set(devices.map((d: Device) => d.status)),
   ] as Device["status"][];
+
+  const selectedDevices = devices.filter((d) => state.selectedDevices.includes(d.channel));
 
   return (
     <Content>
@@ -657,7 +649,7 @@ export default function DASDTable({ devices }) {
         <>
           <Divider />
           <BulkActionsToolbar
-            devices={state.selectedDevices}
+            devices={selectedDevices}
             addOrUpdateDevices={addOrUpdateDevices}
             dispatcher={dispatch}
           />
@@ -684,7 +676,7 @@ export default function DASDTable({ devices }) {
         items={sortedDevices}
         itemIdKey="channel"
         selectionMode="multiple"
-        itemsSelected={state.selectedDevices}
+        itemsSelected={selectedDevices}
         variant="compact"
         onSelectionChange={onSelectionChange}
         sortedBy={state.sortedBy}
