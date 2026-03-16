@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Mar 16 12:39:37 UTC 2026 - José Iván López González <jlopez@suse.com>
+
+- Fix method for getting zFCP issues (gh#agama-project/agama#3287).
+
+-------------------------------------------------------------------
 Mon Mar 16 06:50:07 UTC 2026 - Imobach Gonzalez Sosa <igonzalezsosa@suse.com>
 
 - Fix the sshPublicKeys alias (gh#agama-project/agama#3284).
