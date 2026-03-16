@@ -1,8 +1,15 @@
 -------------------------------------------------------------------
-Fri Mar 13 16:16:47 UTC 2026 - David Diaz <dgonzalez@suse.com>
+Mon Mar 16 10:56:47 UTC 2026 - David Diaz <dgonzalez@suse.com>
 
 - Change network web user interface to offer more control and
   interaction with connections (gh#agama-project/agama#3247).
+
+-------------------------------------------------------------------
+Mon Mar 16 10:53:53 UTC 2026 - Ancor Gonzalez Sosa <ancor@suse.com>
+
+- Prevent error when displaying reused LVM VGs (related to
+  gh#agama-project/agama#3210, jsc#PED-15104, bsc#1254718 and
+  gh#agama-project/agama#3171).
 
 -------------------------------------------------------------------
 Fri Mar 13 15:54:03 UTC 2026 - Ancor Gonzalez Sosa <ancor@suse.com>

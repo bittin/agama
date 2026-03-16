@@ -100,6 +100,7 @@ export default class DevicesManager {
     const stagingDevice = this.stagingDevice(device.sid);
 
     if (!systemDevice || !stagingDevice) return 0;
+    if (!systemDevice.block) return 0;
 
     const amount = systemDevice.block.size - stagingDevice.block.size;
     return amount > 0 ? amount : 0;
