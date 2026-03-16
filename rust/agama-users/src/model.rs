@@ -137,6 +137,7 @@ impl Model {
         self.activate_ssh(
             &PathBuf::from(format!("/home/{}/.ssh", user_name)),
             &ssh_keys,
+            Some(user_name),
         )?;
 
         let _ = self.set_user_group(user_name);
@@ -162,17 +163,22 @@ impl Model {
             .map(|k| k.to_vec())
             .unwrap_or_default();
 
-        self.activate_ssh(&PathBuf::from("root/.ssh/authorized_keys"), &ssh_keys)?;
+        self.activate_ssh(&PathBuf::from("root/.ssh/authorized_keys"), &ssh_keys, None)?;
 
         Ok(())
     }
 
-    fn activate_ssh(&self, path: &PathBuf, ssh_keys: &[String]) -> Result<(), service::Error> {
+    fn activate_ssh(
+        &self,
+        path: &PathBuf,
+        ssh_keys: &[String],
+        user: Option<&str>,
+    ) -> Result<(), service::Error> {
         if !ssh_keys.is_empty() {
             // if some SSH keys were defined
             // - update authorized_keys file
             // - open SSH port and enable SSH service
-            self.update_authorized_keys(path, ssh_keys)?;
+            self.update_authorized_keys(path, ssh_keys, user)?;
             self.enable_sshd_service()?;
             self.open_ssh_port()?;
         }
@@ -240,9 +246,41 @@ impl Model {
         &self,
         keys_path: &PathBuf,
         ssh_keys: &[String],
+        user: Option<&str>,
     ) -> Result<(), service::Error> {
-        let mode = 0o644;
         let file_name = self.install_dir.join(keys_path);
+        // unwrap is safe here, because we always use absolute paths
+        let dir = file_name.parent().unwrap();
+        // if .ssh does not exist we need to create it, with proper user and perms
+        if !dir.exists() {
+            fs::create_dir_all(dir)?;
+            fs::set_permissions(dir, Permissions::from_mode(0o700))?;
+
+            if let Some(user_name) = user {
+                let abs_path = Path::new("/").join(keys_path);
+                // unwrap is safe here as we explicitelly make it non relative path
+                let target_dir = abs_path.parent().unwrap();
+                // we need to run it in chroot, as user does not exist in insts_sys
+                let chown = ChrootCommand::new(self.install_dir.clone())?
+                    .cmd("chown")
+                    // unwrap here can be questionable if we want to support
+                    // non-utf8 paths, but I expect more problems with that idea
+                    .args([
+                        format!("{}:", user_name),
+                        target_dir.to_str().unwrap().to_string(),
+                    ])
+                    .output()?;
+                if !chown.status.success() {
+                    tracing::error!("User .ssh directory chown failed {:?}", chown.stderr);
+                    return Err(service::Error::CommandFailed(format!(
+                        "Cannot set user for the ssh directory: {:?}",
+                        chown.stderr
+                    )));
+                }
+            }
+        }
+
+        let mode = 0o644;
         let mut authorized_keys_file = OpenOptions::new()
             .create(true)
             .append(true)
@@ -258,7 +296,29 @@ impl Model {
             .try_for_each(|ssh_key| -> Result<(), service::Error> {
                 writeln!(authorized_keys_file, "{}", ssh_key.trim())?;
                 Ok(())
-            })
+            })?;
+
+        authorized_keys_file.flush()?;
+
+        if let Some(user_name) = user {
+            // unwrap here can be questionable if we want to support
+            // non-utf8 paths, but I expect more problems with that idea
+            let target_path = Path::new("/").join(keys_path).to_str().unwrap().to_string();
+            // we need to run it in chroot, as user does not exist in insts_sys
+            let chown = ChrootCommand::new(self.install_dir.clone())?
+                .cmd("chown")
+                .args([format!("{}:", user_name), target_path])
+                .output()?;
+            if !chown.status.success() {
+                tracing::error!("User .ssh directory chown failed {:?}", chown.stderr);
+                return Err(service::Error::CommandFailed(format!(
+                    "Cannot set user for the ssh directory: {:?}",
+                    chown.stderr
+                )));
+            }
+        }
+
+        Ok(())
     }
 
     /// Enables sshd service in the target system
