@@ -54,6 +54,7 @@ pub trait ModelAdapter: Send + 'static {
 /// # Ok(())
 /// # }
 /// ```
+#[derive(Debug)]
 pub struct ChrootCommand {
     command: Command,
 }
@@ -106,15 +107,7 @@ impl Model {
         }
     }
 
-    /// Reads first user's data from given config and updates its setup accordingly
-    fn add_first_user(&self, user: &FirstUserConfig) -> Result<(), service::Error> {
-        let Some(ref user_name) = user.user_name else {
-            return Err(service::Error::MissingUserData);
-        };
-        let Some(ref user_password) = user.password else {
-            return Err(service::Error::MissingUserData);
-        };
-
+    fn useradd(&self, user_name: &str) -> Result<(), service::Error> {
         let useradd = ChrootCommand::new(self.install_dir.clone())?
             .cmd("useradd")
             .args([user_name])
@@ -128,6 +121,22 @@ impl Model {
             )));
         }
 
+        Ok(())
+    }
+
+    /// Reads first user's data from given config and updates its setup accordingly
+    fn add_first_user(&self, user: &FirstUserConfig) {
+        let Some(ref user_name) = user.user_name else {
+            tracing::warn!("user name is missing in first user config");
+            return;
+        };
+
+        let useradd = self.useradd(user_name);
+        if let Err(useradd) = useradd {
+            tracing::error!("Failed to create initial user: {useradd:?}");
+            return;
+        }
+
         let ssh_keys = user
             .ssh_public_key
             .as_ref()
@@ -135,25 +144,33 @@ impl Model {
             .unwrap_or_default();
 
         self.activate_ssh(
-            &PathBuf::from(format!("/home/{}/.ssh", user_name)),
+            &PathBuf::from(format!("home/{}/.ssh/authorized_keys", user_name)),
             &ssh_keys,
             Some(user_name),
-        )?;
+        );
 
-        let _ = self.set_user_group(user_name);
-        self.set_user_password(user_name, user_password)?;
-        self.update_user_fullname(user)
+        self.set_user_group(user_name);
+        if let Some(ref user_password) = user.password {
+            let _ = self
+                .set_user_password(user_name, user_password)
+                .inspect_err(|e| tracing::error!("Failed to set user password: {e}"));
+        };
+        let _ = self
+            .update_user_fullname(user)
+            .inspect_err(|e| tracing::error!("Failed to set user fullname: {e}"));
     }
 
     /// Reads root's data from given config and updates root setup accordingly
-    fn add_root_user(&self, root: &RootUserConfig) -> Result<(), service::Error> {
+    fn add_root_user(&self, root: &RootUserConfig) {
         if root.password.is_none() && root.ssh_public_key.is_none() {
-            return Err(service::Error::MissingRootData);
+            return;
         };
 
         // set password for root if any
         if let Some(ref root_password) = root.password {
-            self.set_user_password("root", root_password)?;
+            let _ = self
+                .set_user_password("root", root_password)
+                .inspect_err(|e| tracing::error!("Failed to set root password: {e}"));
         }
 
         // store sshPublicKeys for root if any
@@ -163,27 +180,26 @@ impl Model {
             .map(|k| k.to_vec())
             .unwrap_or_default();
 
-        self.activate_ssh(&PathBuf::from("root/.ssh/authorized_keys"), &ssh_keys, None)?;
-
-        Ok(())
+        self.activate_ssh(&PathBuf::from("root/.ssh/authorized_keys"), &ssh_keys, None);
     }
 
-    fn activate_ssh(
-        &self,
-        path: &PathBuf,
-        ssh_keys: &[String],
-        user: Option<&str>,
-    ) -> Result<(), service::Error> {
-        if !ssh_keys.is_empty() {
-            // if some SSH keys were defined
-            // - update authorized_keys file
-            // - open SSH port and enable SSH service
-            self.update_authorized_keys(path, ssh_keys, user)?;
-            self.enable_sshd_service()?;
-            self.open_ssh_port()?;
+    fn activate_ssh(&self, path: &PathBuf, ssh_keys: &[String], user: Option<&str>) {
+        if ssh_keys.is_empty() {
+            return;
         }
 
-        Ok(())
+        // if some SSH keys were defined
+        // - update authorized_keys file
+        // - open SSH port and enable SSH service
+        let _ = self
+            .update_authorized_keys(path, ssh_keys, user)
+            .inspect_err(|e| tracing::error!("Failed to update authorized_keys file: {e}"));
+        let _ = self
+            .enable_sshd_service()
+            .inspect_err(|e| tracing::error!("Failed to enable sshd service: {e}"));
+        let _ = self
+            .open_ssh_port()
+            .inspect_err(|e| tracing::error!("Failed to open sshd port in firewall: {e}"));
     }
 
     /// Sets password for given user name
@@ -224,11 +240,21 @@ impl Model {
 
     /// Add user into the wheel group on best effort basis.
     /// If the group doesn't exist, log the error and continue.
-    fn set_user_group(&self, user_name: &str) -> Result<(), service::Error> {
-        let usermod = ChrootCommand::new(self.install_dir.clone())?
+    fn set_user_group(&self, user_name: &str) {
+        let chroot = ChrootCommand::new(self.install_dir.clone());
+        let Ok(chroot) = chroot else {
+            tracing::error!("Failed to chroot: {:?}", chroot);
+            return;
+        };
+
+        let usermod = chroot
             .cmd("usermod")
             .args(["-a", "-G", "wheel", user_name])
-            .output()?;
+            .output();
+        let Ok(usermod) = usermod else {
+            tracing::error!("Failed to execute usermod {:?}", usermod);
+            return;
+        };
 
         if !usermod.status.success() {
             tracing::warn!(
@@ -237,8 +263,6 @@ impl Model {
                 usermod.status
             );
         }
-
-        Ok(())
     }
 
     /// Updates root's authorized_keys file with SSH key
@@ -404,10 +428,10 @@ impl Model {
 impl ModelAdapter for Model {
     fn install(&self, config: &Config) -> Result<(), service::Error> {
         if let Some(first_user) = &config.first_user {
-            self.add_first_user(first_user)?;
+            self.add_first_user(first_user);
         }
         if let Some(root_user) = &config.root {
-            self.add_root_user(root_user)?;
+            self.add_root_user(root_user);
         }
 
         Ok(())
