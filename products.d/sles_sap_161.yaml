@@ -88,6 +88,8 @@ translations:
         cs: Standardní
         de: Standard
         el: Τυπικό
+        es: Estándar
+        fi: Tavalinen
         id: Standar
         ja: 標準
         ka: სტანდარტული
@@ -101,6 +103,8 @@ translations:
         cs: Standardní systém
         de: Standardsystem
         el: Τυπικό σύστημα
+        es: Sistema estándar
+        fi: Tavallinen järjestelmä
         id: Sistem standar
         ja: 標準システム
         ka: სტანდარტული სისტემა
@@ -115,6 +119,8 @@ translations:
         cs: Neměnitelný
         de: Unveränderlich
         el: Αμετάβλητο
+        es: Inmutable
+        fi: Muuttumaton
         id: Immutable
         ja: 不変型
         ka: უცვლადი
@@ -127,6 +133,8 @@ translations:
         cs: Neměnitelný systém s atomickými aktualizacemi
         de: Unveränderliches System mit atomaren Aktualisierungen
         el: Αμετάβλητο σύστημα με ατομικές ενημερώσεις
+        es: Sistema inmutable con actualizaciones atómicas
+        fi: Muuttumaton järjestelmä atomisilla päivityksillä
         id: Sistem immutable dengan pembaruan atomik
         ja: 不可分な更新機能を持つ不変型システム
         ka: უცვლელი სისტემა ატომური განახლებებით
