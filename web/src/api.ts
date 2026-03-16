@@ -73,7 +73,8 @@ const patchQuestion = (question: Question): Response => {
   return patch(`/api/v2/questions`, { answer: { id, action, value } });
 };
 
-const postAction = (action: Action) => post("/api/v2/action", action);
+/** @todo Inform the user when the action fails. */
+const postAction = (action: Action) => post("/api/v2/action", action).catch(console.error);
 
 const configureL10nAction = (config: L10nSystemConfig) => postAction({ configureL10n: config });
 
