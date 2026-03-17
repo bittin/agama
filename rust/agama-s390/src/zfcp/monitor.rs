@@ -34,7 +34,6 @@ use agama_utils::{
     issue, progress,
 };
 use serde::Deserialize;
-use serde_json;
 use tokio::sync::broadcast;
 use tokio_stream::StreamExt;
 use zbus::{fdo::PropertiesChanged, message, Connection, MatchRule, MessageStream};
@@ -49,6 +48,8 @@ pub enum Error {
     Issue(#[from] issue::service::Error),
     #[error(transparent)]
     DBus(#[from] zbus::Error),
+    #[error(transparent)]
+    DBusConversion(#[from] zbus::zvariant::Error),
     #[error(transparent)]
     Json(#[from] serde_json::Error),
     #[error(transparent)]
@@ -154,8 +155,11 @@ impl Monitor {
                 .send(Event::SystemChanged { scope: Scope::ZFCP })?;
             self.storage.cast(storage::message::Probe)?;
         }
-        if args.changed_properties().get("Issues").is_some() {
-            self.update_issues().await?;
+        if let Some(issues) = args.changed_properties().get("Issues").cloned() {
+            let issues: String = issues.try_into()?;
+            let issues = serde_json::from_str(issues.as_str())?;
+            self.issues
+                .cast(issue::message::Set::new(Scope::ZFCP, issues))?;
         }
         Ok(())
     }
