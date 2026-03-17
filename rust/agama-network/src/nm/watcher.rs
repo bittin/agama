@@ -23,10 +23,17 @@
 //! Monitors NetworkManager's D-Bus service and emit [actions](crate::network::Action] to update
 //! the NetworkSystem state when devices or active connections change.
 
+use crate::model::Connection;
+use crate::nm::proxies::SettingsProxy;
 use std::collections::{hash_map::Entry, HashMap};
+use std::str::FromStr;
 
 use crate::types::Device;
-use crate::{adapter::Watcher, nm::proxies::DeviceProxy, Action, NetworkAdapterError};
+use crate::{
+    adapter::Watcher,
+    nm::proxies::{AccessPointProxy, DeviceProxy},
+    Action, NetworkAdapterError,
+};
 use anyhow::anyhow;
 use async_trait::async_trait;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
@@ -34,11 +41,16 @@ use tokio_stream::StreamExt;
 use zbus::zvariant::OwnedObjectPath;
 
 use super::{
-    builder::DeviceFromProxyBuilder,
+    builder::{AccessPointFromProxyBuilder, ConnectionFromProxyBuilder, DeviceFromProxyBuilder},
+    client::NetworkManagerClient,
+    dbus::connection_from_dbus,
     error::NmError,
     model::NmConnectionState,
-    proxies::{ActiveConnectionProxy, NetworkManagerProxy},
-    streams::{ActiveConnectionChangedStream, DeviceChangedStream, NmChange},
+    proxies::{ActiveConnectionProxy, ConnectionProxy, NetworkManagerProxy},
+    streams::{
+        ActiveConnectionChangedStream, ConnectionSettingsChangedStream, DeviceChangedStream,
+        GeneralStateChangedStream, NmChange,
+    },
 };
 
 /// Implements a [crate::network::adapter::Watcher] for NetworkManager.
@@ -57,6 +69,8 @@ use super::{
 /// * A device is added, changed or removed.
 /// * The status of a device changes.
 /// * The IPv4 or IPv6 configuration changes.
+/// * A connection is added or removed.
+/// * An access point is added or removed.
 pub struct NetworkManagerWatcher {
     connection: zbus::Connection,
 }
@@ -91,12 +105,40 @@ impl Watcher for NetworkManagerWatcher {
             }
         });
 
-        // Process the ConnectionChangedStream in a separate task.
+        // Process the ActiveConnectionChangedStream in a separate task.
         let connection = self.connection.clone();
+        let tx_clone = tx.clone();
         tokio::spawn(async move {
             let mut stream = ActiveConnectionChangedStream::new(&connection)
                 .await
                 .unwrap();
+
+            while let Some(change) = stream.next().await {
+                if let Err(e) = tx_clone.send(change) {
+                    tracing::error!("Could not dispatch a network change: {e}");
+                }
+            }
+        });
+
+        // Process the ConnectionSettingsChangedStream in a separate task.
+        let connection = self.connection.clone();
+        let tx_clone = tx.clone();
+        tokio::spawn(async move {
+            let mut stream = ConnectionSettingsChangedStream::new(&connection)
+                .await
+                .unwrap();
+
+            while let Some(change) = stream.next().await {
+                if let Err(e) = tx_clone.send(change) {
+                    tracing::error!("Could not dispatch a network change: {e}");
+                }
+            }
+        });
+
+        // Process the GeneralStateChangedStream in a separate task.
+        let connection = self.connection.clone();
+        tokio::spawn(async move {
+            let mut stream = GeneralStateChangedStream::new(&connection).await.unwrap();
 
             while let Some(change) = stream.next().await {
                 if let Err(e) = tx.send(change) {
@@ -149,8 +191,12 @@ impl ActionDispatcher<'_> {
     /// It runs until the updates channel is closed.
     pub async fn run(&mut self) -> Result<(), NmError> {
         self.read_devices().await?;
+        self.read_connections().await?;
         while let Some(update) = self.updates_rx.recv().await {
             let result = match update {
+                NmChange::GeneralStateChanged => self.handle_general_state_changed().await,
+                NmChange::ConnectionAdded(path) => self.handle_connection_added(path).await,
+                NmChange::ConnectionRemoved(path) => self.handle_connection_removed(path).await,
                 NmChange::DeviceAdded(path) => self.handle_device_added(path).await,
                 NmChange::DeviceUpdated(path) => self.handle_device_updated(path).await,
                 NmChange::DeviceRemoved(path) => self.handle_device_removed(path).await,
@@ -161,6 +207,12 @@ impl ActionDispatcher<'_> {
                 }
                 NmChange::ActiveConnectionRemoved(path) => {
                     self.handle_active_connection_removed(path).await
+                }
+                NmChange::AccessPointAdded(device_path, ap_path) => {
+                    self.handle_access_point_added(device_path, ap_path).await
+                }
+                NmChange::AccessPointRemoved(device_path, ap_path) => {
+                    self.handle_access_point_removed(device_path, ap_path).await
                 }
             };
 
@@ -176,6 +228,58 @@ impl ActionDispatcher<'_> {
         let nm_proxy = NetworkManagerProxy::new(&self.connection).await?;
         for path in nm_proxy.get_devices().await? {
             self.proxies.find_or_add_device(&path).await?;
+        }
+        Ok(())
+    }
+
+    /// Reads the connections.
+    async fn read_connections(&mut self) -> Result<(), NmError> {
+        let settings_proxy = SettingsProxy::new(&self.connection).await?;
+        for path in settings_proxy.list_connections().await? {
+            match self.proxies.find_or_add_connection(&path).await {
+                Ok((uuid, _)) => tracing::info!("Adding connection {}", &uuid),
+                Err(e) => tracing::info!("Cannot add connection {} because {:?}", &path, &e),
+            }
+        }
+        Ok(())
+    }
+
+    /// Handles a general state change.
+    async fn handle_general_state_changed(&mut self) -> Result<(), NmError> {
+        tracing::info!("General state was changed");
+        let client = NetworkManagerClient::new(self.connection.clone()).await?;
+        match client.general_state().await {
+            Ok(state) => {
+                _ = self.actions_tx.send(Action::UpdateGeneralState(state));
+            }
+            Err(e) => {
+                tracing::warn!("Could not get the general state: {}", e);
+            }
+        }
+        Ok(())
+    }
+
+    /// Handles the case where a new connection appears.
+    ///
+    /// * `path`: D-Bus object path of the new connection.
+    async fn handle_connection_added(&mut self, path: OwnedObjectPath) -> Result<(), NmError> {
+        let (_, proxy) = self.proxies.find_or_add_connection(&path).await?;
+        tracing::info!("New connection was found");
+        if let Ok(conn) = Self::connection_from_proxy(&self.connection, proxy.clone()).await {
+            _ = self.actions_tx.send(Action::NewConnection(Box::new(conn)));
+        }
+        // TODO: report an error if the device cannot get generated
+
+        Ok(())
+    }
+
+    /// Handles the removal of a connection.
+    ///
+    /// * `path`: D-Bus object path of the removed connection.
+    async fn handle_connection_removed(&mut self, path: OwnedObjectPath) -> Result<(), NmError> {
+        tracing::info!("Connection was removed");
+        if let Some((uuid, _)) = self.proxies.remove_connection(&path) {
+            _ = self.actions_tx.send(Action::RemoveConnection(uuid));
         }
         Ok(())
     }
@@ -251,12 +355,12 @@ impl ActionDispatcher<'_> {
         path: OwnedObjectPath,
     ) -> Result<(), NmError> {
         let proxy = self.proxies.find_or_add_active_connection(&path).await?;
-        let id = proxy.id().await?;
+        let uuid = Uuid::from_str(&proxy.uuid().await?).map_err(NmError::InvalidNetworkUUID)?;
         let state = proxy.state().await.map(NmConnectionState)?;
         if let Ok(state) = state.try_into() {
             _ = self
                 .actions_tx
-                .send(Action::ChangeConnectionState(id, state));
+                .send(Action::ChangeConnectionState(uuid, state));
         }
         // TODO: report an error if the device cannot get generated
 
@@ -271,16 +375,57 @@ impl ActionDispatcher<'_> {
         path: OwnedObjectPath,
     ) -> Result<(), NmError> {
         if let Some(proxy) = self.proxies.remove_active_connection(&path) {
-            let id = proxy.id().await?;
+            let uuid = Uuid::from_str(&proxy.uuid().await?).map_err(NmError::InvalidNetworkUUID)?;
             let state = proxy.state().await.map(NmConnectionState)?;
             if let Ok(state) = state.try_into() {
                 _ = self
                     .actions_tx
-                    .send(Action::ChangeConnectionState(id, state));
+                    .send(Action::ChangeConnectionState(uuid, state));
             }
         }
 
         Ok(())
+    }
+
+    /// Handles the case where a new access point appears.
+    ///
+    /// * `device_path`: D-Bus object path of the device.
+    /// * `ap_path`: D-Bus object path of the new access point.
+    async fn handle_access_point_added(
+        &mut self,
+        device_path: OwnedObjectPath,
+        ap_path: OwnedObjectPath,
+    ) -> Result<(), NmError> {
+        let (name, _) = self.proxies.find_or_add_device(&device_path).await?;
+        let device_name = name.clone();
+        let (_, proxy) = self.proxies.find_or_add_access_point(&ap_path).await?;
+        if let Ok(ap) = Self::access_point_from_proxy(device_name, proxy.clone()).await {
+            _ = self.actions_tx.send(Action::AddAccessPoint(Box::new(ap)));
+        }
+        Ok(())
+    }
+
+    /// Handles the removal of an access point.
+    ///
+    /// * `device_path`: D-Bus object path of the device.
+    /// * `ap_path`: D-Bus object path of the removed access point.
+    async fn handle_access_point_removed(
+        &mut self,
+        _device_path: OwnedObjectPath,
+        ap_path: OwnedObjectPath,
+    ) -> Result<(), NmError> {
+        if let Some((hw_address, _)) = self.proxies.remove_access_point(&ap_path) {
+            _ = self.actions_tx.send(Action::RemoveAccessPoint(hw_address));
+        }
+        Ok(())
+    }
+
+    async fn connection_from_proxy(
+        connection: &zbus::Connection,
+        proxy: ConnectionProxy<'_>,
+    ) -> Result<Connection, NmError> {
+        let builder = ConnectionFromProxyBuilder::new(connection, &proxy);
+        builder.build().await
     }
 
     async fn device_from_proxy(
@@ -290,22 +435,36 @@ impl ActionDispatcher<'_> {
         let builder = DeviceFromProxyBuilder::new(connection, &proxy);
         builder.build().await
     }
+
+    async fn access_point_from_proxy(
+        device_name: String,
+        proxy: AccessPointProxy<'_>,
+    ) -> Result<crate::types::AccessPoint, NmError> {
+        let builder = AccessPointFromProxyBuilder::new(device_name, &proxy);
+        builder.build().await
+    }
 }
+
+use uuid::Uuid;
 
 /// Ancillary class to track the devices and their related D-Bus objects.
 pub struct ProxiesRegistry<'a> {
     connection: zbus::Connection,
+    connections: HashMap<OwnedObjectPath, (Uuid, ConnectionProxy<'a>)>,
     // the String is the device name like eth0
     devices: HashMap<OwnedObjectPath, (String, DeviceProxy<'a>)>,
     active_connections: HashMap<OwnedObjectPath, ActiveConnectionProxy<'a>>,
+    access_points: HashMap<OwnedObjectPath, (String, AccessPointProxy<'a>)>,
 }
 
 impl<'a> ProxiesRegistry<'a> {
     pub fn new(connection: &zbus::Connection) -> Self {
         Self {
             connection: connection.clone(),
+            connections: HashMap::new(),
             devices: HashMap::new(),
             active_connections: HashMap::new(),
+            access_points: HashMap::new(),
         }
     }
 
@@ -326,6 +485,33 @@ impl<'a> ProxiesRegistry<'a> {
                 let name = proxy.interface().await?;
 
                 Ok(entry.insert((name, proxy)))
+            }
+            Entry::Occupied(entry) => Ok(entry.into_mut()),
+        }
+    }
+
+    /// Finds or adds a connection to the registry.
+    ///
+    /// * `path`: D-Bus object path.
+    pub async fn find_or_add_connection(
+        &mut self,
+        path: &OwnedObjectPath,
+    ) -> Result<&(Uuid, ConnectionProxy<'a>), NmError> {
+        // Cannot use entry(...).or_insert_with(...) because of the async call.
+        match self.connections.entry(path.clone()) {
+            Entry::Vacant(entry) => {
+                let proxy = ConnectionProxy::builder(&self.connection.clone())
+                    .path(path.clone())?
+                    .build()
+                    .await?;
+                let settings = proxy.get_settings().await?;
+                match connection_from_dbus(settings) {
+                    Ok(conn) => Ok(entry.insert((conn.uuid, proxy))),
+                    Err(e) => {
+                        tracing::warn!("Could not process connection {}: {}", &path, e);
+                        Err(e)
+                    }
+                }
             }
             Entry::Occupied(entry) => Ok(entry.into_mut()),
         }
@@ -352,6 +538,38 @@ impl<'a> ProxiesRegistry<'a> {
         }
     }
 
+    /// Finds or adds an access point to the registry.
+    ///
+    /// * `path`: D-Bus object path.
+    pub async fn find_or_add_access_point(
+        &mut self,
+        path: &OwnedObjectPath,
+    ) -> Result<&(String, AccessPointProxy<'a>), NmError> {
+        // Cannot use entry(...).or_insert_with(...) because of the async call.
+        match self.access_points.entry(path.clone()) {
+            Entry::Vacant(entry) => {
+                let proxy = AccessPointProxy::builder(&self.connection.clone())
+                    .path(path.clone())?
+                    .build()
+                    .await?;
+                let hw_address = proxy.hw_address().await?;
+
+                Ok(entry.insert((hw_address, proxy)))
+            }
+            Entry::Occupied(entry) => Ok(entry.into_mut()),
+        }
+    }
+
+    /// Removes a connection from the registry.
+    ///
+    /// * `path`: D-Bus object path.
+    pub fn remove_connection(
+        &mut self,
+        path: &OwnedObjectPath,
+    ) -> Option<(Uuid, ConnectionProxy<'_>)> {
+        self.connections.remove(path)
+    }
+
     /// Removes an active connection from the registry.
     ///
     /// * `path`: D-Bus object path.
@@ -367,6 +585,16 @@ impl<'a> ProxiesRegistry<'a> {
     /// * `path`: D-Bus object path.
     pub fn remove_device(&mut self, path: &OwnedObjectPath) -> Option<(String, DeviceProxy<'_>)> {
         self.devices.remove(path)
+    }
+
+    /// Removes an access point from the registry.
+    ///
+    /// * `path`: D-Bus object path.
+    pub fn remove_access_point(
+        &mut self,
+        path: &OwnedObjectPath,
+    ) -> Option<(String, AccessPointProxy<'_>)> {
+        self.access_points.remove(path)
     }
 
     //// Updates a device name.
@@ -401,11 +629,11 @@ impl<'a> ProxiesRegistry<'a> {
     /// * `ip6_config_path`: D-Bus object path of the IPv6 configuration.
     pub async fn find_device_for_ip6(
         &self,
-        ip4_config_path: &OwnedObjectPath,
+        ip6_config_path: &OwnedObjectPath,
     ) -> Option<&(String, DeviceProxy<'_>)> {
         for device in self.devices.values() {
-            if let Ok(path) = device.1.ip4_config().await {
-                if path == *ip4_config_path {
+            if let Ok(path) = device.1.ip6_config().await {
+                if path == *ip6_config_path {
                     return Some(device);
                 }
             }

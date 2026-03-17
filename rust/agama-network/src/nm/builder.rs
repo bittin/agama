@@ -21,21 +21,89 @@
 //! Conversion mechanism between proxies and model structs.
 
 use crate::{
+    model::Connection,
     nm::{
+        dbus::connection_from_dbus,
         model::NmDeviceType,
-        proxies::{DeviceProxy, IP4ConfigProxy, IP6ConfigProxy},
+        proxies::{AccessPointProxy, ConnectionProxy, DeviceProxy, IP4ConfigProxy, IP6ConfigProxy},
     },
-    types::{Device, DeviceState, DeviceType, IpConfig, IpRoute, MacAddress},
+    types::{
+        AccessPoint, ConnectionFlags, Device, DeviceState, DeviceType, IpConfig, IpRoute,
+        MacAddress, SSID,
+    },
 };
 use cidr::IpInet;
 use std::{collections::HashMap, net::IpAddr, str::FromStr};
 
 use super::{error::NmError, model::NmDeviceState};
 
+/// Builder to create a [Connection] from its corresponding NetworkManager D-Bus representation.
+pub struct ConnectionFromProxyBuilder<'a> {
+    proxy: &'a ConnectionProxy<'a>,
+}
 /// Builder to create a [Device] from its corresponding NetworkManager D-Bus representation.
 pub struct DeviceFromProxyBuilder<'a> {
     connection: zbus::Connection,
     proxy: &'a DeviceProxy<'a>,
+}
+
+/// Builder to create an [AccessPoint] from its corresponding NetworkManager D-Bus representation.
+pub struct AccessPointFromProxyBuilder<'a> {
+    device_name: String,
+    proxy: &'a AccessPointProxy<'a>,
+}
+
+impl<'a> AccessPointFromProxyBuilder<'a> {
+    pub fn new(device_name: String, proxy: &'a AccessPointProxy<'a>) -> Self {
+        Self { device_name, proxy }
+    }
+
+    /// Creates an [AccessPoint] starting on the [AccessPointProxy].
+    pub async fn build(&self) -> Result<AccessPoint, NmError> {
+        let ssid = SSID(self.proxy.ssid().await?);
+        let hw_address = self.proxy.hw_address().await?;
+        let strength = self.proxy.strength().await?;
+        let flags = self.proxy.flags().await?;
+        let rsn_flags = self.proxy.rsn_flags().await?;
+        let wpa_flags = self.proxy.wpa_flags().await?;
+
+        Ok(AccessPoint {
+            device: self.device_name.clone(),
+            ssid,
+            hw_address,
+            strength,
+            flags,
+            rsn_flags,
+            wpa_flags,
+        })
+    }
+}
+
+impl<'a> ConnectionFromProxyBuilder<'a> {
+    pub fn new(_connection: &zbus::Connection, proxy: &'a ConnectionProxy<'a>) -> Self {
+        Self { proxy }
+    }
+    /// Creates a [Connection] starting on the [ConnectionProxy].
+    pub async fn build(&self) -> Result<Connection, NmError> {
+        let flags = self.proxy.flags().await?;
+        // https://networkmanager.dev/docs/api/latest/nm-dbus-types.html#NMSettingsConnectionFlags
+        if flags & ConnectionFlags::External as u32 != 0 {
+            tracing::warn!("Skipped connection because of flags: {}", flags);
+            return Err(NmError::ConnectionHandledExternally);
+        }
+        let settings = self.proxy.get_settings().await?;
+        match connection_from_dbus(settings) {
+            Ok(mut connection) => {
+                connection.flags = flags;
+                connection.persistent = flags == 0;
+                Ok(connection)
+            }
+            Err(e) => {
+                tracing::warn!("Could not process connection: {}", e);
+                Err(e)
+            }
+        }
+    }
 }
 
 impl<'a> DeviceFromProxyBuilder<'a> {
@@ -106,6 +174,7 @@ impl<'a> DeviceFromProxyBuilder<'a> {
     ) -> Result<IpConfig, NmError> {
         let address_data = ip4_proxy.address_data().await?;
         let nameserver_data = ip4_proxy.nameserver_data().await?;
+        let mut dns_searchlist = ip4_proxy.searches().await?;
         let mut addresses: Vec<IpInet> = vec![];
         let mut nameservers: Vec<IpAddr> = vec![];
 
@@ -125,6 +194,12 @@ impl<'a> DeviceFromProxyBuilder<'a> {
         for nameserver in nameserver_data {
             if let Some(address) = self.nameserver_from_dbus(nameserver) {
                 nameservers.push(address)
+            }
+        }
+
+        for search in ip6_proxy.searches().await? {
+            if !dns_searchlist.contains(&search) {
+                dns_searchlist.push(search);
             }
         }
         // FIXME: Convert from Vec<u8> to [u8; 16] and take into account big vs little endian order,
@@ -155,6 +230,7 @@ impl<'a> DeviceFromProxyBuilder<'a> {
         let mut ip_config = IpConfig {
             addresses,
             nameservers,
+            dns_searchlist,
             routes4,
             routes6,
             ..Default::default()

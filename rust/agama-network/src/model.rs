@@ -59,7 +59,7 @@ impl Default for StateConfig {
     }
 }
 
-#[derive(Default, Clone, Debug)]
+#[derive(Default, Clone, Debug, PartialEq)]
 pub struct NetworkState {
     pub general_state: GeneralState,
     pub access_points: Vec<AccessPoint>,
@@ -296,12 +296,10 @@ impl NetworkState {
 
     /// Updates a connection with a new one.
     ///
-    /// It uses the `id` to decide which connection to update.
-    ///
-    /// Additionally, it registers the connection to be removed when the changes are applied.
+    /// It uses the `uuid` to decide which connection to update.
     pub fn update_connection(&mut self, conn: Connection) -> Result<(), NetworkStateError> {
-        let Some(old_conn) = self.get_connection_mut(&conn.id) else {
-            return Err(NetworkStateError::UnknownConnection(conn.id.clone()));
+        let Some(old_conn) = self.get_connection_by_uuid_mut(conn.uuid) else {
+            return Err(NetworkStateError::UnknownConnection(conn.uuid.to_string()));
         };
         *old_conn = conn;
 
@@ -311,12 +309,12 @@ impl NetworkState {
     /// Removes a connection from the state.
     ///
     /// Additionally, it registers the connection to be removed when the changes are applied.
-    pub fn remove_connection(&mut self, id: &str) -> Result<(), NetworkStateError> {
-        let Some(conn) = self.get_connection_mut(id) else {
-            return Err(NetworkStateError::UnknownConnection(id.to_string()));
+    pub fn remove_connection(&mut self, uuid: Uuid) -> Result<(), NetworkStateError> {
+        let Some(position) = self.connections.iter().position(|d| d.uuid == uuid) else {
+            return Err(NetworkStateError::UnknownConnection(uuid.to_string()));
         };
 
-        conn.remove();
+        self.connections.remove(position);
         Ok(())
     }
 
@@ -340,6 +338,34 @@ impl NetworkState {
         };
 
         self.devices.remove(position);
+        Ok(())
+    }
+
+    pub fn add_access_point(&mut self, ap: AccessPoint) -> Result<(), NetworkStateError> {
+        if let Some(position) = self
+            .access_points
+            .iter()
+            .position(|a| a.hw_address == ap.hw_address)
+        {
+            self.access_points.remove(position);
+        }
+        self.access_points.push(ap);
+
+        Ok(())
+    }
+
+    pub fn remove_access_point(&mut self, hw_address: &str) -> Result<(), NetworkStateError> {
+        let Some(position) = self
+            .access_points
+            .iter()
+            .position(|a| a.hw_address == hw_address)
+        else {
+            return Err(NetworkStateError::UnknownAccessPoint(
+                hw_address.to_string(),
+            ));
+        };
+
+        self.access_points.remove(position);
         Ok(())
     }
 
@@ -417,22 +443,23 @@ mod tests {
     #[test]
     fn test_update_connection() {
         let mut state = NetworkState::default();
-        let conn0 = Connection {
-            id: "eth0".to_string(),
-            uuid: Uuid::new_v4(),
-            ..Default::default()
-        };
-        state.add_connection(conn0).unwrap();
-
         let uuid = Uuid::new_v4();
-        let conn1 = Connection {
+        let conn0 = Connection {
             id: "eth0".to_string(),
             uuid,
             ..Default::default()
         };
+        state.add_connection(conn0).unwrap();
+
+        let conn1 = Connection {
+            id: "eth0".to_string(),
+            uuid,
+            firewall_zone: Some("public".to_string()),
+            ..Default::default()
+        };
         state.update_connection(conn1).unwrap();
-        let found = state.get_connection("eth0").unwrap();
-        assert_eq!(found.uuid, uuid);
+        let found = state.get_connection_by_uuid(uuid).unwrap();
+        assert_eq!(found.firewall_zone, Some("public".to_string()));
     }
 
     #[test]
@@ -446,18 +473,75 @@ mod tests {
     #[test]
     fn test_remove_connection() {
         let mut state = NetworkState::default();
-        let conn0 = Connection::new("eth0".to_string(), DeviceType::Ethernet);
+        let uuid = Uuid::new_v4();
+        let conn0 = Connection {
+            id: "eth0".to_string(),
+            uuid,
+            ..Default::default()
+        };
         state.add_connection(conn0).unwrap();
-        state.remove_connection("eth0".as_ref()).unwrap();
-        let found = state.get_connection("eth0").unwrap();
-        assert!(found.is_removed());
+        state.remove_connection(uuid).unwrap();
+        let found = state.get_connection_by_uuid(uuid);
+        assert!(found.is_none());
     }
 
     #[test]
     fn test_remove_unknown_connection() {
         let mut state = NetworkState::default();
-        let error = state.remove_connection("unknown".as_ref()).unwrap_err();
+        let uuid = Uuid::new_v4();
+        let error = state.remove_connection(uuid).unwrap_err();
         assert!(matches!(error, NetworkStateError::UnknownConnection(_)));
+    }
+
+    #[test]
+    fn test_remove_device() {
+        let mut state = NetworkState::default();
+        let device = Device {
+            name: "eth0".to_string(),
+            ..Default::default()
+        };
+        state.add_device(device).unwrap();
+        state.remove_device("eth0").unwrap();
+        assert!(state.get_device("eth0").is_none());
+    }
+
+    #[test]
+    fn test_add_access_point() {
+        let mut state = NetworkState::default();
+        let ap = AccessPoint {
+            hw_address: "AA:BB:CC:DD:EE:FF".to_string(),
+            ssid: SSID(b"test".to_vec()),
+            ..Default::default()
+        };
+        state.add_access_point(ap.clone()).unwrap();
+        assert_eq!(state.access_points.len(), 1);
+        assert_eq!(state.access_points[0].hw_address, "AA:BB:CC:DD:EE:FF");
+
+        // Adding same AP should replace it (in our implementation we remove and push)
+        let mut ap2 = ap.clone();
+        ap2.strength = 80;
+        state.add_access_point(ap2).unwrap();
+        assert_eq!(state.access_points.len(), 1);
+        assert_eq!(state.access_points[0].strength, 80);
+    }
+
+    #[test]
+    fn test_remove_access_point() {
+        let mut state = NetworkState::default();
+        let ap = AccessPoint {
+            hw_address: "AA:BB:CC:DD:EE:FF".to_string(),
+            ..Default::default()
+        };
+        state.add_access_point(ap).unwrap();
+        state.remove_access_point("AA:BB:CC:DD:EE:FF").unwrap();
+        assert_eq!(state.access_points.len(), 0);
+    }
+
+    #[test]
+    fn test_remove_unknown_access_point() {
+        let mut state = NetworkState::default();
+        let error = state.remove_access_point("unknown").unwrap_err();
+        assert!(matches!(error, NetworkStateError::UnknownAccessPoint(_)));
     }
 
     #[test]
@@ -571,7 +655,7 @@ mod tests {
 pub const NOT_COPY_NETWORK_PATH: &str = "/run/agama/not_copy_network";
 
 /// Network state
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct GeneralState {
     pub hostname: String,
     pub connectivity: bool,
@@ -583,7 +667,7 @@ pub struct GeneralState {
 /// Represents a known network connection.
 #[serde_as]
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, utoipa::ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct Connection {
     pub id: String,
@@ -831,7 +915,7 @@ impl TryFrom<Connection> for NetworkConnection {
     }
 }
 
-#[derive(Default, Debug, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Default, Debug, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub enum ConnectionConfig {
     #[default]
     Ethernet,
@@ -848,7 +932,7 @@ pub enum ConnectionConfig {
     OvsInterface(OvsInterfaceConfig),
 }
 
-#[derive(Default, Debug, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Default, Debug, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub enum PortConfig {
     #[default]
     None,
@@ -881,7 +965,7 @@ impl From<WirelessConfig> for ConnectionConfig {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Default, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub struct MatchConfig {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub driver: Vec<String>,
@@ -893,7 +977,7 @@ pub struct MatchConfig {
     pub kernel: Vec<String>,
 }
 
-#[derive(Debug, Default, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub enum VlanProtocol {
     #[default]
     IEEE802_1Q,
@@ -926,7 +1010,7 @@ impl fmt::Display for VlanProtocol {
     }
 }
 
-#[derive(Debug, Default, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub struct VlanConfig {
     pub parent: String,
     pub id: u32,
@@ -934,7 +1018,7 @@ pub struct VlanConfig {
 }
 
 #[serde_as]
-#[derive(Debug, Default, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct WirelessConfig {
     pub mode: WirelessMode,
@@ -1111,7 +1195,7 @@ impl TryFrom<WirelessConfig> for WirelessSettings {
     }
 }
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Deserialize, Serialize, utoipa::ToSchema)]
 pub enum WirelessMode {
     Unknown = 0,
     AdHoc = 1,
@@ -1149,7 +1233,7 @@ impl fmt::Display for WirelessMode {
     }
 }
 
-#[derive(Debug, Clone, Copy, Default, PartialEq, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Deserialize, Serialize, utoipa::ToSchema)]
 pub enum SecurityProtocol {
     #[default]
     WEP, // No encryption or WEP ("none")
@@ -1195,7 +1279,7 @@ impl TryFrom<&str> for SecurityProtocol {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize, utoipa::ToSchema)]
 pub enum GroupAlgorithm {
     Wep40,
     Wep104,
@@ -1233,7 +1317,7 @@ impl fmt::Display for GroupAlgorithm {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize, utoipa::ToSchema)]
 pub enum PairwiseAlgorithm {
     Tkip,
     Ccmp,
@@ -1265,7 +1349,7 @@ impl fmt::Display for PairwiseAlgorithm {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize, utoipa::ToSchema)]
 pub enum WPAProtocolVersion {
     Wpa,
     Rsn,
@@ -1297,7 +1381,7 @@ impl fmt::Display for WPAProtocolVersion {
     }
 }
 
-#[derive(Debug, Default, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub struct WEPSecurity {
     pub auth_alg: WEPAuthAlg,
     pub wep_key_type: WEPKeyType,
@@ -1306,7 +1390,7 @@ pub struct WEPSecurity {
     pub wep_key_index: u32,
 }
 
-#[derive(Debug, Default, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub enum WEPKeyType {
     #[default]
     Unknown = 0,
@@ -1327,7 +1411,7 @@ impl TryFrom<u32> for WEPKeyType {
     }
 }
 
-#[derive(Debug, Default, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub enum WEPAuthAlg {
     #[default]
     Unset,
@@ -1362,7 +1446,7 @@ impl fmt::Display for WEPAuthAlg {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize, utoipa::ToSchema)]
 pub enum WirelessBand {
     A,  // 5GHz
     BG, // 2.4GHz
@@ -1390,7 +1474,7 @@ impl TryFrom<&str> for WirelessBand {
     }
 }
 
-#[derive(Debug, Default, Clone, PartialEq, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize, utoipa::ToSchema)]
 pub struct BondOptions(pub HashMap<String, String>);
 
 impl TryFrom<&str> for BondOptions {
@@ -1423,7 +1507,7 @@ impl fmt::Display for BondOptions {
     }
 }
 
-#[derive(Debug, Default, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub struct BondConfig {
     pub mode: BondMode,
     pub options: BondOptions,
@@ -1606,7 +1690,7 @@ impl TryFrom<BondConfig> for BondSettings {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Default, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub struct BridgeConfig {
     pub stp: Option<bool>,
     pub priority: Option<u32>,
@@ -1659,7 +1743,7 @@ impl TryFrom<BridgeConfig> for BridgeSettings {
         })
     }
 }
-#[derive(Debug, Default, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub struct BridgePortConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub priority: Option<u32>,
@@ -1667,14 +1751,14 @@ pub struct BridgePortConfig {
     pub path_cost: Option<u32>,
 }
 
-#[derive(Default, Debug, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Default, Debug, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub struct InfinibandConfig {
     pub p_key: Option<i32>,
     pub parent: Option<String>,
     pub transport_mode: InfinibandTransportMode,
 }
 
-#[derive(Default, Debug, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Default, Debug, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub enum InfinibandTransportMode {
     #[default]
     Datagram,
@@ -1707,14 +1791,14 @@ impl fmt::Display for InfinibandTransportMode {
     }
 }
 
-#[derive(Default, Debug, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Default, Debug, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub enum TunMode {
     #[default]
     Tun = 1,
     Tap = 2,
 }
 
-#[derive(Default, Debug, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Default, Debug, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub struct TunConfig {
     pub mode: TunMode,
     pub group: Option<String>,
@@ -1725,6 +1809,8 @@ pub struct TunConfig {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub enum NetworkChange {
+    ConnectionAdded(Box<Connection>),
+    ConnectionRemoved(Uuid),
     /// A new device has been added.
     DeviceAdded(Device),
     /// A device has been removed.
@@ -1734,10 +1820,17 @@ pub enum NetworkChange {
     /// device gets renamed.
     DeviceUpdated(String, Device),
     /// A connection state has changed.
-    ConnectionStateChanged { id: String, state: ConnectionState },
+    ConnectionStateChanged {
+        uuid: Uuid,
+        state: ConnectionState,
+    },
+    /// A new access point has been added.
+    AccessPointAdded(AccessPoint),
+    /// An access point has been removed.
+    AccessPointRemoved(String),
 }
 
-#[derive(Default, Debug, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Default, Debug, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub struct IEEE8021XConfig {
     pub eap: Vec<EAPMethod>,
     pub phase2_auth: Option<Phase2AuthMethod>,
@@ -1826,7 +1919,7 @@ impl TryFrom<IEEE8021XConfig> for IEEE8021XSettings {
 #[error("Invalid eap method: {0}")]
 pub struct InvalidEAPMethod(String);
 
-#[derive(Debug, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Debug, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub enum EAPMethod {
     LEAP,
     MD5,
@@ -1873,7 +1966,7 @@ impl fmt::Display for EAPMethod {
 #[error("Invalid phase2-auth method: {0}")]
 pub struct InvalidPhase2AuthMethod(String);
 
-#[derive(Debug, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Debug, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub enum Phase2AuthMethod {
     PAP,
     CHAP,
@@ -1919,14 +2012,14 @@ impl fmt::Display for Phase2AuthMethod {
     }
 }
 
-#[derive(Debug, Default, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub struct OvsBridgeConfig {
     pub mcast_snooping_enable: Option<bool>,
     pub rstp_enable: Option<bool>,
     pub stp_enable: Option<bool>,
 }
 
-#[derive(Debug, Default, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub struct OvsPortConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tag: Option<u16>,
@@ -1969,7 +2062,7 @@ impl fmt::Display for OvsInterfaceType {
         write!(f, "{}", value)
     }
 }
-#[derive(Default, Debug, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Default, Debug, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub enum OvsInterfaceType {
     #[default]
     Empty,
@@ -1979,10 +2072,10 @@ pub enum OvsInterfaceType {
     Dpdk,
 }
 
-#[derive(Debug, Default, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub struct OvsInterfaceConfig {
     pub interface_type: OvsInterfaceType,
 }
 
-#[derive(Debug, Default, PartialEq, Clone, Serialize, utoipa::ToSchema)]
+#[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema)]
 pub struct OvsBridgePortConfig {}

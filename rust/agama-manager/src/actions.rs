@@ -284,6 +284,12 @@ impl SetConfigAction {
             self.progress
                 .call(progress::message::Next::new(Scope::Manager))
                 .await?;
+            // Ensure storage was already probed before configuring s390. Otherwise, probing could
+            // fail later if DASD is formatting in a background process (bsc#1259354).
+            let storage_system = self.storage.call(storage::message::GetSystem).await?;
+            if storage_system.is_none() {
+                self.storage.call(storage::message::Probe).await?
+            }
             s390.call(s390::message::SetConfig::new(config.s390.clone()))
                 .await?;
         }

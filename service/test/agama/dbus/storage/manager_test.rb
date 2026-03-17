@@ -28,6 +28,7 @@ require "agama/storage/manager"
 require "agama/storage/proposal"
 require "agama/storage/proposal_settings"
 require "agama/storage/volume"
+require "agama/task_runner"
 require "y2storage"
 require "dbus"
 
@@ -42,9 +43,11 @@ end
 describe Agama::DBus::Storage::Manager do
   include Agama::RSpec::StorageHelpers
 
-  subject(:manager) { described_class.new(backend, logger: logger) }
+  subject(:manager) { described_class.new(backend, task_runner, logger: logger) }
 
   let(:backend) { Agama::Storage::Manager.new }
+
+  let(:task_runner) { Agama::TaskRunner.new }
 
   let(:logger) { Logger.new($stdout, level: :warn) }
 
@@ -58,6 +61,8 @@ describe Agama::DBus::Storage::Manager do
 
   before do
     allow_any_instance_of(DBus::Object).to receive(:emit)
+    allow(Agama::TaskRunner).to receive(:new).and_return(task_runner)
+    allow(task_runner).to receive(:run).and_yield
     # Speed up tests by avoiding real check of TPM presence.
     allow(Y2Storage::EncryptionMethod::TPM_FDE).to receive(:possible?).and_return(true)
     # Speed up tests by avoiding looking up by name in the system
@@ -656,7 +661,7 @@ describe Agama::DBus::Storage::Manager do
       context "when storage devices are not activated and probed" do
         before do
           allow(backend).to receive(:activated?).and_return(false, true)
-          allow(backend).to receive(:probed?).and_return(false, true)
+          allow(backend).to receive(:probed?).and_return(false, false, true)
         end
 
         context "if the product configuration has changed" do

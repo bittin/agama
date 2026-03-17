@@ -30,10 +30,6 @@ import type { Device } from "~/model/system/dasd";
 let mockDASDDevices: Device[] = [];
 const mockAddOrUpdateDevices = jest.fn();
 
-jest.mock("~/components/storage/dasd/FormatActionHandler", () => () => (
-  <div>FormatActionHandler Mock</div>
-));
-
 jest.mock("~/hooks/model/config/dasd", () => ({
   useAddOrUpdateDevices: () => mockAddOrUpdateDevices,
 }));
@@ -130,7 +126,8 @@ describe("DASDTable", () => {
       await user.click(selection);
       const button = screen.getByRole("button", { name: "Format" });
       await user.click(button);
-      screen.getByText("FormatActionHandler Mock");
+      // Mount FormatActionHandler
+      screen.getByRole("dialog", { name: "Format device 0.0.0200" });
     });
   });
 
@@ -317,6 +314,30 @@ describe("DASDTable", () => {
     });
 
     describe("bulk actions", () => {
+      // Regression test: ensures bulk actions has a fresh copy of devices even
+      // after user makin individual actions after selection.
+      it("uses fresh device state when acting on a selection after devices prop updates", async () => {
+        const { user, rerender } = installerRender(<DASDTable devices={mockDASDDevices} />);
+
+        // Select the first device (offline, active: false)
+        await user.click(screen.getByRole("checkbox", { name: "Select row 0" }));
+        const formatButton = screen.getByRole("button", { name: "Format" });
+        await user.click(formatButton);
+
+        // Mount FormatActionHandler
+        screen.getByRole("dialog", { name: "Cannot format 0.0.0160" });
+
+        // Simulate an external state change: device 0.0.0160 becomes active
+        const updatedDevices = mockDASDDevices.map((d) =>
+          d.channel === "0.0.0160" ? { ...d, active: true, status: "active" as const } : d,
+        );
+        rerender(<DASDTable devices={updatedDevices} />);
+
+        await user.click(formatButton);
+
+        screen.getByRole("dialog", { name: "Format device 0.0.0160" });
+      });
+
       it("calls addOrUpdateDevices for all selected devices on activate", async () => {
         const { user } = installerRender(<DASDTable devices={mockDASDDevices} />);
         await user.click(screen.getByRole("checkbox", { name: "Select row 0" }));
@@ -366,7 +387,8 @@ describe("DASDTable", () => {
         await user.click(screen.getByRole("checkbox", { name: "Select row 0" }));
         await user.click(screen.getByRole("checkbox", { name: "Select row 1" }));
         await user.click(screen.getByRole("button", { name: "Format" }));
-        screen.getByText("FormatActionHandler Mock");
+        // Mount FormatActionHandler
+        screen.getByRole("dialog", { name: "Cannot format all the selected devices" });
       });
     });
   });

@@ -44,7 +44,7 @@ import { _, N_ } from "~/i18n";
 import { useCheckLunScan } from "~/hooks/model/system/zfcp";
 import { useAddDevices, useRemoveDevices, useConfig } from "~/hooks/model/config/zfcp";
 import type { ZFCP as System } from "~/model/system";
-import type { Config } from "~/model/config/zfcp";
+import type { ZFCP as Config } from "~/model/config";
 import type { CheckLunScanFn } from "~/hooks/model/system/zfcp";
 import type { AddDevicesFn, RemoveDevicesFn } from "~/hooks/model/config/zfcp";
 
@@ -211,19 +211,14 @@ const FiltersToolbar = ({
  */
 const buildActions = (
   device: System.Device,
-  config: Config,
+  config: Config.Device | null,
   addDevices: AddDevicesFn,
   removeDevices: RemoveDevicesFn,
   checkLunScan: CheckLunScanFn,
 ) => {
-  const deviceConfig = config.devices?.find(
-    (c) => c.channel === device.channel && c.wwpn === device.wwpn && device.lun === c.lun,
-  );
+  const failedActivate = config && (config.active === undefined || config.active) && !device.active;
 
-  const failedActivate =
-    deviceConfig && (deviceConfig.active === undefined || deviceConfig.active) && !device.active;
-
-  const failedDeactivate = deviceConfig && deviceConfig.active === false && device.active;
+  const failedDeactivate = config && config.active === false && device.active;
 
   const actions = [
     {
@@ -338,7 +333,8 @@ const createColumns = (checkLunScan: CheckLunScanFn) => [
   {
     // TRANSLATORS: table header for a zFCP devices table.
     name: _("Status"),
-    value: (d: System.Device) => STATUS_OPTIONS[d.active ? "activated" : "deactivated"],
+    // eslint-disable-next-line agama-i18n/string-literals
+    value: (d: System.Device) => _(STATUS_OPTIONS[d.active ? "activated" : "deactivated"]),
     sortingKey: "active",
   },
   {
@@ -389,6 +385,12 @@ export default function ZFCPDevicesTable({ devices }: ZFCPDevicesTableProps): Re
   const sortingKey = columns[state.sortedBy.index].sortingKey;
   const sortedDevices = sortCollection(filteredDevices, state.sortedBy.direction, sortingKey);
 
+  const deviceConfig = (device: System.Device): Config.Device | null => {
+    return config?.devices?.find(
+      (c) => c.channel === device.channel && c.wwpn === device.wwpn && device.lun === c.lun,
+    );
+  };
+
   return (
     <Content>
       <FiltersToolbar
@@ -410,7 +412,7 @@ export default function ZFCPDevicesTable({ devices }: ZFCPDevicesTableProps): Re
         sortedBy={state.sortedBy}
         updateSorting={onSortingChange}
         itemActions={(device: System.Device) =>
-          buildActions(device, config, addDevices, removeDevices, checkLunScan)
+          buildActions(device, deviceConfig(device), addDevices, removeDevices, checkLunScan)
         }
         itemActionsLabel={(d: System.Device) => `Actions for ${d.lun}`}
         emptyState={

@@ -74,7 +74,7 @@ the trick.
 > root password!
 
 If you have troubles or you want to know more about this feature, check our [Remote
-access](https://agama-project.github.io/docs/user/remote) documentation.
+access](https://agama-project.github.io/docs/user/guides/remote) documentation.
 
 ## Other Resources
 

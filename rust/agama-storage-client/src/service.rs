@@ -223,7 +223,7 @@ impl MessageHandler<message::SetStorageConfig> for Service {
         message: message::SetStorageConfig,
     ) -> Result<BoxFuture<Result<(), Error>>, Error> {
         let proxy = self.storage_proxy.clone();
-        let result = run_in_background(async move {
+        let response = run_in_background(async move {
             let product = message.product.read().await;
             let product_json = serde_json::to_string(&*product)?;
             let config = message.config.filter(|c| c.has_value());
@@ -232,7 +232,7 @@ impl MessageHandler<message::SetStorageConfig> for Service {
             Ok(())
         });
         Ok(Box::pin(async move {
-            result
+            response
                 .await
                 .map_err(|_| Error::Actor(actor::Error::Response(Self::name())))?
         }))
@@ -396,7 +396,7 @@ impl MessageHandler<message::zfcp::GetIssues> for Service {
             return Ok(vec![]);
         };
 
-        let raw_json = proxy.system().await?;
+        let raw_json = proxy.issues().await?;
         Ok(try_from_string(&raw_json)?)
     }
 }
@@ -419,6 +419,9 @@ where
     let (tx, rx) = oneshot::channel::<Result<(), Error>>();
     tokio::spawn(async move {
         let result = func.await;
+        if let Err(error) = &result {
+            tracing::error!("Failed to run background action: {error}");
+        }
         _ = tx.send(result);
     });
     rx

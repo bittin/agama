@@ -38,7 +38,6 @@ import {
 } from "@patternfly/react-core";
 import Icon from "~/components/layout/Icon";
 import Text from "~/components/core/Text";
-import Popup from "~/components/core/Popup";
 import FormatActionHandler from "~/components/storage/dasd/FormatActionHandler";
 import SelectableDataTable, { SortedBy } from "~/components/core/SelectableDataTable";
 import TextinputFilter from "~/components/storage/dasd/TextinputFilter";
@@ -444,11 +443,9 @@ type DASDTableState = {
   /** Current active filters applied to the device list */
   filters: DASDDevicesFilters;
   /** Currently selected devices in the UI */
-  selectedDevices: Device[];
+  selectedDevices: Device["channel"][];
   /** Devices selected for formatting */
   devicesToFormat: Device[];
-  /** Device IDs currently undergoing an async operation */
-  waitingFor: Device["channel"][];
 };
 
 /**
@@ -469,7 +466,6 @@ const initialState: DASDTableState = {
   },
   selectedDevices: [],
   devicesToFormat: [],
-  waitingFor: [],
 };
 
 /**
@@ -519,16 +515,6 @@ const reducer = (state: DASDTableState, action: DASDTableAction): DASDTableState
     case "CANCEL_FORMAT_REQUEST": {
       return { ...state, devicesToFormat: [] };
     }
-
-    case "UPDATE_DEVICE": {
-      const selectedDevices = state.selectedDevices.map((dev) =>
-        action.payload.channel === dev.channel ? action.payload : dev,
-      );
-      const devicesToFormat = state.devicesToFormat.map((dev) =>
-        action.payload.channel === dev.channel ? action.payload : dev,
-      );
-      return { ...state, selectedDevices, devicesToFormat };
-    }
   }
 };
 
@@ -548,7 +534,8 @@ const createColumns = () => [
   {
     // TRANSLATORS: table header for a DASD devices table
     name: _("Status"),
-    value: (d: Device) => STATUS_OPTIONS[d.status],
+    // eslint-disable-next-line agama-i18n/string-literals
+    value: (d: Device) => _(STATUS_OPTIONS[d.status]),
     sortingKey: "status",
   },
   {
@@ -616,7 +603,7 @@ export default function DASDTable({ devices }) {
   };
 
   const onSelectionChange = (devices: Device[]) => {
-    dispatch({ type: "UPDATE_SELECTION", payload: devices });
+    dispatch({ type: "UPDATE_SELECTION", payload: devices.map((d) => d.channel) });
   };
 
   const resetFilters = () => dispatch({ type: "RESET_FILTERS" });
@@ -632,18 +619,10 @@ export default function DASDTable({ devices }) {
     ...new Set(devices.map((d: Device) => d.status)),
   ] as Device["status"][];
 
+  const selectedDevices = devices.filter((d) => state.selectedDevices.includes(d.channel));
+
   return (
     <Content>
-      {!isEmpty(state.waitingFor) && (
-        <Popup isOpen title={_("Applying changes")} disableFocusTrap>
-          <Content component="p" isEditorial>
-            {_("This may take a moment while updates complete.")}
-          </Content>
-          <Content component="p">
-            {_("This message will close automatically when everything is done.")}
-          </Content>
-        </Popup>
-      )}
       <FiltersToolbar
         filters={state.filters}
         availableStatuses={availableStatuses}
@@ -657,7 +636,7 @@ export default function DASDTable({ devices }) {
         <>
           <Divider />
           <BulkActionsToolbar
-            devices={state.selectedDevices}
+            devices={selectedDevices}
             addOrUpdateDevices={addOrUpdateDevices}
             dispatcher={dispatch}
           />
@@ -684,7 +663,7 @@ export default function DASDTable({ devices }) {
         items={sortedDevices}
         itemIdKey="channel"
         selectionMode="multiple"
-        itemsSelected={state.selectedDevices}
+        itemsSelected={selectedDevices}
         variant="compact"
         onSelectionChange={onSelectionChange}
         sortedBy={state.sortedBy}
