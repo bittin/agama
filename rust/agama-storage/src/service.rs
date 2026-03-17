@@ -99,8 +99,7 @@ impl Starter {
                 self.events,
                 self.connection,
                 storage_client,
-            )
-            .await;
+            );
             monitor::spawn(monitor)?;
         }
         Ok(handler)

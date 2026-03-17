@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Mar 17 07:09:37 UTC 2026 - José Iván López González <jlopez@suse.com>
+
+- Ensure the list of storage issues is correctly updated
+  (gh#agama-project/agama#3291).
+
+-------------------------------------------------------------------
 Tue Mar 17 07:00:30 UTC 2026 - Josef Reidinger <jreidinger@suse.com>
 
 - fix the ssh keys for first user (gh#agama-project/agama#3290)

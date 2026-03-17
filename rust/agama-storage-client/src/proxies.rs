@@ -18,7 +18,7 @@
 // To contact SUSE LLC about this file by physical or electronic mail, you may
 // find current contact information at www.suse.com.
 
-mod storage1;
+pub mod storage1;
 pub use storage1::Storage1Proxy;
 
 mod bootloader;

@@ -380,6 +380,7 @@ dependencies = [
  "tokio",
  "tokio-stream",
  "tokio-test",
+ "tracing",
  "zbus",
 ]
 
