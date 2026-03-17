@@ -212,7 +212,13 @@ EOS
 (
   cd $MYDIR/rust/share
   for SVC in agama*.service; do
-    sudosed "s@\(ExecStart\)=/usr/bin/@\1=$MYDIR/rust/target/debug/@" \
+    # the web server uses a wrapper script from a different directory
+    if [ "$SVC" = "agama-web-server.service" ]; then
+      TARGET=rust/share
+    else
+      TARGET=rust/target/debug
+    fi
+    sudosed "s@\(ExecStart\)=/usr/bin/@\1=$MYDIR/$TARGET/@" \
       $SVC /usr/lib/systemd/system/$SVC
   done
 )
