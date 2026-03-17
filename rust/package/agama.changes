@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Mar 17 07:00:30 UTC 2026 - Josef Reidinger <jreidinger@suse.com>
+
+- fix the ssh keys for first user (gh#agama-project/agama#3290)
+
+-------------------------------------------------------------------
 Mon Mar 16 16:52:49 UTC 2026 - José Iván López González <jlopez@suse.com>
 
 - Ensure storage system is probed before configuring DASD
