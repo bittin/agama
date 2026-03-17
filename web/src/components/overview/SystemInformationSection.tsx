@@ -40,6 +40,7 @@ import { useSystem } from "~/hooks/model/system";
 import { _ } from "~/i18n";
 
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
+import { isEmpty } from "radashi";
 
 type ItemProps = {
   /** The label/term for this field */
@@ -63,7 +64,9 @@ const Item = ({ label, children, termProps = {}, descriptionProps = {} }: ItemPr
     <DescriptionListGroup>
       <DescriptionListTerm {...termProps}>{label}</DescriptionListTerm>
       <DescriptionListDescription {...descriptionProps}>
-        <small className={textStyles.textColorSubtle}>{children}</small>
+        <small className={textStyles.textColorSubtle}>
+          {isEmpty(children) ? _("Unknown") : children}
+        </small>
       </DescriptionListDescription>
     </DescriptionListGroup>
   );
