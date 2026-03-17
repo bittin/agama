@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Mar 17 12:15:23 UTC 2026 - Imobach Gonzalez Sosa <igonzalezsosa@suse.com>
+
+- Version 19
+
+-------------------------------------------------------------------
 Mon Mar 16 17:06:05 UTC 2026 - David Diaz <dgonzalez@suse.com>
 
 - Prevent bulk selection using stale data (gh#agama-project/agama#3289).
