@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Mar 17 17:07:58 UTC 2026 - David Diaz <dgonzalez@suse.com>
+
+- Show "Unknown" for missing hardware fields
+  (gh#agama-project/agama#3294).
+
+-------------------------------------------------------------------
 Tue Mar 17 12:15:23 UTC 2026 - Imobach Gonzalez Sosa <igonzalezsosa@suse.com>
 
 - Version 19
