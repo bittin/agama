@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE profile>
+<profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
+  <software>
+    <products config:type="list">
+      <product>Tumbleweed</product>
+    </products>
+    <patterns config:type="list">
+      <pattern>enhanced_base</pattern>
+    </patterns>
+  </software>
+
+  <language>
+    <language>es_ES.UTF-8</language>
+    <languages></languages>
+  </language>
+
+  <timezone>
+    <timezone>Atlantic/Canary</timezone>
+  </timezone>
+
+  <keyboard>
+    <keymap></keymap>
+  </keyboard>
+
+  <partitioning t="list">
+    <drive t="map">
+      <device>/dev/system</device>
+      <enable_snapshots t="boolean">true</enable_snapshots>
+      <partitions t="list">
+        <partition t="map">
+          <create t="boolean">true</create>
+          <create_subvolumes t="boolean">true</create_subvolumes>
+          <filesystem t="symbol">btrfs</filesystem>
+          <format t="boolean">true</format>
+          <subvolumes_prefix><![CDATA[]]></subvolumes_prefix>
+        </partition>
+      </partitions>
+    </drive>
+  </partitioning>
+
+  <users config:type="list">
+    <user>
+      <username>root</username>
+      <encrypted config:type="boolean">false</encrypted>
+      <user_password></user_password>
+      <authorized_keys config:type="list">
+        <listentry>ssh-rsa ...</listentry>
+      </authorized_keys>
+    </user>
+    <user>
+      <username>jane</username>
+      <uid>1000</uid>
+      <fullname>Jane Doe</fullname>
+      <encrypted config:type="boolean">false</encrypted>
+      <user_password>12345678</user_password>
+    </user>
+  </users>
+</profile>
