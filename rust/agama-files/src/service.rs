@@ -26,13 +26,18 @@ use std::{
 use agama_software::{self as software, Resolvable, ResolvableType};
 use agama_utils::{
     actor::{self, Actor, Handler, MessageHandler},
-    api::files::{
-        scripts::{self, ScriptsGroup, ScriptsRepository},
-        user_file, ScriptsConfig, UserFile,
+    api::{
+        files::{
+            scripts::{self, ScriptsGroup, ScriptsRepository},
+            user_file, Script, ScriptsConfig, UserFile,
+        },
+        question::QuestionSpec,
     },
-    progress, question,
+    progress,
+    question::{self, ask_question, AskError},
 };
 use async_trait::async_trait;
+use gettextrs::gettext;
 use strum::IntoEnumIterator;
 use tokio::sync::Mutex;
 
@@ -48,6 +53,8 @@ pub enum Error {
     Software(#[from] software::service::Error),
     #[error(transparent)]
     Actor(#[from] actor::Error),
+    #[error(transparent)]
+    Questions(#[from] AskError),
 }
 
 const DEFAULT_SCRIPTS_DIR: &str = "run/agama/scripts";
@@ -142,29 +149,28 @@ impl Service {
     }
 
     pub async fn add_scripts(&mut self, config: ScriptsConfig) -> Result<(), Error> {
-        let mut repo = self.scripts.lock().await;
         if let Some(scripts) = config.pre {
             for pre in scripts {
-                repo.add(pre.into())?;
+                self.add_script(pre.into()).await?;
             }
         }
 
         if let Some(scripts) = config.post_partitioning {
             for post in scripts {
-                repo.add(post.into())?;
+                self.add_script(post.into()).await?;
             }
         }
 
         if let Some(scripts) = config.post {
             for post in scripts {
-                repo.add(post.into())?;
+                self.add_script(post.into()).await?;
             }
         }
 
         let mut packages = vec![];
         if let Some(scripts) = config.init {
             for init in scripts {
-                repo.add(init.into())?;
+                self.add_script(init.into()).await?;
             }
             packages.push(Resolvable::new("agama-scripts", ResolvableType::Package));
         }
@@ -174,6 +180,59 @@ impl Service {
                 packages,
             ))
             .await?;
+        Ok(())
+    }
+
+    async fn add_script(&self, script: Script) -> Result<(), Error> {
+        let result = {
+            let mut repo = self.scripts.lock().await;
+            repo.add(script.clone())
+        };
+
+        let mut attempt = 1;
+        while let Err(error) = &result {
+            tracing::error!("Failed to write the script {}: {error}.", script.name());
+
+            // TRANSLATORS: %s is replaced by the script name.
+            let text = &gettext("Failed to retrieve the script %s. Do you want to try again?")
+                .replace("%s", script.name());
+            let question = QuestionSpec::new(text, "write_script_failed")
+                .with_yes_no_actions()
+                .with_data(&[
+                    ("attempt", &attempt.to_string()),
+                    ("details", &error.to_string()),
+                ]);
+            let answer = ask_question(&self.questions, question).await?;
+            if answer.action == "No" {
+                return Ok(());
+            }
+            attempt += 1;
+        }
+
+        Ok(())
+    }
+
+    async fn write_file(&self, file: &UserFile) -> Result<(), Error> {
+        let mut attempt = 1;
+        while let Err(error) = file.write(&self.install_dir).await {
+            tracing::error!("Failed to write the file {}: {error}.", file.destination);
+
+            // TRANSLATORS: %s is replaced by the script name.
+            let text = &gettext("Failed to write the file %s. Do you want to try again?")
+                .replace("%s", &file.destination);
+            let question = QuestionSpec::new(text, "write_file_failed")
+                .with_yes_no_actions()
+                .with_data(&[
+                    ("attempt", &attempt.to_string()),
+                    ("details", &error.to_string()),
+                ]);
+            let answer = ask_question(&self.questions, question).await?;
+            if answer.action == "No" {
+                return Ok(());
+            }
+            attempt += 1;
+        }
+
         Ok(())
     }
 }
@@ -237,9 +296,7 @@ impl MessageHandler<message::RunScripts> for Service {
 impl MessageHandler<message::WriteFiles> for Service {
     async fn handle(&mut self, _message: message::WriteFiles) -> Result<(), Error> {
         for file in &self.files {
-            if let Err(error) = file.write(&self.install_dir).await {
-                tracing::error!("Failed to write file {}: {error}", file.destination);
-            }
+            self.write_file(file).await?;
         }
         Ok(())
     }

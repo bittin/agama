@@ -71,6 +71,7 @@ dependencies = [
  "agama-software",
  "agama-utils",
  "async-trait",
+ "gettext-rs",
  "serde_json",
  "strum",
  "tempfile",

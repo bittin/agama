@@ -8,6 +8,7 @@ edition.workspace = true
 agama-software = { version = "0.1.0", path = "../agama-software" }
 agama-utils = { path = "../agama-utils" }
 async-trait = "0.1.89"
+gettext-rs = { version = "0.7.7", features = ["gettext-system"] }
 strum = "0.27.2"
 tempfile = "3.23.0"
 thiserror = "2.0.17"
