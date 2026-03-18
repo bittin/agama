@@ -21,19 +21,17 @@
  */
 
 import React from "react";
+import xbytes from "xbytes";
+import { isEmpty } from "radashi";
 import {
   Card,
   CardBody,
   CardTitle,
   DescriptionList,
+  DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  DescriptionListDescription,
-  Flex,
-  DescriptionListTermProps,
-  DescriptionListDescriptionProps,
 } from "@patternfly/react-core";
-import xbytes from "xbytes";
 import FormattedIPsList from "~/components/network/FormattedIpsList";
 import NestedContent from "~/components/core/NestedContent";
 import { useSystem } from "~/hooks/model/system";
@@ -43,32 +41,44 @@ import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 
 type ItemProps = {
   /** The label/term for this field */
-  label: DescriptionListDescriptionProps["children"];
+  label: string;
   /** The value/description for this field */
-  children: DescriptionListDescriptionProps["children"];
-  /** Additional props passed to the DescriptionListTerm component */
-  termProps?: Omit<DescriptionListTermProps, "children">;
-  /** Additional props passed to the DescriptionListDescription component */
-  descriptionProps?: Omit<DescriptionListDescriptionProps, "children">;
+  children: React.ReactNode;
 };
 
 /**
- * A single item in a `Details` description list.
- *
- * Wraps a PatternFly `DescriptionListGroup` with `DescriptionListTerm` and
- * `DescriptionListDescription`.
+ * A single item in a `SystemInformationSection` description list.
  */
-const Item = ({ label, children, termProps = {}, descriptionProps = {} }: ItemProps) => {
+const Item = ({ label, children }: ItemProps) => {
   return (
     <DescriptionListGroup>
-      <DescriptionListTerm {...termProps}>{label}</DescriptionListTerm>
-      <DescriptionListDescription {...descriptionProps}>
-        <small className={textStyles.textColorSubtle}>{children}</small>
+      <DescriptionListTerm>{label}</DescriptionListTerm>
+      <DescriptionListDescription>
+        <small className={textStyles.textColorSubtle}>
+          {isEmpty(children) ? _("Unknown") : children}
+        </small>
       </DescriptionListDescription>
     </DescriptionListGroup>
   );
 };
 
+/**
+ * Displays basic hardware information (model, CPU, memory, IPs) in a card.
+ *
+ * Fields with missing or undefined values fall back to "Unknown" rather than
+ * rendering a blank space.
+ *
+ * @note A11y: `DescriptionList` renders a `<dl>/<dt>/<dd>` structure. Screen
+ * reader support is generally good, with the exception of Safari/VoiceOver on
+ * macOS where virtual cursor navigation exposes each term and description as
+ * plain text without list semantics. A table-based alternative was evaluated
+ * but discarded by now: `<th scope="row">` combined with `dataLabel` might
+ * caused double label announcement for screen reader users, and the component's
+ * default white background conflicted with the card's secondary variant
+ * styling. This is a known limitation to revisit if a better PF alternative
+ * becomes available.
+ * @see https://adrianroselli.com/2022/12/brief-note-on-description-list-support.html
+ */
 export default function SystemInformationSection() {
   const { hardware } = useSystem();
 
@@ -76,20 +86,18 @@ export default function SystemInformationSection() {
     <Card variant="secondary">
       <CardTitle component="h3">{_("System Information")}</CardTitle>
       <CardBody>
-        <Flex gap={{ default: "gapMd" }} direction={{ default: "column" }}>
-          <NestedContent margin="mxSm">
-            <DescriptionList isCompact>
-              <Item label={_("Model")}>{hardware.model}</Item>
-              <Item label={_("CPU")}>{hardware.cpu}</Item>
-              <Item label={_("Memory")}>
-                {hardware.memory ? xbytes(hardware.memory, { iec: true }) : undefined}
-              </Item>
-              <Item label={_("IPs")}>
-                <FormattedIPsList />
-              </Item>
-            </DescriptionList>
-          </NestedContent>
-        </Flex>
+        <NestedContent margin="mxSm">
+          <DescriptionList isCompact>
+            <Item label={_("Model")}>{hardware.model}</Item>
+            <Item label={_("CPU")}>{hardware.cpu}</Item>
+            <Item label={_("Memory")}>
+              {hardware.memory ? xbytes(hardware.memory, { iec: true }) : undefined}
+            </Item>
+            <Item label={_("IPs")}>
+              <FormattedIPsList />
+            </Item>
+          </DescriptionList>
+        </NestedContent>
       </CardBody>
     </Card>
   );
