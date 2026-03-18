@@ -45,9 +45,12 @@ export default function GenericQuestion({
     answerCallback(question);
   };
 
+  const details = question.data?.details;
+
   return (
     <Popup isOpen aria-label={_("Question")}>
-      <Content>{question.text}</Content>
+      <Content component="p">{question.text}</Content>
+      {details && <Content>{details}</Content>}
       <Popup.Actions>
         <QuestionActions
           actions={question.actions}
