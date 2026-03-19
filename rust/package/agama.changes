@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Mar 19 21:11:29 UTC 2026 - Imobach Gonzalez Sosa <igonzalezsosa@suse.com>
+
+- Continue loading the configuration even if there is a network setup
+  error (gh#agama-project/agama#3306).
+
+-------------------------------------------------------------------
 Wed Mar 18 22:29:10 UTC 2026 - Imobach Gonzalez Sosa <igonzalezsosa@suse.com>
 
 - Report problems when writing files and scripts (gh#agama-project/agama#3301).
