@@ -51,7 +51,7 @@ describe Agama::AutoYaST::ConnectionsReader do
 
     context "when the connection has a \"device\"" do
       let(:interfaces) do
-        [{ "device" => "eth1"} ]
+        [{ "device" => "eth1" }]
       end
 
       it "uses the \"device\" as \"id\" and \"interface\"" do
