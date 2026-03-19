@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2024-2026] SUSE LLC
+# Copyright (c) [2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -19,17 +19,26 @@
 # To contact SUSE LLC about this file by physical or electronic mail, you may
 # find current contact information at www.suse.com.
 
-require "agama/storage/config_conversions/to_model_conversions/space_policy"
-
 module Agama
   module Storage
     module ConfigConversions
       module ToModelConversions
-        # Mixin for space policy conversion to model according to the JSON schema.
-        module WithSpacePolicy
-          # @return [String, nil]
-          def convert_space_policy
-            ToModelConversions::SpacePolicy.new(config).convert
+        # Mixin for resize info conversion to model according to the JSON schema.
+        module WithResize
+          # @return [Booelan]
+          def convert_resize
+            return false unless config.found_device
+
+            size = config.size
+            !size.nil? && !size.default? && size.min == size.max
+          end
+
+          # @return [Booelan]
+          def convert_resize_if_needed
+            return false unless config.found_device
+
+            size = config.size
+            !size.nil? && !size.default? && size.min != size.max
           end
         end
       end
