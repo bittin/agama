@@ -147,4 +147,30 @@ describe Agama::AutoYaST::ProfileFetcher do
       subject.fetch
     end
   end
+
+  context "when the profile contains empty strings as values" do
+    let(:profile_name) { "empty-values.xml" }
+
+    it "removes them if they are not in the \"partitioning\" section" do
+      result = subject.fetch
+
+      user = result["users"].first
+      expect(user["username"]).to eq("root")
+      expect(user).to_not have_key("password")
+
+      language = result["language"]
+      expect(language).to have_key("language")
+      expect(language).to_not have_key("languages")
+
+      drive = result["partitioning"].first
+      partition = drive["partitions"].first
+      expect(partition).to have_key("subvolumes_prefix")
+    end
+
+    it "removes empty sections" do
+      result = subject.fetch
+
+      expect(result).to_not have_key("keyboard")
+    end
+  end
 end

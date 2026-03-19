@@ -31,6 +31,20 @@ module Agama
     #
     # It generates an AutoYaST profile that can be converted into an Agama configuration using the
     # {Agama::AutoYaST::Converter} class.
+    #
+    # # Removing empty strings
+    #
+    # It is really uncommon to use empty strings as values in AutoYaST.
+    # Those values are not a problem in AutoYaST, but they can cause
+    # problems in Agama. For instance, an empty <keymap /> element is ignored
+    # in AutoYaST, but not in Agama.
+    #
+    # In order to make the migration from AutoYaST to Agama easier, the
+    # conversion removes empty string values. The exception is the
+    # <partitioning /> section, which is handled by yast2-storage-ng.
+    # Actually, this section contains the <subvolumes_prefix />, which
+    # can be set to an empty string as described in the AutoYaST documentation.
+    #
     class ProfileFetcher
       # @param profile_url [String] Profile URL
       def initialize(profile_url)
@@ -38,7 +52,7 @@ module Agama
       end
 
       # Converts the profile into a set of files that Agama can process.
-      # @return [Hash,nil] an evaluated AutoYaST profile
+      # @return [ProfileHash,nil] an evaluated AutoYaST profile
       def fetch
         import_yast
         read_profile
@@ -71,7 +85,7 @@ module Agama
           FileUtils.rm(Yast::AutoinstConfig.modified_profile)
         end
 
-        Yast::ProfileHash.new(Yast::Profile.current)
+        Yast::ProfileHash.new(clean_profile(Yast::Profile.current))
       end
 
       def run_pre_scripts
@@ -92,6 +106,55 @@ module Agama
           Yast::AutoinstConfig.profile_dir,
           "autoinst.xml"
         )
+      end
+
+      # Removes empty string values from the profile.
+      #
+      # @param profile [Hash]
+      # @return [Hash]
+      def clean_profile(profile)
+        profile.each_with_object({}) do |(key, value), all|
+          if key == "partitioning"
+            all[key] = value
+          else
+            new_value = clean_value(value)
+            all[key] = new_value unless new_value.nil?
+          end
+        end
+      end
+
+      def clean_value(value)
+        case value
+        when Array
+          clean_array(value)
+
+        when Hash
+          clean_hash(value)
+
+        when String
+          value unless value.empty?
+
+        else
+          value
+        end
+      end
+
+      def clean_array(array)
+        array.map do |e|
+          if e.is_a?(Hash)
+            clean_value(e)
+          else
+            e
+          end
+        end
+      end
+
+      def clean_hash(hash)
+        new_hash = hash.each_with_object({}) do |(key, value), all|
+          new_value = clean_value(value)
+          all[key] = new_value unless new_value.nil?
+        end
+        new_hash unless new_hash.empty?
       end
 
       def import_yast
