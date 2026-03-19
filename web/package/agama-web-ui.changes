@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Mar 18 22:29:48 UTC 2026 - Imobach Gonzalez Sosa <igonzalezsosa@suse.com>
+
+- Initial support for questions with details (gh#agama-project/agama#3301).
+
+-------------------------------------------------------------------
 Tue Mar 17 17:07:58 UTC 2026 - David Diaz <dgonzalez@suse.com>
 
 - Show "Unknown" for missing hardware fields

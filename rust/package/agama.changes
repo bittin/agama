@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Mar 18 22:29:10 UTC 2026 - Imobach Gonzalez Sosa <igonzalezsosa@suse.com>
+
+- Report problems when writing files and scripts (gh#agama-project/agama#3301).
+
+-------------------------------------------------------------------
 Tue Mar 17 14:49:14 UTC 2026 - Michal Filka <mfilka@suse.com>
 
 - jsc#PED-15434

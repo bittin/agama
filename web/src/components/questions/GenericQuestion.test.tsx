@@ -39,6 +39,21 @@ const question: Question = {
   defaultAction: "sometimes",
 };
 
+const questionWithDetails: Question = {
+  id: 1,
+  text: "Failed to fetch the script. Do you want to retry?",
+  class: "failed-script",
+  field: { type: FieldType.None },
+  actions: [
+    { id: "yes", label: "Yes" },
+    { id: "no", label: "No" },
+  ],
+  data: {
+    details: "Some details",
+  },
+  defaultAction: "yes",
+};
+
 const answerFn = jest.fn();
 
 const renderQuestion = () =>
@@ -49,6 +64,15 @@ describe("GenericQuestion", () => {
     renderQuestion();
 
     await screen.findByText(question.text);
+  });
+
+  describe("if there are details", () => {
+    it("renders the question details", async () => {
+      plainRender(<GenericQuestion question={questionWithDetails} answerCallback={answerFn} />);
+
+      await screen.findByText(questionWithDetails.text);
+      await screen.findByText(questionWithDetails.data.details);
+    });
   });
 
   it("sets chosen option and calls the callback after user clicking an action", async () => {
