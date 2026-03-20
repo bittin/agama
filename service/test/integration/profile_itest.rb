@@ -206,14 +206,14 @@ describe "agama config" do
     let(:output_match) do
       json = <<~JSON
         {
+          "product": {
+            "id": "Tumbleweed"
+          },
           "software": {
             "patterns": [
               "base"
             ],
             "packages": []
-          },
-          "product": {
-            "id": "Tumbleweed"
           }
         }
       JSON
