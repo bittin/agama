@@ -87,8 +87,9 @@ pub fn enable_service<P: AsRef<Path>>(root_dir: P, name: &str) {
 
     match command.output() {
         Ok(output) => {
-            // FIXME: the exit code might be 0
-            if !output.status.success() {
+            if output.status.success() {
+                tracing::info!("Enabled the {name} service");
+            } else {
                 tracing::error!("Failed to enable the {name} service: {output:?}")
             }
         }

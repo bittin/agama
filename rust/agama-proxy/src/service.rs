@@ -253,7 +253,7 @@ impl MessageHandler<message::Finish> for Service {
                 std::fs::create_dir_all(parent)?;
             }
             config.write_to(&path)?;
-            self.enable_services()?;
+            self.enable_services();
         }
         Ok(())
     }
