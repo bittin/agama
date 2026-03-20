@@ -24,7 +24,7 @@ import React from "react";
 import { screen, waitFor } from "@testing-library/react";
 import { installerRender } from "~/test-utils";
 import ConnectionForm from "~/components/network/ConnectionForm";
-import { ConnectionType, DeviceState } from "~/types/network";
+import { ConnectionMethod, ConnectionType, DeviceState } from "~/types/network";
 
 const mockDevice1 = {
   name: "enp1s0",
@@ -57,6 +57,19 @@ describe("ConnectionForm", () => {
     installerRender(<ConnectionForm />);
     screen.getByLabelText("Name");
     screen.getByLabelText("Interface");
+    screen.getByLabelText("Method");
+  });
+
+  it("defaults to automatic method and does not show gateway", () => {
+    installerRender(<ConnectionForm />);
+    expect(screen.getByLabelText("Method")).toHaveValue(ConnectionMethod.AUTO);
+    expect(screen.queryByLabelText("Gateway")).not.toBeInTheDocument();
+  });
+
+  it("shows the gateway field when method is manual", async () => {
+    const { user } = installerRender(<ConnectionForm />);
+    await user.selectOptions(screen.getByLabelText("Method"), ConnectionMethod.MANUAL);
+    screen.getByLabelText("Gateway");
   });
 
   it("submits with the entered values", async () => {
@@ -67,6 +80,28 @@ describe("ConnectionForm", () => {
       expect(mockMutateAsync).toHaveBeenCalledWith(
         expect.objectContaining({ id: "Testing Connection 1", iface: "enp1s0" }),
       ),
+    );
+  });
+
+  it("submits with gateway when method is manual", async () => {
+    const { user } = installerRender(<ConnectionForm />);
+    await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
+    await user.selectOptions(screen.getByLabelText("Method"), ConnectionMethod.MANUAL);
+    await user.type(screen.getByLabelText("Gateway"), "192.168.1.1");
+    await user.click(screen.getByRole("button", { name: "Accept" }));
+    await waitFor(() =>
+      expect(mockMutateAsync).toHaveBeenCalledWith(
+        expect.objectContaining({ method4: ConnectionMethod.MANUAL, gateway4: "192.168.1.1" }),
+      ),
+    );
+  });
+
+  it("does not submit gateway when method is automatic", async () => {
+    const { user } = installerRender(<ConnectionForm />);
+    await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
+    await user.click(screen.getByRole("button", { name: "Accept" }));
+    await waitFor(() =>
+      expect(mockMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ gateway4: "" })),
     );
   });
 
