@@ -31,6 +31,7 @@ import {
   FormSelect,
   FormSelectOption,
   TextInput,
+  Split,
 } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
 import { Connection, ConnectionMethod } from "~/types/network";
@@ -38,11 +39,11 @@ import { useConnectionMutation } from "~/hooks/model/config/network";
 import { useAppForm } from "~/hooks/form";
 import { useDevices } from "~/hooks/model/system/network";
 import { NETWORK } from "~/routes/paths";
-import { _ } from "~/i18n";
+import { _, N_ } from "~/i18n";
 
 const METHOD_OPTIONS = [
-  { value: ConnectionMethod.AUTO, label: _("Automatic (DHCP)") },
-  { value: ConnectionMethod.MANUAL, label: _("Manual") },
+  { value: ConnectionMethod.AUTO, label: N_("Automatic (DHCP)") },
+  { value: ConnectionMethod.MANUAL, label: N_("Manual") },
 ];
 
 /**
@@ -70,13 +71,17 @@ export default function ConnectionForm() {
       interface: devices[0]?.name ?? "",
       method4: ConnectionMethod.AUTO,
       gateway4: "",
+      method6: ConnectionMethod.AUTO,
+      gateway6: "",
     },
     validators: {
       onSubmitAsync: async ({ value }) => {
         const connection = new Connection(value.name, {
           iface: value.interface,
           method4: value.method4,
-          gateway4: value.method4 === ConnectionMethod.MANUAL ? value.gateway4 : undefined,
+          gateway4: value.gateway4,
+          method6: value.method6,
+          gateway6: value.gateway6,
         });
         try {
           await updateConnection(connection);
@@ -137,39 +142,79 @@ export default function ConnectionForm() {
             )}
           </form.Field>
 
-          <form.Field name="method4">
-            {(field) => (
-              <FormGroup fieldId={field.name} label={_("Method")}>
-                <FormSelect
-                  id={field.name}
-                  value={field.state.value}
-                  onChange={(_, v) => field.handleChange(v as ConnectionMethod)}
-                >
-                  {METHOD_OPTIONS.map((o) => (
-                    <FormSelectOption key={o.value} value={o.value} label={o.label} />
-                  ))}
-                </FormSelect>
-              </FormGroup>
-            )}
-          </form.Field>
+          <Split hasGutter>
+            <form.Field name="method4">
+              {(field) => (
+                <FormGroup fieldId={field.name} label={_("IPv4 Method")}>
+                  <FormSelect
+                    id={field.name}
+                    value={field.state.value}
+                    onChange={(_, v) => field.handleChange(v as ConnectionMethod)}
+                  >
+                    {METHOD_OPTIONS.map(({ value, label }) => (
+                      // eslint-disable-next-line agama-i18n/string-literals
+                      <FormSelectOption key={value} value={value} label={_(label)} />
+                    ))}
+                  </FormSelect>
+                </FormGroup>
+              )}
+            </form.Field>
 
-          <form.Subscribe selector={(s) => s.values.method4}>
-            {(method4) =>
-              method4 === ConnectionMethod.MANUAL && (
-                <form.Field name="gateway4">
-                  {(field) => (
-                    <FormGroup fieldId={field.name} label={_("Gateway")}>
-                      <TextInput
-                        id={field.name}
-                        value={field.state.value}
-                        onChange={(_, v) => field.handleChange(v)}
-                      />
-                    </FormGroup>
-                  )}
-                </form.Field>
-              )
-            }
-          </form.Subscribe>
+            <form.Subscribe selector={(s) => s.values.method4}>
+              {(method4) =>
+                method4 === ConnectionMethod.MANUAL && (
+                  <form.Field name="gateway4">
+                    {(field) => (
+                      <FormGroup fieldId={field.name} label={_("IPv4 Gateway")}>
+                        <TextInput
+                          id={field.name}
+                          value={field.state.value}
+                          onChange={(_, v) => field.handleChange(v)}
+                        />
+                      </FormGroup>
+                    )}
+                  </form.Field>
+                )
+              }
+            </form.Subscribe>
+          </Split>
+
+          <Split hasGutter>
+            <form.Field name="method6">
+              {(field) => (
+                <FormGroup fieldId={field.name} label={_("IPv6 Method")}>
+                  <FormSelect
+                    id={field.name}
+                    value={field.state.value}
+                    onChange={(_, v) => field.handleChange(v as ConnectionMethod)}
+                  >
+                    {METHOD_OPTIONS.map(({ value, label }) => (
+                      // eslint-disable-next-line agama-i18n/string-literals
+                      <FormSelectOption key={value} value={value} label={_(label)} />
+                    ))}
+                  </FormSelect>
+                </FormGroup>
+              )}
+            </form.Field>
+
+            <form.Subscribe selector={(s) => s.values.method6}>
+              {(method6) =>
+                method6 === ConnectionMethod.MANUAL && (
+                  <form.Field name="gateway6">
+                    {(field) => (
+                      <FormGroup fieldId={field.name} label={_("IPv6 Gateway")}>
+                        <TextInput
+                          id={field.name}
+                          value={field.state.value}
+                          onChange={(_, v) => field.handleChange(v)}
+                        />
+                      </FormGroup>
+                    )}
+                  </form.Field>
+                )
+              }
+            </form.Subscribe>
+          </Split>
 
           <ActionGroup>
             <form.Subscribe selector={(s) => s.isSubmitting}>

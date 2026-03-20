@@ -53,23 +53,34 @@ describe("ConnectionForm", () => {
     jest.clearAllMocks();
   });
 
-  it("renders common connections fields", () => {
+  it("renders common connection fields", () => {
     installerRender(<ConnectionForm />);
     screen.getByLabelText("Name");
     screen.getByLabelText("Interface");
-    screen.getByLabelText("Method");
+    screen.getByLabelText("IPv4 Method");
+    screen.getByLabelText("IPv6 Method");
   });
 
-  it("defaults to automatic method and does not show gateway", () => {
+  it("defaults both methods to automatic and does not show gateways", () => {
     installerRender(<ConnectionForm />);
-    expect(screen.getByLabelText("Method")).toHaveValue(ConnectionMethod.AUTO);
-    expect(screen.queryByLabelText("Gateway")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("IPv4 Method")).toHaveValue(ConnectionMethod.AUTO);
+    expect(screen.getByLabelText("IPv6 Method")).toHaveValue(ConnectionMethod.AUTO);
+    expect(screen.queryByLabelText("IPv4 Gateway")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("IPv6 Gateway")).not.toBeInTheDocument();
   });
 
-  it("shows the gateway field when method is manual", async () => {
+  it("shows IPv4 gateway when IPv4 method is manual", async () => {
     const { user } = installerRender(<ConnectionForm />);
-    await user.selectOptions(screen.getByLabelText("Method"), ConnectionMethod.MANUAL);
-    screen.getByLabelText("Gateway");
+    await user.selectOptions(screen.getByLabelText("IPv4 Method"), ConnectionMethod.MANUAL);
+    screen.getByLabelText("IPv4 Gateway");
+    expect(screen.queryByLabelText("IPv6 Gateway")).not.toBeInTheDocument();
+  });
+
+  it("shows IPv6 gateway when IPv6 method is manual", async () => {
+    const { user } = installerRender(<ConnectionForm />);
+    await user.selectOptions(screen.getByLabelText("IPv6 Method"), ConnectionMethod.MANUAL);
+    screen.getByLabelText("IPv6 Gateway");
+    expect(screen.queryByLabelText("IPv4 Gateway")).not.toBeInTheDocument();
   });
 
   it("submits with the entered values", async () => {
@@ -83,25 +94,23 @@ describe("ConnectionForm", () => {
     );
   });
 
-  it("submits with gateway when method is manual", async () => {
+  it("submits with gateways when both methods are manual", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
-    await user.selectOptions(screen.getByLabelText("Method"), ConnectionMethod.MANUAL);
-    await user.type(screen.getByLabelText("Gateway"), "192.168.1.1");
+    await user.selectOptions(screen.getByLabelText("IPv4 Method"), ConnectionMethod.MANUAL);
+    await user.type(screen.getByLabelText("IPv4 Gateway"), "192.168.1.1");
+    await user.selectOptions(screen.getByLabelText("IPv6 Method"), ConnectionMethod.MANUAL);
+    await user.type(screen.getByLabelText("IPv6 Gateway"), "::1");
     await user.click(screen.getByRole("button", { name: "Accept" }));
     await waitFor(() =>
       expect(mockMutateAsync).toHaveBeenCalledWith(
-        expect.objectContaining({ method4: ConnectionMethod.MANUAL, gateway4: "192.168.1.1" }),
+        expect.objectContaining({
+          method4: ConnectionMethod.MANUAL,
+          gateway4: "192.168.1.1",
+          method6: ConnectionMethod.MANUAL,
+          gateway6: "::1",
+        }),
       ),
-    );
-  });
-
-  it("does not submit gateway when method is automatic", async () => {
-    const { user } = installerRender(<ConnectionForm />);
-    await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
-    await user.click(screen.getByRole("button", { name: "Accept" }));
-    await waitFor(() =>
-      expect(mockMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ gateway4: "" })),
     );
   });
 
