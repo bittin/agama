@@ -124,6 +124,16 @@ See: <https://adrianroselli.com/2020/01/my-priority-of-methods-for-labeling-a-co
 See: <https://adrianroselli.com/2019/11/aria-label-does-not-translate.html>
 See: <https://vispero.com/resources/should-form-labels-be-wrapped-or-separate/>
 
+## Combining patterns
+
+Patterns 4 and 5 can work well together. If a form has one common optional
+field alongside a group of rarely needed advanced options, show the common
+field directly with an (optional) suffix and hide the rest behind a checkbox.
+For example: in the storage partition form, a file system label could sit next
+to the file system selector as a plain optional field, while the remaining
+advanced options might be hidden behind a "More file system options" checkbox.
+The user can set the label without ever seeing the rest.
+
 ## Choosing the right pattern
 
 Work through these questions in order:
@@ -136,6 +146,10 @@ Work through these questions in order:
 4. Should the field always be visible because hiding it would hurt
    discoverability or because its label reflects form state? Use pattern 4.
 5. Is the field an advanced option that most users will never need? Use pattern 5.
+
+These questions apply per field. Patterns can and should be combined within the
+same form when different fields have different needs. See the Combining
+patterns section above for an example.
 
 ## Summary
 
