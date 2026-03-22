@@ -28,13 +28,18 @@ import {
   Button,
   Form,
   FormGroup,
+  FormHelperText,
   FormSelect,
   FormSelectOption,
-  TextInput,
+  HelperText,
+  HelperTextItem,
   Split,
+  TextArea,
+  TextInput,
 } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
 import { Connection, ConnectionMethod } from "~/types/network";
+import { buildAddress } from "~/utils/network";
 import { useConnectionMutation } from "~/hooks/model/config/network";
 import { useAppForm } from "~/hooks/form";
 import { useDevices } from "~/hooks/model/system/network";
@@ -45,6 +50,26 @@ const METHOD_OPTIONS = [
   { value: ConnectionMethod.AUTO, label: N_("Automatic (DHCP)") },
   { value: ConnectionMethod.MANUAL, label: N_("Manual") },
 ];
+
+const IPV4_DEFAULT_PREFIX = 24;
+const IPV6_DEFAULT_PREFIX = 64;
+
+/** Ensures a CIDR string has a prefix, adding a protocol-appropriate default if missing. */
+const withPrefix = (address: string): string => {
+  if (address.includes("/")) return address;
+  return address.includes(":")
+    ? `${address}/${IPV6_DEFAULT_PREFIX}`
+    : `${address}/${IPV4_DEFAULT_PREFIX}`;
+};
+
+/** Parses a space/newline separated string of addresses into IPAddress objects. */
+const parseAddresses = (raw: string) =>
+  raw
+    .split(/[\s\n]+/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map(withPrefix)
+    .map(buildAddress);
 
 /**
  * Form for creating a new network connection.
@@ -73,6 +98,7 @@ export default function ConnectionForm() {
       gateway4: "",
       method6: ConnectionMethod.AUTO,
       gateway6: "",
+      addresses: "",
     },
     validators: {
       onSubmitAsync: async ({ value }) => {
@@ -82,6 +108,7 @@ export default function ConnectionForm() {
           gateway4: value.gateway4,
           method6: value.method6,
           gateway6: value.gateway6,
+          addresses: parseAddresses(value.addresses),
         });
         try {
           await updateConnection(connection);
@@ -215,6 +242,49 @@ export default function ConnectionForm() {
               }
             </form.Subscribe>
           </Split>
+
+          <form.Subscribe
+            selector={(s) => ({
+              method4: s.values.method4,
+              method6: s.values.method6,
+            })}
+          >
+            {({ method4, method6 }) => {
+              const manual4 = method4 === ConnectionMethod.MANUAL;
+              const manual6 = method6 === ConnectionMethod.MANUAL;
+
+              const addressesLabel = () => {
+                if (manual4 && manual6) return _("IP Addresses (IPv4 and IPv6 required)");
+                if (manual4) return _("IP Addresses (IPv4 required)");
+                if (manual6) return _("IP Addresses (IPv6 required)");
+                return _("IP Addresses (optional)");
+              };
+              const label = addressesLabel();
+
+              return (
+                <form.Field name="addresses">
+                  {(field) => (
+                    <FormGroup fieldId={field.name} label={label}>
+                      <TextArea
+                        id={field.name}
+                        value={field.state.value}
+                        onChange={(_, v) => field.handleChange(v)}
+                        resizeOrientation="vertical"
+                        aria-describedby={`${field.name}-hint`}
+                      />
+                      <FormHelperText>
+                        <HelperText>
+                          <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
+                            {_("Space-separated, e.g. 192.168.1.1/24 2001:db8::1")}
+                          </HelperTextItem>
+                        </HelperText>
+                      </FormHelperText>
+                    </FormGroup>
+                  )}
+                </form.Field>
+              );
+            }}
+          </form.Subscribe>
 
           <ActionGroup>
             <form.Subscribe selector={(s) => s.isSubmitting}>
