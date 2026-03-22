@@ -56,6 +56,13 @@ const METHOD_OPTIONS = [
 const IPV4_DEFAULT_PREFIX = 24;
 const IPV6_DEFAULT_PREFIX = 64;
 
+/** Splits a space/newline separated string into a trimmed, non-empty token array. */
+const parseTokens = (raw: string): string[] =>
+  raw
+    .split(/[\s\n]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
 /** Ensures a CIDR string has a prefix, adding a protocol-appropriate default if missing. */
 const withPrefix = (address: string): string => {
   if (address.includes("/")) return address;
@@ -97,6 +104,8 @@ export default function ConnectionForm() {
       addresses: "",
       useCustomDns: false,
       nameservers: "",
+      useCustomDnsSearch: false,
+      dnsSearchList: "",
     },
     validators: {
       onSubmitAsync: async ({ value }) => {
@@ -107,7 +116,8 @@ export default function ConnectionForm() {
           method6: value.method6,
           gateway6: value.gateway6,
           addresses: parseAddresses(value.addresses),
-          nameservers: value.useCustomDns ? parseNameservers(value.nameservers) : [],
+          nameservers: value.useCustomDns ? parseTokens(value.nameservers) : [],
+          dnsSearchList: value.useCustomDnsSearch ? parseTokens(value.dnsSearchList) : [],
         });
         try {
           await updateConnection(connection);
@@ -323,6 +333,41 @@ export default function ConnectionForm() {
                             <HelperText>
                               <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
                                 {_("Space-separated, e.g. 8.8.8.8 2001:4860:4860::8888")}
+                              </HelperTextItem>
+                            </HelperText>
+                          </FormHelperText>
+                        </FormGroup>
+                      )}
+                    </form.Field>
+                  )
+                }
+              />
+            )}
+          </form.Field>
+
+          <form.Field name="useCustomDnsSearch">
+            {(dnsSearchToggle) => (
+              <Checkbox
+                id={dnsSearchToggle.name}
+                label={_("Use custom DNS search domains")}
+                isChecked={dnsSearchToggle.state.value}
+                onChange={(_, checked) => dnsSearchToggle.handleChange(checked)}
+                body={
+                  dnsSearchToggle.state.value && (
+                    <form.Field name="dnsSearchList">
+                      {(field) => (
+                        <FormGroup fieldId={field.name}>
+                          <TextArea
+                            id={field.name}
+                            value={field.state.value}
+                            onChange={(_, v) => field.handleChange(v)}
+                            aria-label={_("DNS search domains")}
+                            aria-describedby={`${field.name}-hint`}
+                          />
+                          <FormHelperText>
+                            <HelperText>
+                              <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
+                                {_("Space-separated, e.g. example.com local.lan")}
                               </HelperTextItem>
                             </HelperText>
                           </FormHelperText>

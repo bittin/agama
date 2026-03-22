@@ -213,15 +213,59 @@ describe("ConnectionForm", () => {
     it("submits empty nameservers when checkbox is unchecked", async () => {
       const { user } = installerRender(<ConnectionForm />);
       await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
-      const useCustomDNSCheckbox = screen.getByRole("checkbox", { name: "Use custom DNS servers" });
-      expect(useCustomDNSCheckbox).not.toBeChecked();
-      await user.click(useCustomDNSCheckbox);
-      expect(useCustomDNSCheckbox).toBeChecked();
+      const checkbox = screen.getByRole("checkbox", { name: "Use custom DNS servers" });
+      expect(checkbox).not.toBeChecked();
+      await user.click(checkbox);
+      expect(checkbox).toBeChecked();
       await user.type(screen.getByRole("textbox", { name: "DNS servers" }), "8.8.8.8 8.8.4.4");
-      await user.click(useCustomDNSCheckbox);
+      await user.click(checkbox);
       await user.click(screen.getByRole("button", { name: "Accept" }));
       await waitFor(() =>
         expect(mockMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ nameservers: [] })),
+      );
+    });
+  });
+
+  describe("DNS search domains", () => {
+    it("does not show the DNS search domains field by default", () => {
+      installerRender(<ConnectionForm />);
+      expect(screen.queryByRole("textbox", { name: "DNS search domains" })).not.toBeInTheDocument();
+    });
+
+    it("shows the DNS search domains field when the checkbox is checked", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+      await user.click(screen.getByLabelText("Use custom DNS search domains"));
+      screen.getByRole("textbox", { name: "DNS search domains" });
+    });
+
+    it("submits with parsed dnsSearchList when checkbox is checked", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+      await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
+      await user.click(screen.getByLabelText("Use custom DNS search domains"));
+      await user.type(
+        screen.getByRole("textbox", { name: "DNS search domains" }),
+        "example.com local.lan",
+      );
+      await user.click(screen.getByRole("button", { name: "Accept" }));
+      await waitFor(() =>
+        expect(mockMutateAsync).toHaveBeenCalledWith(
+          expect.objectContaining({ dnsSearchList: ["example.com", "local.lan"] }),
+        ),
+      );
+    });
+
+    it("submits empty dnsSearchList when checkbox is unchecked", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+      await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
+      const checkbox = screen.getByRole("checkbox", { name: "Use custom DNS search domains" });
+      await user.click(checkbox);
+      await user.type(screen.getByRole("textbox", { name: "DNS search domains" }), "example.com");
+      await user.click(checkbox);
+      await user.click(screen.getByRole("button", { name: "Accept" }));
+      await waitFor(() =>
+        expect(mockMutateAsync).toHaveBeenCalledWith(
+          expect.objectContaining({ dnsSearchList: [] }),
+        ),
       );
     });
   });
