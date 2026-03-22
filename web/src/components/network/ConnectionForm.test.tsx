@@ -84,31 +84,31 @@ describe("ConnectionForm", () => {
     installerRender(<ConnectionForm />);
     expect(screen.getByLabelText("IPv4 Method")).toHaveValue(ConnectionMethod.AUTO);
     expect(screen.getByLabelText("IPv6 Method")).toHaveValue(ConnectionMethod.AUTO);
-    expect(screen.queryByLabelText("IPv4 Gateway")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("IPv6 Gateway")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("IPv4 Gateway (optional)")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("IPv6 Gateway (optional)")).not.toBeInTheDocument();
   });
 
   it("shows IPv4 gateway when IPv4 method is manual", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.selectOptions(screen.getByLabelText("IPv4 Method"), ConnectionMethod.MANUAL);
-    screen.getByLabelText("IPv4 Gateway");
-    expect(screen.queryByLabelText("IPv6 Gateway")).not.toBeInTheDocument();
+    screen.getByLabelText("IPv4 Gateway (optional)");
+    expect(screen.queryByLabelText("IPv6 Gateway (optional)")).not.toBeInTheDocument();
   });
 
   it("shows IPv6 gateway when IPv6 method is manual", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.selectOptions(screen.getByLabelText("IPv6 Method"), ConnectionMethod.MANUAL);
-    screen.getByLabelText("IPv6 Gateway");
-    expect(screen.queryByLabelText("IPv4 Gateway")).not.toBeInTheDocument();
+    screen.getByLabelText("IPv6 Gateway (optional)");
+    expect(screen.queryByLabelText("IPv4 Gateway (optional)")).not.toBeInTheDocument();
   });
 
   it("submits with gateways when both methods are manual", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
     await user.selectOptions(screen.getByLabelText("IPv4 Method"), ConnectionMethod.MANUAL);
-    await user.type(screen.getByLabelText("IPv4 Gateway"), "192.168.1.1");
+    await user.type(screen.getByLabelText("IPv4 Gateway (optional)"), "192.168.1.1");
     await user.selectOptions(screen.getByLabelText("IPv6 Method"), ConnectionMethod.MANUAL);
-    await user.type(screen.getByLabelText("IPv6 Gateway"), "::1");
+    await user.type(screen.getByLabelText("IPv6 Gateway (optional)"), "::1");
     await user.click(screen.getByRole("button", { name: "Accept" }));
     await waitFor(() =>
       expect(mockMutateAsync).toHaveBeenCalledWith(

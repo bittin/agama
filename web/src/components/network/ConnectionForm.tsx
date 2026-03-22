@@ -192,7 +192,7 @@ export default function ConnectionForm() {
                 method4 === ConnectionMethod.MANUAL && (
                   <form.Field name="gateway4">
                     {(field) => (
-                      <FormGroup fieldId={field.name} label={_("IPv4 Gateway")}>
+                      <FormGroup fieldId={field.name} label={_("IPv4 Gateway (optional)")}>
                         <TextInput
                           id={field.name}
                           value={field.state.value}
@@ -229,7 +229,7 @@ export default function ConnectionForm() {
                 method6 === ConnectionMethod.MANUAL && (
                   <form.Field name="gateway6">
                     {(field) => (
-                      <FormGroup fieldId={field.name} label={_("IPv6 Gateway")}>
+                      <FormGroup fieldId={field.name} label={_("IPv6 Gateway (optional)")}>
                         <TextInput
                           id={field.name}
                           value={field.state.value}
