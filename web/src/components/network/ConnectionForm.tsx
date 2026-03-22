@@ -39,7 +39,7 @@ import {
   TextInput,
 } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
-import FieldLabel from "~/components/form/FieldLabel";
+import LabelText from "~/components/form/LabelText";
 import { Connection, ConnectionMethod } from "~/types/network";
 import { buildAddress } from "~/utils/network";
 import { useConnectionMutation } from "~/hooks/model/config/network";
@@ -65,20 +65,7 @@ const withPrefix = (address: string): string => {
 };
 
 /** Parses a space/newline separated string of addresses into IPAddress objects. */
-const parseAddresses = (raw: string) =>
-  raw
-    .split(/[\s\n]+/)
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .map(withPrefix)
-    .map(buildAddress);
-
-/** Parses a space/newline separated string of IP addresses into a nameservers array. */
-const parseNameservers = (raw: string): string[] =>
-  raw
-    .split(/[\s\n]+/)
-    .map((s) => s.trim())
-    .filter(Boolean);
+const parseAddresses = (raw: string) => parseTokens(raw).map(withPrefix).map(buildAddress);
 
 /**
  * Form for creating a new network connection.
@@ -206,9 +193,7 @@ export default function ConnectionForm() {
                     {(field) => (
                       <FormGroup
                         fieldId={field.name}
-                        label={
-                          <FieldLabel suffix={_("(optional)")}>{_("IPv4 Gateway")}</FieldLabel>
-                        }
+                        label={<LabelText suffix={_("(optional)")}>{_("IPv4 Gateway")}</LabelText>}
                       >
                         <TextInput
                           id={field.name}
@@ -248,9 +233,7 @@ export default function ConnectionForm() {
                     {(field) => (
                       <FormGroup
                         fieldId={field.name}
-                        label={
-                          <FieldLabel suffix={_("(optional)")}>{_("IPv6 Gateway")}</FieldLabel>
-                        }
+                        label={<LabelText suffix={_("(optional)")}>{_("IPv6 Gateway")}</LabelText>}
                       >
                         <TextInput
                           id={field.name}
@@ -278,15 +261,15 @@ export default function ConnectionForm() {
               const addressesLabel = () => {
                 if (manual4 && manual6)
                   return (
-                    <FieldLabel suffix={_("(IPv4 and IPv6 required)")}>
+                    <LabelText suffix={_("(IPv4 and IPv6 required)")}>
                       {_("IP Addresses")}
-                    </FieldLabel>
+                    </LabelText>
                   );
                 if (manual4)
-                  return <FieldLabel suffix={_("(IPv4 required)")}>{_("IP Addresses")}</FieldLabel>;
+                  return <LabelText suffix={_("(IPv4 required)")}>{_("IP Addresses")}</LabelText>;
                 if (manual6)
-                  return <FieldLabel suffix={_("(IPv6 required)")}>{_("IP Addresses")}</FieldLabel>;
-                return <FieldLabel suffix={_("(optional)")}>{_("IP Addresses")}</FieldLabel>;
+                  return <LabelText suffix={_("(IPv6 required)")}>{_("IP Addresses")}</LabelText>;
+                return <LabelText suffix={_("(optional)")}>{_("IP Addresses")}</LabelText>;
               };
               const label = addressesLabel();
 
@@ -326,12 +309,14 @@ export default function ConnectionForm() {
                   dnsToggle.state.value && (
                     <form.Field name="nameservers">
                       {(field) => (
-                        <FormGroup fieldId={field.name}>
+                        <FormGroup
+                          fieldId={field.name}
+                          label={<LabelText hidden>{_("DNS servers")}</LabelText>}
+                        >
                           <TextArea
                             id={field.name}
                             value={field.state.value}
                             onChange={(_, v) => field.handleChange(v)}
-                            aria-label={_("DNS servers")}
                             aria-describedby={`${field.name}-hint`}
                           />
                           <FormHelperText>

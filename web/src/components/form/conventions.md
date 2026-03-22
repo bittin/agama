@@ -96,6 +96,34 @@ of users: that just adds an unnecessary click.
 **Example:** "Use custom DNS servers" checkbox reveals the DNS Servers field.
 Most users rely on automatic DNS and will never check this box.
 
+## Accessibility notes
+
+### Fields without a visible label
+
+Sometimes a field has no visible label because its purpose is clear from
+the surrounding context, such as a textarea inside a checkbox body. Even then,
+every field needs an accessible name for screen readers, voice control software,
+and browser translation tools.
+
+The quickest fix is `aria-label` directly on the input. It works well and is
+widely supported. However, keeping a real `<label>` element in the DOM is
+generally better: it gets translated by tools like Google Translate, it works
+with voice control software, and it does not depend on ARIA support at all.
+
+To achieve that, just use the src/components/form/`LabelText` component with
+the `hidden` prop for the `FormGroup` label prop. The `FormGroup` will render
+a `<label for="{id}">` whose text content is visually hidden, so sighted users
+never see it but assistive technology always finds it.
+
+**Example:** The textarea that sits inside the "Use custom DNS servers"
+checkbox body has no visible label for it. `<LabelText hidden>` provides the
+accessible name without cluttering the UI.
+
+See: <https://www.w3.org/WAI/tutorials/forms/labels/>
+See: <https://adrianroselli.com/2020/01/my-priority-of-methods-for-labeling-a-control.html>
+See: <https://adrianroselli.com/2019/11/aria-label-does-not-translate.html>
+See: <https://vispero.com/resources/should-form-labels-be-wrapped-or-separate/>
+
 ## Choosing the right pattern
 
 Work through these questions in order:

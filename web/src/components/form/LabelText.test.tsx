@@ -23,20 +23,26 @@
 import React from "react";
 import { screen } from "@testing-library/react";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
+import a11yStyles from "@patternfly/react-styles/css/utilities/Accessibility/accessibility";
 import { installerRender } from "~/test-utils";
-import FieldLabel from "~/components/form/FieldLabel";
+import LabelText from "~/components/form/LabelText";
 
-describe("FieldLabel", () => {
+describe("LabelText", () => {
   it("renders the label text", () => {
-    installerRender(<FieldLabel>Gateway</FieldLabel>);
+    installerRender(<LabelText>Gateway</LabelText>);
     screen.getByText("Gateway");
   });
 
   it("renders the suffix when provided", () => {
-    installerRender(<FieldLabel suffix="(optional)">Gateway</FieldLabel>);
+    installerRender(<LabelText suffix="(optional)">Gateway</LabelText>);
     const suffix = screen.getByText("(optional)");
     expect(suffix).toHaveClass(textStyles.textColorSubtle);
     expect(suffix).toHaveClass(textStyles.fontSizeXs);
     expect(suffix).toHaveClass(textStyles.fontWeightNormal);
+  });
+
+  it("is visually hidden when hidden prop is set", () => {
+    installerRender(<LabelText hidden>DNS servers</LabelText>);
+    expect(screen.getByText("DNS servers")).toHaveClass(a11yStyles.screenReader);
   });
 });
