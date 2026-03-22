@@ -38,6 +38,7 @@ import {
   TextInput,
 } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
+import FieldLabel from "~/components/form/FieldLabel";
 import { Connection, ConnectionMethod } from "~/types/network";
 import { buildAddress } from "~/utils/network";
 import { useConnectionMutation } from "~/hooks/model/config/network";
@@ -192,7 +193,12 @@ export default function ConnectionForm() {
                 method4 === ConnectionMethod.MANUAL && (
                   <form.Field name="gateway4">
                     {(field) => (
-                      <FormGroup fieldId={field.name} label={_("IPv4 Gateway (optional)")}>
+                      <FormGroup
+                        fieldId={field.name}
+                        label={
+                          <FieldLabel suffix={_("(optional)")}>{_("IPv4 Gateway")}</FieldLabel>
+                        }
+                      >
                         <TextInput
                           id={field.name}
                           value={field.state.value}
@@ -229,7 +235,12 @@ export default function ConnectionForm() {
                 method6 === ConnectionMethod.MANUAL && (
                   <form.Field name="gateway6">
                     {(field) => (
-                      <FormGroup fieldId={field.name} label={_("IPv6 Gateway (optional)")}>
+                      <FormGroup
+                        fieldId={field.name}
+                        label={
+                          <FieldLabel suffix={_("(optional)")}>{_("IPv6 Gateway")}</FieldLabel>
+                        }
+                      >
                         <TextInput
                           id={field.name}
                           value={field.state.value}
@@ -254,10 +265,17 @@ export default function ConnectionForm() {
               const manual6 = method6 === ConnectionMethod.MANUAL;
 
               const addressesLabel = () => {
-                if (manual4 && manual6) return _("IP Addresses (IPv4 and IPv6 required)");
-                if (manual4) return _("IP Addresses (IPv4 required)");
-                if (manual6) return _("IP Addresses (IPv6 required)");
-                return _("IP Addresses (optional)");
+                if (manual4 && manual6)
+                  return (
+                    <FieldLabel suffix={_("(IPv4 and IPv6 required)")}>
+                      {_("IP Addresses")}
+                    </FieldLabel>
+                  );
+                if (manual4)
+                  return <FieldLabel suffix={_("(IPv4 required)")}>{_("IP Addresses")}</FieldLabel>;
+                if (manual6)
+                  return <FieldLabel suffix={_("(IPv6 required)")}>{_("IP Addresses")}</FieldLabel>;
+                return <FieldLabel suffix={_("(optional)")}>{_("IP Addresses")}</FieldLabel>;
               };
               const label = addressesLabel();
 
