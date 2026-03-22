@@ -26,6 +26,7 @@ import {
   Alert,
   ActionGroup,
   Button,
+  Checkbox,
   Form,
   FormGroup,
   FormHelperText,
@@ -72,6 +73,13 @@ const parseAddresses = (raw: string) =>
     .map(withPrefix)
     .map(buildAddress);
 
+/** Parses a space/newline separated string of IP addresses into a nameservers array. */
+const parseNameservers = (raw: string): string[] =>
+  raw
+    .split(/[\s\n]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
 /**
  * Form for creating a new network connection.
  *
@@ -100,6 +108,8 @@ export default function ConnectionForm() {
       method6: ConnectionMethod.AUTO,
       gateway6: "",
       addresses: "",
+      useCustomDns: false,
+      nameservers: "",
     },
     validators: {
       onSubmitAsync: async ({ value }) => {
@@ -110,6 +120,7 @@ export default function ConnectionForm() {
           method6: value.method6,
           gateway6: value.gateway6,
           addresses: parseAddresses(value.addresses),
+          nameservers: value.useCustomDns ? parseNameservers(value.nameservers) : [],
         });
         try {
           await updateConnection(connection);
@@ -303,6 +314,41 @@ export default function ConnectionForm() {
               );
             }}
           </form.Subscribe>
+
+          <form.Field name="useCustomDns">
+            {(dnsToggle) => (
+              <Checkbox
+                id={dnsToggle.name}
+                label={_("Use custom DNS servers")}
+                isChecked={dnsToggle.state.value}
+                onChange={(_, checked) => dnsToggle.handleChange(checked)}
+                body={
+                  dnsToggle.state.value && (
+                    <form.Field name="nameservers">
+                      {(field) => (
+                        <FormGroup fieldId={field.name}>
+                          <TextArea
+                            id={field.name}
+                            value={field.state.value}
+                            onChange={(_, v) => field.handleChange(v)}
+                            aria-label={_("DNS servers")}
+                            aria-describedby={`${field.name}-hint`}
+                          />
+                          <FormHelperText>
+                            <HelperText>
+                              <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
+                                {_("Space-separated, e.g. 8.8.8.8 2001:4860:4860::8888")}
+                              </HelperTextItem>
+                            </HelperText>
+                          </FormHelperText>
+                        </FormGroup>
+                      )}
+                    </form.Field>
+                  )
+                }
+              />
+            )}
+          </form.Field>
 
           <ActionGroup>
             <form.Subscribe selector={(s) => s.isSubmitting}>

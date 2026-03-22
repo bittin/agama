@@ -184,4 +184,45 @@ describe("ConnectionForm", () => {
       screen.getByLabelText("IP Addresses (IPv4 and IPv6 required)");
     });
   });
+
+  describe("DNS servers", () => {
+    it("does not show the DNS servers field by default", () => {
+      installerRender(<ConnectionForm />);
+      expect(screen.queryByRole("textbox", { name: "DNS servers" })).not.toBeInTheDocument();
+    });
+
+    it("shows the DNS servers field when the checkbox is checked", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+      await user.click(screen.getByLabelText("Use custom DNS servers"));
+      screen.getByRole("textbox", { name: "DNS servers" });
+    });
+
+    it("submits with parsed nameservers when checkbox is checked", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+      await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
+      await user.click(screen.getByLabelText("Use custom DNS servers"));
+      await user.type(screen.getByRole("textbox", { name: "DNS servers" }), "8.8.8.8 8.8.4.4");
+      await user.click(screen.getByRole("button", { name: "Accept" }));
+      await waitFor(() =>
+        expect(mockMutateAsync).toHaveBeenCalledWith(
+          expect.objectContaining({ nameservers: ["8.8.8.8", "8.8.4.4"] }),
+        ),
+      );
+    });
+
+    it("submits empty nameservers when checkbox is unchecked", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+      await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
+      const useCustomDNSCheckbox = screen.getByRole("checkbox", { name: "Use custom DNS servers" });
+      expect(useCustomDNSCheckbox).not.toBeChecked();
+      await user.click(useCustomDNSCheckbox);
+      expect(useCustomDNSCheckbox).toBeChecked();
+      await user.type(screen.getByRole("textbox", { name: "DNS servers" }), "8.8.8.8 8.8.4.4");
+      await user.click(useCustomDNSCheckbox);
+      await user.click(screen.getByRole("button", { name: "Accept" }));
+      await waitFor(() =>
+        expect(mockMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ nameservers: [] })),
+      );
+    });
+  });
 });
