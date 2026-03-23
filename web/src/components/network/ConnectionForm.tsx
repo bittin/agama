@@ -39,6 +39,7 @@ import {
   TextInput,
 } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
+import NestedContent from "~/components/core/NestedContent";
 import LabelText from "~/components/form/LabelText";
 import { Connection, ConnectionMethod } from "~/types/network";
 import { buildAddress } from "~/utils/network";
@@ -310,13 +311,15 @@ export default function ConnectionForm() {
 
           <form.Field name="useCustomDns">
             {(dnsToggle) => (
-              <Checkbox
-                id={dnsToggle.name}
-                label={_("Use custom DNS servers")}
-                isChecked={dnsToggle.state.value}
-                onChange={(_, checked) => dnsToggle.handleChange(checked)}
-                body={
-                  dnsToggle.state.value && (
+              <>
+                <Checkbox
+                  id={dnsToggle.name}
+                  label={_("Use custom DNS servers")}
+                  isChecked={dnsToggle.state.value}
+                  onChange={(_, checked) => dnsToggle.handleChange(checked)}
+                />
+                {dnsToggle.state.value && (
+                  <NestedContent margin="mxLg">
                     <form.Field name="nameservers">
                       {(field) => (
                         <FormGroup fieldId={field.name}>
@@ -337,21 +340,23 @@ export default function ConnectionForm() {
                         </FormGroup>
                       )}
                     </form.Field>
-                  )
-                }
-              />
+                  </NestedContent>
+                )}
+              </>
             )}
           </form.Field>
 
           <form.Field name="useCustomDnsSearch">
             {(dnsSearchToggle) => (
-              <Checkbox
-                id={dnsSearchToggle.name}
-                label={_("Use custom DNS search domains")}
-                isChecked={dnsSearchToggle.state.value}
-                onChange={(_, checked) => dnsSearchToggle.handleChange(checked)}
-                body={
-                  dnsSearchToggle.state.value && (
+              <>
+                <Checkbox
+                  id={dnsSearchToggle.name}
+                  label={_("Use custom DNS search domains")}
+                  isChecked={dnsSearchToggle.state.value}
+                  onChange={(_, checked) => dnsSearchToggle.handleChange(checked)}
+                />
+                {dnsSearchToggle.state.value && (
+                  <NestedContent margin="mxLg">
                     <form.Field name="dnsSearchList">
                       {(field) => (
                         <FormGroup fieldId={field.name}>
@@ -372,9 +377,9 @@ export default function ConnectionForm() {
                         </FormGroup>
                       )}
                     </form.Field>
-                  )
-                }
-              />
+                  </NestedContent>
+                )}
+              </>
             )}
           </form.Field>
 
