@@ -21,8 +21,8 @@
  */
 
 import React from "react";
+import ConnectionForm from "~/components/network/ConnectionForm";
 import BindingSettingsForm from "~/components/network/BindingSettingsForm";
-import IpSettingsForm from "~/components/network/IpSettingsForm";
 import NetworkPage from "~/components/network/NetworkPage";
 import WifiConnectionForm from "~/components/network/WifiConnectionForm";
 import WiredConnectionPage from "~/components/network/WiredConnectionPage";
@@ -40,11 +40,11 @@ const routes = (): Route => ({
     { index: true, element: <NetworkPage /> },
     {
       path: PATHS.editConnection,
-      element: <IpSettingsForm />,
+      element: <ConnectionForm />,
     },
     {
       path: PATHS.newConnection,
-      element: <IpSettingsForm />,
+      element: <ConnectionForm />,
     },
     {
       path: PATHS.editBindingSettings,
