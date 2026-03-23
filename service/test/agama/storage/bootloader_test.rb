@@ -81,7 +81,9 @@ describe Agama::Storage::Bootloader do
       it "replaces kernel parameters" do
         bootloader.grub_default.kernel_params.replace("proposed=1")
         agama_bootloader.send(:write_extra_kernel_params, bootloader, extra_params)
-        expect(bootloader.grub_default.kernel_params.serialize).to eq("proposed=1 splash=silent quiet")
+        expect(bootloader.grub_default.kernel_params.serialize).to(
+          eq("proposed=1 splash=silent quiet")
+        )
       end
     end
 
