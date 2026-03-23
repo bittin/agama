@@ -89,6 +89,10 @@ leaving it blank is a mistake worth reporting.
 The field value is preserved in form state when the checkbox is unchecked, so
 re-checking restores what the user previously typed.
 
+Render the revealed content using `NestedContent` as a sibling after the
+`Checkbox`, not via the `Checkbox` body prop. The body prop renders inside a
+`<span>`, which is invalid HTML for block content like a form field.
+
 Use this pattern for advanced or rarely needed options that most users should
 never see. Do not use it when the field is likely to be needed by the majority
 of users: that just adds an unnecessary click.
