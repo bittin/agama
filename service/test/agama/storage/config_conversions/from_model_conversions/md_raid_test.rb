@@ -60,7 +60,7 @@ describe Agama::Storage::ConfigConversions::FromModelConversions::MdRaid do
 
     context "if 'spacePolicy' is not specified" do
       let(:model_json) { {} }
-      include_examples "without spacePolicy"
+      include_examples "without spacePolicy", :partitions
     end
 
     context "if 'name' is specified" do
@@ -100,7 +100,7 @@ describe Agama::Storage::ConfigConversions::FromModelConversions::MdRaid do
 
     context "if 'spacePolicy' and 'partitions' are specified" do
       let(:model_json) { { spacePolicy: spacePolicy, partitions: partitions } }
-      include_examples "with spacePolicy and partitions"
+      include_examples "with spacePolicy and volumes"
     end
   end
 end

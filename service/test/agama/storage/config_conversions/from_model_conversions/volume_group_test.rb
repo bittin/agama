@@ -19,7 +19,8 @@
 # To contact SUSE LLC about this file by physical or electronic mail, you may
 # find current contact information at www.suse.com.
 
-require_relative "../../../../test_helper"
+require_relative "./context"
+require_relative "./examples"
 require "agama/storage/config_conversions/from_model_conversions/volume_group"
 require "agama/storage/configs/drive"
 require "agama/storage/configs/logical_volume"
@@ -30,8 +31,10 @@ require "y2storage/refinements"
 using Y2Storage::Refinements::SizeCasts
 
 describe Agama::Storage::ConfigConversions::FromModelConversions::VolumeGroup do
+  include_context "from model conversions"
+
   subject do
-    described_class.new(model_json, targets)
+    described_class.new(model_json, product_config, targets)
   end
 
   describe "#convert" do
@@ -78,6 +81,11 @@ describe Agama::Storage::ConfigConversions::FromModelConversions::VolumeGroup do
         config = subject.convert
         expect(config.logical_volumes).to eq([])
       end
+    end
+
+    context "if 'spacePolicy' is not specified" do
+      let(:model_json) { {} }
+      include_examples "without spacePolicy", :logical_volumes
     end
 
     context "if 'vgName' is specified" do
@@ -157,6 +165,16 @@ describe Agama::Storage::ConfigConversions::FromModelConversions::VolumeGroup do
           expect(lv2.name).to eq("lv2")
         end
       end
+    end
+
+    context "if 'spacePolicy' is specified" do
+      let(:model_json) { { spacePolicy: spacePolicy } }
+      include_examples "with spacePolicy"
+    end
+
+    context "if 'spacePolicy' and 'logicalVolumes' are specified" do
+      let(:model_json) { { spacePolicy: spacePolicy, logicalVolumes: logical_volumes } }
+      include_examples "with spacePolicy and volumes"
     end
   end
 end

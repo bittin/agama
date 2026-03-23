@@ -22,9 +22,9 @@
 require "agama/storage/config_conversions/from_model_conversions/base"
 require "agama/storage/config_conversions/from_model_conversions/with_encryption"
 require "agama/storage/config_conversions/from_model_conversions/with_filesystem"
-require "agama/storage/config_conversions/from_model_conversions/with_partitions"
 require "agama/storage/config_conversions/from_model_conversions/with_ptable_type"
 require "agama/storage/config_conversions/from_model_conversions/with_search"
+require "agama/storage/config_conversions/from_model_conversions/with_volumes"
 require "agama/storage/configs/drive"
 
 module Agama
@@ -36,7 +36,7 @@ module Agama
           include WithEncryption
           include WithFilesystem
           include WithPtableType
-          include WithPartitions
+          include WithVolumes
           include WithSearch
 
           # @param model_json [Hash]
@@ -72,7 +72,7 @@ module Agama
               encryption:  convert_encryption,
               filesystem:  convert_filesystem,
               ptable_type: convert_ptable_type,
-              partitions:  convert_partitions(encryption_model)
+              partitions:  convert_volumes(encryption_model)
             }
           end
         end

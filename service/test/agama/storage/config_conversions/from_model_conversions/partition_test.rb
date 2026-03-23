@@ -110,5 +110,30 @@ describe Agama::Storage::ConfigConversions::FromModelConversions::Partition do
       let(:model_json) { { mountPath: mountPath, filesystem: filesystem } }
       include_examples "with mountPath and filesystem"
     end
+
+    context "if 'resizeIfNeeded' is specified" do
+      let(:model_json) { { resizeIfNeeded: resize_if_needed } }
+      include_examples "with resizeIfNeeded"
+    end
+
+    context "if 'size' and 'resizeIfNeeded' are specified" do
+      let(:model_json) { { size: size, resizeIfNeeded: resize_if_needed } }
+      include_examples "with size and resizeIfNeeded"
+    end
+
+    context "if 'size' and 'resize' are specified" do
+      let(:model_json) { { size: size, resize: resize } }
+      include_examples "with size and resize"
+    end
+
+    context "if 'delete' is specified" do
+      let(:model_json) { { delete: true, mountPath: mount_path } }
+      include_examples "with delete"
+    end
+
+    context "if 'deleteIfNeeded' is specified" do
+      let(:model_json) { { deleteIfNeeded: true, mountPath: mount_path } }
+      include_examples "with deleteIfNeeded"
+    end
   end
 end

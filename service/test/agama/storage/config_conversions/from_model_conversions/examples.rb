@@ -44,59 +44,59 @@ shared_examples "without ptableType" do
   end
 end
 
-shared_examples "without spacePolicy" do
+shared_examples "without spacePolicy" do |volumes_property|
   context "if the default space policy is 'keep'" do
     let(:space_policy) { "keep" }
 
-    it "sets #partitions to the expected value" do
+    it "sets volumes to the expected value" do
       config = subject.convert
-      partitions = config.partitions
-      expect(partitions).to be_empty
+      volumes = config.public_send(volumes_property)
+      expect(volumes).to be_empty
     end
   end
 
   context "if the default space policy is 'delete'" do
     let(:space_policy) { "delete" }
 
-    it "sets #partitions to the expected value" do
+    it "sets volumes to the expected value" do
       config = subject.convert
-      partitions = config.partitions
-      expect(partitions.size).to eq(1)
+      volumes = config.public_send(volumes_property)
+      expect(volumes.size).to eq(1)
 
-      partition = partitions.first
-      expect(partition.search.name).to be_nil
-      expect(partition.search.if_not_found).to eq(:skip)
-      expect(partition.search.max).to be_nil
-      expect(partition.delete?).to eq(true)
+      volume = volumes.first
+      expect(volume.search.name).to be_nil
+      expect(volume.search.if_not_found).to eq(:skip)
+      expect(volume.search.max).to be_nil
+      expect(volume.delete?).to eq(true)
     end
   end
 
   context "if the default space policy is 'resize'" do
     let(:space_policy) { "resize" }
 
-    it "sets #partitions to the expected value" do
+    it "sets volumes to the expected value" do
       config = subject.convert
-      partitions = config.partitions
-      expect(partitions.size).to eq(1)
+      volumes = config.public_send(volumes_property)
+      expect(volumes.size).to eq(1)
 
-      partition = partitions.first
-      expect(partition.search.name).to be_nil
-      expect(partition.search.if_not_found).to eq(:skip)
-      expect(partition.search.max).to be_nil
-      expect(partition.delete?).to eq(false)
-      expect(partition.size.default?).to eq(false)
-      expect(partition.size.min).to eq(Y2Storage::DiskSize.zero)
-      expect(partition.size.max).to be_nil
+      volume = volumes.first
+      expect(volume.search.name).to be_nil
+      expect(volume.search.if_not_found).to eq(:skip)
+      expect(volume.search.max).to be_nil
+      expect(volume.delete?).to eq(false)
+      expect(volume.size.default?).to eq(false)
+      expect(volume.size.min).to eq(Y2Storage::DiskSize.zero)
+      expect(volume.size.max).to be_nil
     end
   end
 
   context "if the default space policy is 'custom'" do
     let(:space_policy) { "custom" }
 
-    it "sets #partitions to the expected value" do
+    it "sets volumes to the expected value" do
       config = subject.convert
-      partitions = config.partitions
-      expect(partitions).to be_empty
+      volumes = config.public_send(volumes_property)
+      expect(volumes).to be_empty
     end
   end
 end
@@ -505,114 +505,122 @@ shared_examples "with partitions" do
 end
 
 shared_examples "with spacePolicy" do
+  def volumes_config(config)
+    config.respond_to?(:logical_volumes) ? config.logical_volumes : config.partitions
+  end
+
   context "if space policy is 'keep'" do
     let(:spacePolicy) { "keep" }
 
-    it "sets #partitions to the expected value" do
+    it "sets volumes to the expected value" do
       config = subject.convert
-      partitions = config.partitions
-      expect(partitions).to be_empty
+      volumes = volumes_config(config)
+      expect(volumes).to be_empty
     end
   end
 
   context "if space policy is 'delete'" do
     let(:spacePolicy) { "delete" }
 
-    it "sets #partitions to the expected value" do
+    it "sets volumes to the expected value" do
       config = subject.convert
-      partitions = config.partitions
-      expect(partitions.size).to eq(1)
+      volumes = volumes_config(config)
+      expect(volumes.size).to eq(1)
 
-      partition = partitions.first
-      expect(partition.search.name).to be_nil
-      expect(partition.search.if_not_found).to eq(:skip)
-      expect(partition.search.max).to be_nil
-      expect(partition.delete?).to eq(true)
+      volume = volumes.first
+      expect(volume.search.name).to be_nil
+      expect(volume.search.if_not_found).to eq(:skip)
+      expect(volume.search.max).to be_nil
+      expect(volume.delete?).to eq(true)
     end
   end
 
   context "if space policy is 'resize'" do
     let(:spacePolicy) { "resize" }
 
-    it "sets #partitions to the expected value" do
+    it "sets volumes to the expected value" do
       config = subject.convert
-      partitions = config.partitions
-      expect(partitions.size).to eq(1)
+      volumes = volumes_config(config)
+      expect(volumes.size).to eq(1)
 
-      partition = partitions.first
-      expect(partition.search.name).to be_nil
-      expect(partition.search.if_not_found).to eq(:skip)
-      expect(partition.search.max).to be_nil
-      expect(partition.delete?).to eq(false)
-      expect(partition.size.default?).to eq(false)
-      expect(partition.size.min).to eq(Y2Storage::DiskSize.zero)
-      expect(partition.size.max).to be_nil
+      volume = volumes.first
+      expect(volume.search.name).to be_nil
+      expect(volume.search.if_not_found).to eq(:skip)
+      expect(volume.search.max).to be_nil
+      expect(volume.delete?).to eq(false)
+      expect(volume.size.default?).to eq(false)
+      expect(volume.size.min).to eq(Y2Storage::DiskSize.zero)
+      expect(volume.size.max).to be_nil
     end
   end
 
   context "if space policy is 'custom'" do
     let(:spacePolicy) { "custom" }
 
-    it "sets #partitions to the expected value" do
+    it "sets volumes to the expected value" do
       config = subject.convert
-      partitions = config.partitions
-      expect(partitions).to be_empty
+      volumes = volumes_config(config)
+      expect(volumes).to be_empty
     end
   end
 end
 
-shared_examples "with spacePolicy and partitions" do
-  let(:partitions) do
+shared_examples "with spacePolicy and volumes" do
+  def volumes_config(config)
+    config.respond_to?(:logical_volumes) ? config.logical_volumes : config.partitions
+  end
+
+  let(:volumes_json) do
     [
-      # Reused partition with some usage.
+      # Reused volumes with some usage.
       {
-        name:      "/dev/vda1",
+        name:      "/dev/vol1",
         mountPath: "/test1",
         size:      { default: true, min: 10.GiB.to_i }
       },
-      # Reused partition with some usage.
+      # Reused volume with some usage.
       {
-        name:           "/dev/vda2",
+        name:           "/dev/vol2",
         mountPath:      "/test2",
         resizeIfNeeded: true,
         size:           { default: false, min: 10.GiB.to_i }
       },
-      # Reused partition with some usage.
+      # Reused volume with some usage.
       {
-        name:      "/dev/vda3",
+        name:      "/dev/vol3",
         mountPath: "/test3",
         resize:    true,
         size:      { default: false, min: 10.GiB.to_i, max: 10.GiB.to_i }
       },
-      # Reused partition representing a space action (resize).
+      # Reused volume representing a space action (resize).
       {
-        name:           "/dev/vda4",
+        name:           "/dev/vol4",
         resizeIfNeeded: true,
         size:           { default: false, min: 10.GiB.to_i }
       },
-      # Reused partition representing a space action (resize).
+      # Reused volume representing a space action (resize).
       {
-        name:   "/dev/vda5",
+        name:   "/dev/vol5",
         resize: true,
         size:   { default: false, min: 10.GiB.to_i, max: 10.GiB.to_i }
       },
-      # Reused partition representing a space action (delete).
+      # Reused volume representing a space action (delete).
       {
-        name:   "/dev/vda6",
+        name:   "/dev/vol6",
         delete: true
       },
-      # Reused partition representing a space action (delete).
+      # Reused volume representing a space action (delete).
       {
-        name:           "/dev/vda7",
+        name:           "/dev/vol7",
         deleteIfNeeded: true
       },
-      # Reused partition representing a space action (keep).
+      # Reused volume representing a space action (keep).
       {
-        name: "/dev/vda8"
+        name: "/dev/vol8"
       },
-      # New partition.
+      # New volume.
       {},
-      # New partition.
+      # New volume.
       {
         mountPath:      "/",
         resizeIfNeeded: true,
@@ -622,225 +630,208 @@ shared_examples "with spacePolicy and partitions" do
     ]
   end
 
+  let(:partitions) { volumes_json }
+  let(:logical_volumes) { volumes_json }
+
   context "if space policy is 'keep'" do
     let(:spacePolicy) { "keep" }
 
-    it "sets #partitions to the expected value" do
+    it "sets volumes to the expected value" do
       config = subject.convert
-      partitions = config.partitions
-      expect(partitions.size).to eq(5)
-      expect(partitions[0].search.name).to eq("/dev/vda1")
-      expect(partitions[1].search.name).to eq("/dev/vda2")
-      expect(partitions[2].search.name).to eq("/dev/vda3")
-      expect(partitions[3].filesystem).to be_nil
-      expect(partitions[4].filesystem.path).to eq("/")
+      volumes = volumes_config(config)
+      expect(volumes.size).to eq(5)
+      expect(volumes[0].search.name).to eq("/dev/vol1")
+      expect(volumes[1].search.name).to eq("/dev/vol2")
+      expect(volumes[2].search.name).to eq("/dev/vol3")
+      expect(volumes[3].filesystem).to be_nil
+      expect(volumes[4].filesystem.path).to eq("/")
     end
   end
 
   context "if space policy is 'delete'" do
     let(:spacePolicy) { "delete" }
 
-    it "sets #partitions to the expected value" do
+    it "sets volumes to the expected value" do
       config = subject.convert
-      partitions = config.partitions
-      expect(partitions.size).to eq(6)
-      expect(partitions[0].search.name).to eq("/dev/vda1")
-      expect(partitions[1].search.name).to eq("/dev/vda2")
-      expect(partitions[2].search.name).to eq("/dev/vda3")
-      expect(partitions[3].filesystem).to be_nil
-      expect(partitions[4].filesystem.path).to eq("/")
-      expect(partitions[5].search.name).to be_nil
-      expect(partitions[5].search.max).to be_nil
-      expect(partitions[5].delete).to eq(true)
+      volumes = volumes_config(config)
+      expect(volumes.size).to eq(6)
+      expect(volumes[0].search.name).to eq("/dev/vol1")
+      expect(volumes[1].search.name).to eq("/dev/vol2")
+      expect(volumes[2].search.name).to eq("/dev/vol3")
+      expect(volumes[3].filesystem).to be_nil
+      expect(volumes[4].filesystem.path).to eq("/")
+      expect(volumes[5].search.name).to be_nil
+      expect(volumes[5].search.max).to be_nil
+      expect(volumes[5].delete).to eq(true)
     end
   end
 
   context "if space policy is 'resize'" do
     let(:spacePolicy) { "resize" }
 
-    it "sets #partitions to the expected value" do
+    it "sets volumes to the expected value" do
       config = subject.convert
-      partitions = config.partitions
-      expect(partitions.size).to eq(6)
-      expect(partitions[0].search.name).to eq("/dev/vda1")
-      expect(partitions[1].search.name).to eq("/dev/vda2")
-      expect(partitions[2].search.name).to eq("/dev/vda3")
-      expect(partitions[3].filesystem).to be_nil
-      expect(partitions[4].filesystem.path).to eq("/")
-      expect(partitions[5].search.name).to be_nil
-      expect(partitions[5].search.max).to be_nil
-      expect(partitions[5].size.default?).to eq(false)
-      expect(partitions[5].size.min).to eq(Y2Storage::DiskSize.zero)
-      expect(partitions[5].size.max).to be_nil
+      volumes = volumes_config(config)
+      expect(volumes.size).to eq(6)
+      expect(volumes[0].search.name).to eq("/dev/vol1")
+      expect(volumes[1].search.name).to eq("/dev/vol2")
+      expect(volumes[2].search.name).to eq("/dev/vol3")
+      expect(volumes[3].filesystem).to be_nil
+      expect(volumes[4].filesystem.path).to eq("/")
+      expect(volumes[5].search.name).to be_nil
+      expect(volumes[5].search.max).to be_nil
+      expect(volumes[5].size.default?).to eq(false)
+      expect(volumes[5].size.min).to eq(Y2Storage::DiskSize.zero)
+      expect(volumes[5].size.max).to be_nil
     end
   end
 
   context "if space policy is 'custom'" do
     let(:spacePolicy) { "custom" }
 
-    it "sets #partitions to the expected value" do
+    it "sets volumes to the expected value" do
       config = subject.convert
-      partitions = config.partitions
-      expect(partitions.size).to eq(9)
-      expect(partitions[0].search.name).to eq("/dev/vda1")
-      expect(partitions[1].search.name).to eq("/dev/vda2")
-      expect(partitions[2].search.name).to eq("/dev/vda3")
-      expect(partitions[3].filesystem).to be_nil
-      expect(partitions[4].filesystem.path).to eq("/")
-      expect(partitions[5].search.name).to eq("/dev/vda4")
-      expect(partitions[6].search.name).to eq("/dev/vda5")
-      expect(partitions[7].search.name).to eq("/dev/vda6")
-      expect(partitions[8].search.name).to eq("/dev/vda7")
+      volumes = volumes_config(config)
+      expect(volumes.size).to eq(9)
+      expect(volumes[0].search.name).to eq("/dev/vol1")
+      expect(volumes[1].search.name).to eq("/dev/vol2")
+      expect(volumes[2].search.name).to eq("/dev/vol3")
+      expect(volumes[3].filesystem).to be_nil
+      expect(volumes[4].filesystem.path).to eq("/")
+      expect(volumes[5].search.name).to eq("/dev/vol4")
+      expect(volumes[6].search.name).to eq("/dev/vol5")
+      expect(volumes[7].search.name).to eq("/dev/vol6")
+      expect(volumes[8].search.name).to eq("/dev/vol7")
     end
+  end
+end
 
-    context "if a partition spicifies 'resizeIfNeeded'" do
-      let(:partitions) { [{ resizeIfNeeded: resizeIfNeeded }] }
+shared_examples "with resizeIfNeeded" do
+  context "if 'resizeIfNeeded' is true" do
+    let(:resize_if_needed) { true }
 
-      context "if 'resizeIfNeeded' is true" do
-        let(:resizeIfNeeded) { true }
-
-        it "sets #size to the expected value" do
-          config = subject.convert
-          size = config.partitions.first.size
-          expect(size).to be_a(Agama::Storage::Configs::Size)
-          expect(size.default?).to eq(false)
-          expect(size.min).to eq(Y2Storage::DiskSize.zero)
-          expect(size.max).to be_nil
-        end
-      end
-
-      context "if 'resizeIfNeeded' is false" do
-        let(:resizeIfNeeded) { false }
-
-        it "sets #size to the expected value" do
-          config = subject.convert
-          size = config.partitions.first.size
-          expect(size).to be_a(Agama::Storage::Configs::Size)
-          expect(size.default?).to eq(true)
-          expect(size.min).to be_nil
-          expect(size.max).to be_nil
-        end
-      end
+    it "sets #size to the expected value" do
+      config = subject.convert
+      expect(config.size).to be_a(Agama::Storage::Configs::Size)
+      expect(config.size.default?).to eq(false)
+      expect(config.size.min).to eq(Y2Storage::DiskSize.zero)
+      expect(config.size.max).to be_nil
     end
+  end
 
-    context "if a partition spicifies both 'size' and 'resizeIfNeeded'" do
-      let(:partitions) { [{ size: size, resizeIfNeeded: resizeIfNeeded }] }
+  context "if 'resizeIfNeeded' is false" do
+    let(:resize_if_needed) { false }
 
-      let(:size) do
-        {
-          default: true,
-          min:     1.GiB.to_i,
-          max:     10.GiB.to_i
-        }
-      end
-
-      context "if 'resizeIfNeeded' is true" do
-        let(:resizeIfNeeded) { true }
-
-        it "sets #size to the expected value" do
-          config = subject.convert
-          size = config.partitions.first.size
-          expect(size).to be_a(Agama::Storage::Configs::Size)
-          expect(size.default?).to eq(false)
-          expect(size.min).to eq(Y2Storage::DiskSize.zero)
-          expect(size.max).to be_nil
-        end
-      end
-
-      context "if 'resizeIfNeeded' is false" do
-        let(:resizeIfNeeded) { false }
-
-        it "sets #size to the expected value" do
-          config = subject.convert
-          size = config.partitions.first.size
-          expect(size).to be_a(Agama::Storage::Configs::Size)
-          expect(size.default?).to eq(true)
-          expect(size.min).to eq(1.GiB)
-          expect(size.max).to eq(10.GiB)
-        end
-      end
+    it "sets #size to the expected value" do
+      config = subject.convert
+      expect(config.size).to be_a(Agama::Storage::Configs::Size)
+      expect(config.size.default?).to eq(true)
+      expect(config.size.min).to be_nil
+      expect(config.size.max).to be_nil
     end
+  end
+end
 
-    context "if a partition spicifies both 'size' and 'resize'" do
-      let(:partitions) { [{ size: size, resize: resize }] }
+shared_examples "with size and resizeIfNeeded" do
+  let(:size) do
+    {
+      default: true,
+      min:     1.GiB.to_i,
+      max:     10.GiB.to_i
+    }
+  end
 
-      let(:size) do
-        {
-          default: true,
-          min:     1.GiB.to_i,
-          max:     10.GiB.to_i
-        }
-      end
+  context "if 'resizeIfNeeded' is true" do
+    let(:resize_if_needed) { true }
 
-      context "if 'resize' is true" do
-        let(:resize) { true }
-
-        it "sets #size to the expected value" do
-          config = subject.convert
-          size = config.partitions.first.size
-          expect(size).to be_a(Agama::Storage::Configs::Size)
-          expect(size.default?).to eq(true)
-          expect(size.min).to eq(1.GiB)
-          expect(size.max).to eq(10.GiB)
-        end
-      end
-
-      context "if 'size' is false" do
-        let(:resize) { false }
-
-        it "sets #size to the expected value" do
-          config = subject.convert
-          size = config.partitions.first.size
-          expect(size).to be_a(Agama::Storage::Configs::Size)
-          expect(size.default?).to eq(true)
-          expect(size.min).to eq(1.GiB)
-          expect(size.max).to eq(10.GiB)
-        end
-      end
+    it "sets #size to the expected value" do
+      config = subject.convert
+      expect(config.size).to be_a(Agama::Storage::Configs::Size)
+      expect(config.size.default?).to eq(false)
+      expect(config.size.min).to eq(Y2Storage::DiskSize.zero)
+      expect(config.size.max).to be_nil
     end
+  end
 
-    context "if a partition specifies 'delete'" do
-      let(:partitions) { [{ delete: true, mountPath: mount_path }] }
+  context "if 'resizeIfNeeded' is false" do
+    let(:resize_if_needed) { false }
 
-      let(:mount_path) { nil }
-
-      it "sets #delete to true" do
-        config = subject.convert
-        partition = config.partitions.first
-        expect(partition.delete?).to eq(true)
-      end
-
-      context "and the partition has a mount path" do
-        let(:mount_path) { "/test" }
-
-        it "sets #delete to false" do
-          config = subject.convert
-          partition = config.partitions.first
-          expect(partition.delete?).to eq(false)
-        end
-      end
+    it "sets #size to the expected value" do
+      config = subject.convert
+      expect(config.size).to be_a(Agama::Storage::Configs::Size)
+      expect(config.size.default?).to eq(true)
+      expect(config.size.min).to eq(1.GiB)
+      expect(config.size.max).to eq(10.GiB)
     end
+  end
+end
 
-    context "if a partition specifies 'deleteIfNeeded'" do
-      let(:partitions) { [{ deleteIfNeeded: true, mountPath: mount_path }] }
+shared_examples "with size and resize" do
+  let(:size) do
+    {
+      default: true,
+      min:     1.GiB.to_i,
+      max:     10.GiB.to_i
+    }
+  end
 
-      let(:mount_path) { nil }
+  context "if 'resize' is true" do
+    let(:resize) { true }
 
-      it "sets #delete_if_needed to true" do
-        config = subject.convert
-        partition = config.partitions.first
-        expect(partition.delete_if_needed?).to eq(true)
-      end
+    it "sets #size to the expected value" do
+      config = subject.convert
+      expect(config.size).to be_a(Agama::Storage::Configs::Size)
+      expect(config.size.default?).to eq(true)
+      expect(config.size.min).to eq(1.GiB)
+      expect(config.size.max).to eq(10.GiB)
+    end
+  end
 
-      context "and the partition has a mount path" do
-        let(:mount_path) { "/test" }
+  context "if 'size' is false" do
+    let(:resize) { false }
 
-        it "sets #delete_if_needed to false" do
-          config = subject.convert
-          partition = config.partitions.first
-          expect(partition.delete_if_needed?).to eq(false)
-        end
-      end
+    it "sets #size to the expected value" do
+      config = subject.convert
+      expect(config.size).to be_a(Agama::Storage::Configs::Size)
+      expect(config.size.default?).to eq(true)
+      expect(config.size.min).to eq(1.GiB)
+      expect(config.size.max).to eq(10.GiB)
+    end
+  end
+end
+
+shared_examples "with delete" do
+  let(:mount_path) { nil }
+
+  it "sets #delete to true" do
+    config = subject.convert
+    expect(config.delete?).to eq(true)
+  end
+
+  context "and 'mountPath' is specified" do
+    let(:mount_path) { "/test" }
+
+    it "sets #delete to false" do
+      config = subject.convert
+      expect(config.delete?).to eq(false)
+    end
+  end
+end
+
+shared_examples "with deleteIfNeeded" do
+  let(:mount_path) { nil }
+
+  it "sets #delete_if_needed to true" do
+    config = subject.convert
+    expect(config.delete_if_needed?).to eq(true)
+  end
+
+  context "and the partition has a mount path" do
+    let(:mount_path) { "/test" }
+
+    it "sets #delete_if_needed to false" do
+      config = subject.convert
+      expect(config.delete_if_needed?).to eq(false)
     end
   end
 end
