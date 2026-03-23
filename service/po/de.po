@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-03 15:34+0000\n"
-"PO-Revision-Date: 2026-02-17 04:04+0000\n"
+"POT-Creation-Date: 2026-03-16 17:01+0000\n"
+"PO-Revision-Date: 2026-03-15 08:04+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language-Team: German <https://l10n.opensuse.org/projects/agama/agama-"
 "service-master/de/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16\n"
+"X-Generator: Weblate 5.16.2\n"
 
 #. Reports the problems and decide whether to continue or not.
 #.
@@ -28,19 +28,13 @@ msgid "Found unsupported elements in the AutoYaST profile: %{keys}."
 msgstr "Nicht unterstützte Elemente im AutoYaST-Profil gefunden: %{keys}."
 
 #. Implementation for the API method #Probe.
-#: service/lib/agama/dbus/storage/dasd.rb:66
+#: service/lib/agama/dbus/storage/dasd.rb:68
 msgid "Probing DASD devices"
 msgstr "DASD-Geräte werden untersucht"
 
-#. Performs the configuration process in a separate thread.
-#.
-#. The configuration could take long time  (e.g., formatting devices). It is important to not
-#. block the service in order to make possible to attend other requests.
-#.
-#. @raise if there is an unfinished configuration.
-#.
-#. @param config_json [Hash]
-#: service/lib/agama/dbus/storage/dasd.rb:119
+#. The configuration could take long time  (e.g., formatting devices). It is important to
+#. not block the service in order to make possible to attend other requests.
+#: service/lib/agama/dbus/storage/dasd.rb:94
 msgid "Configuring DASD"
 msgstr "DASD wird konfiguriert"
 
@@ -58,39 +52,39 @@ msgid "Performing iSCSI discovery"
 msgstr "iSCSI-Erkennung wird durchgeführt"
 
 #. Implementation for the API method #Install.
-#: service/lib/agama/dbus/storage/manager.rb:186
+#: service/lib/agama/dbus/storage/manager.rb:187
 msgid "Preparing bootloader proposal"
 msgstr "Bootloader-Vorschlag wird vorbereitet"
 
-#: service/lib/agama/dbus/storage/manager.rb:189
+#: service/lib/agama/dbus/storage/manager.rb:190
 msgid "Preparing the storage devices"
 msgstr "Speichergeräte werden vorbereitet"
 
-#: service/lib/agama/dbus/storage/manager.rb:192
+#: service/lib/agama/dbus/storage/manager.rb:193
 msgid "Writing bootloader sysconfig"
 msgstr "Bootloader-Systemkonfiguration wird geschrieben"
 
 #. Implementation for the API method #Finish.
-#: service/lib/agama/dbus/storage/manager.rb:200
+#: service/lib/agama/dbus/storage/manager.rb:201
 msgid "Finishing installation"
 msgstr "Installation abschließen"
 
 #. Implementation for the API method #Umount.
-#: service/lib/agama/dbus/storage/manager.rb:207
+#: service/lib/agama/dbus/storage/manager.rb:208
 msgid "Unmounting devices"
 msgstr "Geräte werden ausgehängt"
 
 #. after loading config try to apply it, so proper packages can be requested
 #. TODO: generate also new issue from configuration
-#: service/lib/agama/dbus/storage/manager.rb:236
+#: service/lib/agama/dbus/storage/manager.rb:237
 msgid "Activating storage devices"
 msgstr "Speichergeräte werden aktiviert"
 
-#: service/lib/agama/dbus/storage/manager.rb:239
+#: service/lib/agama/dbus/storage/manager.rb:240
 msgid "Probing storage devices"
 msgstr "Speichergeräte werden untersucht"
 
-#: service/lib/agama/dbus/storage/manager.rb:242
+#: service/lib/agama/dbus/storage/manager.rb:243
 msgid "Applying storage configuration"
 msgstr "Speicherkonfiguration anwenden"
 
@@ -452,10 +446,9 @@ msgstr "Dateisystem-Schnappschüsse werden konfiguriert"
 #. Returns an issue if there is no candidate device for installation
 #.
 #. @return [Issue, nil]
-#: service/lib/agama/storage/manager.rb:252
-#, fuzzy
+#: service/lib/agama/storage/manager.rb:251
 msgid "There is no suitable device for installation"
-msgstr "Kein Gerät für die Installation ausgewählt"
+msgstr "Es gibt kein geeignetes Gerät für die Installation"
 
 #. Issue representing the proposal is not valid.
 #.
@@ -492,16 +485,16 @@ msgstr "Speichergeräte werden ausgehängt"
 #: service/lib/agama/storage/zfcp/manager.rb:206
 #, c-format
 msgid "The zFCP controller %s cannot be activated"
-msgstr ""
+msgstr "Der zFCP-Controller %s kann nicht aktiviert werden"
 
 #. Activates a device if it is not active yet.
 #.
 #. @param device [Device]
 #. @return [Boolean] Whether the device was activated.
 #: service/lib/agama/storage/zfcp/manager.rb:239
-#, fuzzy, c-format
+#, c-format
 msgid "The zFCP device %s cannot be activated"
-msgstr "Das Bootgerät kann nicht automatisch ausgewählt werden"
+msgstr "Das zFCP-Gerät %s kann nicht aktiviert werden"
 
 #. Deactivates a device if it is active.
 #.
@@ -510,9 +503,9 @@ msgstr "Das Bootgerät kann nicht automatisch ausgewählt werden"
 #. @param device [Device]
 #. @return [Boolean] Whether the device was deactivated.
 #: service/lib/agama/storage/zfcp/manager.rb:277
-#, fuzzy, c-format
+#, c-format
 msgid "The zFCP device %s cannot be deactivated"
-msgstr "Das Bootgerät kann nicht automatisch ausgewählt werden"
+msgstr "Das zFCP-Gerät %s kann nicht deaktiviert werden"
 
 #. Issue if the controller is missing.
 #.
@@ -521,7 +514,7 @@ msgstr "Das Bootgerät kann nicht automatisch ausgewählt werden"
 #: service/lib/agama/storage/zfcp/manager.rb:307
 #, c-format
 msgid "Unknown zFCP controller %s"
-msgstr ""
+msgstr "Unbekannter zFCP-Controller %s"
 
 #. Issue if the device is missing.
 #.
