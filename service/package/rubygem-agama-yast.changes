@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Mar 23 12:29:40 UTC 2026 - Josef Reidinger <jreidinger@suse.com>
+
+- implement setting kernel parameters for systemd boot
+  (jsc#PED-10703)
+
+-------------------------------------------------------------------
 Thu Mar 19 21:12:15 UTC 2026 - Imobach Gonzalez Sosa <igonzalezsosa@suse.com>
 
 - AutoYaST support: use the connection "device" as fallback for network
