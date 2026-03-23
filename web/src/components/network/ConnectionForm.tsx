@@ -319,14 +319,12 @@ export default function ConnectionForm() {
                   dnsToggle.state.value && (
                     <form.Field name="nameservers">
                       {(field) => (
-                        <FormGroup
-                          fieldId={field.name}
-                          label={<LabelText hidden>{_("DNS servers")}</LabelText>}
-                        >
+                        <FormGroup fieldId={field.name}>
                           <TextArea
                             id={field.name}
                             value={field.state.value}
                             onChange={(_, v) => field.handleChange(v)}
+                            aria-label={_("DNS servers")}
                             aria-describedby={`${field.name}-hint`}
                           />
                           <FormHelperText>

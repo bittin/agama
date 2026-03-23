@@ -105,19 +105,17 @@ the surrounding context, such as a textarea inside a checkbox body. Even then,
 every field needs an accessible name for screen readers, voice control software,
 and browser translation tools.
 
-The quickest fix is `aria-label` directly on the input. It works well and is
-widely supported. However, keeping a real `<label>` element in the DOM is
-generally better: it gets translated by tools like Google Translate, it works
-with voice control software, and it does not depend on ARIA support at all.
+Ideally, a real `<label>` element would be kept in the DOM with its text
+visually hidden. This is better than `aria-label` because it gets translated
+by browser tools, works with voice control software, and does not depend on
+ARIA support. However, PatternFly's `FormGroup` reserves visual space for the
+label area whenever a label is provided, even when its content is hidden,
+leaving an unwanted gap in the layout. Fighting that with CSS overrides is
+hacky and fragile for little practical benefit in an application that manages
+its own translations via `_()`.
 
-To achieve that, just use the src/components/form/`LabelText` component with
-the `hidden` prop for the `FormGroup` label prop. The `FormGroup` will render
-a `<label for="{id}">` whose text content is visually hidden, so sighted users
-never see it but assistive technology always finds it.
-
-**Example:** The textarea that sits inside the "Use custom DNS servers"
-checkbox body has no visible label for it. `<LabelText hidden>` provides the
-accessible name without cluttering the UI.
+For this reason, `aria-label` is used as the fallback for fields without a
+visible label. It is widely supported and works correctly in this context.
 
 See: <https://www.w3.org/WAI/tutorials/forms/labels/>
 See: <https://adrianroselli.com/2020/01/my-priority-of-methods-for-labeling-a-control.html>
@@ -128,7 +126,7 @@ See: <https://vispero.com/resources/should-form-labels-be-wrapped-or-separate/>
 
 Patterns 4 and 5 can work well together. If a form has one common optional
 field alongside a group of rarely needed advanced options, show the common
-field directly with an (optional) suffix and hide the rest behind a checkbox.
+field directly with an `(optional)` suffix and hide the rest behind a checkbox.
 For example: in the storage partition form, a file system label could sit next
 to the file system selector as a plain optional field, while the remaining
 advanced options might be hidden behind a "More file system options" checkbox.
@@ -148,8 +146,8 @@ Work through these questions in order:
 5. Is the field an advanced option that most users will never need? Use pattern 5.
 
 These questions apply per field. Patterns can and should be combined within the
-same form when different fields have different needs. See the Combining
-patterns section above for an example.
+same form when different fields have different needs. See the Combining patterns
+section above for an example.
 
 ## Summary
 

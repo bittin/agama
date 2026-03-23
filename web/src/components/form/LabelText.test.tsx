@@ -23,7 +23,6 @@
 import React from "react";
 import { screen } from "@testing-library/react";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
-import a11yStyles from "@patternfly/react-styles/css/utilities/Accessibility/accessibility";
 import { installerRender } from "~/test-utils";
 import LabelText from "~/components/form/LabelText";
 
@@ -39,10 +38,5 @@ describe("LabelText", () => {
     expect(suffix).toHaveClass(textStyles.textColorSubtle);
     expect(suffix).toHaveClass(textStyles.fontSizeXs);
     expect(suffix).toHaveClass(textStyles.fontWeightNormal);
-  });
-
-  it("is visually hidden when hidden prop is set", () => {
-    installerRender(<LabelText hidden>DNS servers</LabelText>);
-    expect(screen.getByText("DNS servers")).toHaveClass(a11yStyles.screenReader);
   });
 });
