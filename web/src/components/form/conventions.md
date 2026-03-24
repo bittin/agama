@@ -35,7 +35,25 @@ available device.
 **Not yet an example:** Name. It will have an auto-generated default derived
 from the selected interface, but that is not implemented yet.
 
-### 2. Conditionally shown, required when shown
+### 2. Always shown, optional or context-dependent
+
+The field is always visible. Use this when hiding the field would hurt
+discoverability or when its label needs to reflect the current state of the
+form.
+
+If the field is always optional, use the `(optional)` suffix.
+
+If the requirement depends on the state of other fields, use a clarifying
+suffix that describes what is currently expected. This is a special case and
+should be used sparingly: if you find yourself reaching for it often, the form
+likely needs restructuring.
+
+**Example:** IP Addresses. It may become effectively required depending on the
+selected configuration mode. The label suffix can adapt to clarify expectations,
+for example `(optional)` when configuration is automatic or `(IPv4 required)`
+when IPv4 is manually configured.
+
+### 3. Conditionally shown, required when shown
 
 The field is hidden until another field reaches a specific value. When it
 appears, it is required. No suffix is needed: the user caused it to appear by
@@ -45,7 +63,7 @@ their own action, so its purpose is self-evident.
 port or VLAN identifier field that appears only when a specific connection type
 is selected and must be filled in.
 
-### 3. Conditionally shown, optional when shown
+### 4. Conditionally shown, optional when shown
 
 The field is hidden until another field reaches a specific value. When it
 appears it can legitimately be left blank, so it carries the `(optional)`
@@ -61,32 +79,58 @@ mode. Asking them to also check a box to reveal the gateway would be an extra
 step with no benefit. The field appears naturally as part of the consequence of
 their choice.
 
-### 4. Always shown, optional or context-dependent
+### 5. Choice selector (mode or behavior selection)
 
-The field is always visible. Use this when hiding the field would hurt
-discoverability or when its label needs to reflect the current state of the
-form.
+A selector allows the user to choose _how_ a feature should behave rather than
+whether a single value should be provided. Each option represents a complete
+configuration mode. Selecting an option may reveal additional fields that refine
+that choice.
 
-If the field is always optional, use the `(optional)` suffix.
+Unlike pattern 6, this is not an opt-in toggle. The user must always select one
+option, and a sensible default should be preselected whenever possible.
 
-If the requirement depends on the state of other fields, use a clarifying
-suffix that describes what is currently expected. This is a special case and
-should be used sparingly: if you find yourself reaching for it often, the form
-likely needs restructuring.
+Use this pattern when:
 
-**Example:** IP Addresses. It is always shown because it can become effectively
-required depending on the selected method. The label suffix adapts:
-`(optional)` when both methods are automatic, `(IPv4 required)` when only IPv4
-is manual, and so on.
+- multiple mutually exclusive configurations exist,
+- the system already has a meaningful default behavior,
+- hiding configuration entirely would make the form misleading or ambiguous.
 
-### 5. Hidden behind a checkbox
+The selector communicates that the feature is active regardless of whether the
+user customizes it.
+
+Revealed fields are a consequence of the selected option and follow earlier
+patterns:
+
+- required fields use pattern 3,
+- optional fields use pattern 4.
+
+Field values revealed by a choice must remain preserved in form state when the
+user switches options. This allows experimentation without losing previously
+entered data.
+
+**Example:** IPv4 Settings selector.
+
+- `Default` — backend decides configuration. No additional fields shown.
+- `Custom` — user configures the protocol explicitly. Method selector and
+  related fields appear.
+
+This avoids the confusion of a checkbox such as "Configure IPv4", which may
+suggest that no IP configuration exists unless enabled.
+
+#### Payload behavior
+
+When a selector represents a default or automatic mode, additional fields
+related to other modes might not be included in the submitted payload. The
+frontend keeps their values only for user convenience when switching modes.
+
+### 6. Hidden behind a checkbox
 
 A checkbox lets the user explicitly opt into providing a value. The field is
 hidden until the checkbox is checked. Once checked, the field is required and
 validated on submit. No `(optional)` suffix: the user has signalled intent, so
 leaving it blank is a mistake worth reporting.
 
-The field value is preserved in form state when the checkbox is unchecked, so
+The field value is preserved in form state when the checkbox is unchecked so
 re-checking restores what the user previously typed.
 
 Render the revealed content using `NestedContent` as a sibling after the
@@ -98,67 +142,67 @@ never see. Do not use it when the field is likely to be needed by the majority
 of users: that just adds an unnecessary click.
 
 **Example:** "Use custom DNS servers" checkbox reveals the DNS Servers field.
-Most users rely on automatic DNS and will never check this box.
 
 ## Accessibility notes
 
 ### Fields without a visible label
 
 Sometimes a field has no visible label because its purpose is clear from
-the surrounding context, such as a textarea inside a checkbox body. Even then,
-every field needs an accessible name for screen readers, voice control software,
-and browser translation tools.
+the surrounding context. Even then, every field needs an accessible name for
+screen readers, voice control software, and browser translation tools.
 
 Ideally, a real `<label>` element would be kept in the DOM with its text
 visually hidden. This is better than `aria-label` because it gets translated
 by browser tools, works with voice control software, and does not depend on
 ARIA support. However, PatternFly's `FormGroup` reserves visual space for the
 label area whenever a label is provided, even when its content is hidden,
-leaving an unwanted gap in the layout. Fighting that with CSS overrides is
-hacky and fragile for little practical benefit in an application that manages
-its own translations via `_()`.
+leaving an unwanted gap in the layout.
 
 For this reason, `aria-label` is used as the fallback for fields without a
-visible label. It is widely supported and works correctly in this context.
+visible label.
 
-See: <https://www.w3.org/WAI/tutorials/forms/labels/>
-See: <https://adrianroselli.com/2020/01/my-priority-of-methods-for-labeling-a-control.html>
-See: <https://adrianroselli.com/2019/11/aria-label-does-not-translate.html>
-See: <https://vispero.com/resources/should-form-labels-be-wrapped-or-separate/>
+See:
+
+- <https://www.w3.org/WAI/tutorials/forms/labels/>
+- <https://adrianroselli.com/2020/01/my-priority-of-methods-for-labeling-a-control.html>
+- <https://adrianroselli.com/2019/11/aria-label-does-not-translate.html>
+- <https://vispero.com/resources/should-form-labels-be-wrapped-or-separate/>
+
+---
 
 ## Combining patterns
 
-Patterns 4 and 5 can work well together. If a form has one common optional
-field alongside a group of rarely needed advanced options, show the common
-field directly with an `(optional)` suffix and hide the rest behind a checkbox.
-For example: in the storage partition form, a file system label could sit next
-to the file system selector as a plain optional field, while the remaining
-advanced options might be hidden behind a "More file system options" checkbox.
-The user can set the label without ever seeing the rest.
+Patterns can and should be combined within the same form when different fields
+have different needs.
+
+Patterns 2–4 commonly appear inside a choice selector (pattern 5), where
+selecting a mode reveals required or optional refinements of that choice.
+
+Patterns 2 and 6 also combine well when a form has one common optional field
+alongside a group of rarely needed advanced options.
+
+---
 
 ## Choosing the right pattern
 
 Work through these questions in order:
 
 1. Is the field needed by most users and always relevant? Use pattern 1.
-2. Does the field only make sense when another field has a specific value, and
-   is it required when shown? Use pattern 2.
-3. Does the field only make sense when another field has a specific value, but
-   is optional when shown? Use pattern 3.
-4. Should the field always be visible because hiding it would hurt
-   discoverability or because its label reflects form state? Use pattern 4.
-5. Is the field an advanced option that most users will never need? Use pattern 5.
+2. Should the field always remain visible for clarity or discoverability? Use pattern 2.
+3. Does the field become required only after another choice? Use pattern 3.
+4. Does the field become optional only after another choice? Use pattern 4.
+5. Does the user need to choose between different configuration behaviors or modes? Use pattern 5.
+6. Is the field an advanced option that most users will never need? Use pattern 6.
 
-These questions apply per field. Patterns can and should be combined within the
-same form when different fields have different needs. See the Combining patterns
-section above for an example.
+---
 
 ## Summary
 
-| Pattern                              | Visibility   | Label                             | Validated on submit |
-| ------------------------------------ | ------------ | --------------------------------- | ------------------- |
-| Required                             | Always       | No suffix                         | Yes                 |
-| Conditionally required               | On condition | No suffix                         | Yes                 |
-| Conditionally optional               | On condition | `(optional)`                      | No                  |
-| Always optional or context-dependent | Always       | `(optional)` or clarifying suffix | No                  |
-| Checkbox opt-in                      | On checkbox  | No suffix                         | Yes, when shown     |
+| Pattern                           | Visibility   | Label                             | Validated on submit |
+| --------------------------------- | ------------ | --------------------------------- | ------------------- |
+| Required                          | Always       | No suffix                         | Yes                 |
+| Always optional/context-dependent | Always       | `(optional)` or clarifying suffix | No                  |
+| Conditionally required            | On condition | No suffix                         | Yes                 |
+| Conditionally optional            | On condition | `(optional)`                      | No                  |
+| Choice selector                   | Always       | No suffix                         | Depends on choice   |
+| Checkbox opt-in                   | On checkbox  | No suffix                         | Yes, when shown     |
