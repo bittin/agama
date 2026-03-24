@@ -76,6 +76,7 @@ module Agama
           @timeout = 10 # just some reasonable timeout, we do not send it anywhere
           @update_nvram = nil
           @extra_kernel_params = ""
+          @scoped_kernel_params = {}
         end
 
         # Serializes the config to JSON.

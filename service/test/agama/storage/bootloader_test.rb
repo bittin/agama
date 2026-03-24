@@ -78,7 +78,7 @@ describe Agama::Storage::Bootloader do
     context "when bootloader is GRUB-based" do
       let(:bootloader) { ::Bootloader::Grub2.new }
 
-      it "replaces kernel parameters" do
+      it "appends extra kernel parameters" do
         bootloader.grub_default.kernel_params.replace("proposed=1")
         agama_bootloader.send(:write_extra_kernel_params, bootloader, extra_params)
         expect(bootloader.grub_default.kernel_params.serialize).to(
@@ -90,7 +90,7 @@ describe Agama::Storage::Bootloader do
     context "when bootloader is systemd-boot" do
       let(:bootloader) { ::Bootloader::SystemdBoot.new }
 
-      it "replaces kernel parameters" do
+      it "appends extra kernel parameters" do
         bootloader.kernel_params.replace("proposed=1")
         agama_bootloader.send(:write_extra_kernel_params, bootloader, extra_params)
         expect(bootloader.kernel_params.serialize).to eq("proposed=1 splash=silent quiet")
