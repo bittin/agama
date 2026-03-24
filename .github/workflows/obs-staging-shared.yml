@@ -79,9 +79,11 @@ jobs:
       - name: Update service revision
         # only when a tag has been pushed, or "release" branch updated
         if: inputs.service_file != ''
-        run: |-
+        run: |
           echo "Updating revision to \"${{ github.ref_name }}\""
-          sed -i -e 's#<param name="revision">.*</param>#<param name="revision">${{ github.ref_name }}</param>#' ${{ inputs.service_file }}
+          BEG='<param name="revision">'
+          END='</param>'
+          sed -i -e "s#${BEG}.*${END}#${BEG}${{ github.ref_name }}${END}#" ${{ inputs.service_file }}
 
       - name: Copy optional service file
         # patch the URL in the file so it works also from forks, forks also by
@@ -89,8 +91,13 @@ jobs:
         # no tag is present
         if: inputs.service_file != ''
         run: |
-          sed -e 's#<param name="url">.*</param>#<param name="url">https://github.com/${{ github.repository }}.git</param>#' ${{ inputs.service_file }} > ./${{ env.obs_project }}/${{ inputs.package_name }}/_service
-          if [ -z "$(git tag -l)" ]; then sed -i -e 's#<param name="versionformat">.*</param>##' ./${{ env.obs_project }}/${{ inputs.package_name }}/_service; fi
+          OUT_SERVICE=./${{ env.obs_project }}/${{ inputs.package_name }}/_service
+          BEG='<param name="url">'
+          END='</param>'
+          SED_EXPR="s#${BEG}.*${END}#${BEG}https://github.com/${{ github.repository }}.git${END}#"
+          sed -e "${SED_EXPR}" ${{ inputs.service_file }} > $OUT_SERVICE
+          BEG='<param name="versionformat">'
+          if [ -z "$(git tag -l)" ]; then sed -i -e "s#${BEG}.*${END}##" $OUT_SERVICE; fi
 
       - name: Run services
         run: |
@@ -106,6 +113,8 @@ jobs:
         working-directory: ./${{ env.obs_project }}/${{ inputs.package_name }}
 
       - name: Commit ${{ inputs.package_name }} to ${{ env.obs_project }}
-        run: |-
-          osc commit -m "Updated to $(sed -e '/^version:/!d' -e 's/version: *\(.*\)/\1/' agama.obsinfo) ($(sed -e '/^commit:/!d' -e 's/commit: *\(.*\)/\1/' agama.obsinfo))"
+        run: |
+          VERSION="$(sed -e '/^version:/!d' -e 's/version: *\(.*\)/\1/' agama.obsinfo)"
+          COMMIT="$(sed  -e '/^commit:/!d'  -e 's/commit: *\(.*\)/\1/'  agama.obsinfo)"
+          osc commit -m "Updated to ${VERSION} (${COMMIT})"
         working-directory: ./${{ env.obs_project }}/${{ inputs.package_name }}
