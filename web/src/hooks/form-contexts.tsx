@@ -20,22 +20,20 @@
  * find current contact information at www.suse.com.
  */
 
-import { createFormHook } from "@tanstack/react-form";
-import { fieldContext, formContext, useFieldContext, useFormContext } from "~/hooks/form-contexts";
-import ChoiceField from "~/components/form/ChoiceField";
-
 /**
- * Application-wide TanStack Form hook.
+ * Shared TanStack Form contexts.
+ *
+ * Lives in its own module to break a circular dependency:
+ *   - `hooks/form.ts` imports field components to register them.
+ *   - Field components import `useFieldContext` to read the current field.
+ *
+ * If both lived in `hooks/form.ts`, each side would import the other.
+ * Field components import from here instead, keeping the dependency graph
+ * acyclic.
  *
  * @see https://tanstack.com/form/latest/docs/framework/react/guides/form-composition
  */
-const { useAppForm } = createFormHook({
-  fieldContext,
-  formContext,
-  fieldComponents: {
-    ChoiceField,
-  },
-  formComponents: {},
-});
+import { createFormHookContexts } from "@tanstack/react-form";
 
-export { useAppForm, useFieldContext, useFormContext };
+export const { fieldContext, formContext, useFieldContext, useFormContext } =
+  createFormHookContexts();
