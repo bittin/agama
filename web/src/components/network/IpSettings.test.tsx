@@ -64,12 +64,12 @@ describe("IpSettings", () => {
 
   it("does not show the method selector when mode is default", () => {
     installerRender(<TestForm />);
-    expect(screen.queryByText("Method")).not.toBeInTheDocument();
+    expect(screen.queryByText("IPv4 Method")).not.toBeInTheDocument();
   });
 
   it("shows the method selector when mode is custom", () => {
     installerRender(<TestForm defaultValues={{ ipv4Mode: "custom" }} />);
-    screen.getByText("Method");
+    screen.getByText("IPv4 Method");
   });
 
   describe("when method is manual", () => {
@@ -78,9 +78,14 @@ describe("IpSettings", () => {
     it("shows IP Addresses as required and Gateway and DNS as optional", () => {
       installerRender(<TestForm defaultValues={defaultValues} />);
 
-      expect(screen.getByText("IP Addresses").closest("label")).not.toHaveTextContent("(optional)");
-      expect(screen.getByText("Gateway").closest("label")).toHaveTextContent("(optional)");
-      expect(screen.getByText("DNS servers").closest("label")).toHaveTextContent("(optional)");
+      expect(screen.getByText("IPv4 Addresses").closest("label")).not.toHaveTextContent("(optional)");
+      expect(screen.getByText("IPv4 Gateway").closest("label")).toHaveTextContent("(optional)");
+      expect(screen.getByText("IPv4 DNS servers").closest("label")).toHaveTextContent("(optional)");
+    });
+
+    it("does not show the 'ignored without a static IP' note on the gateway", () => {
+      installerRender(<TestForm defaultValues={defaultValues} />);
+      expect(screen.getByText("IPv4 Gateway").closest("label")).not.toHaveTextContent("ignored");
     });
   });
 
@@ -89,21 +94,30 @@ describe("IpSettings", () => {
 
     it("shows the extra settings checkbox", () => {
       installerRender(<TestForm defaultValues={defaultValues} />);
-      screen.getByText("Add extra network settings");
+      screen.getByText("With extra IPv4 settings");
     });
 
     it("does not show extra fields when the checkbox is unchecked", () => {
       installerRender(<TestForm defaultValues={defaultValues} />);
-      expect(screen.queryByText("IP Addresses")).not.toBeInTheDocument();
+      expect(screen.queryByText("IPv4 Addresses")).not.toBeInTheDocument();
     });
 
     it("shows all extra fields as optional when the checkbox is checked", async () => {
       const { user } = installerRender(<TestForm defaultValues={defaultValues} />);
-      await user.click(screen.getByText("Add extra network settings"));
+      await user.click(screen.getByText("With extra IPv4 settings"));
 
-      expect(screen.getByText("IP Addresses").closest("label")).toHaveTextContent("(optional)");
-      expect(screen.getByText("Gateway").closest("label")).toHaveTextContent("(optional)");
-      expect(screen.getByText("DNS servers").closest("label")).toHaveTextContent("(optional)");
+      expect(screen.getByText("IPv4 Addresses").closest("label")).toHaveTextContent("(optional)");
+      expect(screen.getByText("IPv4 Gateway").closest("label")).toHaveTextContent("(optional, ignored without a static IP)");
+      expect(screen.getByText("IPv4 DNS servers").closest("label")).toHaveTextContent("(optional)");
+    });
+
+    it("notes on the gateway label that it is ignored without a static IP", async () => {
+      const { user } = installerRender(<TestForm defaultValues={defaultValues} />);
+      await user.click(screen.getByText("With extra IPv4 settings"));
+
+      expect(screen.getByText("IPv4 Gateway").closest("label")).toHaveTextContent(
+        "ignored without a static IP",
+      );
     });
   });
 });

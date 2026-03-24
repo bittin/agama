@@ -34,25 +34,19 @@ import {
   FormSelectOption,
   HelperText,
   HelperTextItem,
-  Split,
   TextArea,
   TextInput,
 } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
 import NestedContent from "~/components/core/NestedContent";
-import LabelText from "~/components/form/LabelText";
+import IpSettings from "~/components/network/IpSettings";
 import { Connection, ConnectionMethod } from "~/types/network";
 import { buildAddress } from "~/utils/network";
 import { useConnectionMutation } from "~/hooks/model/config/network";
 import { useAppForm } from "~/hooks/form";
 import { useDevices } from "~/hooks/model/system/network";
 import { NETWORK } from "~/routes/paths";
-import { _, N_ } from "~/i18n";
-
-const METHOD_OPTIONS = [
-  { value: ConnectionMethod.AUTO, label: N_("Automatic (DHCP)") },
-  { value: ConnectionMethod.MANUAL, label: N_("Manual") },
-];
+import { _ } from "~/i18n";
 
 const IPV4_DEFAULT_PREFIX = 24;
 const IPV6_DEFAULT_PREFIX = 64;
@@ -98,26 +92,48 @@ export default function ConnectionForm() {
     defaultValues: {
       name: "",
       interface: devices[0]?.name ?? "",
+      ipv4Mode: "default",
       method4: ConnectionMethod.AUTO,
+      addresses4: "",
       gateway4: "",
+      nameservers4: "",
+      useExtra4: false,
+      ipv6Mode: "default",
       method6: ConnectionMethod.AUTO,
+      addresses6: "",
       gateway6: "",
-      addresses: "",
-      useCustomDns: false,
-      nameservers: "",
+      nameservers6: "",
+      useExtra6: false,
       useCustomDnsSearch: false,
       dnsSearchList: "",
     },
     validators: {
       onSubmitAsync: async ({ value }) => {
+        const ipv4Custom = value.ipv4Mode === "custom";
+        const ipv6Custom = value.ipv6Mode === "custom";
+        const ipv4Manual = ipv4Custom && value.method4 === ConnectionMethod.MANUAL;
+        const ipv6Manual = ipv6Custom && value.method6 === ConnectionMethod.MANUAL;
+        const ipv4WithExtra = ipv4Custom && value.method4 === ConnectionMethod.AUTO && value.useExtra4;
+        const ipv6WithExtra = ipv6Custom && value.method6 === ConnectionMethod.AUTO && value.useExtra6;
+
+        const addresses = [
+          ...(ipv4Manual || ipv4WithExtra ? parseAddresses(value.addresses4) : []),
+          ...(ipv6Manual || ipv6WithExtra ? parseAddresses(value.addresses6) : []),
+        ];
+
+        const nameservers = [
+          ...(ipv4Manual || ipv4WithExtra ? parseTokens(value.nameservers4) : []),
+          ...(ipv6Manual || ipv6WithExtra ? parseTokens(value.nameservers6) : []),
+        ];
+
         const connection = new Connection(value.name, {
           iface: value.interface,
-          method4: value.method4,
-          gateway4: value.gateway4,
-          method6: value.method6,
-          gateway6: value.gateway6,
-          addresses: parseAddresses(value.addresses),
-          nameservers: value.useCustomDns ? parseTokens(value.nameservers) : [],
+          method4: ipv4Custom ? value.method4 : ConnectionMethod.AUTO,
+          gateway4: ipv4Manual ? value.gateway4 : "",
+          method6: ipv6Custom ? value.method6 : ConnectionMethod.AUTO,
+          gateway6: ipv6Manual ? value.gateway6 : "",
+          addresses,
+          nameservers,
           dnsSearchList: value.useCustomDnsSearch ? parseTokens(value.dnsSearchList) : [],
         });
         try {
@@ -135,267 +151,126 @@ export default function ConnectionForm() {
   return (
     <Page breadcrumbs={breadcrumbs}>
       <Page.Content>
-        <Form
-          onSubmit={(e) => {
-            e.preventDefault();
-            form.handleSubmit();
-          }}
-        >
-          <form.Subscribe selector={(s) => s.errorMap.onSubmit?.form}>
-            {(serverError) =>
-              serverError && (
-                <Alert variant="danger" isInline title={_("The connection could not be saved")}>
-                  {serverError}
-                </Alert>
-              )
-            }
-          </form.Subscribe>
-
-          <form.Field name="name">
-            {(field) => (
-              <FormGroup fieldId={field.name} label={_("Name")}>
-                <TextInput
-                  id={field.name}
-                  value={field.state.value}
-                  onChange={(_, v) => field.handleChange(v)}
-                />
-              </FormGroup>
-            )}
-          </form.Field>
-
-          <form.Field name="interface">
-            {(field) => (
-              <FormGroup fieldId={field.name} label={_("Interface")}>
-                <FormSelect
-                  id={field.name}
-                  value={field.state.value}
-                  onChange={(_, v) => field.handleChange(v)}
-                >
-                  {devices.map((d) => (
-                    <FormSelectOption key={d.name} value={d.name} label={d.name} />
-                  ))}
-                </FormSelect>
-              </FormGroup>
-            )}
-          </form.Field>
-
-          <Split hasGutter>
-            <form.Field name="method4">
-              {(field) => (
-                <FormGroup fieldId={field.name} label={_("IPv4 Method")}>
-                  <FormSelect
-                    id={field.name}
-                    value={field.state.value}
-                    onChange={(_, v) => field.handleChange(v as ConnectionMethod)}
-                  >
-                    {METHOD_OPTIONS.map(({ value, label }) => (
-                      // eslint-disable-next-line agama-i18n/string-literals
-                      <FormSelectOption key={value} value={value} label={_(label)} />
-                    ))}
-                  </FormSelect>
-                </FormGroup>
-              )}
-            </form.Field>
-
-            <form.Subscribe selector={(s) => s.values.method4}>
-              {(method4) =>
-                method4 === ConnectionMethod.MANUAL && (
-                  <form.Field name="gateway4">
-                    {(field) => (
-                      <FormGroup
-                        fieldId={field.name}
-                        label={<LabelText suffix={_("(optional)")}>{_("IPv4 Gateway")}</LabelText>}
-                      >
-                        <TextInput
-                          id={field.name}
-                          value={field.state.value}
-                          onChange={(_, v) => field.handleChange(v)}
-                        />
-                      </FormGroup>
-                    )}
-                  </form.Field>
-                )
-              }
-            </form.Subscribe>
-          </Split>
-
-          <Split hasGutter>
-            <form.Field name="method6">
-              {(field) => (
-                <FormGroup fieldId={field.name} label={_("IPv6 Method")}>
-                  <FormSelect
-                    id={field.name}
-                    value={field.state.value}
-                    onChange={(_, v) => field.handleChange(v as ConnectionMethod)}
-                  >
-                    {METHOD_OPTIONS.map(({ value, label }) => (
-                      // eslint-disable-next-line agama-i18n/string-literals
-                      <FormSelectOption key={value} value={value} label={_(label)} />
-                    ))}
-                  </FormSelect>
-                </FormGroup>
-              )}
-            </form.Field>
-
-            <form.Subscribe selector={(s) => s.values.method6}>
-              {(method6) =>
-                method6 === ConnectionMethod.MANUAL && (
-                  <form.Field name="gateway6">
-                    {(field) => (
-                      <FormGroup
-                        fieldId={field.name}
-                        label={<LabelText suffix={_("(optional)")}>{_("IPv6 Gateway")}</LabelText>}
-                      >
-                        <TextInput
-                          id={field.name}
-                          value={field.state.value}
-                          onChange={(_, v) => field.handleChange(v)}
-                        />
-                      </FormGroup>
-                    )}
-                  </form.Field>
-                )
-              }
-            </form.Subscribe>
-          </Split>
-
-          <form.Subscribe
-            selector={(s) => ({
-              method4: s.values.method4,
-              method6: s.values.method6,
-            })}
-          >
-            {({ method4, method6 }) => {
-              const manual4 = method4 === ConnectionMethod.MANUAL;
-              const manual6 = method6 === ConnectionMethod.MANUAL;
-
-              const addressesLabel = () => {
-                if (manual4 && manual6)
-                  return (
-                    <LabelText suffix={_("(IPv4 and IPv6 required)")}>
-                      {_("IP Addresses")}
-                    </LabelText>
-                  );
-                if (manual4)
-                  return <LabelText suffix={_("(IPv4 required)")}>{_("IP Addresses")}</LabelText>;
-                if (manual6)
-                  return <LabelText suffix={_("(IPv6 required)")}>{_("IP Addresses")}</LabelText>;
-                return <LabelText suffix={_("(optional)")}>{_("IP Addresses")}</LabelText>;
-              };
-              const label = addressesLabel();
-
-              return (
-                <form.Field name="addresses">
-                  {(field) => (
-                    <FormGroup fieldId={field.name} label={label}>
-                      <TextArea
-                        id={field.name}
-                        value={field.state.value}
-                        onChange={(_, v) => field.handleChange(v)}
-                        resizeOrientation="vertical"
-                        aria-describedby={`${field.name}-hint`}
-                      />
-                      <FormHelperText>
-                        <HelperText>
-                          <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
-                            {_("Space-separated, e.g. 192.168.1.1/24 2001:db8::1")}
-                          </HelperTextItem>
-                        </HelperText>
-                      </FormHelperText>
-                    </FormGroup>
-                  )}
-                </form.Field>
-              );
+        <form.AppForm>
+          <Form
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
             }}
-          </form.Subscribe>
-
-          <form.Field name="useCustomDns">
-            {(dnsToggle) => (
-              <>
-                <Checkbox
-                  id={dnsToggle.name}
-                  label={_("Use custom DNS servers")}
-                  isChecked={dnsToggle.state.value}
-                  onChange={(_, checked) => dnsToggle.handleChange(checked)}
-                />
-                {dnsToggle.state.value && (
-                  <NestedContent margin="mxLg">
-                    <form.Field name="nameservers">
-                      {(field) => (
-                        <FormGroup fieldId={field.name}>
-                          <TextArea
-                            id={field.name}
-                            value={field.state.value}
-                            onChange={(_, v) => field.handleChange(v)}
-                            aria-label={_("DNS servers")}
-                            aria-describedby={`${field.name}-hint`}
-                          />
-                          <FormHelperText>
-                            <HelperText>
-                              <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
-                                {_("Space-separated, e.g. 8.8.8.8 2001:4860:4860::8888")}
-                              </HelperTextItem>
-                            </HelperText>
-                          </FormHelperText>
-                        </FormGroup>
-                      )}
-                    </form.Field>
-                  </NestedContent>
-                )}
-              </>
-            )}
-          </form.Field>
-
-          <form.Field name="useCustomDnsSearch">
-            {(dnsSearchToggle) => (
-              <>
-                <Checkbox
-                  id={dnsSearchToggle.name}
-                  label={_("Use custom DNS search domains")}
-                  isChecked={dnsSearchToggle.state.value}
-                  onChange={(_, checked) => dnsSearchToggle.handleChange(checked)}
-                />
-                {dnsSearchToggle.state.value && (
-                  <NestedContent margin="mxLg">
-                    <form.Field name="dnsSearchList">
-                      {(field) => (
-                        <FormGroup fieldId={field.name}>
-                          <TextArea
-                            id={field.name}
-                            value={field.state.value}
-                            onChange={(_, v) => field.handleChange(v)}
-                            aria-label={_("DNS search domains")}
-                            aria-describedby={`${field.name}-hint`}
-                          />
-                          <FormHelperText>
-                            <HelperText>
-                              <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
-                                {_("Space-separated, e.g. example.com local.lan")}
-                              </HelperTextItem>
-                            </HelperText>
-                          </FormHelperText>
-                        </FormGroup>
-                      )}
-                    </form.Field>
-                  </NestedContent>
-                )}
-              </>
-            )}
-          </form.Field>
-
-          <ActionGroup>
-            <form.Subscribe selector={(s) => s.isSubmitting}>
-              {(isSubmitting) => (
-                <Button type="submit" isLoading={isSubmitting} isDisabled={isSubmitting}>
-                  {_("Accept")}
-                </Button>
-              )}
+          >
+            <form.Subscribe selector={(s) => s.errorMap.onSubmit?.form}>
+              {(serverError) =>
+                serverError && (
+                  <Alert variant="danger" isInline title={_("The connection could not be saved")}>
+                    {serverError}
+                  </Alert>
+                )
+              }
             </form.Subscribe>
-            <Button variant="link" onClick={() => navigate(-1)}>
-              {_("Cancel")}
-            </Button>
-          </ActionGroup>
-        </Form>
+
+            <form.Field name="name">
+              {(field) => (
+                <FormGroup fieldId={field.name} label={_("Name")}>
+                  <TextInput
+                    id={field.name}
+                    value={field.state.value}
+                    onChange={(_, v) => field.handleChange(v)}
+                  />
+                </FormGroup>
+              )}
+            </form.Field>
+
+            <form.Field name="interface">
+              {(field) => (
+                <FormGroup fieldId={field.name} label={_("Interface")}>
+                  <FormSelect
+                    id={field.name}
+                    value={field.state.value}
+                    onChange={(_, v) => field.handleChange(v)}
+                  >
+                    {devices.map((d) => (
+                      <FormSelectOption key={d.name} value={d.name} label={d.name} />
+                    ))}
+                  </FormSelect>
+                </FormGroup>
+              )}
+            </form.Field>
+
+            <IpSettings
+              protocol="ipv4"
+              fieldNames={{
+                mode: "ipv4Mode",
+                method: "method4",
+                addresses: "addresses4",
+                gateway: "gateway4",
+                nameservers: "nameservers4",
+                useExtra: "useExtra4",
+              }}
+            />
+
+            <IpSettings
+              protocol="ipv6"
+              fieldNames={{
+                mode: "ipv6Mode",
+                method: "method6",
+                addresses: "addresses6",
+                gateway: "gateway6",
+                nameservers: "nameservers6",
+                useExtra: "useExtra6",
+              }}
+            />
+
+            <form.Field name="useCustomDnsSearch">
+              {(dnsSearchToggle) => (
+                <>
+                  <Checkbox
+                    id={dnsSearchToggle.name}
+                    label={_("Use custom DNS search domains")}
+                    isChecked={dnsSearchToggle.state.value}
+                    onChange={(_, checked) => dnsSearchToggle.handleChange(checked)}
+                  />
+                  {dnsSearchToggle.state.value && (
+                    <NestedContent margin="mxLg">
+                      <form.Field name="dnsSearchList">
+                        {(field) => (
+                          <FormGroup fieldId={field.name}>
+                            <TextArea
+                              id={field.name}
+                              value={field.state.value}
+                              onChange={(_, v) => field.handleChange(v)}
+                              aria-label={_("DNS search domains")}
+                              aria-describedby={`${field.name}-hint`}
+                            />
+                            <FormHelperText>
+                              <HelperText>
+                                <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
+                                  {_("Space-separated, e.g. example.com local.lan")}
+                                </HelperTextItem>
+                              </HelperText>
+                            </FormHelperText>
+                          </FormGroup>
+                        )}
+                      </form.Field>
+                    </NestedContent>
+                  )}
+                </>
+              )}
+            </form.Field>
+
+            <ActionGroup>
+              <form.Subscribe selector={(s) => s.isSubmitting}>
+                {(isSubmitting) => (
+                  <Button type="submit" isLoading={isSubmitting} isDisabled={isSubmitting}>
+                    {_("Accept")}
+                  </Button>
+                )}
+              </form.Subscribe>
+              <Button variant="link" onClick={() => navigate(-1)}>
+                {_("Cancel")}
+              </Button>
+            </ActionGroup>
+          </Form>
+        </form.AppForm>
       </Page.Content>
     </Page>
   );

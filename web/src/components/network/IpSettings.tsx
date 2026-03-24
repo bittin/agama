@@ -23,6 +23,8 @@
 import React from "react";
 import {
   Checkbox,
+  Flex,
+  FlexItem,
   FormGroup,
   FormHelperText,
   HelperText,
@@ -35,6 +37,8 @@ import LabelText from "~/components/form/LabelText";
 import { useFormContext } from "~/hooks/form";
 import { ConnectionMethod } from "~/types/network";
 import { _, N_ } from "~/i18n";
+
+import spacingStyles from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 /** Field names used by {@link IpSettings} to bind to the parent form. */
 type FieldNames = {
@@ -83,18 +87,36 @@ const METHOD_OPTIONS = [
  * Uses `useFormContext` to access the parent form, so it must be rendered
  * inside a `useAppForm`-backed form. All field names must be provided
  * explicitly via `fieldNames`.
+ *
+ * @remarks
+ * All field labels are prefixed with the protocol name (e.g. "IPv4 Gateway"
+ * instead of "Gateway"). Both protocols may be visible at the same time, and
+ * a plain "Gateway" label would appear twice with no indication of which
+ * protocol it belongs to. Sighted users can rely on the visual grouping under
+ * "IPv4 Settings" / "IPv6 Settings", but screen readers announce fields
+ * individually and that context is lost when navigating between controls.
+ * Prefixing makes each label self-sufficient for both audiences — it adds
+ * clarity for sighted users and removes ambiguity for screen reader users —
+ * as recommended by WCAG 2.4.6 (Headings and Labels).
+ * @see https://www.w3.org/WAI/WCAG21/Understanding/headings-and-labels.html
  */
 export default function IpSettings({ protocol, fieldNames }: IpSettingsProps) {
   const form = useFormContext();
-  const label = protocol === "ipv4" ? _("IPv4 Settings") : _("IPv6 Settings");
+  const isIPv4 = protocol === "ipv4";
+  const label = isIPv4 ? _("IPv4 Settings") : _("IPv6 Settings");
+  const methodLabel = isIPv4 ? _("IPv4 Method") : _("IPv6 Method");
+  const addressesLabel = isIPv4 ? _("IPv4 Addresses") : _("IPv6 Addresses");
+  const gatewayLabel = isIPv4 ? _("IPv4 Gateway") : _("IPv6 Gateway");
+  const nameserversLabel = isIPv4 ? _("IPv4 DNS servers") : _("IPv6 DNS servers");
+  const extraSettingsLabel = isIPv4 ? _("With extra IPv4 settings") : _("With extra IPv6 settings");
   const addressesHint =
-    protocol === "ipv4"
+    isIPv4
       ? _("Space-separated IPv4 addresses with optional prefix, e.g. 192.168.1.1 or 192.168.1.1/24")
       : _(
           "Space-separated IPv6 addresses with optional prefix, e.g. 2001:db8::1 or 2001:db8::1/64",
         );
   const nameserversHint =
-    protocol === "ipv4"
+    isIPv4
       ? _("Space-separated IPv4 addresses, e.g. 8.8.8.8")
       : _("Space-separated IPv6 addresses, e.g. 2001:4860:4860::8888");
 
@@ -113,25 +135,49 @@ export default function IpSettings({ protocol, fieldNames }: IpSettingsProps) {
       <form.Subscribe selector={(s) => (s.values as any)[fieldNames.mode]}>
         {(mode) =>
           mode === "custom" && (
-            <>
-              <form.AppField name={fieldNames.method as any}>
-                {(field) => (
-                  <field.ChoiceField
-                    label={_("Method")}
-                    // eslint-disable-next-line agama-i18n/string-literals
-                    options={METHOD_OPTIONS.map((o) => ({ ...o, label: _(o.label) }))}
-                  />
-                )}
-              </form.AppField>
-
-              <form.Subscribe selector={(s) => (s.values as any)[fieldNames.method]}>
-                {(method) => (
+            <NestedContent margin="mxLg">
+              <form.Subscribe
+                selector={(s) => ({
+                  method: (s.values as any)[fieldNames.method],
+                  useExtra: (s.values as any)[fieldNames.useExtra],
+                })}
+              >
+                {({ method, useExtra }) => (
                   <>
+                    <Flex alignItems={{ default: "alignItemsFlexEnd" }}>
+                      <FlexItem>
+                        <form.AppField name={fieldNames.method as any}>
+                          {(field) => (
+                            <field.ChoiceField
+                              label={methodLabel}
+                              // eslint-disable-next-line agama-i18n/string-literals
+                              options={METHOD_OPTIONS.map((o) => ({ ...o, label: _(o.label) }))}
+                            />
+                          )}
+                        </form.AppField>
+                      </FlexItem>
+                      {method === ConnectionMethod.AUTO && (
+                        <FlexItem>
+                          <form.Field name={fieldNames.useExtra as any}>
+                            {(toggle) => (
+                              <Checkbox
+                                id={toggle.name}
+                                label={extraSettingsLabel}
+                                isChecked={toggle.state.value}
+                                onChange={(_, checked) => toggle.handleChange(checked)}
+                                className={spacingStyles.pbSm}
+                              />
+                            )}
+                          </form.Field>
+                        </FlexItem>
+                      )}
+                    </Flex>
+
                     {method === ConnectionMethod.MANUAL && (
                       <>
                         <form.Field name={fieldNames.addresses as any}>
                           {(field) => (
-                            <FormGroup fieldId={field.name} label={_("IP Addresses")}>
+                            <FormGroup fieldId={field.name} label={addressesLabel}>
                               <TextArea
                                 id={field.name}
                                 value={field.state.value}
@@ -154,7 +200,7 @@ export default function IpSettings({ protocol, fieldNames }: IpSettingsProps) {
                           {(field) => (
                             <FormGroup
                               fieldId={field.name}
-                              label={<LabelText suffix={_("(optional)")}>{_("Gateway")}</LabelText>}
+                              label={<LabelText suffix={_("(optional)")}>{gatewayLabel}</LabelText>}
                             >
                               <TextInput
                                 id={field.name}
@@ -170,7 +216,7 @@ export default function IpSettings({ protocol, fieldNames }: IpSettingsProps) {
                             <FormGroup
                               fieldId={field.name}
                               label={
-                                <LabelText suffix={_("(optional)")}>{_("DNS servers")}</LabelText>
+                                <LabelText suffix={_("(optional)")}>{nameserversLabel}</LabelText>
                               }
                             >
                               <TextArea
@@ -193,110 +239,84 @@ export default function IpSettings({ protocol, fieldNames }: IpSettingsProps) {
                       </>
                     )}
 
-                    {method === ConnectionMethod.AUTO && (
-                      <form.Field name={fieldNames.useExtra as any}>
-                        {(toggle) => (
-                          <>
-                            <Checkbox
-                              id={toggle.name}
-                              label={_("Add extra network settings")}
-                              isChecked={toggle.state.value}
-                              onChange={(_, checked) => toggle.handleChange(checked)}
-                            />
-                            {toggle.state.value && (
-                              <NestedContent margin="mxLg">
-                                <form.Field name={fieldNames.addresses as any}>
-                                  {(field) => (
-                                    <FormGroup
-                                      fieldId={field.name}
-                                      label={
-                                        <LabelText suffix={_("(optional)")}>
-                                          {_("IP Addresses")}
-                                        </LabelText>
-                                      }
-                                    >
-                                      <TextArea
-                                        id={field.name}
-                                        value={field.state.value}
-                                        onChange={(_, v) => field.handleChange(v)}
-                                        resizeOrientation="vertical"
-                                        aria-describedby={`${field.name}-hint`}
-                                      />
-                                      <FormHelperText>
-                                        <HelperText>
-                                          <HelperTextItem
-                                            variant="indeterminate"
-                                            id={`${field.name}-hint`}
-                                          >
-                                            {addressesHint}
-                                          </HelperTextItem>
-                                        </HelperText>
-                                      </FormHelperText>
-                                    </FormGroup>
-                                  )}
-                                </form.Field>
+                    {method === ConnectionMethod.AUTO && useExtra && (
+                      <NestedContent margin="mxLg">
+                        <form.Field name={fieldNames.addresses as any}>
+                          {(field) => (
+                            <FormGroup
+                              fieldId={field.name}
+                              label={
+                                <LabelText suffix={_("(optional)")}>{addressesLabel}</LabelText>
+                              }
+                            >
+                              <TextArea
+                                id={field.name}
+                                value={field.state.value}
+                                onChange={(_, v) => field.handleChange(v)}
+                                resizeOrientation="vertical"
+                                aria-describedby={`${field.name}-hint`}
+                              />
+                              <FormHelperText>
+                                <HelperText>
+                                  <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
+                                    {addressesHint}
+                                  </HelperTextItem>
+                                </HelperText>
+                              </FormHelperText>
+                            </FormGroup>
+                          )}
+                        </form.Field>
 
-                                <form.Field name={fieldNames.gateway as any}>
-                                  {(field) => (
-                                    <FormGroup
-                                      fieldId={field.name}
-                                      label={
-                                        <LabelText suffix={_("(optional)")}>
-                                          {_("Gateway")}
-                                        </LabelText>
-                                      }
-                                    >
-                                      <TextInput
-                                        id={field.name}
-                                        value={field.state.value}
-                                        onChange={(_, v) => field.handleChange(v)}
-                                      />
-                                    </FormGroup>
-                                  )}
-                                </form.Field>
+                        <form.Field name={fieldNames.gateway as any}>
+                          {(field) => (
+                            <FormGroup
+                              fieldId={field.name}
+                              label={
+                                <LabelText suffix={_("(optional, ignored without a static IP)")}>
+                                  {gatewayLabel}
+                                </LabelText>
+                              }
+                            >
+                              <TextInput
+                                id={field.name}
+                                value={field.state.value}
+                                onChange={(_, v) => field.handleChange(v)}
+                              />
+                            </FormGroup>
+                          )}
+                        </form.Field>
 
-                                <form.Field name={fieldNames.nameservers as any}>
-                                  {(field) => (
-                                    <FormGroup
-                                      fieldId={field.name}
-                                      label={
-                                        <LabelText suffix={_("(optional)")}>
-                                          {_("DNS servers")}
-                                        </LabelText>
-                                      }
-                                    >
-                                      <TextArea
-                                        id={field.name}
-                                        value={field.state.value}
-                                        onChange={(_, v) => field.handleChange(v)}
-                                        resizeOrientation="vertical"
-                                        aria-describedby={`${field.name}-hint`}
-                                      />
-                                      <FormHelperText>
-                                        <HelperText>
-                                          <HelperTextItem
-                                            variant="indeterminate"
-                                            id={`${field.name}-hint`}
-                                          >
-                                            {_(
-                                              "Space-separated, e.g. 8.8.8.8 2001:4860:4860::8888",
-                                            )}
-                                          </HelperTextItem>
-                                        </HelperText>
-                                      </FormHelperText>
-                                    </FormGroup>
-                                  )}
-                                </form.Field>
-                              </NestedContent>
-                            )}
-                          </>
-                        )}
-                      </form.Field>
+                        <form.Field name={fieldNames.nameservers as any}>
+                          {(field) => (
+                            <FormGroup
+                              fieldId={field.name}
+                              label={
+                                <LabelText suffix={_("(optional)")}>{nameserversLabel}</LabelText>
+                              }
+                            >
+                              <TextArea
+                                id={field.name}
+                                value={field.state.value}
+                                onChange={(_, v) => field.handleChange(v)}
+                                resizeOrientation="vertical"
+                                aria-describedby={`${field.name}-hint`}
+                              />
+                              <FormHelperText>
+                                <HelperText>
+                                  <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
+                                    {_("Space-separated, e.g. 8.8.8.8 2001:4860:4860::8888")}
+                                  </HelperTextItem>
+                                </HelperText>
+                              </FormHelperText>
+                            </FormGroup>
+                          )}
+                        </form.Field>
+                      </NestedContent>
                     )}
                   </>
                 )}
               </form.Subscribe>
-            </>
+            </NestedContent>
           )
         }
       </form.Subscribe>

@@ -57,8 +57,8 @@ describe("ConnectionForm", () => {
     installerRender(<ConnectionForm />);
     screen.getByLabelText("Name");
     screen.getByLabelText("Interface");
-    screen.getByLabelText("IPv4 Method");
-    screen.getByLabelText("IPv6 Method");
+    screen.getByText("IPv4 Settings");
+    screen.getByText("IPv6 Settings");
   });
 
   it("submits with the entered values", async () => {
@@ -80,35 +80,40 @@ describe("ConnectionForm", () => {
     await screen.findByText("Connection failed");
   });
 
-  it("defaults both methods to automatic and does not show gateways", () => {
+  it("does not show method or IP fields when both modes are default", () => {
     installerRender(<ConnectionForm />);
-    expect(screen.getByLabelText("IPv4 Method")).toHaveValue(ConnectionMethod.AUTO);
-    expect(screen.getByLabelText("IPv6 Method")).toHaveValue(ConnectionMethod.AUTO);
-    expect(screen.queryByLabelText("IPv4 Gateway (optional)")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("IPv6 Gateway (optional)")).not.toBeInTheDocument();
+    expect(screen.queryByText("IPv4 Method")).not.toBeInTheDocument();
+    expect(screen.queryByText("IPv6 Method")).not.toBeInTheDocument();
+    expect(screen.queryByText("IPv4 Addresses")).not.toBeInTheDocument();
+    expect(screen.queryByText("IPv6 Addresses")).not.toBeInTheDocument();
   });
 
-  it("shows IPv4 gateway when IPv4 method is manual", async () => {
+  it("shows the IPv4 gateway when the IPv4 mode is custom and method is manual", async () => {
     const { user } = installerRender(<ConnectionForm />);
-    await user.selectOptions(screen.getByLabelText("IPv4 Method"), ConnectionMethod.MANUAL);
+    await user.click(screen.getByLabelText("IPv4 Settings"));
+    await user.click(screen.getByRole("option", { name: "Custom" }));
+    await user.click(screen.getByLabelText("IPv4 Method"));
+    await user.click(screen.getByRole("option", { name: "Manual" }));
     screen.getByLabelText("IPv4 Gateway (optional)");
     expect(screen.queryByLabelText("IPv6 Gateway (optional)")).not.toBeInTheDocument();
   });
 
-  it("shows IPv6 gateway when IPv6 method is manual", async () => {
-    const { user } = installerRender(<ConnectionForm />);
-    await user.selectOptions(screen.getByLabelText("IPv6 Method"), ConnectionMethod.MANUAL);
-    screen.getByLabelText("IPv6 Gateway (optional)");
-    expect(screen.queryByLabelText("IPv4 Gateway (optional)")).not.toBeInTheDocument();
-  });
-
-  it("submits with gateways when both methods are manual", async () => {
+  it("submits with gateways when both protocols are set to custom manual", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
-    await user.selectOptions(screen.getByLabelText("IPv4 Method"), ConnectionMethod.MANUAL);
+
+    await user.click(screen.getByLabelText("IPv4 Settings"));
+    await user.click(screen.getByRole("option", { name: "Custom" }));
+    await user.click(screen.getByLabelText("IPv4 Method"));
+    await user.click(screen.getByRole("option", { name: "Manual" }));
     await user.type(screen.getByLabelText("IPv4 Gateway (optional)"), "192.168.1.1");
-    await user.selectOptions(screen.getByLabelText("IPv6 Method"), ConnectionMethod.MANUAL);
+
+    await user.click(screen.getByLabelText("IPv6 Settings"));
+    await user.click(screen.getByRole("option", { name: "Custom" }));
+    await user.click(screen.getByLabelText("IPv6 Method"));
+    await user.click(screen.getByRole("option", { name: "Manual" }));
     await user.type(screen.getByLabelText("IPv6 Gateway (optional)"), "::1");
+
     await user.click(screen.getByRole("button", { name: "Accept" }));
     await waitFor(() =>
       expect(mockMutateAsync).toHaveBeenCalledWith(
@@ -122,13 +127,22 @@ describe("ConnectionForm", () => {
     );
   });
 
-  it("submits addresses parsed from the textarea", async () => {
+  it("submits addresses parsed from each protocol", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
-    await user.type(
-      screen.getByLabelText("IP Addresses (optional)"),
-      "192.168.1.1/24 2001:db8::1/64",
-    );
+
+    await user.click(screen.getByLabelText("IPv4 Settings"));
+    await user.click(screen.getByRole("option", { name: "Custom" }));
+    await user.click(screen.getByLabelText("IPv4 Method"));
+    await user.click(screen.getByRole("option", { name: "Manual" }));
+    await user.type(screen.getByLabelText("IPv4 Addresses"), "192.168.1.1/24");
+
+    await user.click(screen.getByLabelText("IPv6 Settings"));
+    await user.click(screen.getByRole("option", { name: "Custom" }));
+    await user.click(screen.getByLabelText("IPv6 Method"));
+    await user.click(screen.getByRole("option", { name: "Manual" }));
+    await user.type(screen.getByLabelText("IPv6 Addresses"), "2001:db8::1/64");
+
     await user.click(screen.getByRole("button", { name: "Accept" }));
     await waitFor(() =>
       expect(mockMutateAsync).toHaveBeenCalledWith(
@@ -142,88 +156,33 @@ describe("ConnectionForm", () => {
     );
   });
 
-  it("adds default prefix when address has none", async () => {
+  it("adds a default prefix when an address has none", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
-    await user.type(screen.getByLabelText("IP Addresses (optional)"), "192.168.1.1 2001:db8::1");
+
+    await user.click(screen.getByLabelText("IPv4 Settings"));
+    await user.click(screen.getByRole("option", { name: "Custom" }));
+    await user.click(screen.getByLabelText("IPv4 Method"));
+    await user.click(screen.getByRole("option", { name: "Manual" }));
+    await user.type(screen.getByLabelText("IPv4 Addresses"), "192.168.1.1");
+
     await user.click(screen.getByRole("button", { name: "Accept" }));
     await waitFor(() =>
       expect(mockMutateAsync).toHaveBeenCalledWith(
         expect.objectContaining({
-          addresses: [
-            { address: "192.168.1.1", prefix: 24 },
-            { address: "2001:db8::1", prefix: 64 },
-          ],
+          addresses: [{ address: "192.168.1.1", prefix: 24 }],
         }),
       ),
     );
   });
 
-  describe("IP Addresses label", () => {
-    it("shows '(optional)' when both methods are automatic", () => {
-      installerRender(<ConnectionForm />);
-      screen.getByLabelText("IP Addresses (optional)");
-    });
-
-    it("shows '(IPv4 required)' when only IPv4 method is manual", async () => {
-      const { user } = installerRender(<ConnectionForm />);
-      await user.selectOptions(screen.getByLabelText("IPv4 Method"), ConnectionMethod.MANUAL);
-      screen.getByLabelText("IP Addresses (IPv4 required)");
-    });
-
-    it("shows '(IPv6 required)' when only IPv6 method is manual", async () => {
-      const { user } = installerRender(<ConnectionForm />);
-      await user.selectOptions(screen.getByLabelText("IPv6 Method"), ConnectionMethod.MANUAL);
-      screen.getByLabelText("IP Addresses (IPv6 required)");
-    });
-
-    it("shows '(IPv4 and IPv6 required)' when both methods are manual", async () => {
-      const { user } = installerRender(<ConnectionForm />);
-      await user.selectOptions(screen.getByLabelText("IPv4 Method"), ConnectionMethod.MANUAL);
-      await user.selectOptions(screen.getByLabelText("IPv6 Method"), ConnectionMethod.MANUAL);
-      screen.getByLabelText("IP Addresses (IPv4 and IPv6 required)");
-    });
-  });
-
-  describe("DNS servers", () => {
-    it("does not show the DNS servers field by default", () => {
-      installerRender(<ConnectionForm />);
-      expect(screen.queryByRole("textbox", { name: "DNS servers" })).not.toBeInTheDocument();
-    });
-
-    it("shows the DNS servers field when the checkbox is checked", async () => {
-      const { user } = installerRender(<ConnectionForm />);
-      await user.click(screen.getByLabelText("Use custom DNS servers"));
-      screen.getByRole("textbox", { name: "DNS servers" });
-    });
-
-    it("submits with parsed nameservers when checkbox is checked", async () => {
-      const { user } = installerRender(<ConnectionForm />);
-      await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
-      await user.click(screen.getByLabelText("Use custom DNS servers"));
-      await user.type(screen.getByRole("textbox", { name: "DNS servers" }), "8.8.8.8 8.8.4.4");
-      await user.click(screen.getByRole("button", { name: "Accept" }));
-      await waitFor(() =>
-        expect(mockMutateAsync).toHaveBeenCalledWith(
-          expect.objectContaining({ nameservers: ["8.8.8.8", "8.8.4.4"] }),
-        ),
-      );
-    });
-
-    it("submits empty nameservers when checkbox is unchecked", async () => {
-      const { user } = installerRender(<ConnectionForm />);
-      await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
-      const checkbox = screen.getByRole("checkbox", { name: "Use custom DNS servers" });
-      expect(checkbox).not.toBeChecked();
-      await user.click(checkbox);
-      expect(checkbox).toBeChecked();
-      await user.type(screen.getByRole("textbox", { name: "DNS servers" }), "8.8.8.8 8.8.4.4");
-      await user.click(checkbox);
-      await user.click(screen.getByRole("button", { name: "Accept" }));
-      await waitFor(() =>
-        expect(mockMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ nameservers: [] })),
-      );
-    });
+  it("submits empty addresses when both modes are default", async () => {
+    const { user } = installerRender(<ConnectionForm />);
+    await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
+    await user.click(screen.getByRole("button", { name: "Accept" }));
+    await waitFor(() =>
+      expect(mockMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ addresses: [] })),
+    );
   });
 
   describe("DNS search domains", () => {
