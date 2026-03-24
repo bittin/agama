@@ -36,7 +36,7 @@ module Agama
   module DBus
     module Storage
       # D-Bus object to manage storage installation
-      class Manager < BaseObject
+      class Manager < BaseObject # rubocop:disable Metrics/ClassLength
         extend Yast::I18n
         include Yast::I18n
         include WithIssues
@@ -384,15 +384,16 @@ module Agama
           return serialize_nil unless manager.probed?
 
           json = {
-            devices:            devices_json(:probed),
-            availableDrives:    available_drives,
-            availableMdRaids:   available_md_raids,
-            candidateDrives:    candidate_drives,
-            candidateMdRaids:   candidate_md_raids,
-            issues:             system_issues_json,
-            productMountPoints: product_mount_points,
-            encryptionMethods:  encryption_methods,
-            volumeTemplates:    volume_templates
+            devices:               devices_json(:probed),
+            availableDrives:       available_drives,
+            availableMdRaids:      available_md_raids,
+            availableVolumeGroups: available_volume_groups,
+            candidateDrives:       candidate_drives,
+            candidateMdRaids:      candidate_md_raids,
+            issues:                system_issues_json,
+            productMountPoints:    product_mount_points,
+            encryptionMethods:     encryption_methods,
+            volumeTemplates:       volume_templates
           }
           JSON.pretty_generate(json)
         end
@@ -508,6 +509,12 @@ module Agama
         # @return [Array<Integer>]
         def candidate_md_raids
           proposal.storage_system.candidate_md_raids.map(&:sid)
+        end
+
+        # @see Storage::System#available_volume_groups
+        # @return [Array<Integer>]
+        def available_volume_groups
+          proposal.storage_system.available_volume_groups.map(&:sid)
         end
 
         # Meaningful mount points for the current product.
