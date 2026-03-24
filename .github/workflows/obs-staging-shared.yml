@@ -27,10 +27,14 @@ on:
         required: false
         type: string
 
+env:
+  obs_project: ${{ fromJson(vars.OBS_PROJECTS)[github.ref_name] }}
+
 jobs:
   update_obs_package:
     # do not run in forks which do not set the OBS_PROJECTS and OBS_USER variables,
     # or the mapping for the current branch is missing
+    # (BTW, jobs.FOO.if cannot see env.*)
     if: vars.OBS_PROJECTS && fromJson(vars.OBS_PROJECTS)[github.ref_name] && vars.OBS_USER
 
     runs-on: ubuntu-latest
@@ -66,8 +70,8 @@ jobs:
           OBS_USER:     ${{ vars.OBS_USER }}
           OBS_PASSWORD: ${{ secrets.OBS_PASSWORD }}
 
-      - name: Checkout ${{ inputs.package_name }} from ${{ fromJson(vars.OBS_PROJECTS)[github.ref_name] }}
-        run: osc co ${{ fromJson(vars.OBS_PROJECTS)[github.ref_name] }} ${{ inputs.package_name }}
+      - name: Checkout ${{ inputs.package_name }} from ${{ env.obs_project }}
+        run: osc co ${{ env.obs_project }} ${{ inputs.package_name }}
 
       - name: Configure git
         run:  git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -85,8 +89,8 @@ jobs:
         # no tag is present
         if: inputs.service_file != ''
         run: |
-          sed -e 's#<param name="url">.*</param>#<param name="url">https://github.com/${{ github.repository }}.git</param>#' ${{ inputs.service_file }} > ./${{ fromJson(vars.OBS_PROJECTS)[github.ref_name] }}/${{ inputs.package_name }}/_service
-          if [ -z "$(git tag -l)" ]; then sed -i -e 's#<param name="versionformat">.*</param>##' ./${{ fromJson(vars.OBS_PROJECTS)[github.ref_name] }}/${{ inputs.package_name }}/_service; fi
+          sed -e 's#<param name="url">.*</param>#<param name="url">https://github.com/${{ github.repository }}.git</param>#' ${{ inputs.service_file }} > ./${{ env.obs_project }}/${{ inputs.package_name }}/_service
+          if [ -z "$(git tag -l)" ]; then sed -i -e 's#<param name="versionformat">.*</param>##' ./${{ env.obs_project }}/${{ inputs.package_name }}/_service; fi
 
       - name: Run services
         run: |
@@ -95,13 +99,13 @@ jobs:
           # downloaded NPM package tarballs and they are accidentally added to the
           # OBS package, so delete any TGZ files present
           rm -vf *.tgz
-        working-directory: ./${{ fromJson(vars.OBS_PROJECTS)[github.ref_name] }}/${{ inputs.package_name }}
+        working-directory: ./${{ env.obs_project }}/${{ inputs.package_name }}
 
       - name: Check status
         run: osc addremove && osc diff && osc status
-        working-directory: ./${{ fromJson(vars.OBS_PROJECTS)[github.ref_name] }}/${{ inputs.package_name }}
+        working-directory: ./${{ env.obs_project }}/${{ inputs.package_name }}
 
-      - name: Commit ${{ inputs.package_name }} to ${{ fromJson(vars.OBS_PROJECTS)[github.ref_name] }}
+      - name: Commit ${{ inputs.package_name }} to ${{ env.obs_project }}
         run: |-
           osc commit -m "Updated to $(sed -e '/^version:/!d' -e 's/version: *\(.*\)/\1/' agama.obsinfo) ($(sed -e '/^commit:/!d' -e 's/commit: *\(.*\)/\1/' agama.obsinfo))"
-        working-directory: ./${{ fromJson(vars.OBS_PROJECTS)[github.ref_name] }}/${{ inputs.package_name }}
+        working-directory: ./${{ env.obs_project }}/${{ inputs.package_name }}
