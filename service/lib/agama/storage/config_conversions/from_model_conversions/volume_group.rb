@@ -20,9 +20,9 @@
 # find current contact information at www.suse.com.
 
 require "agama/storage/config_conversions/from_model_conversions/base"
-require "agama/storage/config_conversions/from_model_conversions/logical_volume"
 require "agama/storage/config_conversions/from_model_conversions/encryption"
 require "agama/storage/config_conversions/from_model_conversions/with_search"
+require "agama/storage/config_conversions/from_model_conversions/with_volumes"
 require "agama/storage/configs/volume_group"
 require "y2storage/disk_size"
 
@@ -33,12 +33,15 @@ module Agama
         # Volume group conversion from model according to the JSON schema.
         class VolumeGroup < Base
           include WithSearch
+          include WithVolumes
 
           # @param model_json [Hash]
+          # @param product_config [Agama::Config]
           # @param targets [Array<Configs::Drive, Configs::MdRaid>]
           # @param encryption_model [Hash, nil]
-          def initialize(model_json, targets, encryption_model = nil)
+          def initialize(model_json, product_config, targets, encryption_model = nil)
             super(model_json)
+            @product_config = product_config
             @targets = targets
             @encryption_model = encryption_model
           end
@@ -46,6 +49,9 @@ module Agama
         private
 
           alias_method :volume_group_model, :model_json
+
+          # @return [Agama::Config]
+          attr_reader :product_config
 
           # @return [Array<Configs::Drive, Configs::MdRaid>]
           attr_reader :targets
@@ -68,7 +74,7 @@ module Agama
               extent_size:                 convert_extent_size,
               physical_volumes_devices:    convert_physical_volumes_devices,
               physical_volumes_encryption: convert_physical_volumes_encryption,
-              logical_volumes:             convert_logical_volumes
+              logical_volumes:             convert_volumes
             }
           end
 
@@ -95,14 +101,6 @@ module Agama
             return unless encryption_model
 
             FromModelConversions::Encryption.new(encryption_model).convert
-          end
-
-          # @return [Array<Configs::LogicalVolume>, nil]
-          def convert_logical_volumes
-            logical_volumes_model = volume_group_model[:logicalVolumes]
-            return unless logical_volumes_model
-
-            logical_volumes_model.map { |l| FromModelConversions::LogicalVolume.new(l).convert }
           end
 
           # @param name [String]

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2024-2026] SUSE LLC
+# Copyright (c) [2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -19,20 +19,29 @@
 # To contact SUSE LLC about this file by physical or electronic mail, you may
 # find current contact information at www.suse.com.
 
-require "agama/storage/configs/with_volume_properties"
-
 module Agama
   module Storage
-    module Configs
-      # Section of the configuration representing a partition
-      class Partition
-        include WithVolumeProperties
+    module ConfigConversions
+      module FromModelConversions
+        # Mixin for delete properties conversion.
+        module WithDelete
+          # TODO: do not delete if the volume is used by other device (VG, RAID, etc).
+          # @return [Boolean]
+          def convert_delete
+            # Do not mark to delete if the volume is used.
+            return false if model_json[:mountPath]
 
-        # @return [Y2Storage::PartitionId, nil]
-        attr_accessor :id
+            model_json[:delete]
+          end
 
-        def initialize
-          initialize_volume_properties
+          # TODO: do not delete if the volume is used by other device (VG, RAID, etc).
+          # @return [Boolean]
+          def convert_delete_if_needed
+            # Do not mark to delete if the volume is used.
+            return false if model_json[:mountPath]
+
+            model_json[:deleteIfNeeded]
+          end
         end
       end
     end

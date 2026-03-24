@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2025] SUSE LLC
+# Copyright (c) [2025-2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -21,6 +21,7 @@
 
 require "agama/storage/config_conversions/to_model_conversions/base"
 require "agama/storage/config_conversions/to_model_conversions/logical_volume"
+require "agama/storage/config_conversions/to_model_conversions/with_space_policy"
 
 module Agama
   module Storage
@@ -28,7 +29,7 @@ module Agama
       module ToModelConversions
         # LVM volume group conversion to model according to the JSON schema.
         class VolumeGroup < Base
-          include WithFilesystem
+          include WithSpacePolicy
 
           # @param config [Configs::VolumeGroup]
           # @param storage_config [Storage::Config]
@@ -51,9 +52,11 @@ module Agama
           # @see Base#conversions
           def conversions
             {
+              name:           config.device_name,
               vgName:         config.name,
               extentSize:     config.extent_size&.to_i,
               targetDevices:  convert_target_devices,
+              spacePolicy:    convert_space_policy,
               logicalVolumes: convert_logical_volumes
             }
           end

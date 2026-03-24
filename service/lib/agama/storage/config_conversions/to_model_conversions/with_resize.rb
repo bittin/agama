@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2024-2026] SUSE LLC
+# Copyright (c) [2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -19,20 +19,27 @@
 # To contact SUSE LLC about this file by physical or electronic mail, you may
 # find current contact information at www.suse.com.
 
-require "agama/storage/configs/with_volume_properties"
-
 module Agama
   module Storage
-    module Configs
-      # Section of the configuration representing a partition
-      class Partition
-        include WithVolumeProperties
+    module ConfigConversions
+      module ToModelConversions
+        # Mixin for resize info conversion to model according to the JSON schema.
+        module WithResize
+          # @return [Booelan]
+          def convert_resize
+            return false unless config.found_device
 
-        # @return [Y2Storage::PartitionId, nil]
-        attr_accessor :id
+            size = config.size
+            !size.nil? && !size.default? && size.min == size.max
+          end
 
-        def initialize
-          initialize_volume_properties
+          # @return [Booelan]
+          def convert_resize_if_needed
+            return false unless config.found_device
+
+            size = config.size
+            !size.nil? && !size.default? && size.min != size.max
+          end
         end
       end
     end

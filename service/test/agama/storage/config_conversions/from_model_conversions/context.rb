@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2024-2026] SUSE LLC
+# Copyright (c) [2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -19,22 +19,24 @@
 # To contact SUSE LLC about this file by physical or electronic mail, you may
 # find current contact information at www.suse.com.
 
-require "agama/storage/configs/with_volume_properties"
+require_relative "../../storage_helpers"
+require_relative "../../product_config_context"
+require "agama/storage/system"
+require "y2storage/encryption_method"
 
-module Agama
-  module Storage
-    module Configs
-      # Section of the configuration representing a partition
-      class Partition
-        include WithVolumeProperties
+shared_context "from model conversions" do
+  include Agama::RSpec::StorageHelpers
 
-        # @return [Y2Storage::PartitionId, nil]
-        attr_accessor :id
+  include_context "product config"
 
-        def initialize
-          initialize_volume_properties
-        end
-      end
-    end
+  before do
+    mock_storage(devicegraph: scenario)
+
+    # Speed up tests by avoding real check of TPM presence.
+    allow(Y2Storage::EncryptionMethod::TPM_FDE).to receive(:possible?).and_return(true)
   end
+
+  let(:scenario) { "disks.yaml" }
+
+  let(:storage_system) { Agama::Storage::System.new }
 end
