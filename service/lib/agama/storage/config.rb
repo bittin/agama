@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2024-2025] SUSE LLC
+# Copyright (c) [2024-2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -110,6 +110,11 @@ module Agama
       # @return [Configs::MdRaid, nil]
       def partitionable(device_alias)
         supporting_partitions.find { |d| d.alias?(device_alias) }
+      end
+
+      # @return [Array<Configs::Partition, Configs::LogicalVolume>]
+      def volumes
+        partitions + logical_volumes
       end
 
       # @return [Array<Configs::Partition>]
