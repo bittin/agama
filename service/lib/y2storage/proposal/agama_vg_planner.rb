@@ -29,6 +29,8 @@ module Y2Storage
       # @param vg_config [Agama::Storage::Configs::VolumeGroup]
       # @return [Array<Planned::Device>]
       def planned_devices(vg_config)
+        return [] if vg_config.search&.skip_device?
+
         [planned_vg(vg_config)]
       end
 
@@ -95,15 +97,18 @@ module Y2Storage
       # @param config [Agama::Storage::Configs::VolumeGroup]
       # @return [Array<Planned::LvmLv>]
       def planned_normal_lvs(config)
-        configs = config.logical_volumes.reject(&:pool?).reject(&:thin_volume?)
-        configs.map { |c| planned_lv(c, LvType::NORMAL) }
+        valid_lv_configs(config)
+          .reject(&:pool?)
+          .reject(&:thin_volume?)
+          .map { |c| planned_lv(c, LvType::NORMAL) }
       end
 
       # @param config [Agama::Storage::Configs::VolumeGroup]
       # @return [Array<Planned::LvmLv>]
       def planned_thin_pool_lvs(config)
-        pool_configs = config.logical_volumes.select(&:pool?)
-        pool_configs.map { |c| planned_thin_pool_lv(c, config) }
+        valid_lv_configs(config)
+          .select(&:pool?)
+          .map { |c| planned_thin_pool_lv(c, config) }
       end
 
       # Plan a thin pool logical volume and its thin volumes.
@@ -146,6 +151,17 @@ module Y2Storage
           configure_size(planned, config.size)
           configure_reuse(planned, config)
         end
+      end
+
+      # Valid logical volume configs to plan for.
+      #
+      # @param config [Agama::Storage::Configs::VolumeGroup]
+      # @return [Array<Agama::Storage::Configs::LogicalVolume>]
+      def valid_lv_configs(config)
+        config.logical_volumes
+          .reject(&:delete?)
+          .reject(&:delete_if_needed?)
+          .reject { |c| c.search&.skip_device? }
       end
     end
   end
