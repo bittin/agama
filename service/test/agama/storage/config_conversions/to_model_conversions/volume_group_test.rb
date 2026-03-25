@@ -141,10 +141,15 @@ describe Agama::Storage::ConfigConversions::ToModelConversions::VolumeGroup do
     context "if #logical_volumes is configured" do
       let(:logical_volumes) do
         [
-          { size: "10 GiB" },
+          {
+            search: search,
+            size:   "10 GiB"
+          },
           { filesystem: { path: "/" } }
         ]
       end
+
+      let(:search) { nil }
 
       it "generates the expected JSON" do
         model_json = subject.convert
@@ -177,6 +182,41 @@ describe Agama::Storage::ConfigConversions::ToModelConversions::VolumeGroup do
             }
           ]
         )
+      end
+
+      context "if there are skipped logical volumes" do
+        let(:search) do
+          {
+            condition:  { name: "not-found" },
+            ifNotFound: "skip"
+          }
+        end
+
+        before do
+          config.logical_volumes.first.search.solve
+        end
+
+        it "generates the expected JSON" do
+          model_json = subject.convert
+          expect(model_json[:logicalVolumes]).to eq(
+            [
+              {
+                filesystem:     {
+                  reuse: false
+                },
+                mountPath:      "/",
+                delete:         false,
+                deleteIfNeeded: false,
+                resize:         false,
+                resizeIfNeeded: false,
+                size:           {
+                  default: true,
+                  min:     0
+                }
+              }
+            ]
+          )
+        end
       end
     end
   end

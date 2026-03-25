@@ -239,10 +239,15 @@ shared_examples "with partitions" do
   context "if #partitions is configured" do
     let(:partitions) do
       [
-        { size: "10 GiB" },
+        {
+          search: search,
+          size:   "10 GiB"
+        },
         { filesystem: { path: "/" } }
       ]
     end
+
+    let(:search) { nil }
 
     it "generates the expected JSON" do
       model_json = subject.convert
@@ -275,6 +280,41 @@ shared_examples "with partitions" do
           }
         ]
       )
+    end
+
+    context "if there are skipped partitions" do
+      let(:search) do
+        {
+          condition:  { name: "not-found" },
+          ifNotFound: "skip"
+        }
+      end
+
+      before do
+        config.partitions.first.search.solve
+      end
+
+      it "generates the expected JSON" do
+        model_json = subject.convert
+        expect(model_json[:partitions]).to eq(
+          [
+            {
+              delete:         false,
+              deleteIfNeeded: false,
+              resize:         false,
+              resizeIfNeeded: false,
+              filesystem:     {
+                reuse: false
+              },
+              mountPath:      "/",
+              size:           {
+                default: true,
+                min:     0
+              }
+            }
+          ]
+        )
+      end
     end
   end
 end
