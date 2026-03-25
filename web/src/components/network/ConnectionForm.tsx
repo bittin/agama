@@ -79,6 +79,7 @@ const parseAddresses = (raw: string) => parseTokens(raw).map(withPrefix).map(bui
  */
 const MODE_TO_METHOD: Record<string, ConnectionMethod> = {
   auto: ConnectionMethod.AUTO,
+  mixed: ConnectionMethod.AUTO,
   manual: ConnectionMethod.MANUAL,
 };
 
@@ -106,11 +107,9 @@ export default function ConnectionForm() {
       name: "",
       interface: devices[0]?.name ?? "",
       ipv4Mode: "default",
-      showAdvanced4: false,
       addresses4: "",
       gateway4: "",
       ipv6Mode: "default",
-      showAdvanced6: false,
       addresses6: "",
       gateway6: "",
       useCustomDns: false,
@@ -121,11 +120,11 @@ export default function ConnectionForm() {
     validators: {
       onSubmitAsync: async ({ value }) => {
         const ipv4Addresses =
-          value.ipv4Mode === "manual" || (value.ipv4Mode === "auto" && value.showAdvanced4)
+          value.ipv4Mode === "manual" || value.ipv4Mode === "mixed"
             ? parseAddresses(value.addresses4)
             : [];
         const ipv6Addresses =
-          value.ipv6Mode === "manual" || (value.ipv6Mode === "auto" && value.showAdvanced6)
+          value.ipv6Mode === "manual" || value.ipv6Mode === "mixed"
             ? parseAddresses(value.addresses6)
             : [];
 
@@ -201,12 +200,12 @@ export default function ConnectionForm() {
 
             <IpSettings
               protocol="ipv4"
-              fieldNames={{ mode: "ipv4Mode", showAdvanced: "showAdvanced4", addresses: "addresses4", gateway: "gateway4" }}
+              fieldNames={{ mode: "ipv4Mode", addresses: "addresses4", gateway: "gateway4" }}
             />
 
             <IpSettings
               protocol="ipv6"
-              fieldNames={{ mode: "ipv6Mode", showAdvanced: "showAdvanced6", addresses: "addresses6", gateway: "gateway6" }}
+              fieldNames={{ mode: "ipv6Mode", addresses: "addresses6", gateway: "gateway6" }}
             />
 
             <form.Field name="useCustomDns">

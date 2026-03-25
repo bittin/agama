@@ -22,9 +22,6 @@
 
 import React from "react";
 import {
-  Checkbox,
-  Flex,
-  FlexItem,
   FormGroup,
   FormHelperText,
   HelperText,
@@ -42,7 +39,6 @@ type FieldNames = {
   mode: string;
   addresses: string;
   gateway: string;
-  showAdvanced: string;
 };
 
 /** Props for {@link IpSettings}. */
@@ -52,43 +48,61 @@ type IpSettingsProps = {
 };
 
 /**
- * Mode options for the protocol selector.
+ * Builds the mode options for the given protocol.
  *
- * - `default`: backend decides; no method or addresses sent.
- * - `auto`: `method: auto`; advanced static settings hidden behind a toggle.
- * - `manual`: `method: manual` with required addresses and optional gateway.
+ * - `default`: no method or addresses sent; the network manages everything.
+ * - `auto`: method set to auto; no extra fields shown. Uses DHCP for IPv4,
+ *   SLAAC or DHCPv6 for IPv6 depending on what the network provides.
+ * - `manual`: method set to manual, with required addresses and optional gateway.
+ * - `mixed`: method set to auto with optional static addresses and gateway,
+ *   for the uncommon case of combining automatic and manual addressing.
  *
- * Values use `N_()` for extraction. Translate with `_()` at render time.
+ * Labels and descriptions use `N_()` for extraction and `_()` at render time.
  */
-const MODE_OPTIONS = [
-  { value: "default", label: N_("Default") },
-  { value: "auto", label: N_("Automatic (DHCP)") },
-  { value: "manual", label: N_("Manual") },
+const modeOptions = (protocol: "ipv4" | "ipv6") => [
+  {
+    value: "default",
+    label: N_("Default"),
+    description: N_("No IP settings; relies on the network."),
+  },
+  {
+    value: "auto",
+    label: N_("Automatic"),
+    description:
+      protocol === "ipv4" ? N_("Requests an address via DHCP.") : N_("Uses SLAAC or DHCPv6."),
+  },
+  {
+    value: "manual",
+    label: N_("Manual"),
+    description: N_("Set your own network configuration."),
+  },
+  {
+    value: "mixed",
+    label: N_("Mixed"),
+    description: N_("Combines Automatic and Manual. Not needed for most setups."),
+  },
 ];
 
 /**
  * Protocol-specific IP settings block for a connection form.
  *
- * Renders a mode selector (Default / Automatic (DHCP) / Manual). In Automatic
- * mode a "Show advanced settings" checkbox appears alongside the selector,
- * following the principle of progressive disclosure: static addresses and
- * gateway are hidden by default and revealed only on demand. Manual mode
- * always shows addresses (required) and gateway (optional).
+ * Shows a mode selector with four options: Default, Automatic, Manual, and
+ * Mixed. Each option has a short description. The Automatic description is
+ * protocol-aware: DHCP for IPv4, SLAAC or DHCPv6 for IPv6.
  *
- * Uses `useFormContext` to access the parent form, so it must be rendered
- * inside a `useAppForm`-backed form. All field names must be provided
- * explicitly via `fieldNames`.
+ * Selecting Manual or Mixed reveals an addresses textarea and a gateway field.
+ * Addresses are labeled as optional in Mixed mode. The gateway label notes
+ * when it will be ignored (Mixed mode with no addresses).
+ *
+ * Must be rendered inside a `useAppForm`-backed form; uses `useFormContext`
+ * internally. Field names must be provided explicitly via `fieldNames`.
  *
  * @remarks
- * All field labels are prefixed with the protocol name (e.g. "IPv4 Gateway"
- * instead of "Gateway"). Both protocols may be visible at the same time, and
- * a plain "Gateway" label would appear twice with no indication of which
- * protocol it belongs to. Sighted users can rely on the visual grouping under
- * "IPv4 Settings" / "IPv6 Settings", but screen readers announce fields
- * individually and that context is lost when navigating between controls.
- * Prefixing makes each label self-sufficient for both audiences — it adds
- * clarity for sighted users and removes ambiguity for screen reader users —
- * as recommended by WCAG 2.4.6 (Headings and Labels).
+ * Field labels are prefixed with the protocol name (e.g. "IPv4 Gateway"
+ * instead of "Gateway") because both protocols can be visible at the same
+ * time. Without the prefix, a screen reader navigating between controls loses
+ * the context that sighted users get from the visual grouping. Prefixing makes
+ * each label self-sufficient for both audiences, as recommended by WCAG 2.4.6.
  * @see https://www.w3.org/WAI/WCAG21/Understanding/headings-and-labels.html
  */
 export default function IpSettings({ protocol, fieldNames }: IpSettingsProps) {
@@ -97,63 +111,37 @@ export default function IpSettings({ protocol, fieldNames }: IpSettingsProps) {
   const label = isIPv4 ? _("IPv4 Settings") : _("IPv6 Settings");
   const addressesLabel = isIPv4 ? _("IPv4 Addresses") : _("IPv6 Addresses");
   const gatewayLabel = isIPv4 ? _("IPv4 Gateway") : _("IPv6 Gateway");
-  const addressesHint =
-    isIPv4
-      ? _("Space-separated IPv4 addresses with optional prefix, e.g. 192.168.1.1 or 192.168.1.1/24")
-      : _(
-          "Space-separated IPv6 addresses with optional prefix, e.g. 2001:db8::1 or 2001:db8::1/64",
-        );
+  const addressesHint = isIPv4
+    ? _("Space-separated IPv4 addresses with optional prefix, e.g. 192.168.1.1 or 192.168.1.1/24")
+    : _("Space-separated IPv6 addresses with optional prefix, e.g. 2001:db8::1 or 2001:db8::1/64");
 
   return (
     <>
-      <form.Subscribe selector={(s) => (s.values as any)[fieldNames.mode]}>
-        {(mode) => (
-          <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
-            <FlexItem>
-              <form.AppField name={fieldNames.mode as any}>
-                {(field) => (
-                  <field.ChoiceField
-                    label={label}
-                    // eslint-disable-next-line agama-i18n/string-literals
-                    options={MODE_OPTIONS.map((o) => ({ ...o, label: _(o.label) }))}
-                  />
-                )}
-              </form.AppField>
-            </FlexItem>
-
-            {mode === "auto" && (
-              <FlexItem>
-                <form.Field name={fieldNames.showAdvanced as any}>
-                  {(field) => (
-                    <Checkbox
-                      id={field.name}
-                      label={_("Show advanced settings")}
-                      isChecked={field.state.value}
-                      onChange={(_, checked) => field.handleChange(checked)}
-                    />
-                  )}
-                </form.Field>
-              </FlexItem>
-            )}
-          </Flex>
+      <form.AppField name={fieldNames.mode as any}>
+        {(field) => (
+          <field.ChoiceField
+            label={label}
+            options={modeOptions(protocol).map((o) => ({
+              ...o,
+              // eslint-disable-next-line agama-i18n/string-literals
+              label: _(o.label),
+              // eslint-disable-next-line agama-i18n/string-literals
+              description: _(o.description),
+            }))}
+          />
         )}
-      </form.Subscribe>
+      </form.AppField>
 
-      <form.Subscribe
-        selector={(s) => ({
-          mode: (s.values as any)[fieldNames.mode],
-          showAdvanced: (s.values as any)[fieldNames.showAdvanced],
-        })}
-      >
-        {({ mode, showAdvanced }) =>
-          (mode === "manual" || (mode === "auto" && showAdvanced)) && (
+      <form.Subscribe selector={(s) => (s.values as any)[fieldNames.mode]}>
+        {(mode) =>
+          (mode === "manual" || mode === "mixed") && (
             <NestedContent margin="mxLg">
               <form.Field name={fieldNames.addresses as any}>
                 {(field) => (
                   <FormGroup
                     fieldId={field.name}
                     label={
-                      mode === "auto" ? (
+                      mode === "mixed" ? (
                         <LabelText suffix={_("(optional)")}>{addressesLabel}</LabelText>
                       ) : (
                         addressesLabel
@@ -185,7 +173,7 @@ export default function IpSettings({ protocol, fieldNames }: IpSettingsProps) {
                     label={
                       <LabelText
                         suffix={
-                          mode === "auto"
+                          mode === "mixed"
                             ? _("(optional, ignored if no addresses provided)")
                             : _("(optional)")
                         }

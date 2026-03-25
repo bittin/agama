@@ -93,18 +93,17 @@ describe("ConnectionForm", () => {
   it("shows the IPv4 addresses and gateway when IPv4 settings is manual", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.click(screen.getByLabelText("IPv4 Settings"));
-    await user.click(screen.getByRole("option", { name: "Manual" }));
+    await user.click(screen.getByRole("option", { name: /^Manual/ }));
     screen.getByText("IPv4 Addresses");
     screen.getByLabelText("IPv4 Gateway (optional)");
     expect(screen.queryByLabelText("IPv6 Gateway (optional)")).not.toBeInTheDocument();
     expect(screen.queryByText("IPv6 Addresses")).not.toBeInTheDocument();
   });
 
-  it("shows the IPv4 addresses and gateway when IPv4 is automatic and advanced settings are enabled", async () => {
+  it("shows the IPv4 addresses and gateway when IPv4 mode is mixed", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.click(screen.getByLabelText("IPv4 Settings"));
-    await user.click(screen.getByRole("option", { name: "Automatic (DHCP)" }));
-    await user.click(screen.getByLabelText("Show advanced settings"));
+    await user.click(screen.getByRole("option", { name: /^Mixed/ }));
     screen.getByText("IPv4 Addresses");
     screen.getByLabelText("IPv4 Gateway (optional, ignored if no addresses provided)");
     expect(screen.queryByText("IPv6 Addresses")).not.toBeInTheDocument();
@@ -124,12 +123,12 @@ describe("ConnectionForm", () => {
     await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
 
     await user.click(screen.getByLabelText("IPv4 Settings"));
-    await user.click(screen.getByRole("option", { name: "Manual" }));
+    await user.click(screen.getByRole("option", { name: /^Manual/ }));
     await user.type(screen.getByLabelText("IPv4 Addresses"), "192.168.1.100 192.168.1.200/12");
     await user.type(screen.getByLabelText("IPv4 Gateway (optional)"), "192.168.1.1");
 
     await user.click(screen.getByLabelText("IPv6 Settings"));
-    await user.click(screen.getByRole("option", { name: "Manual" }));
+    await user.click(screen.getByRole("option", { name: /^Manual/ }));
     await user.type(screen.getByLabelText("IPv6 Addresses"), "2001:db8::1 2001:db8::2/24");
     await user.type(screen.getByLabelText("IPv6 Gateway (optional)"), "::1");
 
