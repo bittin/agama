@@ -106,9 +106,11 @@ export default function ConnectionForm() {
       name: "",
       interface: devices[0]?.name ?? "",
       ipv4Mode: "default",
+      showAdvanced4: false,
       addresses4: "",
       gateway4: "",
       ipv6Mode: "default",
+      showAdvanced6: false,
       addresses6: "",
       gateway6: "",
       useCustomDns: false,
@@ -118,8 +120,14 @@ export default function ConnectionForm() {
     },
     validators: {
       onSubmitAsync: async ({ value }) => {
-        const ipv4Addresses = value.ipv4Mode !== "default" ? parseAddresses(value.addresses4) : [];
-        const ipv6Addresses = value.ipv6Mode !== "default" ? parseAddresses(value.addresses6) : [];
+        const ipv4Addresses =
+          value.ipv4Mode === "manual" || (value.ipv4Mode === "auto" && value.showAdvanced4)
+            ? parseAddresses(value.addresses4)
+            : [];
+        const ipv6Addresses =
+          value.ipv6Mode === "manual" || (value.ipv6Mode === "auto" && value.showAdvanced6)
+            ? parseAddresses(value.addresses6)
+            : [];
 
         const connection = new Connection(value.name, {
           iface: value.interface,
@@ -193,12 +201,12 @@ export default function ConnectionForm() {
 
             <IpSettings
               protocol="ipv4"
-              fieldNames={{ mode: "ipv4Mode", addresses: "addresses4", gateway: "gateway4" }}
+              fieldNames={{ mode: "ipv4Mode", showAdvanced: "showAdvanced4", addresses: "addresses4", gateway: "gateway4" }}
             />
 
             <IpSettings
               protocol="ipv6"
-              fieldNames={{ mode: "ipv6Mode", addresses: "addresses6", gateway: "gateway6" }}
+              fieldNames={{ mode: "ipv6Mode", showAdvanced: "showAdvanced6", addresses: "addresses6", gateway: "gateway6" }}
             />
 
             <form.Field name="useCustomDns">

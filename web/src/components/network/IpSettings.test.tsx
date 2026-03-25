@@ -27,17 +27,19 @@ import { useAppForm } from "~/hooks/form";
 import IpSettings from "./IpSettings";
 
 const FIELD_NAMES = {
-  mode:      "ipv4Mode",
-  addresses: "addresses4",
-  gateway:   "gateway4",
+  mode:        "ipv4Mode",
+  showAdvanced: "showAdvanced4",
+  addresses:   "addresses4",
+  gateway:     "gateway4",
 };
 
 function TestForm({ defaultValues = {} }: { defaultValues?: object }) {
   const form = useAppForm({
     defaultValues: {
-      ipv4Mode:   "default",
-      addresses4: "",
-      gateway4:   "",
+      ipv4Mode:     "default",
+      showAdvanced4: false,
+      addresses4:   "",
+      gateway4:     "",
       ...defaultValues,
     },
   });
@@ -61,8 +63,44 @@ describe("IpSettings", () => {
     expect(screen.queryByText("IPv4 Gateway")).not.toBeInTheDocument();
   });
 
+  describe("when mode is automatic", () => {
+    const defaultValues = { ipv4Mode: "auto" };
+
+    it("shows the advanced settings toggle", () => {
+      installerRender(<TestForm defaultValues={defaultValues} />);
+      screen.getByLabelText("Show advanced settings");
+    });
+
+    it("does not show addresses or gateway by default", () => {
+      installerRender(<TestForm defaultValues={defaultValues} />);
+      expect(screen.queryByText("IPv4 Addresses")).not.toBeInTheDocument();
+      expect(screen.queryByText("IPv4 Gateway")).not.toBeInTheDocument();
+    });
+
+    describe("when advanced settings are shown", () => {
+      const advancedValues = { ipv4Mode: "auto", showAdvanced4: true };
+
+      it("shows IPv4 Addresses as optional", () => {
+        installerRender(<TestForm defaultValues={advancedValues} />);
+        expect(screen.getByText("IPv4 Addresses").closest("label")).toHaveTextContent("(optional)");
+      });
+
+      it("notes on the gateway label that it is ignored if no addresses provided", () => {
+        installerRender(<TestForm defaultValues={advancedValues} />);
+        expect(screen.getByText("IPv4 Gateway").closest("label")).toHaveTextContent(
+          "(optional, ignored if no addresses provided)",
+        );
+      });
+    });
+  });
+
   describe("when mode is manual", () => {
     const defaultValues = { ipv4Mode: "manual" };
+
+    it("does not show the advanced settings toggle", () => {
+      installerRender(<TestForm defaultValues={defaultValues} />);
+      expect(screen.queryByLabelText("Show advanced settings")).not.toBeInTheDocument();
+    });
 
     it("shows IPv4 Addresses as required", () => {
       installerRender(<TestForm defaultValues={defaultValues} />);
@@ -77,22 +115,6 @@ describe("IpSettings", () => {
     it("does not note that the gateway is ignored without a static IP", () => {
       installerRender(<TestForm defaultValues={defaultValues} />);
       expect(screen.getByText("IPv4 Gateway").closest("label")).not.toHaveTextContent("ignored");
-    });
-  });
-
-  describe("when mode is automatic", () => {
-    const defaultValues = { ipv4Mode: "auto" };
-
-    it("shows IPv4 Addresses as optional", () => {
-      installerRender(<TestForm defaultValues={defaultValues} />);
-      expect(screen.getByText("IPv4 Addresses").closest("label")).toHaveTextContent("(optional)");
-    });
-
-    it("notes on the gateway label that it is ignored if no addresses provided", () => {
-      installerRender(<TestForm defaultValues={defaultValues} />);
-      expect(screen.getByText("IPv4 Gateway").closest("label")).toHaveTextContent(
-        "(optional, ignored if no addresses provided)",
-      );
     });
   });
 });

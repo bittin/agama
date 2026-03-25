@@ -22,6 +22,9 @@
 
 import React from "react";
 import {
+  Checkbox,
+  Flex,
+  FlexItem,
   FormGroup,
   FormHelperText,
   HelperText,
@@ -39,6 +42,7 @@ type FieldNames = {
   mode: string;
   addresses: string;
   gateway: string;
+  showAdvanced: string;
 };
 
 /** Props for {@link IpSettings}. */
@@ -51,24 +55,25 @@ type IpSettingsProps = {
  * Mode options for the protocol selector.
  *
  * - `default`: backend decides; no method or addresses sent.
- * - `auto`: `method: auto` with optional static addresses and gateway.
+ * - `auto`: `method: auto`; advanced static settings hidden behind a toggle.
  * - `manual`: `method: manual` with required addresses and optional gateway.
  *
  * Values use `N_()` for extraction. Translate with `_()` at render time.
  */
 const MODE_OPTIONS = [
   { value: "default", label: N_("Default") },
-  { value: "auto", label: N_("Automatic") },
+  { value: "auto", label: N_("Automatic (DHCP)") },
   { value: "manual", label: N_("Manual") },
 ];
 
 /**
  * Protocol-specific IP settings block for a connection form.
  *
- * Renders a single mode selector (Default / Automatic / Manual). Automatic
- * and Manual modes reveal an addresses textarea and a gateway field nested
- * below. Addresses are optional in Automatic mode and required in Manual mode.
- * The gateway suffix reflects whether it depends on an address being present.
+ * Renders a mode selector (Default / Automatic (DHCP) / Manual). In Automatic
+ * mode a "Show advanced settings" checkbox appears alongside the selector,
+ * following the principle of progressive disclosure: static addresses and
+ * gateway are hidden by default and revealed only on demand. Manual mode
+ * always shows addresses (required) and gateway (optional).
  *
  * Uses `useFormContext` to access the parent form, so it must be rendered
  * inside a `useAppForm`-backed form. All field names must be provided
@@ -101,19 +106,47 @@ export default function IpSettings({ protocol, fieldNames }: IpSettingsProps) {
 
   return (
     <>
-      <form.AppField name={fieldNames.mode as any}>
-        {(field) => (
-          <field.ChoiceField
-            label={label}
-            // eslint-disable-next-line agama-i18n/string-literals
-            options={MODE_OPTIONS.map((o) => ({ ...o, label: _(o.label) }))}
-          />
-        )}
-      </form.AppField>
-
       <form.Subscribe selector={(s) => (s.values as any)[fieldNames.mode]}>
-        {(mode) =>
-          (mode === "auto" || mode === "manual") && (
+        {(mode) => (
+          <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
+            <FlexItem>
+              <form.AppField name={fieldNames.mode as any}>
+                {(field) => (
+                  <field.ChoiceField
+                    label={label}
+                    // eslint-disable-next-line agama-i18n/string-literals
+                    options={MODE_OPTIONS.map((o) => ({ ...o, label: _(o.label) }))}
+                  />
+                )}
+              </form.AppField>
+            </FlexItem>
+
+            {mode === "auto" && (
+              <FlexItem>
+                <form.Field name={fieldNames.showAdvanced as any}>
+                  {(field) => (
+                    <Checkbox
+                      id={field.name}
+                      label={_("Show advanced settings")}
+                      isChecked={field.state.value}
+                      onChange={(_, checked) => field.handleChange(checked)}
+                    />
+                  )}
+                </form.Field>
+              </FlexItem>
+            )}
+          </Flex>
+        )}
+      </form.Subscribe>
+
+      <form.Subscribe
+        selector={(s) => ({
+          mode: (s.values as any)[fieldNames.mode],
+          showAdvanced: (s.values as any)[fieldNames.showAdvanced],
+        })}
+      >
+        {({ mode, showAdvanced }) =>
+          (mode === "manual" || (mode === "auto" && showAdvanced)) && (
             <NestedContent margin="mxLg">
               <form.Field name={fieldNames.addresses as any}>
                 {(field) => (

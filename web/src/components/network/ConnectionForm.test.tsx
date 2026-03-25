@@ -100,6 +100,16 @@ describe("ConnectionForm", () => {
     expect(screen.queryByText("IPv6 Addresses")).not.toBeInTheDocument();
   });
 
+  it("shows the IPv4 addresses and gateway when IPv4 is automatic and advanced settings are enabled", async () => {
+    const { user } = installerRender(<ConnectionForm />);
+    await user.click(screen.getByLabelText("IPv4 Settings"));
+    await user.click(screen.getByRole("option", { name: "Automatic (DHCP)" }));
+    await user.click(screen.getByLabelText("Show advanced settings"));
+    screen.getByText("IPv4 Addresses");
+    screen.getByLabelText("IPv4 Gateway (optional, ignored if no addresses provided)");
+    expect(screen.queryByText("IPv6 Addresses")).not.toBeInTheDocument();
+  });
+
   it("submits empty addresses when both settings are default", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
