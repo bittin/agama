@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2025] SUSE LLC
+# Copyright (c) [2025-2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -20,6 +20,7 @@
 # find current contact information at www.suse.com.
 
 require_relative "../config_context"
+require_relative "./examples"
 require "agama/storage/config_checkers/volume_group"
 
 describe Agama::Storage::ConfigCheckers::VolumeGroup do
@@ -35,18 +36,22 @@ describe Agama::Storage::ConfigCheckers::VolumeGroup do
       volumeGroups: [
         {
           name:            name,
+          search:          search,
           physicalVolumes: physical_volumes
         }
       ]
     }
   end
 
-  let(:name) { nil }
+  let(:name) { "vg0" }
+  let(:search) { nil }
   let(:physical_volumes) { nil }
 
   let(:vg_config) { config.volume_groups.first }
 
   describe "#issues" do
+    include_examples "search issues"
+
     context "if the volume group has no name" do
       let(:name) { nil }
 

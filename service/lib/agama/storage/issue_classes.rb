@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2025] SUSE LLC
+# Copyright (c) [2025-2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -34,8 +34,8 @@ module Agama
         # A device is used by several volume groups as a target for generating PVs
         OVERUSED_PV_TARGET       = :configOverusedPvTarget
 
-        # A device that is part of a reused RAID is chosen to be used with other purpose
-        MISUSED_MD_MEMBER        = :configMisusedMdMember
+        # A device that is part of a reused RAID or LVM is chosen to be used with other purpose
+        MISUSED_MEMBER_DEVICE    = :configMisusedMemberDevice
 
         # Reused and new devices are both used as target for generating PVs for the same LV
         INCOMPATIBLE_PV_TARGETS  = :configIncompatiblePvTargets

@@ -70,8 +70,8 @@ module Agama
       #
       # @return [Boolean]
       def any_unsupported_device?
-        thin_pools = config.logical_volumes.select(&:pool?)
-        thin_volumes = config.logical_volumes.select(&:thin_volume?)
+        thin_pools = config.valid_logical_volumes.select(&:pool?)
+        thin_volumes = config.valid_logical_volumes.select(&:thin_volume?)
 
         [
           config.btrfs_raids,
@@ -98,7 +98,7 @@ module Agama
       #
       # @return [Boolean]
       def any_volume_group_without_name?
-        !config.volume_groups.all?(&:name)
+        !config.valid_volume_groups.all?(&:name)
       end
 
       # Only volume groups with automatically generated physical volumes are supported.
@@ -106,14 +106,14 @@ module Agama
       #
       # @return [Boolean]
       def any_volume_group_with_pvs?
-        config.volume_groups.any? { |v| v.physical_volumes.any? }
+        config.valid_volume_groups.any? { |v| v.physical_volumes.any? }
       end
 
       # Whether there is any logical volume with encryption.
       #
       # @return [Boolean]
       def any_logical_volume_with_encryption?
-        config.logical_volumes.any?(&:encryption)
+        config.valid_logical_volumes.any?(&:encryption)
       end
 
       # Whether there is any volume (i.e., partition or logical volume) with missing mount path.
@@ -232,7 +232,7 @@ module Agama
       def any_missing_volume_group_encryption?
         return false if config.valid_encryptions.none?
 
-        config.volume_groups
+        config.valid_volume_groups
           .reject { |c| c.physical_volumes_devices.none? }
           .reject(&:physical_volumes_encryption)
           .any?
