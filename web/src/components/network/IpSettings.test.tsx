@@ -24,27 +24,20 @@ import React from "react";
 import { screen } from "@testing-library/react";
 import { installerRender } from "~/test-utils";
 import { useAppForm } from "~/hooks/form";
-import { ConnectionMethod } from "~/types/network";
 import IpSettings from "./IpSettings";
 
 const FIELD_NAMES = {
-  mode:        "ipv4Mode",
-  method:      "method4",
-  addresses:   "addresses4",
-  gateway:     "gateway4",
-  nameservers: "nameservers4",
-  useExtra:    "useExtra4",
+  mode:      "ipv4Mode",
+  addresses: "addresses4",
+  gateway:   "gateway4",
 };
 
 function TestForm({ defaultValues = {} }: { defaultValues?: object }) {
   const form = useAppForm({
     defaultValues: {
-      ipv4Mode:    "default",
-      method4:     ConnectionMethod.AUTO,
-      addresses4:  "",
-      gateway4:    "",
-      nameservers4: "",
-      useExtra4:   false,
+      ipv4Mode:   "default",
+      addresses4: "",
+      gateway4:   "",
       ...defaultValues,
     },
   });
@@ -62,61 +55,43 @@ describe("IpSettings", () => {
     screen.getByText("IPv4 Settings");
   });
 
-  it("does not show the method selector when mode is default", () => {
+  it("does not show addresses or gateway when mode is default", () => {
     installerRender(<TestForm />);
-    expect(screen.queryByText("IPv4 Method")).not.toBeInTheDocument();
+    expect(screen.queryByText("IPv4 Addresses")).not.toBeInTheDocument();
+    expect(screen.queryByText("IPv4 Gateway")).not.toBeInTheDocument();
   });
 
-  it("shows the method selector when mode is custom", () => {
-    installerRender(<TestForm defaultValues={{ ipv4Mode: "custom" }} />);
-    screen.getByText("IPv4 Method");
-  });
+  describe("when mode is manual", () => {
+    const defaultValues = { ipv4Mode: "manual" };
 
-  describe("when method is manual", () => {
-    const defaultValues = { ipv4Mode: "custom", method4: ConnectionMethod.MANUAL };
-
-    it("shows IP Addresses as required and Gateway and DNS as optional", () => {
+    it("shows IPv4 Addresses as required", () => {
       installerRender(<TestForm defaultValues={defaultValues} />);
-
       expect(screen.getByText("IPv4 Addresses").closest("label")).not.toHaveTextContent("(optional)");
-      expect(screen.getByText("IPv4 Gateway").closest("label")).toHaveTextContent("(optional)");
-      expect(screen.getByText("IPv4 DNS servers").closest("label")).toHaveTextContent("(optional)");
     });
 
-    it("does not show the 'ignored without a static IP' note on the gateway", () => {
+    it("shows IPv4 Gateway as optional", () => {
+      installerRender(<TestForm defaultValues={defaultValues} />);
+      expect(screen.getByText("IPv4 Gateway").closest("label")).toHaveTextContent("(optional)");
+    });
+
+    it("does not note that the gateway is ignored without a static IP", () => {
       installerRender(<TestForm defaultValues={defaultValues} />);
       expect(screen.getByText("IPv4 Gateway").closest("label")).not.toHaveTextContent("ignored");
     });
   });
 
-  describe("when method is automatic", () => {
-    const defaultValues = { ipv4Mode: "custom", method4: ConnectionMethod.AUTO };
+  describe("when mode is automatic", () => {
+    const defaultValues = { ipv4Mode: "auto" };
 
-    it("shows the extra settings checkbox", () => {
+    it("shows IPv4 Addresses as optional", () => {
       installerRender(<TestForm defaultValues={defaultValues} />);
-      screen.getByText("With extra IPv4 settings");
-    });
-
-    it("does not show extra fields when the checkbox is unchecked", () => {
-      installerRender(<TestForm defaultValues={defaultValues} />);
-      expect(screen.queryByText("IPv4 Addresses")).not.toBeInTheDocument();
-    });
-
-    it("shows all extra fields as optional when the checkbox is checked", async () => {
-      const { user } = installerRender(<TestForm defaultValues={defaultValues} />);
-      await user.click(screen.getByText("With extra IPv4 settings"));
-
       expect(screen.getByText("IPv4 Addresses").closest("label")).toHaveTextContent("(optional)");
-      expect(screen.getByText("IPv4 Gateway").closest("label")).toHaveTextContent("(optional, ignored without a static IP)");
-      expect(screen.getByText("IPv4 DNS servers").closest("label")).toHaveTextContent("(optional)");
     });
 
-    it("notes on the gateway label that it is ignored without a static IP", async () => {
-      const { user } = installerRender(<TestForm defaultValues={defaultValues} />);
-      await user.click(screen.getByText("With extra IPv4 settings"));
-
+    it("notes on the gateway label that it is ignored if no addresses provided", () => {
+      installerRender(<TestForm defaultValues={defaultValues} />);
       expect(screen.getByText("IPv4 Gateway").closest("label")).toHaveTextContent(
-        "ignored without a static IP",
+        "(optional, ignored if no addresses provided)",
       );
     });
   });

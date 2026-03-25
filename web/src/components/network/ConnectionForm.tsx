@@ -70,6 +70,19 @@ const withPrefix = (address: string): string => {
 const parseAddresses = (raw: string) => parseTokens(raw).map(withPrefix).map(buildAddress);
 
 /**
+ * Maps form mode values to their corresponding {@link ConnectionMethod}.
+ *
+ * "default" is intentionally absent: omitting it causes the Connection
+ * constructor to fall back to its own default, delegating the decision to the
+ * backend. This map can be dropped once the form mode values align with
+ * {@link ConnectionMethod} enum values.
+ */
+const MODE_TO_METHOD: Record<string, ConnectionMethod> = {
+  auto: ConnectionMethod.AUTO,
+  manual: ConnectionMethod.MANUAL,
+};
+
+/**
  * Form for creating a new network connection.
  *
  * @remarks
@@ -93,47 +106,29 @@ export default function ConnectionForm() {
       name: "",
       interface: devices[0]?.name ?? "",
       ipv4Mode: "default",
-      method4: ConnectionMethod.AUTO,
       addresses4: "",
       gateway4: "",
-      nameservers4: "",
-      useExtra4: false,
       ipv6Mode: "default",
-      method6: ConnectionMethod.AUTO,
       addresses6: "",
       gateway6: "",
-      nameservers6: "",
-      useExtra6: false,
+      useCustomDns: false,
+      nameservers: "",
       useCustomDnsSearch: false,
       dnsSearchList: "",
     },
     validators: {
       onSubmitAsync: async ({ value }) => {
-        const ipv4Custom = value.ipv4Mode === "custom";
-        const ipv6Custom = value.ipv6Mode === "custom";
-        const ipv4Manual = ipv4Custom && value.method4 === ConnectionMethod.MANUAL;
-        const ipv6Manual = ipv6Custom && value.method6 === ConnectionMethod.MANUAL;
-        const ipv4WithExtra = ipv4Custom && value.method4 === ConnectionMethod.AUTO && value.useExtra4;
-        const ipv6WithExtra = ipv6Custom && value.method6 === ConnectionMethod.AUTO && value.useExtra6;
-
-        const addresses = [
-          ...(ipv4Manual || ipv4WithExtra ? parseAddresses(value.addresses4) : []),
-          ...(ipv6Manual || ipv6WithExtra ? parseAddresses(value.addresses6) : []),
-        ];
-
-        const nameservers = [
-          ...(ipv4Manual || ipv4WithExtra ? parseTokens(value.nameservers4) : []),
-          ...(ipv6Manual || ipv6WithExtra ? parseTokens(value.nameservers6) : []),
-        ];
+        const ipv4Addresses = value.ipv4Mode !== "default" ? parseAddresses(value.addresses4) : [];
+        const ipv6Addresses = value.ipv6Mode !== "default" ? parseAddresses(value.addresses6) : [];
 
         const connection = new Connection(value.name, {
           iface: value.interface,
-          method4: ipv4Custom ? value.method4 : ConnectionMethod.AUTO,
-          gateway4: ipv4Manual ? value.gateway4 : "",
-          method6: ipv6Custom ? value.method6 : ConnectionMethod.AUTO,
-          gateway6: ipv6Manual ? value.gateway6 : "",
-          addresses,
-          nameservers,
+          method4: MODE_TO_METHOD[value.ipv4Mode],
+          gateway4: ipv4Addresses.length > 0 ? value.gateway4 : "",
+          method6: MODE_TO_METHOD[value.ipv6Mode],
+          gateway6: ipv6Addresses.length > 0 ? value.gateway6 : "",
+          addresses: [...ipv4Addresses, ...ipv6Addresses],
+          nameservers: value.useCustomDns ? parseTokens(value.nameservers) : [],
           dnsSearchList: value.useCustomDnsSearch ? parseTokens(value.dnsSearchList) : [],
         });
         try {
@@ -198,27 +193,50 @@ export default function ConnectionForm() {
 
             <IpSettings
               protocol="ipv4"
-              fieldNames={{
-                mode: "ipv4Mode",
-                method: "method4",
-                addresses: "addresses4",
-                gateway: "gateway4",
-                nameservers: "nameservers4",
-                useExtra: "useExtra4",
-              }}
+              fieldNames={{ mode: "ipv4Mode", addresses: "addresses4", gateway: "gateway4" }}
             />
 
             <IpSettings
               protocol="ipv6"
-              fieldNames={{
-                mode: "ipv6Mode",
-                method: "method6",
-                addresses: "addresses6",
-                gateway: "gateway6",
-                nameservers: "nameservers6",
-                useExtra: "useExtra6",
-              }}
+              fieldNames={{ mode: "ipv6Mode", addresses: "addresses6", gateway: "gateway6" }}
             />
+
+            <form.Field name="useCustomDns">
+              {(dnsToggle) => (
+                <>
+                  <Checkbox
+                    id={dnsToggle.name}
+                    label={_("Use custom DNS")}
+                    isChecked={dnsToggle.state.value}
+                    onChange={(_, checked) => dnsToggle.handleChange(checked)}
+                  />
+                  {dnsToggle.state.value && (
+                    <NestedContent margin="mxLg">
+                      <form.Field name="nameservers">
+                        {(field) => (
+                          <FormGroup fieldId={field.name}>
+                            <TextArea
+                              id={field.name}
+                              value={field.state.value}
+                              onChange={(_, v) => field.handleChange(v)}
+                              aria-label={_("DNS servers")}
+                              aria-describedby={`${field.name}-hint`}
+                            />
+                            <FormHelperText>
+                              <HelperText>
+                                <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
+                                  {_("Space-separated list of DNS server addresses")}
+                                </HelperTextItem>
+                              </HelperText>
+                            </FormHelperText>
+                          </FormGroup>
+                        )}
+                      </form.Field>
+                    </NestedContent>
+                  )}
+                </>
+              )}
+            </form.Field>
 
             <form.Field name="useCustomDnsSearch">
               {(dnsSearchToggle) => (
