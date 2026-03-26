@@ -27,17 +27,17 @@ import { useAppForm } from "~/hooks/form";
 import IpSettings from "./IpSettings";
 
 const FIELD_NAMES = {
-  mode:      "ipv4Mode",
+  mode: "ipv4Mode",
   addresses: "addresses4",
-  gateway:   "gateway4",
+  gateway: "gateway4",
 };
 
 function TestForm({ defaultValues = {} }: { defaultValues?: object }) {
   const form = useAppForm({
     defaultValues: {
-      ipv4Mode:   "unset",
+      ipv4Mode: "unset",
       addresses4: "",
-      gateway4:   "",
+      gateway4: "",
       ...defaultValues,
     },
   });
@@ -66,7 +66,9 @@ describe("IpSettings", () => {
 
     it("shows IPv4 Addresses as required", () => {
       installerRender(<TestForm defaultValues={defaultValues} />);
-      expect(screen.getByText("IPv4 Addresses").closest("label")).not.toHaveTextContent("(optional)");
+      expect(screen.getByText("IPv4 Addresses").closest("label")).not.toHaveTextContent(
+        "(optional)",
+      );
     });
 
     it("shows IPv4 Gateway as optional", () => {
@@ -80,7 +82,7 @@ describe("IpSettings", () => {
     });
   });
 
-  describe("when mode is advanced (mixed)", () => {
+  describe("when mode is advanced", () => {
     const defaultValues = { ipv4Mode: "auto" };
 
     it("shows IPv4 Addresses as optional", () => {

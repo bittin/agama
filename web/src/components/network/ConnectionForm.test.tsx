@@ -137,7 +137,7 @@ describe("ConnectionForm", () => {
   it("shows the IPv4 addresses and gateway when IPv4 mode is advanced", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.click(screen.getByLabelText("IPv4 Settings"));
-    await user.click(screen.getByRole("option", { name: /^Advanced DHCP/ }));
+    await user.click(screen.getByRole("option", { name: /^Advanced/ }));
     screen.getByText("IPv4 Addresses");
     screen.getByLabelText("IPv4 Gateway (optional, ignored if no addresses provided)");
     expect(screen.queryByText("IPv6 Addresses")).not.toBeInTheDocument();

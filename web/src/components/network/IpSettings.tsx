@@ -54,9 +54,9 @@ type IpSettingsProps = {
  *   configuration automatically. Labeled "Automatic" to avoid exposing
  *   the underlying "no method set" detail to users.
  * - `manual`: method set to manual, with required addresses and optional gateway.
- * - `mixed`: method set to auto with optional static addresses and gateway,
+ * - `auto`: method set to auto with optional static addresses and gateway,
  *   for the uncommon case of combining automatic and manual addressing.
- *   Labeled "Advanced DHCP" (IPv4) or "Advanced Automatic" (IPv6).
+ *   Labeled "Advanced".
  *
  * Labels and descriptions use `N_()` for extraction and `_()` at render time.
  */
@@ -73,7 +73,7 @@ const modeOptions = (protocol: "ipv4" | "ipv6") => [
   },
   {
     value: "auto",
-    label: protocol === "ipv4" ? N_("Advanced DHCP") : N_("Advanced Automatic"),
+    label: N_("Advanced"),
     description: N_("Automatic plus optional addresses and gateway"),
   },
 ];
@@ -81,8 +81,8 @@ const modeOptions = (protocol: "ipv4" | "ipv6") => [
 /**
  * Protocol-specific IP settings block for a connection form.
  *
- * Shows a mode selector with three options: Automatic, Manual, and Advanced
- * DHCP (IPv4) or Advanced Automatic (IPv6). Each option has a short description.
+ * Shows a mode selector with three options: Automatic, Manual, and Advanced.
+ * Each option has a short description.
  *
  * Selecting Manual or Advanced reveals an addresses textarea and a gateway
  * field. Addresses are labeled optional in Advanced mode. The gateway label
