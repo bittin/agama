@@ -28,12 +28,14 @@ import { ConnectionMethod, ConnectionType, DeviceState } from "~/types/network";
 
 const mockDevice1 = {
   name: "enp1s0",
+  macAddress: "00:11:22:33:44:55",
   type: ConnectionType.ETHERNET,
   state: DeviceState.CONNECTED,
 };
 
 const mockDevice2 = {
   name: "enp2s0",
+  macAddress: "AA:BB:CC:DD:EE:FF",
   type: ConnectionType.ETHERNET,
   state: DeviceState.DISCONNECTED,
 };
@@ -56,11 +58,43 @@ describe("ConnectionForm", () => {
   it("renders common connection fields and options", () => {
     installerRender(<ConnectionForm />);
     screen.getByLabelText("Name");
-    screen.getByLabelText("Interface");
+    screen.getByLabelText("Interface binding");
     screen.getByText("IPv4 Settings");
     screen.getByText("IPv6 Settings");
     screen.getByText("Use custom DNS");
     screen.getByText("Use custom DNS search domains");
+  });
+
+  describe("Interface binding", () => {
+    it("does not show device or MAC fields when mode is Unbound", () => {
+      installerRender(<ConnectionForm />);
+      expect(screen.queryByLabelText("Device")).not.toBeInTheDocument();
+      expect(screen.queryByLabelText("MAC address")).not.toBeInTheDocument();
+    });
+
+    it("submits with iface when binding by iface name", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+      await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
+      await user.click(screen.getByLabelText("Interface binding"));
+      await user.click(screen.getByRole("option", { name: /^By device name/ }));
+      await user.click(screen.getByRole("button", { name: "Accept" }));
+      await waitFor(() =>
+        expect(mockMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ iface: "enp1s0" })),
+      );
+    });
+
+    it("submits with macAddress when binding by MAC", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+      await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
+      await user.click(screen.getByLabelText("Interface binding"));
+      await user.click(screen.getByRole("option", { name: /^By MAC address/ }));
+      await user.click(screen.getByRole("button", { name: "Accept" }));
+      await waitFor(() =>
+        expect(mockMutateAsync).toHaveBeenCalledWith(
+          expect.objectContaining({ macAddress: "00:11:22:33:44:55" }),
+        ),
+      );
+    });
   });
 
   it("submits with the entered values", async () => {
@@ -69,7 +103,7 @@ describe("ConnectionForm", () => {
     await user.click(screen.getByRole("button", { name: "Accept" }));
     await waitFor(() =>
       expect(mockMutateAsync).toHaveBeenCalledWith(
-        expect.objectContaining({ id: "Testing Connection 1", iface: "enp1s0" }),
+        expect.objectContaining({ id: "Testing Connection 1" }),
       ),
     );
   });

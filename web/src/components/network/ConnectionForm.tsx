@@ -27,11 +27,11 @@ import {
   ActionGroup,
   Button,
   Checkbox,
+  Flex,
+  FlexItem,
   Form,
   FormGroup,
   FormHelperText,
-  FormSelect,
-  FormSelectOption,
   HelperText,
   HelperTextItem,
   TextArea,
@@ -40,7 +40,9 @@ import {
 import Page from "~/components/core/Page";
 import NestedContent from "~/components/core/NestedContent";
 import IpSettings from "~/components/network/IpSettings";
-import { Connection, ConnectionMethod } from "~/types/network";
+import BindingModeSelector from "~/components/network/BindingModeSelector";
+import DeviceSelector from "~/components/network/DeviceSelector";
+import { Connection, ConnectionBindingMode, ConnectionMethod } from "~/types/network";
 import { buildAddress } from "~/utils/network";
 import { useConnectionMutation } from "~/hooks/model/config/network";
 import { useAppForm } from "~/hooks/form";
@@ -105,7 +107,9 @@ export default function ConnectionForm() {
   const form = useAppForm({
     defaultValues: {
       name: "",
-      interface: devices[0]?.name ?? "",
+      ifaceMode: "none" as ConnectionBindingMode,
+      iface: devices[0]?.name ?? "",
+      ifaceMac: devices[0]?.macAddress ?? "",
       ipv4Mode: "default",
       addresses4: "",
       gateway4: "",
@@ -129,7 +133,8 @@ export default function ConnectionForm() {
             : [];
 
         const connection = new Connection(value.name, {
-          iface: value.interface,
+          iface: value.ifaceMode === "iface" ? value.iface : "",
+          macAddress: value.ifaceMode === "mac" ? value.ifaceMac : "",
           method4: MODE_TO_METHOD[value.ipv4Mode],
           gateway4: ipv4Addresses.length > 0 ? value.gateway4 : "",
           method6: MODE_TO_METHOD[value.ipv6Mode],
@@ -182,21 +187,21 @@ export default function ConnectionForm() {
               )}
             </form.Field>
 
-            <form.Field name="interface">
-              {(field) => (
-                <FormGroup fieldId={field.name} label={_("Interface")}>
-                  <FormSelect
-                    id={field.name}
-                    value={field.state.value}
-                    onChange={(_, v) => field.handleChange(v)}
-                  >
-                    {devices.map((d) => (
-                      <FormSelectOption key={d.name} value={d.name} label={d.name} />
-                    ))}
-                  </FormSelect>
-                </FormGroup>
-              )}
-            </form.Field>
+            <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
+              <FlexItem>
+                <BindingModeSelector name="ifaceMode" />
+              </FlexItem>
+
+              <form.Subscribe selector={(s) => s.values.ifaceMode}>
+                {(mode) =>
+                  mode !== "none" && (
+                    <FlexItem>
+                      <DeviceSelector name={mode === "iface" ? "iface" : "ifaceMac"} by={mode} />
+                    </FlexItem>
+                  )
+                }
+              </form.Subscribe>
+            </Flex>
 
             <IpSettings
               protocol="ipv4"
