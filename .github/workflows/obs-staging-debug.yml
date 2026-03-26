@@ -30,10 +30,6 @@ jobs:
           echo 'vars.OBS_PROJECTS: ${{ vars.OBS_PROJECTS }}'
           echo 'parsed vars.OBS_PROJECTS: ${{ fromJson(vars.OBS_PROJECTS) }}'
           echo 'github.ref_name: ${{ github.ref_name }}'
-          echo 'Target OBS project:      ${{ fromJson(vars.OBS_PROJECTS)[github.ref_name] }}'
-          echo 'Target OBS project(env): ${{ env.obs_project }}'
+          echo 'Target OBS project: ${{ env.obs_project }}'
           echo 'Submit condition: ${{ vars.OBS_PROJECTS && env.obs_project && vars.OBS_USER }}'
-          echo 'Submit would start: ${{ !contains(fromJSON('[false, 0, -0, "", null]'), vars.OBS_PROJECTS && env.obs_project && vars.OBS_USER) }}'
-          echo 'Submit would start2:${{ !!(vars.OBS_PROJECTS && env.obs_project && vars.OBS_USER) }}'
-          echo 'Boolean expr test: !!0 "${{ !!0 }}", !!null "${{ !!null }}"'
-
+          echo 'Submit would start: ${{ !!(vars.OBS_PROJECTS && env.obs_project && vars.OBS_USER) }}'
