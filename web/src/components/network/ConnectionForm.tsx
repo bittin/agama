@@ -74,14 +74,13 @@ const parseAddresses = (raw: string) => parseTokens(raw).map(withPrefix).map(bui
 /**
  * Maps form mode values to their corresponding {@link ConnectionMethod}.
  *
- * "default" is intentionally absent: omitting it causes the Connection
- * constructor to fall back to its own default, delegating the decision to the
- * backend. This map can be dropped once the form mode values align with
+ * "unset" is intentionally absent: omitting it causes the Connection
+ * constructor to write no method, delegating the decision to NetworkManager.
+ * This map can be dropped once the form mode values align with
  * {@link ConnectionMethod} enum values.
  */
 const MODE_TO_METHOD: Record<string, ConnectionMethod> = {
   auto: ConnectionMethod.AUTO,
-  mixed: ConnectionMethod.AUTO,
   manual: ConnectionMethod.MANUAL,
 };
 
@@ -110,10 +109,10 @@ export default function ConnectionForm() {
       ifaceMode: "none" as ConnectionBindingMode,
       iface: devices[0]?.name ?? "",
       ifaceMac: devices[0]?.macAddress ?? "",
-      ipv4Mode: "default",
+      ipv4Mode: "unset",
       addresses4: "",
       gateway4: "",
-      ipv6Mode: "default",
+      ipv6Mode: "unset",
       addresses6: "",
       gateway6: "",
       useCustomDns: false,
@@ -124,11 +123,11 @@ export default function ConnectionForm() {
     validators: {
       onSubmitAsync: async ({ value }) => {
         const ipv4Addresses =
-          value.ipv4Mode === "manual" || value.ipv4Mode === "mixed"
+          value.ipv4Mode === "manual" || value.ipv4Mode === "auto"
             ? parseAddresses(value.addresses4)
             : [];
         const ipv6Addresses =
-          value.ipv6Mode === "manual" || value.ipv6Mode === "mixed"
+          value.ipv6Mode === "manual" || value.ipv6Mode === "auto"
             ? parseAddresses(value.addresses6)
             : [];
 

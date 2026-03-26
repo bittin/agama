@@ -58,25 +58,25 @@ describe("ConnectionForm", () => {
   it("renders common connection fields and options", () => {
     installerRender(<ConnectionForm />);
     screen.getByLabelText("Name");
-    screen.getByLabelText("Interface binding");
+    screen.getByLabelText("Device");
     screen.getByText("IPv4 Settings");
     screen.getByText("IPv6 Settings");
     screen.getByText("Use custom DNS");
     screen.getByText("Use custom DNS search domains");
   });
 
-  describe("Interface binding", () => {
-    it("does not show device or MAC fields when mode is Unbound", () => {
+  describe("Device binding", () => {
+    it("does not show device or MAC fields when mode is Any", () => {
       installerRender(<ConnectionForm />);
-      expect(screen.queryByLabelText("Device")).not.toBeInTheDocument();
+      expect(screen.queryByLabelText("Device name")).not.toBeInTheDocument();
       expect(screen.queryByLabelText("MAC address")).not.toBeInTheDocument();
     });
 
     it("submits with iface when binding by iface name", async () => {
       const { user } = installerRender(<ConnectionForm />);
       await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
-      await user.click(screen.getByLabelText("Interface binding"));
-      await user.click(screen.getByRole("option", { name: /^By device name/ }));
+      await user.click(screen.getByLabelText("Device"));
+      await user.click(screen.getByRole("option", { name: /^Chosen by name/ }));
       await user.click(screen.getByRole("button", { name: "Accept" }));
       await waitFor(() =>
         expect(mockMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ iface: "enp1s0" })),
@@ -86,8 +86,8 @@ describe("ConnectionForm", () => {
     it("submits with macAddress when binding by MAC", async () => {
       const { user } = installerRender(<ConnectionForm />);
       await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
-      await user.click(screen.getByLabelText("Interface binding"));
-      await user.click(screen.getByRole("option", { name: /^By MAC address/ }));
+      await user.click(screen.getByLabelText("Device"));
+      await user.click(screen.getByRole("option", { name: /^Chosen by MAC/ }));
       await user.click(screen.getByRole("button", { name: "Accept" }));
       await waitFor(() =>
         expect(mockMutateAsync).toHaveBeenCalledWith(
@@ -116,7 +116,7 @@ describe("ConnectionForm", () => {
     await screen.findByText("Connection failed");
   });
 
-  it("does not show IP fields when both settings are default", () => {
+  it("does not show IP fields when both settings are automatic", () => {
     installerRender(<ConnectionForm />);
     expect(screen.queryByText("IPv4 Addresses")).not.toBeInTheDocument();
     expect(screen.queryByText("IPv4 Gateway")).not.toBeInTheDocument();
@@ -134,16 +134,16 @@ describe("ConnectionForm", () => {
     expect(screen.queryByText("IPv6 Addresses")).not.toBeInTheDocument();
   });
 
-  it("shows the IPv4 addresses and gateway when IPv4 mode is mixed", async () => {
+  it("shows the IPv4 addresses and gateway when IPv4 mode is advanced", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.click(screen.getByLabelText("IPv4 Settings"));
-    await user.click(screen.getByRole("option", { name: /^Mixed/ }));
+    await user.click(screen.getByRole("option", { name: /^Advanced DHCP/ }));
     screen.getByText("IPv4 Addresses");
     screen.getByLabelText("IPv4 Gateway (optional, ignored if no addresses provided)");
     expect(screen.queryByText("IPv6 Addresses")).not.toBeInTheDocument();
   });
 
-  it("submits empty addresses when both settings are default", async () => {
+  it("submits empty addresses when both settings are automatic", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
     await user.click(screen.getByRole("button", { name: "Accept" }));

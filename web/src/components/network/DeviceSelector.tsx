@@ -22,6 +22,7 @@
 
 import React from "react";
 import Text from "~/components/core/Text";
+import HiddenLabel from "~/components/form/HiddenLabel";
 import { useFormContext } from "~/hooks/form";
 import { useDevices } from "~/hooks/model/system/network";
 import { _ } from "~/i18n";
@@ -51,7 +52,7 @@ export default function DeviceSelector({ name, by }: DeviceSelectorProps) {
   const form = useFormContext();
   const devices = useDevices();
 
-  const label = by === "iface" ? _("Device") : _("MAC address");
+  const label = by === "iface" ? _("Device name") : _("MAC address");
   const descriptionPrefix = by === "iface" ? _("MAC:") : _("Name:");
   const options = devices.map((d) => {
     const value = by === "iface" ? d.name : d.macAddress;
@@ -68,7 +69,7 @@ export default function DeviceSelector({ name, by }: DeviceSelectorProps) {
 
   return (
     <form.AppField name={name as any}>
-      {(field) => <field.ChoiceField label={label} options={options} />}
+      {(field) => <field.ChoiceField label={<HiddenLabel>{label}</HiddenLabel>} options={options} />}
     </form.AppField>
   );
 }

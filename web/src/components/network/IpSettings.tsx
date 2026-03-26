@@ -50,49 +50,43 @@ type IpSettingsProps = {
 /**
  * Builds the mode options for the given protocol.
  *
- * - `default`: no method or addresses sent; the network manages everything.
- * - `auto`: method set to auto; no extra fields shown. Uses DHCP for IPv4,
- *   SLAAC or DHCPv6 for IPv6 depending on what the network provides.
+ * - `auto`: no method written to the profile; the network handles IP
+ *   configuration automatically. Labeled "Automatic" to avoid exposing
+ *   the underlying "no method set" detail to users.
  * - `manual`: method set to manual, with required addresses and optional gateway.
  * - `mixed`: method set to auto with optional static addresses and gateway,
  *   for the uncommon case of combining automatic and manual addressing.
+ *   Labeled "Advanced DHCP" (IPv4) or "Advanced Automatic" (IPv6).
  *
  * Labels and descriptions use `N_()` for extraction and `_()` at render time.
  */
 const modeOptions = (protocol: "ipv4" | "ipv6") => [
   {
-    value: "default",
-    label: N_("Default"),
-    description: N_("No IP settings; relies on the network."),
-  },
-  {
-    value: "auto",
+    value: "unset",
     label: N_("Automatic"),
-    description:
-      protocol === "ipv4" ? N_("Requests an address via DHCP.") : N_("Uses SLAAC or DHCPv6."),
+    description: N_("Address and gateway from the network"),
   },
   {
     value: "manual",
     label: N_("Manual"),
-    description: N_("Set your own network configuration."),
+    description: N_("Fixed addresses with optional gateway"),
   },
   {
-    value: "mixed",
-    label: N_("Mixed"),
-    description: N_("Combines Automatic and Manual. Not needed for most setups."),
+    value: "auto",
+    label: protocol === "ipv4" ? N_("Advanced DHCP") : N_("Advanced Automatic"),
+    description: N_("Automatic plus optional addresses and gateway"),
   },
 ];
 
 /**
  * Protocol-specific IP settings block for a connection form.
  *
- * Shows a mode selector with four options: Default, Automatic, Manual, and
- * Mixed. Each option has a short description. The Automatic description is
- * protocol-aware: DHCP for IPv4, SLAAC or DHCPv6 for IPv6.
+ * Shows a mode selector with three options: Automatic, Manual, and Advanced
+ * DHCP (IPv4) or Advanced Automatic (IPv6). Each option has a short description.
  *
- * Selecting Manual or Mixed reveals an addresses textarea and a gateway field.
- * Addresses are labeled as optional in Mixed mode. The gateway label notes
- * when it will be ignored (Mixed mode with no addresses).
+ * Selecting Manual or Advanced reveals an addresses textarea and a gateway
+ * field. Addresses are labeled optional in Advanced mode. The gateway label
+ * notes when it will be ignored (Advanced mode with no addresses).
  *
  * Must be rendered inside a `useAppForm`-backed form; uses `useFormContext`
  * internally. Field names must be provided explicitly via `fieldNames`.
@@ -134,14 +128,14 @@ export default function IpSettings({ protocol, fieldNames }: IpSettingsProps) {
 
       <form.Subscribe selector={(s) => (s.values as any)[fieldNames.mode]}>
         {(mode) =>
-          (mode === "manual" || mode === "mixed") && (
+          (mode === "manual" || mode === "auto") && (
             <NestedContent margin="mxLg">
               <form.Field name={fieldNames.addresses as any}>
                 {(field) => (
                   <FormGroup
                     fieldId={field.name}
                     label={
-                      mode === "mixed" ? (
+                      mode === "auto" ? (
                         <LabelText suffix={_("(optional)")}>{addressesLabel}</LabelText>
                       ) : (
                         addressesLabel
@@ -173,7 +167,7 @@ export default function IpSettings({ protocol, fieldNames }: IpSettingsProps) {
                     label={
                       <LabelText
                         suffix={
-                          mode === "mixed"
+                          mode === "auto"
                             ? _("(optional, ignored if no addresses provided)")
                             : _("(optional)")
                         }

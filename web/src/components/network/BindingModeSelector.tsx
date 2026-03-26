@@ -27,18 +27,18 @@ import { _, N_ } from "~/i18n";
 const BINDING_MODE_OPTIONS = [
   {
     value: "none",
-    label: N_("Unbound"),
-    description: N_("The connection can be used by any available device."),
+    label: N_("Any"),
+    description: N_("The system chooses the device automatically"),
   },
   {
     value: "iface",
-    label: N_("By device name"),
-    description: N_("Only use the device with this name."),
+    label: N_("Chosen by name"),
+    description: N_("Only use the device with this name"),
   },
   {
     value: "mac",
-    label: N_("By MAC address"),
-    description: N_("Only use the device with this hardware address."),
+    label: N_("Chosen by MAC"),
+    description: N_("Only use the device with this hardware address"),
   },
 ];
 
@@ -65,7 +65,7 @@ export default function BindingModeSelector({ name }: BindingModeSelectorProps) 
     <form.AppField name={name as any}>
       {(field) => (
         <field.ChoiceField
-          label={_("Interface binding")}
+          label={_("Device")}
           options={BINDING_MODE_OPTIONS.map((o) => ({
             ...o,
             // eslint-disable-next-line agama-i18n/string-literals

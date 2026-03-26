@@ -67,14 +67,14 @@ describe("DeviceSelector", () => {
   describe("when by is iface", () => {
     it("shows device names as options", async () => {
       const { user } = installerRender(<TestForm by="iface" />);
-      await user.click(screen.getByLabelText("Device"));
+      await user.click(screen.getByLabelText("Device name"));
       screen.getByRole("option", { name: /^enp1s0/ });
       screen.getByRole("option", { name: /^enp2s0/ });
     });
 
     it("shows MAC addresses as option descriptions", async () => {
       const { user } = installerRender(<TestForm by="iface" />);
-      await user.click(screen.getByLabelText("Device"));
+      await user.click(screen.getByLabelText("Device name"));
       screen.getByRole("option", { name: /00:11:22:33:44:55/ });
       screen.getByRole("option", { name: /AA:BB:CC:DD:EE:FF/ });
     });

@@ -41,9 +41,9 @@ function TestForm() {
 describe("BindingModeSelector", () => {
   it("shows all options with their descriptions", async () => {
     const { user } = installerRender(<TestForm />);
-    await user.click(screen.getByLabelText("Interface binding"));
-    screen.getByRole("option", { name: /^Unbound.*any available device/ });
-    screen.getByRole("option", { name: /^By device name.*with this name/ });
-    screen.getByRole("option", { name: /^By MAC address.*hardware address/ });
+    await user.click(screen.getByLabelText("Device"));
+    screen.getByRole("option", { name: /^Any.*system chooses/ });
+    screen.getByRole("option", { name: /^Chosen by name.*with this name/ });
+    screen.getByRole("option", { name: /^Chosen by MAC.*hardware address/ });
   });
 });
