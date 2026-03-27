@@ -22,7 +22,6 @@
 
 import React from "react";
 import Text from "~/components/core/Text";
-import HiddenLabel from "~/components/form/HiddenLabel";
 import { connectionFormOptions } from "~/components/network/ConnectionForm";
 import { withForm } from "~/hooks/form";
 import { useDevices } from "~/hooks/model/system/network";
@@ -64,7 +63,7 @@ const DeviceSelector = withForm({
     return (
       <form.AppField name={name}>
         {(field) => (
-          <field.ChoiceField label={<HiddenLabel>{label}</HiddenLabel>} options={options} />
+          <field.ChoiceField label={<Text srOnly>{label}</Text>} options={options} />
         )}
       </form.AppField>
     );
