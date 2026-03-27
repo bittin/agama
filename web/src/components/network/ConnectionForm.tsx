@@ -28,7 +28,6 @@ import {
   Button,
   Checkbox,
   Flex,
-  FlexItem,
   Form,
   FormGroup,
   FormHelperText,
@@ -204,18 +203,10 @@ export default function ConnectionForm() {
             </form.Field>
 
             <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
-              <FlexItem>
-                <BindingModeSelector form={form} />
-              </FlexItem>
+              <BindingModeSelector form={form} />
 
               <form.Subscribe selector={(s) => s.values.ifaceMode}>
-                {(mode) =>
-                  mode !== "none" && (
-                    <FlexItem>
-                      <DeviceSelector form={form} by={mode} />
-                    </FlexItem>
-                  )
-                }
+                {(mode) => mode !== "none" && <DeviceSelector form={form} by={mode} />}
               </form.Subscribe>
             </Flex>
 

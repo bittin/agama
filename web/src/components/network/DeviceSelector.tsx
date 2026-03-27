@@ -62,9 +62,7 @@ const DeviceSelector = withForm({
 
     return (
       <form.AppField name={name}>
-        {(field) => (
-          <field.ChoiceField label={<Text srOnly>{label}</Text>} options={options} />
-        )}
+        {(field) => <field.ChoiceField label={<Text srOnly>{label}</Text>} options={options} />}
       </form.AppField>
     );
   },
