@@ -190,6 +190,14 @@ export default function ConnectionForm() {
               }
             </form.Subscribe>
 
+            <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
+              <BindingModeSelector form={form} />
+
+              <form.Subscribe selector={(s) => s.values.ifaceMode}>
+                {(mode) => mode !== "none" && <DeviceSelector form={form} by={mode} />}
+              </form.Subscribe>
+            </Flex>
+
             <form.Field name="name">
               {(field) => (
                 <FormGroup fieldId={field.name} label={_("Name")}>
@@ -201,14 +209,6 @@ export default function ConnectionForm() {
                 </FormGroup>
               )}
             </form.Field>
-
-            <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
-              <BindingModeSelector form={form} />
-
-              <form.Subscribe selector={(s) => s.values.ifaceMode}>
-                {(mode) => mode !== "none" && <DeviceSelector form={form} by={mode} />}
-              </form.Subscribe>
-            </Flex>
 
             <IpSettings form={form} protocol="ipv4" />
 
