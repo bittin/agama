@@ -9,6 +9,9 @@ export default {
   "\"%s\" does not exist or is no longer available.": [
     "\"%s\" は存在していないか、利用できなくなっています。"
   ],
+  "%1$d of %2$d connections match filters": [
+    "%2$d 個の接続のうち %1$d 個が条件に該当しています"
+  ],
   "%1$d of %2$d devices match filters": [
     "%2$d 個のデバイスのうち %1$d 個が条件に該当しています"
   ],
@@ -39,14 +42,14 @@ export default {
   "%1$s, %2$s and [%3$d more]": [
     "%1$s, %2$s [さらに %3$d 個のアドレスがあります]"
   ],
+  "%d connections available": [
+    "%d 個の接続が利用可能です"
+  ],
   "%d devices available": [
     "%d 個のデバイスが利用可能です"
   ],
   "%d mode available": [
     "%d 個のモードが利用可能です"
-  ],
-  "%d of %d": [
-    "%d ／ %d"
   ],
   "%d other mode available": [
     "%d 個の他のモードが利用可能です"
@@ -83,6 +86,15 @@ export default {
   ],
   "%s with %d partitions": [
     "%s (%d 個のパーティション)"
+  ],
+  "(bind by name)": [
+    "(名前で結びつけ)"
+  ],
+  "(bound by MAC)": [
+    "(MAC アドレスで結びつけ)"
+  ],
+  "(bound by name)": [
+    "(名前で結びつけ)"
   ],
   "(step %s of %s)": [
     "(ステップ %s / %s)"
@@ -147,17 +159,17 @@ export default {
   "Activate and format DASD devices": [
     "DASD デバイスの有効化とフォーマット"
   ],
-  "Activate new disk": [
-    "新しいディスクの有効化"
-  ],
-  "Activate zFCP disk": [
-    "zFCP ディスクの有効化"
+  "Activate controllers": [
+    "コントローラの有効化"
   ],
   "Activate zFCP disks": [
     "zFCP ディスクの有効化"
   ],
   "Activated": [
     "有効"
+  ],
+  "Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
+    "NPIV モードで動作しているコントローラを有効化した場合、その LUN は全て自動的に設定されます。"
   ],
   "Active": [
     "有効"
@@ -183,6 +195,12 @@ export default {
   "Add another address": [
     "その他のアドレスの追加"
   ],
+  "Add another search domain": [
+    "その他の検索ドメインの追加"
+  ],
+  "Add connection": [
+    "接続の追加"
+  ],
   "Add device menu": [
     "デバイスメニューの追加"
   ],
@@ -191,6 +209,9 @@ export default {
   ],
   "Add or use partition": [
     "パーティションの追加または使用"
+  ],
+  "Add search domain": [
+    "検索ドメインの追加"
   ],
   "Additional CHAP authentication performed by the initiator": [
     "イニシエータによる追加の CHAP 認証"
@@ -210,9 +231,6 @@ export default {
   "All": [
     "全て"
   ],
-  "All conflicts have been resolved, or none were detected. You can safely continue with your setup.": [
-    "すべての競合が解決されたか、競合が検出されませんでした。セットアップを安全に続行できます。"
-  ],
   "All content not configured to be mounted will be deleted": [
     "マウントするように設定していない全ての内容を削除する"
   ],
@@ -227,6 +245,9 @@ export default {
   ],
   "All network connections managed through this interface are currently set to be used only during installation and will not be copied to the installed system": [
     "このインターフェイスを通じて管理されるすべてのネットワーク接続は現在、インストール時にのみ使用されるように設定されており、インストールされたシステムにはコピーされません"
+  ],
+  "All the available zFCP controllers are already activated.": [
+    "利用可能な全ての zFCP コントローラが有効化済みです。"
   ],
   "Allow growing": [
     "サイズ拡大を許可する"
@@ -249,12 +270,6 @@ export default {
   "Any partition needed to boot will be configured.": [
     "起動に必要なパーティションについても設定を行います。"
   ],
-  "Apply selected solution": [
-    "選択したソリューションを適用する"
-  ],
-  "Applying changes": [
-    "変更を適用しています"
-  ],
   "As a new partition on %s": [
     "%s に新しいパーティションとして"
   ],
@@ -270,8 +285,8 @@ export default {
   "Auto": [
     "自動"
   ],
-  "Auto LUNs Scan": [
-    "自動 LUN 検出"
+  "Auto Scanned": [
+    "自動スキャン済み"
   ],
   "Auto and manual": [
     "自動および手動"
@@ -282,11 +297,11 @@ export default {
   "Automatic (DHCP)": [
     "自動 (DHCP)"
   ],
-  "Automatic LUN scan is [disabled]. LUNs have to be manually configured after activating a controller.": [
-    "自動 LUN スキャンが [無効化] されています。 LUN はコントローラの有効化後、手作業で設定しなければなりません。"
+  "Automatic LUN scan is disabled": [
+    "自動 LUN スキャンが無効化されています"
   ],
-  "Automatic LUN scan is [enabled]. Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
-    "自動 LUN スキャンが [有効化] されています。 NPIV モードで動作しているコントローラを有効化した場合、その LUN は全て自動的に設定されます。"
+  "Automatic LUN scan is enabled": [
+    "自動 LUN スキャンが有効化されています"
   ],
   "Back": [
     "戻る"
@@ -429,12 +444,6 @@ export default {
   "Channel": [
     "チャネル"
   ],
-  "Channel ID": [
-    "チャネル ID"
-  ],
-  "Check the authentication parameters.": [
-    "認証パラメータをご確認ください。"
-  ],
   "Check the following before continuing": [
     "続行する前に下記をご確認ください"
   ],
@@ -540,6 +549,9 @@ export default {
   "Connect": [
     "接続"
   ],
+  "Connect to Wi-Fi network": [
+    "Wi-Fi ネットワークへの接続"
+  ],
   "Connect to iSCSI targets": [
     "iSCSI ターゲットへの接続"
   ],
@@ -560,9 +572,6 @@ export default {
   ],
   "Connecting to %s": [
     "%s に接続しています"
-  ],
-  "Connection details": [
-    "接続の詳細"
   ],
   "Connection failed": [
     "接続に失敗しました"
@@ -585,14 +594,8 @@ export default {
   "Continuing without installing the package can result in a broken system. In some cases the system might not even boot.": [
     "このパッケージをインストールせずに続行してしまうと、システムは正しく動作しない可能性があるほか、場合によっては全く起動しなくなることもあり得ます。"
   ],
-  "Controllers": [
-    "コントローラ"
-  ],
   "Could not authenticate against the server.": [
     "サーバに対して認証できませんでした。"
-  ],
-  "Could not connect to %s": [
-    "%s に接続できませんでした"
   ],
   "Could not log in": [
     "ログインできませんでした"
@@ -644,6 +647,9 @@ export default {
   ],
   "DNS": [
     "DNS"
+  ],
+  "DNS Search List": [
+    "DNS 検索リスト"
   ],
   "Deactivate": [
     "無効化"
@@ -705,9 +711,6 @@ export default {
   "Details": [
     "詳細"
   ],
-  "Details will appear after the connection is successfully established.": [
-    "詳細は接続成功後に表示されます。"
-  ],
   "Device": [
     "デバイス"
   ],
@@ -744,14 +747,17 @@ export default {
   "Disk": [
     "ディスク"
   ],
-  "Disk Activation": [
-    "ディスクの有効化"
-  ],
   "Disks": [
     "ディスク"
   ],
+  "Do not activate": [
+    "有効化しない"
+  ],
   "Do not configure": [
     "設定しない"
+  ],
+  "Do not deactivate": [
+    "無効化しない"
   ],
   "Do not format %s and keep the data": [
     "%s をフォーマットせず既存のデータを維持"
@@ -762,6 +768,15 @@ export default {
   "Do not use": [
     "使用しない"
   ],
+  "Domain": [
+    "ドメイン"
+  ],
+  "Down": [
+    "停止中"
+  ],
+  "Download config": [
+    "ダウンロード設定"
+  ],
   "Download logs": [
     "ログのダウンロード"
   ],
@@ -770,6 +785,9 @@ export default {
   ],
   "Edit": [
     "編集"
+  ],
+  "Edit binding": [
+    "バインディング設定の編集"
   ],
   "Edit binding settings": [
     "バインディング設定の編集"
@@ -827,6 +845,9 @@ export default {
   ],
   "Enter a name for the volume group.": [
     "ボリュームグループに対する名前を入力してください。"
+  ],
+  "Ethernet": [
+    "イーサネット"
   ],
   "ExFAT": [
     "ExFAT"
@@ -896,9 +917,6 @@ export default {
   ],
   "Find space in %s": [
     "%s 内での領域検出"
-  ],
-  "Finished": [
-    "完了"
   ],
   "First user": [
     "最初のユーザ"
@@ -996,9 +1014,6 @@ export default {
   "IP addresses": [
     "IP アドレス"
   ],
-  "IP settings": [
-    "IP 設定"
-  ],
   "IPs": [
     "IP アドレス"
   ],
@@ -1077,6 +1092,9 @@ export default {
   "Interface": [
     "インターフェイス"
   ],
+  "Invalid [zFCP] settings": [
+    "正しくない [zFCP] 設定です"
+  ],
   "Invalid settings": [
     "正しくない設定です"
   ],
@@ -1125,9 +1143,6 @@ export default {
   "It is offline and must be activated before formatting it.": [
     "オフライン状態になっています。フォーマットを実施するには、あらかじめ有効化しなければなりません。"
   ],
-  "It may take some time.": [
-    "しばらくお待ちください。"
-  ],
   "JFS": [
     "JFS"
   ],
@@ -1142,6 +1157,9 @@ export default {
   ],
   "LUN": [
     "LUN"
+  ],
+  "LUNs have to be manually configured after activating a controller.": [
+    "LUN はコントローラの有効化後、手作業で設定しなければなりません。"
   ],
   "LVM": [
     "LVM"
@@ -1172,9 +1190,6 @@ export default {
   ],
   "Loading data...": [
     "データを読み込んでいます..."
-  ],
-  "Loading storage": [
-    "ストレージを読み込んでいます"
   ],
   "Loading the installation repositories...": [
     "インストール用リポジトリを読み込んでいます..."
@@ -1211,6 +1226,9 @@ export default {
   ],
   "Manage DASD devices": [
     "DASD デバイスの管理"
+  ],
+  "Manage available connections, connect to Wi-Fi, or add a new connection.": [
+    "利用可能な接続の管理や Wi-Fi への接続、新しい接続の追加を行います。"
   ],
   "Manual": [
     "手動"
@@ -1302,9 +1320,6 @@ export default {
   "Multipath": [
     "マルチパス"
   ],
-  "Multiple conflicts found. You can address them in any order, and resolving one may resolve others.": [
-    "複数の競合が検出されました。これらの競合は任意の順序で対処できます。1 つの競合を解決すると、他の競合も解決される場合があります。"
-  ],
   "NFS": [
     "NFS"
   ],
@@ -1326,11 +1341,14 @@ export default {
   "Network details": [
     "ネットワークの詳細"
   ],
-  "Network not found or lost": [
-    "ネットワークが見つからないか、通信が切れています"
+  "Network not availble": [
+    "ネットワークが利用できません"
   ],
   "New": [
     "新規"
+  ],
+  "New Wi-Fi connection": [
+    "新しい Wi-Fi 接続"
   ],
   "No": [
     "いいえ"
@@ -1347,11 +1365,14 @@ export default {
   "No additional software was selected.": [
     "追加のソフトウエアは何も選択していません。"
   ],
-  "No conflicts to address": [
-    "対処すべき競合はありません"
+  "No connections match filters": [
+    "フィルタに該当する接続がありません"
   ],
   "No content found": [
     "ストレージには何も記録されていないようです"
+  ],
+  "No controllers available": [
+    "コントローラがありません"
   ],
   "No data loss is expected": [
     "データ削除は予定されていません"
@@ -1413,17 +1434,17 @@ export default {
   "No valid port.": [
     "ポートが正しくありません。"
   ],
-  "No wired connections were found": [
-    "有線接続が見つかりませんでした"
+  "No zFCP controllers found in this machine.": [
+    "このマシンには zFCP コントローラが見つかりませんでした。"
   ],
-  "No zFCP controllers found.": [
-    "zFCP コントローラが見つかりませんでした。"
-  ],
-  "No zFCP disks found.": [
-    "zFCP ディスクが見つかりませんでした。"
+  "No zFCP devices found in this machine.": [
+    "このマシンには zFCP デバイスが見つかりませんでした。"
   ],
   "None": [
     "無し"
+  ],
+  "None (unbound)": [
+    "無し (結びつけられていません)"
   ],
   "None of the keymaps match the filter.": [
     "フィルタに該当するキーマップがありません。"
@@ -1545,20 +1566,14 @@ export default {
   "Passwords do not match": [
     "パスワードが合致しません"
   ],
-  "Pending": [
-    "保留中"
-  ],
   "Perform a discovery to find available iSCSI targets.": [
     "利用可能な iSCSI ターゲットを検出するため、検索を実施してください。"
   ],
+  "Performs auto LUN scan": [
+    "自動 LUN スキャンを実行"
+  ],
   "PiB": [
     "PiB"
-  ],
-  "Please, try to activate a zFCP controller.": [
-    "zFCP コントローラの有効化をお試しください。"
-  ],
-  "Please, try to activate a zFCP disk.": [
-    "zFCP ディスクの有効化をお試しください。"
   ],
   "Port": [
     "ポート"
@@ -1616,9 +1631,6 @@ export default {
   ],
   "Read only": [
     "読み込み専用"
-  ],
-  "Read zFCP devices": [
-    "zFCP デバイスの読み込み"
   ],
   "Reboot": [
     "再起動"
@@ -1697,6 +1709,9 @@ export default {
   ],
   "Result of applying the configuration described at the 'Settings' section above.": [
     "上記の '設定' セクションに示された設定を適用した結果です。"
+  ],
+  "Retrieving error details": [
+    "エラーの詳細を取得しています"
   ],
   "Reused partitions will not be shrunk": [
     "再利用したパーティションは縮小しない"
@@ -1788,9 +1803,6 @@ export default {
   "Select a product to continue.": [
     "続行するには製品を選択してください。"
   ],
-  "Select a solution to continue": [
-    "続行するにはソリューションを選択してください"
-  ],
   "Select another device to define partitions or to mount": [
     "パーティションの設定またはマウントを行う他のデバイスを選択してください"
   ],
@@ -1814,6 +1826,12 @@ export default {
   ],
   "Select or enter a valid mount point": [
     "正しいマウントポイントを選択または入力してください"
+  ],
+  "Select the controllers to activate": [
+    "有効化するコントローラを選択してください"
+  ],
+  "Select the zFCP controllers to activate:": [
+    "有効化する zFCP コントローラを選択してください:"
   ],
   "Select what to do with each partition in order to find space for allocating the new system.": [
     "新しいシステムのインストール先となる領域を確保するため、各パーティションに対してすべきことを選択します。"
@@ -1845,9 +1863,6 @@ export default {
   "Set a permanent hostname that won’t change with network updates.": [
     "ネットワーク側から指定された場合でも変化しない、固定のホスト名を設定します。"
   ],
-  "Setting up connection": [
-    "接続の設定"
-  ],
   "Settings": [
     "設定"
   ],
@@ -1866,14 +1881,8 @@ export default {
   "Show less": [
     "表示を減らす"
   ],
-  "Show less actions": [
-    "表示する処理を減らす"
-  ],
   "Show more": [
     "表示を増やす"
-  ],
-  "Show more actions": [
-    "表示する処理を増やす"
   ],
   "Shrink existing partitions": [
     "既存のパーティションを縮小する"
@@ -1899,20 +1908,11 @@ export default {
   "Skip to content": [
     "コンテンツに移動"
   ],
-  "Skip to next": [
-    "次へスキップ"
-  ],
-  "Skip to previous": [
-    "前へスキップ"
-  ],
   "Software": [
     "ソフトウエア"
   ],
   "Software %s": [
     "ソフトウエア %s"
-  ],
-  "Software conflicts resolution": [
-    "ソフトウエアの競合の解決"
   ],
   "Some existing partitions may be shrunk": [
     "いくつかの既存パーティションを縮小する"
@@ -2178,17 +2178,14 @@ export default {
   "The storage configuration uses elements not supported by this interface.": [
     "現在のインターフェイスでは未サポートの要素がストレージ設定で使用されています。"
   ],
-  "The system does not support Wi-Fi connections, probably because of missing or disabled hardware.": [
-    "このシステムは WiFi 接続には対応していません。無線ハードウエアが存在していないか、無効化されているものと思われます。"
-  ],
   "The system is rebooting": [
     "システムを再起動しています"
   ],
   "The whole device will be used for %s": [
     "デバイス全体を %s 向けに使用する"
   ],
-  "The zFCP disk was not activated.": [
-    "zFCP ディスクは有効化されませんでした。"
+  "There are %s deactivated zFCP controllers.": [
+    "%s 個の無効化された zFCP コントローラがあります。"
   ],
   "There are no disks available for the installation": [
     "インストールに使用できるディスクがありません"
@@ -2199,11 +2196,17 @@ export default {
   "There are not usable partitions": [
     "利用可能なパーティションがありません"
   ],
+  "There are not zFCP controllers pending of activation.": [
+    "有効化待機中の zFCP コントローラはありません。"
+  ],
   "There is %d destructive action planned": [
     "%d 個の破壊的な処理が提案されています"
   ],
   "There is %d destructive action planned affecting %s": [
     "%d 個の破壊的な処理 (%s に影響) が予定されています"
+  ],
+  "There is a deactivated zFCP controller.": [
+    "無効化された zFCP コントローラがあります。"
   ],
   "These are the settings for the product to install. The installer language and keyboard layout can be adjusted via the [settings panel] accessible from the top bar.": [
     "こちらはインストールする製品に対する設定です。インストーラの言語やキーボードレイアウトの設定は、上部バーの [設定パネル] から変更できます。"
@@ -2225,12 +2228,6 @@ export default {
   ],
   "This license is not available in %s.": [
     "このライセンスは %s では提供されていません。"
-  ],
-  "This may take a moment while updates complete.": [
-    "更新が完了するまでしばらくお待ちください。"
-  ],
-  "This message will close automatically when everything is done.": [
-    "全ての処理が完了すると、このメッセージは自動的に閉じます。"
   ],
   "This pattern strikes a balance between clarity and efficiency: the modal keeps things lightweight for simple selections, while the full view supports deeper exploration and more complex actions, specially for users with tons of devices.": [
     "このパターンは、明瞭性と効率性のバランスを取った形と言えます。モーダル型の表示により簡単に選択できますし、より詳しい調査や複雑な処理を必要とする場合であっても、フルビューへの切り替えで対応できます。特に、多数のデバイスを扱う必要がある場合に有用です。"
@@ -2265,6 +2262,12 @@ export default {
   "Try again": [
     "再試行"
   ],
+  "Try to activate again": [
+    "再有効化の試行"
+  ],
+  "Try to deactivate again": [
+    "再無効化の試行"
+  ],
   "Type": [
     "種類"
   ],
@@ -2273,6 +2276,15 @@ export default {
   ],
   "Unbound": [
     "特に指定しない"
+  ],
+  "Unexpected error": [
+    "予期しないエラー"
+  ],
+  "Unknown": [
+    "不明"
+  ],
+  "Unknown error": [
+    "不明なエラー"
   ],
   "Unselect": [
     "未選択"
@@ -2285,6 +2297,9 @@ export default {
   ],
   "Unused space": [
     "未使用の領域"
+  ],
+  "Up": [
+    "動作中"
   ],
   "Up to %s can be recovered by shrinking the device.": [
     "デバイスの縮小により、最大で %s が確保できます。"
@@ -2496,17 +2511,8 @@ export default {
   "Wi-Fi connection form": [
     "WiFi 接続フォーム"
   ],
-  "Wi-Fi networks": [
-    "Wi-Fi ネットワーク"
-  ],
-  "Wi-Fi not supported": [
-    "Wi-Fi に対応していません"
-  ],
   "Will be supported in a future version.": [
     "将来のバージョンでサポートされる予定です。"
-  ],
-  "Wired connections": [
-    "有線接続"
   ],
   "Wrong selection": [
     "誤った選択"
@@ -2586,7 +2592,10 @@ export default {
   "zFCP": [
     "zFCP"
   ],
-  "zFCP Disk activation form": [
-    "zFCP ディスク有効化フォーム"
+  "zFCP controllers": [
+    "zFCP コントローラ"
+  ],
+  "zFCP is not available": [
+    "zFCP が利用できません"
   ]
 };

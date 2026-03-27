@@ -9,6 +9,9 @@ export default {
   "\"%s\" does not exist or is no longer available.": [
     "„%s“ existiert nicht oder ist nicht mehr verfügbar."
   ],
+  "%1$d of %2$d connections match filters": [
+    "%1$d von %2$d Verbindungen entsprechen den Filtern"
+  ],
   "%1$d of %2$d devices match filters": [
     "%1$d von %2$d Geräten entsprechen den Filtern"
   ],
@@ -39,15 +42,15 @@ export default {
     "%1$s, %2$s und [%3$d weitere]",
     "%1$s, %2$s und [%3$d weitere]"
   ],
+  "%d connections available": [
+    "%d Verbindungen verfügbar"
+  ],
   "%d devices available": [
     "%d Geräte verfügbar"
   ],
   "%d mode available": [
     "%d Modus verfügbar",
     "%d Modi verfügbar"
-  ],
-  "%d of %d": [
-    "%d von %d"
   ],
   "%d other mode available": [
     "%d weiterer Modus verfügbar",
@@ -87,6 +90,15 @@ export default {
   ],
   "%s with %d partitions": [
     "%s mit %d Partitionen"
+  ],
+  "(bind by name)": [
+    ""
+  ],
+  "(bound by MAC)": [
+    ""
+  ],
+  "(bound by name)": [
+    ""
   ],
   "(step %s of %s)": [
     "(Schritt %s von %s)"
@@ -155,17 +167,17 @@ export default {
   "Activate and format DASD devices": [
     "DASD-Geräte aktivieren und formatieren"
   ],
-  "Activate new disk": [
-    "Neue Festplatte aktivieren"
-  ],
-  "Activate zFCP disk": [
-    "zFCP-Festplatte aktivieren"
+  "Activate controllers": [
+    "Controller aktivieren"
   ],
   "Activate zFCP disks": [
     "zFCP-Festplatten aktivieren"
   ],
   "Activated": [
     "Aktiviert"
+  ],
+  "Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
+    "Wenn Sie einen Controller aktivieren, der im NPIV-Modus ausgeführt wird, werden alle seine LUNs automatisch konfiguriert."
   ],
   "Active": [
     "Aktiv"
@@ -191,6 +203,9 @@ export default {
   "Add another address": [
     "Weitere Adresse hinzufügen"
   ],
+  "Add connection": [
+    "Verbindung hinzufügen"
+  ],
   "Add device menu": [
     "Gerätemenü hinzufügen"
   ],
@@ -199,6 +214,9 @@ export default {
   ],
   "Add or use partition": [
     "Partition hinzufügen oder verwenden"
+  ],
+  "Add search domain": [
+    ""
   ],
   "Additional CHAP authentication performed by the initiator": [
     "Vom Initiator durchgeführte zusätzliche CHAP-Authentifizierung"
@@ -218,9 +236,6 @@ export default {
   "All": [
     "Alle"
   ],
-  "All conflicts have been resolved, or none were detected. You can safely continue with your setup.": [
-    "Alle Konflikte wurden gelöst, oder es wurden keine erkannt. Sie können gefahrlos mit Ihrer Einrichtung fortfahren."
-  ],
   "All content not configured to be mounted will be deleted": [
     "Jeder Inhalt, der nicht zum Einhängen konfiguriert ist, wird gelöscht"
   ],
@@ -235,6 +250,9 @@ export default {
   ],
   "All network connections managed through this interface are currently set to be used only during installation and will not be copied to the installed system": [
     "Alle über diese Schnittstelle verwalteten Netzwerkverbindungen sind derzeit so eingestellt, dass sie nur während der Installation verwendet und nicht auf das installierte System kopiert werden"
+  ],
+  "All the available zFCP controllers are already activated.": [
+    "Alle verfügbaren zFCP-Controller sind bereits aktiviert."
   ],
   "Allow growing": [
     "Wachstum erlauben"
@@ -258,12 +276,6 @@ export default {
   "Any partition needed to boot will be configured.": [
     "Jede Partition, die zum Booten benötigt wird, wird konfiguriert."
   ],
-  "Apply selected solution": [
-    "Ausgewählte Lösung anwenden"
-  ],
-  "Applying changes": [
-    "Änderungen werden angewendet"
-  ],
   "As a new partition on %s": [
     "Als eine neue Partition auf %s"
   ],
@@ -279,9 +291,6 @@ export default {
   "Auto": [
     "Automatisch"
   ],
-  "Auto LUNs Scan": [
-    "Automatischer LUNs-Scan"
-  ],
   "Auto and manual": [
     "Automatisch und manuell"
   ],
@@ -291,11 +300,11 @@ export default {
   "Automatic (DHCP)": [
     "Automatisch (DHCP)"
   ],
-  "Automatic LUN scan is [disabled]. LUNs have to be manually configured after activating a controller.": [
-    "Der automatische LUN-Scan ist [deaktiviert]. LUNs müssen manuell konfiguriert werden, nachdem ein Controller aktiviert wurde."
+  "Automatic LUN scan is disabled": [
+    ""
   ],
-  "Automatic LUN scan is [enabled]. Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
-    "Der automatische LUN-Scan ist [aktiviert]. Wenn Sie einen Controller aktivieren, der im NPIV-Modus ausgeführt wird, werden alle seine LUNs automatisch konfiguriert."
+  "Automatic LUN scan is enabled": [
+    ""
   ],
   "Back": [
     "Zurück"
@@ -438,12 +447,6 @@ export default {
   "Channel": [
     "Kanal"
   ],
-  "Channel ID": [
-    "Kanalkennung"
-  ],
-  "Check the authentication parameters.": [
-    "Überprüfen Sie die Authentifizierungsparameter."
-  ],
   "Check the following before continuing": [
     "Überprüfen Sie Folgendes, bevor Sie fortfahren"
   ],
@@ -551,6 +554,9 @@ export default {
   "Connect": [
     "Verbinden"
   ],
+  "Connect to Wi-Fi network": [
+    "Mit einem WLAN-Netzwerk verbinden"
+  ],
   "Connect to iSCSI targets": [
     "Mit iSCSI-Zielen verbinden"
   ],
@@ -571,9 +577,6 @@ export default {
   ],
   "Connecting to %s": [
     "Verbindung zu %s wird hergestellt"
-  ],
-  "Connection details": [
-    "Verbindungsdetails"
   ],
   "Connection failed": [
     "Verbindung fehlgeschlagen"
@@ -596,14 +599,8 @@ export default {
   "Continuing without installing the package can result in a broken system. In some cases the system might not even boot.": [
     "Wenn Sie fortfahren, ohne das Paket zu installieren, kann dies zu einem defekten System führen. In manchen Fällen lässt sich das System nicht einmal starten."
   ],
-  "Controllers": [
-    "Controller"
-  ],
   "Could not authenticate against the server.": [
     "Die Authentifizierung beim Server war nicht möglich."
-  ],
-  "Could not connect to %s": [
-    "Konnte keine Verbindung zu %s herstellen"
   ],
   "Could not log in": [
     "Anmeldung nicht möglich"
@@ -655,6 +652,9 @@ export default {
   ],
   "DNS": [
     "DNS"
+  ],
+  "DNS Search List": [
+    "DNS-Suchliste"
   ],
   "Deactivate": [
     "Deaktivieren"
@@ -716,9 +716,6 @@ export default {
   "Details": [
     "Details"
   ],
-  "Details will appear after the connection is successfully established.": [
-    "Nachdem die Verbindung erfolgreich hergestellt wurde, werden Details angezeigt."
-  ],
   "Device": [
     "Gerät"
   ],
@@ -755,20 +752,35 @@ export default {
   "Disk": [
     "Festplatte"
   ],
-  "Disk Activation": [
-    "Festplattenaktivierung"
-  ],
   "Disks": [
     "Festplatten"
+  ],
+  "Do not activate": [
+    "Nicht aktivieren"
   ],
   "Do not configure": [
     "Nicht konfigurieren"
   ],
+  "Do not deactivate": [
+    "Nicht deaktivieren"
+  ],
   "Do not format %s and keep the data": [
     "%s nicht formatieren und die Daten behalten"
   ],
+  "Do not register": [
+    "Nicht registrieren"
+  ],
   "Do not use": [
     "Nicht verwenden"
+  ],
+  "Domain": [
+    ""
+  ],
+  "Down": [
+    ""
+  ],
+  "Download config": [
+    "Konfiguration herunterladen"
   ],
   "Download logs": [
     "Protokolle herunterladen"
@@ -835,6 +847,9 @@ export default {
   ],
   "Enter a name for the volume group.": [
     "Name für die Volume-Gruppe eingeben."
+  ],
+  "Ethernet": [
+    "Ethernet"
   ],
   "ExFAT": [
     "ExFAT"
@@ -907,9 +922,6 @@ export default {
   "Find space in %s": [
     "Speicherplatz in %s finden"
   ],
-  "Finished": [
-    "Fertiggestellt"
-  ],
   "First user": [
     "Erster Benutzer"
   ],
@@ -948,6 +960,9 @@ export default {
   ],
   "Formatted": [
     "Formatiert"
+  ],
+  "Formatting devices": [
+    "Geräte formatieren"
   ],
   "Full Disk Encryption (FDE) allows to protect the information stored at the new file systems, including data, programs, and system files.": [
     "Die vollständige Festplattenverschlüsselung (FDE) ermöglicht den Schutz der in den neuen Dateisystemen gespeicherten Informationen, einschließlich Daten, Programmen und Systemdateien."
@@ -1003,9 +1018,6 @@ export default {
   ],
   "IP addresses": [
     "IP-Adressen"
-  ],
-  "IP settings": [
-    "IP-Einstellungen"
   ],
   "IPs": [
     "IPs"
@@ -1085,6 +1097,9 @@ export default {
   "Interface": [
     "Schnittstelle"
   ],
+  "Invalid [zFCP] settings": [
+    "Ungültige [zFCP]-Einstellungen"
+  ],
   "Invalid settings": [
     "Ungültige Einstellungen"
   ],
@@ -1133,9 +1148,6 @@ export default {
   "It is offline and must be activated before formatting it.": [
     "Es ist offline und muss vor dem Formatieren aktiviert werden."
   ],
-  "It may take some time.": [
-    "Es könnte einige Zeit dauern."
-  ],
   "JFS": [
     "JFS"
   ],
@@ -1150,6 +1162,9 @@ export default {
   ],
   "LUN": [
     "LUN"
+  ],
+  "LUNs have to be manually configured after activating a controller.": [
+    "LUNs müssen manuell konfiguriert werden, nachdem ein Controller aktiviert wurde."
   ],
   "LVM": [
     "LVM"
@@ -1180,9 +1195,6 @@ export default {
   ],
   "Loading data...": [
     "Daten werden gelesen ..."
-  ],
-  "Loading storage": [
-    "Datenspeicher wird geladen"
   ],
   "Loading the installation repositories...": [
     "Installations-Repositorien werden geladen ..."
@@ -1219,6 +1231,9 @@ export default {
   ],
   "Manage DASD devices": [
     "DASD-Geräte verwalten"
+  ],
+  "Manage available connections, connect to Wi-Fi, or add a new connection.": [
+    "Verfügbare Verbindungen verwalten, eine WLAN-Verbindung herstellen oder eine neue Verbindung hinzufügen."
   ],
   "Manual": [
     "Manuell"
@@ -1312,9 +1327,6 @@ export default {
   "Multipath": [
     "Multipfad"
   ],
-  "Multiple conflicts found. You can address them in any order, and resolving one may resolve others.": [
-    "Mehrere Konflikte gefunden. Sie können sie in beliebiger Reihenfolge angehen, und die Lösung eines Konflikts kann andere Konflikte lösen."
-  ],
   "NFS": [
     "NFS"
   ],
@@ -1336,11 +1348,14 @@ export default {
   "Network details": [
     "Netzwerkdetails"
   ],
-  "Network not found or lost": [
-    "Netzwerk nicht gefunden oder verloren"
+  "Network not availble": [
+    "Netzwerk nicht verfügbar"
   ],
   "New": [
     "Neu"
+  ],
+  "New Wi-Fi connection": [
+    "Neue WLAN-Verbindung"
   ],
   "No": [
     "Nein"
@@ -1357,11 +1372,14 @@ export default {
   "No additional software was selected.": [
     "Es wurde keine zusätzliche Software ausgewählt."
   ],
-  "No conflicts to address": [
-    "Keine zu lösenden Konflikte"
+  "No connections match filters": [
+    "Keine Verbindungen entsprechen den Filtern"
   ],
   "No content found": [
     "Kein Inhalt gefunden"
+  ],
+  "No controllers available": [
+    "Keine Controller verfügbar"
   ],
   "No data loss is expected": [
     "Es wird kein Datenverlust erwartet"
@@ -1423,14 +1441,11 @@ export default {
   "No valid port.": [
     "Kein gültiger Port."
   ],
-  "No wired connections were found": [
-    "Keine kabelgebundenen Verbindungen gefunden"
+  "No zFCP controllers found in this machine.": [
+    "Keine zFCP-Controller in dieser Maschine gefunden."
   ],
-  "No zFCP controllers found.": [
-    "Keine zFCP-Controller gefunden."
-  ],
-  "No zFCP disks found.": [
-    "Keine zFCP-Festplatten gefunden."
+  "No zFCP devices found in this machine.": [
+    "In dieser Maschine wurden keine zFCP-Geräte gefunden."
   ],
   "None": [
     "Kein"
@@ -1473,6 +1488,9 @@ export default {
   ],
   "Not supported (%s)": [
     "Nicht unterstützt (%s)"
+  ],
+  "Offline": [
+    "Offline"
   ],
   "On boot": [
     "Beim Booten"
@@ -1552,20 +1570,11 @@ export default {
   "Passwords do not match": [
     "Passwörter stimmen nicht überein"
   ],
-  "Pending": [
-    "Ausstehend"
-  ],
   "Perform a discovery to find available iSCSI targets.": [
     "Führe eine Erkennung durch, um verfügbare iSCSI-Ziele zu finden."
   ],
   "PiB": [
     "PiB"
-  ],
-  "Please, try to activate a zFCP controller.": [
-    "Bitte versuchen Sie, einen zFCP-Controller zu aktivieren."
-  ],
-  "Please, try to activate a zFCP disk.": [
-    "Bitte versuchen Sie, eine zFCP-Festplatte zu aktivieren."
   ],
   "Port": [
     "Port"
@@ -1590,6 +1599,9 @@ export default {
   ],
   "Product is already registered": [
     "Produkt ist bereits registriert"
+  ],
+  "Product not found": [
+    "Produkt nicht gefunden"
   ],
   "Protection for the information stored at the new file systems, including data, programs, and system files.": [
     "Schutz für die in den neuen Dateisystemen gespeicherten Informationen, einschließlich Daten, Programme und Systemdateien."
@@ -1618,8 +1630,8 @@ export default {
   "Question": [
     "Frage"
   ],
-  "Read zFCP devices": [
-    "zFCP-Geräte lesen"
+  "Read only": [
+    "Nur lesen"
   ],
   "Reboot": [
     "Neustart"
@@ -1699,6 +1711,9 @@ export default {
   ],
   "Result of applying the configuration described at the 'Settings' section above.": [
     "Ergebnis der Anwendung der im Abschnitt ‚Einstellungen‘ oben beschriebenen Konfiguration."
+  ],
+  "Retrieving error details": [
+    "Fehlerdetails werden abgerufen"
   ],
   "Reused partitions will not be shrunk": [
     "Wiederverwendete Partitionen werden nicht verkleinert"
@@ -1791,9 +1806,6 @@ export default {
   "Select a product to continue.": [
     "Wählen Sie ein Produkt aus, um fortzufahren."
   ],
-  "Select a solution to continue": [
-    "Eine Lösung auswählen, um fortzufahren"
-  ],
   "Select another device to define partitions or to mount": [
     "Wählen Sie ein anderes Gerät aus, um Partitionen zu definieren oder einzuhängen"
   ],
@@ -1817,6 +1829,12 @@ export default {
   ],
   "Select or enter a valid mount point": [
     "Gültigen Einhängepunkt auswählen oder eingeben"
+  ],
+  "Select the controllers to activate": [
+    "Wählen Sie die zu aktivierenden Controller aus"
+  ],
+  "Select the zFCP controllers to activate:": [
+    "Wählen Sie die zu aktivierenden zFCP-Controller aus:"
   ],
   "Select what to do with each partition in order to find space for allocating the new system.": [
     "Wählen Sie aus, was mit jeder Partition geschehen soll, um Platz für das neue System zu finden."
@@ -1848,9 +1866,6 @@ export default {
   "Set a permanent hostname that won’t change with network updates.": [
     "Legen Sie einen permanenten Hostnamen fest, der sich bei Netzwerkaktualisierungen nicht ändert."
   ],
-  "Setting up connection": [
-    "Verbindung herstellen"
-  ],
   "Settings": [
     "Einstellungen"
   ],
@@ -1870,14 +1885,8 @@ export default {
   "Show less": [
     "Weniger anzeigen"
   ],
-  "Show less actions": [
-    "Weniger Aktionen anzeigen"
-  ],
   "Show more": [
     "Mehr anzeigen"
-  ],
-  "Show more actions": [
-    "Weitere Aktionen anzeigen"
   ],
   "Shrink existing partitions": [
     "Vorhandene Partitionen verkleinern"
@@ -1903,20 +1912,11 @@ export default {
   "Skip to content": [
     "Zum Inhalt springen"
   ],
-  "Skip to next": [
-    "Zum nächsten Punkt springen"
-  ],
-  "Skip to previous": [
-    "Zum vorherigen Punkt springen"
-  ],
   "Software": [
     "Software"
   ],
   "Software %s": [
     "Software %s"
-  ],
-  "Software conflicts resolution": [
-    "Lösung von Softwarekonflikten"
   ],
   "Some existing partitions may be shrunk": [
     "Einige vorhandene Partitionen können verkleinert werden"
@@ -2190,17 +2190,14 @@ export default {
   "The storage configuration uses elements not supported by this interface.": [
     "Die Speicherungskonfiguration verwendet Elemente, die von dieser Schnittstelle nicht unterstützt werden."
   ],
-  "The system does not support Wi-Fi connections, probably because of missing or disabled hardware.": [
-    "Das System unterstützt keine WiFi-Verbindungen, wahrscheinlich wegen fehlender oder deaktivierter Hardware."
-  ],
   "The system is rebooting": [
     "Das System wird neu gestartet"
   ],
   "The whole device will be used for %s": [
     "Das gesamte Gerät wird für %s verwendet"
   ],
-  "The zFCP disk was not activated.": [
-    "Die zFCP-Festplatte wurde nicht aktiviert."
+  "There are %s deactivated zFCP controllers.": [
+    "Es gibt %s deaktivierte zFCP-Controller."
   ],
   "There are no disks available for the installation": [
     "Es sind keine Datenträger für die Installation verfügbar."
@@ -2211,6 +2208,9 @@ export default {
   "There are not usable partitions": [
     "Es sind keine nutzbaren Partitionen vorhanden"
   ],
+  "There are not zFCP controllers pending of activation.": [
+    "Es sind keine zFCP-Controller zur Aktivierung anstehend."
+  ],
   "There is %d destructive action planned": [
     "Es ist %d zerstörerische Aktion geplant",
     "Es sind %d zerstörerische Aktionen geplant"
@@ -2218,6 +2218,9 @@ export default {
   "There is %d destructive action planned affecting %s": [
     "Es ist %d zerstörerische Aktion geplant, die %s betrifft",
     "Es sind %d zerstörerische Aktionen geplant, die %s betreffen"
+  ],
+  "There is a deactivated zFCP controller.": [
+    "Es gibt einen deaktivierten zFCP-Controller."
   ],
   "These are the settings for the product to install. The installer language and keyboard layout can be adjusted via the [settings panel] accessible from the top bar.": [
     "Dies sind die Einstellungen für das zu installierende Produkt. Die Sprache des Installationsprogramms und die Tastaturbelegung können über das [settings panel] in der oberen Leiste angepasst werden."
@@ -2239,12 +2242,6 @@ export default {
   ],
   "This license is not available in %s.": [
     "Diese Lizenz ist in %s nicht verfügbar."
-  ],
-  "This may take a moment while updates complete.": [
-    "Es kann einen Moment dauern, bis die Aktualisierungen abgeschlossen sind."
-  ],
-  "This message will close automatically when everything is done.": [
-    "Diese Meldung wird automatisch geschlossen, wenn alles erledigt ist."
   ],
   "This pattern strikes a balance between clarity and efficiency: the modal keeps things lightweight for simple selections, while the full view supports deeper exploration and more complex actions, specially for users with tons of devices.": [
     "Dieses Muster schafft ein Gleichgewicht zwischen Klarheit und Effizienz: Das Modal hält die Dinge leicht für einfache Auswahlen, während die Vollansicht eine tiefere Erkundung und komplexere Aktionen unterstützt, insbesondere für Nutzer mit vielen Geräten."
@@ -2279,6 +2276,12 @@ export default {
   "Try again": [
     "Erneut versuchen"
   ],
+  "Try to activate again": [
+    "Aktivieren erneut versuchen"
+  ],
+  "Try to deactivate again": [
+    "Deaktivieren erneut versuchen"
+  ],
   "Type": [
     "Art"
   ],
@@ -2287,6 +2290,15 @@ export default {
   ],
   "Unbound": [
     "Ungebunden"
+  ],
+  "Unexpected error": [
+    "Unerwarteter Fehler"
+  ],
+  "Unknown": [
+    "Unbekannt"
+  ],
+  "Unknown error": [
+    "Unbekannter Fehler"
   ],
   "Unselect": [
     "Abwählen"
@@ -2299,6 +2311,9 @@ export default {
   ],
   "Unused space": [
     "Ungenutzter Platz"
+  ],
+  "Up": [
+    ""
   ],
   "Up to %s can be recovered by shrinking the device.": [
     "Bis zu %s können durch Verkleinern des Geräts zurückgewonnen werden."
@@ -2510,17 +2525,8 @@ export default {
   "Wi-Fi connection form": [
     "Formular für die WiFi-Verbindung"
   ],
-  "Wi-Fi networks": [
-    "Wi-Fi-Netzwerke"
-  ],
-  "Wi-Fi not supported": [
-    "Kein Wi-Fi unterstützt"
-  ],
   "Will be supported in a future version.": [
     "Wird in einer zukünftigen Version unterstützt werden."
-  ],
-  "Wired connections": [
-    "Kabelgebundene Verbindungen"
   ],
   "Wrong selection": [
     "Falsche Auswahl"
@@ -2597,7 +2603,10 @@ export default {
   "zFCP": [
     "zFCP"
   ],
-  "zFCP Disk activation form": [
-    "Formular für die zFCP-Festplattenaktivierung"
+  "zFCP controllers": [
+    "zFCP-Controller"
+  ],
+  "zFCP is not available": [
+    "zFCP ist nicht verfügbar"
   ]
 };

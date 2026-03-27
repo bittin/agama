@@ -9,6 +9,9 @@ export default {
   "\"%s\" does not exist or is no longer available.": [
     "\"%s\" existrerar inte eller är inte längre tillgänglig."
   ],
+  "%1$d of %2$d connections match filters": [
+    "%1$d av %2$d anslutningar matchar filtret"
+  ],
   "%1$d of %2$d devices match filters": [
     "%1$d av %2$d enheter av matchar filtret"
   ],
@@ -42,15 +45,15 @@ export default {
     "%1$s, %2$s och [%3$d mer]",
     "%1$s, %2$s och [%3$d mera]"
   ],
+  "%d connections available": [
+    "%d anslutningar tillgängliga"
+  ],
   "%d devices available": [
     "%d enheter tillgängliga"
   ],
   "%d mode available": [
     "%d läge tillgängligt",
     "%d lägen tillgängliga"
-  ],
-  "%d of %d": [
-    "%d av %d"
   ],
   "%d other mode available": [
     "%d annat läge tillgängligt",
@@ -90,6 +93,15 @@ export default {
   ],
   "%s with %d partitions": [
     "%s med %d partitioner"
+  ],
+  "(bind by name)": [
+    "(binda vid namn)"
+  ],
+  "(bound by MAC)": [
+    "(bunden vid MAC)"
+  ],
+  "(bound by name)": [
+    "(bunden vid namn)"
   ],
   "(step %s of %s)": [
     "(steg %s av %s)"
@@ -158,17 +170,17 @@ export default {
   "Activate and format DASD devices": [
     "Aktivera och formatera DASD-enheter"
   ],
-  "Activate new disk": [
-    "Aktivera ny disk"
-  ],
-  "Activate zFCP disk": [
-    "Aktivera en zFCP-disk"
+  "Activate controllers": [
+    "Aktivera styrenheter"
   ],
   "Activate zFCP disks": [
     "Aktivera zFCP-diskar"
   ],
   "Activated": [
     "Aktiverad"
+  ],
+  "Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
+    "Aktivera en styrenhet som körs i NPIV-läge konfigurerar automatiskt alla sina LUN:er."
   ],
   "Active": [
     "Aktiv"
@@ -194,6 +206,12 @@ export default {
   "Add another address": [
     "Lägg till en annan adress"
   ],
+  "Add another search domain": [
+    "Lägg till en annan sökdomän"
+  ],
+  "Add connection": [
+    "Lägg till anslutning"
+  ],
   "Add device menu": [
     "Lägg till enhetsmeny"
   ],
@@ -202,6 +220,9 @@ export default {
   ],
   "Add or use partition": [
     "Lägg till eller använd en partition"
+  ],
+  "Add search domain": [
+    "Lägg till sökdomän"
   ],
   "Additional CHAP authentication performed by the initiator": [
     "Ytterligare CHAP-autentisering utförd av initiativtagaren"
@@ -221,9 +242,6 @@ export default {
   "All": [
     "Alla"
   ],
-  "All conflicts have been resolved, or none were detected. You can safely continue with your setup.": [
-    "Alla konflikter har lösts, eller så har inga upptäckts. Du kan tryggt fortsätta med din installation."
-  ],
   "All content not configured to be mounted will be deleted": [
     "Allt innehåll som inte är konfigurerat för montering kommer att raderas"
   ],
@@ -238,6 +256,9 @@ export default {
   ],
   "All network connections managed through this interface are currently set to be used only during installation and will not be copied to the installed system": [
     "Alla nätverksanslutningar som hanteras via det här gränssnittet är för närvarande inställda på att endast användas under installationen och kommer inte att kopieras till det installerade systemet"
+  ],
+  "All the available zFCP controllers are already activated.": [
+    "Alla tillgängliga zFCP-styrenheter är redan aktiverade."
   ],
   "Allow growing": [
     "Tillåt växande"
@@ -261,12 +282,6 @@ export default {
   "Any partition needed to boot will be configured.": [
     "Alla partitioner som behövs för uppstart kommer att konfigureras."
   ],
-  "Apply selected solution": [
-    "Använd den valda lösningen"
-  ],
-  "Applying changes": [
-    "Tillämpar ändringar"
-  ],
   "As a new partition on %s": [
     "Som en ny partition på %s"
   ],
@@ -282,8 +297,8 @@ export default {
   "Auto": [
     "Auto"
   ],
-  "Auto LUNs Scan": [
-    "Automatisk LUN-skanning"
+  "Auto Scanned": [
+    "Automatiskt skannad"
   ],
   "Auto and manual": [
     "Automatisk och manuell"
@@ -294,11 +309,11 @@ export default {
   "Automatic (DHCP)": [
     "Automatisk (DHCP)"
   ],
-  "Automatic LUN scan is [disabled]. LUNs have to be manually configured after activating a controller.": [
-    "Automatisk LUN-skanning är [avaktiverad]. LUN kommer att behöva vara manuellt konfigurerat efter aktivering av en styrenhet."
+  "Automatic LUN scan is disabled": [
+    "Automatisk LUN-skanning är inaktiverad"
   ],
-  "Automatic LUN scan is [enabled]. Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
-    "Automatisk LUN-skanning är [aktiverad]. Aktiverar en styrenhet som är körande i NPIV läge kommer att automatiskt konfigurera alla dess LUN."
+  "Automatic LUN scan is enabled": [
+    "Automatisk LUN-skanning är aktiverad"
   ],
   "Back": [
     "Bakåt"
@@ -441,12 +456,6 @@ export default {
   "Channel": [
     "Kanal"
   ],
-  "Channel ID": [
-    "Kanal-ID"
-  ],
-  "Check the authentication parameters.": [
-    "Kontrollera autentiseringsparametrarna."
-  ],
   "Check the following before continuing": [
     "Kontrollera följande innan du fortsätter"
   ],
@@ -554,6 +563,9 @@ export default {
   "Connect": [
     "Anslut"
   ],
+  "Connect to Wi-Fi network": [
+    "Anslut till Wi-Fi-nätverk"
+  ],
   "Connect to iSCSI targets": [
     "Anslut till iSCSI mål"
   ],
@@ -574,9 +586,6 @@ export default {
   ],
   "Connecting to %s": [
     "Ansluter till %s"
-  ],
-  "Connection details": [
-    "Anslutningsdetaljer"
   ],
   "Connection failed": [
     "Anslutningen misslyckades"
@@ -599,14 +608,8 @@ export default {
   "Continuing without installing the package can result in a broken system. In some cases the system might not even boot.": [
     "Att fortsätta utan att installera paketet kan resultera i ett trasigt system. I vissa fall kanske systemet inte ens startar."
   ],
-  "Controllers": [
-    "Styrenheter"
-  ],
   "Could not authenticate against the server.": [
     "Kunde inte autentisera mot servern."
-  ],
-  "Could not connect to %s": [
-    "Kan inte ansluta till %s"
   ],
   "Could not log in": [
     "Kunde inte logga in"
@@ -658,6 +661,9 @@ export default {
   ],
   "DNS": [
     "DNS"
+  ],
+  "DNS Search List": [
+    "DNS söklista"
   ],
   "Deactivate": [
     "Inaktivera"
@@ -719,9 +725,6 @@ export default {
   "Details": [
     "Detaljer"
   ],
-  "Details will appear after the connection is successfully established.": [
-    "Detaljer kommer att visas efter att anslutningen har upprättats."
-  ],
   "Device": [
     "Enhet"
   ],
@@ -758,14 +761,17 @@ export default {
   "Disk": [
     "Disk"
   ],
-  "Disk Activation": [
-    "Diskaktivering"
-  ],
   "Disks": [
     "Diskar"
   ],
+  "Do not activate": [
+    "Aktivera inte"
+  ],
   "Do not configure": [
     "Konfigurera inte"
+  ],
+  "Do not deactivate": [
+    "Inaktivera inte"
   ],
   "Do not format %s and keep the data": [
     "Formatera inte %s och behåll data"
@@ -776,6 +782,15 @@ export default {
   "Do not use": [
     "Använd inte"
   ],
+  "Domain": [
+    "Domän"
+  ],
+  "Down": [
+    "Nere"
+  ],
+  "Download config": [
+    "Ladda ner konfiguration"
+  ],
   "Download logs": [
     "Ladda ner loggar"
   ],
@@ -784,6 +799,9 @@ export default {
   ],
   "Edit": [
     "Redigera"
+  ],
+  "Edit binding": [
+    "Redigera bindning"
   ],
   "Edit binding settings": [
     "Redigera bindningsinställningar"
@@ -841,6 +859,9 @@ export default {
   ],
   "Enter a name for the volume group.": [
     "Ange ett namn för volymgrupp."
+  ],
+  "Ethernet": [
+    "Ethernet"
   ],
   "ExFAT": [
     "ExFAT"
@@ -912,9 +933,6 @@ export default {
   ],
   "Find space in %s": [
     "Hitta utrymme på %s"
-  ],
-  "Finished": [
-    "Slutförd"
   ],
   "First user": [
     "Första användare"
@@ -1013,9 +1031,6 @@ export default {
   "IP addresses": [
     "IP adresser"
   ],
-  "IP settings": [
-    "IP inställningar"
-  ],
   "IPs": [
     "IP-adresser"
   ],
@@ -1094,6 +1109,9 @@ export default {
   "Interface": [
     "Gränssnitt"
   ],
+  "Invalid [zFCP] settings": [
+    "Ogiltiga [zFCP] inställningar"
+  ],
   "Invalid settings": [
     "Ogiltiga inställningar"
   ],
@@ -1142,9 +1160,6 @@ export default {
   "It is offline and must be activated before formatting it.": [
     "Den är offline och måste aktiveras innan den formateras."
   ],
-  "It may take some time.": [
-    "Det kan ta lite tid."
-  ],
   "JFS": [
     "JFS"
   ],
@@ -1159,6 +1174,9 @@ export default {
   ],
   "LUN": [
     "LUN"
+  ],
+  "LUNs have to be manually configured after activating a controller.": [
+    "LUN:er måste konfigureras manuellt efter aktivering av en styrenhet."
   ],
   "LVM": [
     "LVM"
@@ -1189,9 +1207,6 @@ export default {
   ],
   "Loading data...": [
     "Laddar data..."
-  ],
-  "Loading storage": [
-    "Laddar lagring"
   ],
   "Loading the installation repositories...": [
     "Laddar installationsförråd..."
@@ -1228,6 +1243,9 @@ export default {
   ],
   "Manage DASD devices": [
     "Hantera DASD-enheter"
+  ],
+  "Manage available connections, connect to Wi-Fi, or add a new connection.": [
+    "Hantera tillgängliga anslutningar, anslut till Wi-Fi eller lägg till en ny anslutning."
   ],
   "Manual": [
     "Manuell"
@@ -1321,9 +1339,6 @@ export default {
   "Multipath": [
     "Flervägs"
   ],
-  "Multiple conflicts found. You can address them in any order, and resolving one may resolve others.": [
-    "Flera konflikter hittades. Du kan åtgärda dem i valfri ordning, och att lösa en kan lösa andra."
-  ],
   "NFS": [
     "NFS"
   ],
@@ -1345,11 +1360,14 @@ export default {
   "Network details": [
     "Nätverksdetaljer"
   ],
-  "Network not found or lost": [
-    "Nätverket hittades inte eller förlorades"
+  "Network not availble": [
+    "Nätverk är inte tillgängligt"
   ],
   "New": [
     "Ny"
+  ],
+  "New Wi-Fi connection": [
+    "Ny Wi-Fi-anslutning"
   ],
   "No": [
     "Nej"
@@ -1366,11 +1384,14 @@ export default {
   "No additional software was selected.": [
     "Ingen ytterligare programvara valdes."
   ],
-  "No conflicts to address": [
-    "Det finns inga konflikter att ta itu med"
+  "No connections match filters": [
+    "Inga anslutningar matchar filtren"
   ],
   "No content found": [
     "Inget innehåll hittades"
+  ],
+  "No controllers available": [
+    "Inga styrenheter tillgängliga"
   ],
   "No data loss is expected": [
     "Ingen dataförlust förväntas"
@@ -1432,17 +1453,17 @@ export default {
   "No valid port.": [
     "Ingen giltig port."
   ],
-  "No wired connections were found": [
-    "Inga trådbundna anslutningar hittades"
+  "No zFCP controllers found in this machine.": [
+    "Inga zFCP-styrenheter hittades."
   ],
-  "No zFCP controllers found.": [
-    "Inga zFCP-kontroller hittades."
-  ],
-  "No zFCP disks found.": [
-    "Inga zFCP-diskar hittades."
+  "No zFCP devices found in this machine.": [
+    "Inga zFCP-enheter hittades i den här maskinen."
   ],
   "None": [
     "Ingen"
+  ],
+  "None (unbound)": [
+    "Ingen (obunden)"
   ],
   "None of the keymaps match the filter.": [
     "Ingen av tangentmapparna matchar filtret."
@@ -1564,20 +1585,14 @@ export default {
   "Passwords do not match": [
     "Lösenorden matchar inte"
   ],
-  "Pending": [
-    "Väntar"
-  ],
   "Perform a discovery to find available iSCSI targets.": [
     "Utför en identifiering för att hitta tillgängliga iSCSI-mål."
   ],
+  "Performs auto LUN scan": [
+    "Utför automatisk LUN-skanning"
+  ],
   "PiB": [
     "PiB"
-  ],
-  "Please, try to activate a zFCP controller.": [
-    "Snälla, försök att aktivera en zFCP-kontroller."
-  ],
-  "Please, try to activate a zFCP disk.": [
-    "Snälla, försök att aktivera en zFCP-disk."
   ],
   "Port": [
     "Port"
@@ -1635,9 +1650,6 @@ export default {
   ],
   "Read only": [
     "Läs endast"
-  ],
-  "Read zFCP devices": [
-    "Läs zFCP-enheter"
   ],
   "Reboot": [
     "Starta om"
@@ -1717,6 +1729,9 @@ export default {
   ],
   "Result of applying the configuration described at the 'Settings' section above.": [
     "Resultat av att tillämpa konfigurationen som beskrivs i avsnittet \"Inställningar\" ovan."
+  ],
+  "Retrieving error details": [
+    "Hämtar feldetaljer"
   ],
   "Reused partitions will not be shrunk": [
     "Återanvända partitioner kommer inte att krympas"
@@ -1809,9 +1824,6 @@ export default {
   "Select a product to continue.": [
     "Välj en produkt för att fortsätta."
   ],
-  "Select a solution to continue": [
-    "Välj en lösning för att fortsätta"
-  ],
   "Select another device to define partitions or to mount": [
     "Välj en annan enhet för att definiera partitioner eller för att montera"
   ],
@@ -1835,6 +1847,12 @@ export default {
   ],
   "Select or enter a valid mount point": [
     "Välj eller ange en giltig monteringspunkt"
+  ],
+  "Select the controllers to activate": [
+    "Välj en styrenhet för att fortsätta"
+  ],
+  "Select the zFCP controllers to activate:": [
+    "Välj de zFCP-styrenheter som ska aktiveras:"
   ],
   "Select what to do with each partition in order to find space for allocating the new system.": [
     "Välj vad som ska göras med varje partition för att hitta utrymme för att allokera det nya systemet."
@@ -1866,9 +1884,6 @@ export default {
   "Set a permanent hostname that won’t change with network updates.": [
     "Ställ in ett permanent värdnamn som inte ändras med nätverksuppdateringar."
   ],
-  "Setting up connection": [
-    "Sätter upp anslutning"
-  ],
   "Settings": [
     "Inställningar"
   ],
@@ -1888,14 +1903,8 @@ export default {
   "Show less": [
     "Visa mindre"
   ],
-  "Show less actions": [
-    "Visa mindre åtgärder"
-  ],
   "Show more": [
     "Visa mer"
-  ],
-  "Show more actions": [
-    "Visa mer åtgärder"
   ],
   "Shrink existing partitions": [
     "Krymp existerande partitioner"
@@ -1921,20 +1930,11 @@ export default {
   "Skip to content": [
     "Hoppa till innehåll"
   ],
-  "Skip to next": [
-    "Hoppa till nästa"
-  ],
-  "Skip to previous": [
-    "Hoppa till föregående"
-  ],
   "Software": [
     "Programvara"
   ],
   "Software %s": [
     "Programvara %s"
-  ],
-  "Software conflicts resolution": [
-    "Lösning av programvarukonflikter"
   ],
   "Some existing partitions may be shrunk": [
     "Vissa befintliga partitioner kan krympas"
@@ -2161,7 +2161,7 @@ export default {
     "Lösenordet kommer inte att behövas för att starta och komma åt data om TPM kan verifiera systemets integritet. TPM-försegling kräver att det nya systemet startas upp direkt vid första körningen."
   ],
   "The product was not found in the repositories so it is not possible to proceed with the installation.": [
-    ""
+    "Produkten hittades inte i förrådet så det är inte möjligt att fortsätta med installationen."
   ],
   "The product will be registered with \"%s\" hostname": [
     "Produkten kommer att registreras med \"%s\" värdnamn"
@@ -2208,17 +2208,14 @@ export default {
   "The storage configuration uses elements not supported by this interface.": [
     "Lagringskonfigurationen använder element som inte stöds av detta gränssnitt."
   ],
-  "The system does not support Wi-Fi connections, probably because of missing or disabled hardware.": [
-    "Systemet stöder inte WiFi-anslutningar, förmodligen på grund av saknad eller inaktiverad hårdvara."
-  ],
   "The system is rebooting": [
     "Systemet startar om"
   ],
   "The whole device will be used for %s": [
     "Hela enheten kommer att användas för %s"
   ],
-  "The zFCP disk was not activated.": [
-    "zFCP disken var inte aktiverad."
+  "There are %s deactivated zFCP controllers.": [
+    "Det finns %s inaktiverade zFCP-styrenheter."
   ],
   "There are no disks available for the installation": [
     "Det finns inga tillgängliga diskar för installation"
@@ -2229,6 +2226,9 @@ export default {
   "There are not usable partitions": [
     "Det finns inte några användbara partitioner"
   ],
+  "There are not zFCP controllers pending of activation.": [
+    "Det finns ingen zFCP-styrenhet som väntar på aktivering."
+  ],
   "There is %d destructive action planned": [
     "Det finns en %d destruktiv åtgärd planerad",
     "Det finns flera %d destruktiva åtgärder planerade"
@@ -2236,6 +2236,9 @@ export default {
   "There is %d destructive action planned affecting %s": [
     "Det finns %d planerade destruktiva åtgärder som påverkar %s",
     "Det finns flera %d planerade destruktiva åtgärder som påverkar %s"
+  ],
+  "There is a deactivated zFCP controller.": [
+    "Det finns en inaktiverad zFCP-styrenhet."
   ],
   "These are the settings for the product to install. The installer language and keyboard layout can be adjusted via the [settings panel] accessible from the top bar.": [
     "Det här är inställningarna för produkten som ska installeras. Installationsprogrammets språk och tangentbordslayout kan justeras via [inställningspanelen] som är tillgänglig från det övre fältet."
@@ -2257,12 +2260,6 @@ export default {
   ],
   "This license is not available in %s.": [
     "Den här licensen är inte tillgänglig i %s."
-  ],
-  "This may take a moment while updates complete.": [
-    "Detta kan ta en stund medan uppdateringarna slutförs."
-  ],
-  "This message will close automatically when everything is done.": [
-    "Detta meddelande kommer att stängas automatiskt när allt är klart."
   ],
   "This pattern strikes a balance between clarity and efficiency: the modal keeps things lightweight for simple selections, while the full view supports deeper exploration and more complex actions, specially for users with tons of devices.": [
     "Detta mönster skapar en balans mellan tydlighet och effektivitet: modalvyn gör det lätt för enkla val, medan helvyn stöder djupare utforskning och mer komplexa åtgärder, särskilt för användare med massor av enheter."
@@ -2297,6 +2294,12 @@ export default {
   "Try again": [
     "Försök igen"
   ],
+  "Try to activate again": [
+    "Försök att aktivera igen"
+  ],
+  "Try to deactivate again": [
+    "Försök att avaktivera igen"
+  ],
   "Type": [
     "Typ"
   ],
@@ -2305,6 +2308,15 @@ export default {
   ],
   "Unbound": [
     "Obunden"
+  ],
+  "Unexpected error": [
+    "Oväntat fel"
+  ],
+  "Unknown": [
+    "Okänt"
+  ],
+  "Unknown error": [
+    "Okänt fel"
   ],
   "Unselect": [
     "Avmarkera"
@@ -2317,6 +2329,9 @@ export default {
   ],
   "Unused space": [
     "Oanvänt utrymme"
+  ],
+  "Up": [
+    "Uppe"
   ],
   "Up to %s can be recovered by shrinking the device.": [
     "Upp till %s kan återställas genom att krympa enheten."
@@ -2528,17 +2543,8 @@ export default {
   "Wi-Fi connection form": [
     "WiFi anslutningsformulär"
   ],
-  "Wi-Fi networks": [
-    "Wi-Fi nätverk"
-  ],
-  "Wi-Fi not supported": [
-    "Wi-Fi stöds inte"
-  ],
   "Will be supported in a future version.": [
     "Kommer att stödjas i en framtida version."
-  ],
-  "Wired connections": [
-    "Trådanslutna anslutningar"
   ],
   "Wrong selection": [
     "Fel val"
@@ -2618,7 +2624,10 @@ export default {
   "zFCP": [
     "zFCP"
   ],
-  "zFCP Disk activation form": [
-    "zFCP-diskaktiveringsformulär"
+  "zFCP controllers": [
+    "zFCP styrenheter"
+  ],
+  "zFCP is not available": [
+    "zFCP är inte tillgängligt"
   ]
 };

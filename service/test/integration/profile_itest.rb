@@ -193,7 +193,7 @@ describe "agama config" do
 
       it "is evaluated and invalidity reported" do
         stdout, stderr = Cheetah.run("agama", "config", "generate", "-",
-          stdout: :capture, stderr: :capture, stdin: profile_body)
+          stdout: :capture, stderr: :capture, stdin: profile_body, allowed_exitstatus: 1)
         # NOTE: 3 space indent here
         expected = <<~JSON
           {

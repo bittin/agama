@@ -9,6 +9,9 @@ export default {
   "\"%s\" does not exist or is no longer available.": [
     "\"%s\" არ არსებობს, ან ხელმისაწვდომი აღარაა."
   ],
+  "%1$d of %2$d connections match filters": [
+    "ფილტრს ემთხვევა %1$d კავშირი %2$d-დან"
+  ],
   "%1$d of %2$d devices match filters": [
     "ფილტრს ემთხვევა %1$d მოწყობილობა %2$d-დან"
   ],
@@ -42,15 +45,15 @@ export default {
     "%1$s, %2$s და [კიდევ %3$d]",
     "%1$s, %2$s და [კიდევ %3$d]"
   ],
+  "%d connections available": [
+    "ხელმისაწვდომია %d კავშირი"
+  ],
   "%d devices available": [
     "ხელმისაწვდომია %d მოწყობილობა"
   ],
   "%d mode available": [
     "ხელმისაწვდომია %d რეჟიმი",
     "ხელმისაწვდომია %d რეჟიმი"
-  ],
-  "%d of %d": [
-    "%d %d-დან"
   ],
   "%d other mode available": [
     "ხელმისაწვდომია კიდევ %d რეჟიმი",
@@ -90,6 +93,15 @@ export default {
   ],
   "%s with %d partitions": [
     "%s %d დანაყოფით"
+  ],
+  "(bind by name)": [
+    "(მიბმული სახელით)"
+  ],
+  "(bound by MAC)": [
+    "(მიბმა MAC-ით)"
+  ],
+  "(bound by name)": [
+    "(მიბმა სახელით)"
   ],
   "(step %s of %s)": [
     "(ნაბიჯი %s %s-დან)"
@@ -158,17 +170,17 @@ export default {
   "Activate and format DASD devices": [
     "DASD მოწყობილობების გააქტიურება და დაფორმატება"
   ],
-  "Activate new disk": [
-    "ახალი დისკის გააქტიურება"
-  ],
-  "Activate zFCP disk": [
-    "zFCP დისკის გააქტიურება"
+  "Activate controllers": [
+    "კონტროლერების გააქტიურება"
   ],
   "Activate zFCP disks": [
     "zFCP დისკების გააქტიურება"
   ],
   "Activated": [
     "აქტივირებულია"
+  ],
+  "Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
+    ""
   ],
   "Active": [
     "აქტიური"
@@ -194,6 +206,12 @@ export default {
   "Add another address": [
     "სხვა მისამართის დამატება"
   ],
+  "Add another search domain": [
+    "კიდევ ერთი ძებნის დომენის დამატება"
+  ],
+  "Add connection": [
+    "კავშირის დამატება"
+  ],
   "Add device menu": [
     "მოწყობილობის მენიუს დამატება"
   ],
@@ -202,6 +220,9 @@ export default {
   ],
   "Add or use partition": [
     "დანაყოფის დამატება ან გამოყენება"
+  ],
+  "Add search domain": [
+    "ძებნის დომენის დამატება"
   ],
   "Additional CHAP authentication performed by the initiator": [
     "ინიციატორის მიერ შესრულებული დამატებითი CHAP ავთენტიკაცია"
@@ -221,9 +242,6 @@ export default {
   "All": [
     "ყველა"
   ],
-  "All conflicts have been resolved, or none were detected. You can safely continue with your setup.": [
-    ""
-  ],
   "All content not configured to be mounted will be deleted": [
     "შემცველობა, რომელიც მორგებული არაა მისამაგრებლად, წაიშლება"
   ],
@@ -238,6 +256,9 @@ export default {
   ],
   "All network connections managed through this interface are currently set to be used only during installation and will not be copied to the installed system": [
     ""
+  ],
+  "All the available zFCP controllers are already activated.": [
+    "ყველა ხელმისაწვდომი zFCP კონტროლერი უკვე გააქტიურებულია."
   ],
   "Allow growing": [
     "გაზრდის დაშვება"
@@ -261,12 +282,6 @@ export default {
   "Any partition needed to boot will be configured.": [
     "ასევე მოხდება ჩასატვირთად საჭირო დანაყოფების მორგება."
   ],
-  "Apply selected solution": [
-    "არჩეული გადაწყვეტის გადატარება"
-  ],
-  "Applying changes": [
-    "მიმდინარეობს ცვლილებების გადატარება"
-  ],
   "As a new partition on %s": [
     "როგორც ახალი დანაყოფი %s-ზე"
   ],
@@ -282,8 +297,8 @@ export default {
   "Auto": [
     "ავტო"
   ],
-  "Auto LUNs Scan": [
-    "LUN-ების ავტომატური სკანირება"
+  "Auto Scanned": [
+    "ავტომატურად სკანირებული"
   ],
   "Auto and manual": [
     "ავტო და ხელით"
@@ -294,11 +309,11 @@ export default {
   "Automatic (DHCP)": [
     "ავტომატური (მხოლოდ DHCP)"
   ],
-  "Automatic LUN scan is [disabled]. LUNs have to be manually configured after activating a controller.": [
-    ""
+  "Automatic LUN scan is disabled": [
+    "LUN-ის ავტომატური სკანირება გამორთულია"
   ],
-  "Automatic LUN scan is [enabled]. Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
-    ""
+  "Automatic LUN scan is enabled": [
+    "LUN-ის ავტომატური სკანირება ჩართულია"
   ],
   "Back": [
     "უკან"
@@ -441,12 +456,6 @@ export default {
   "Channel": [
     "არხი"
   ],
-  "Channel ID": [
-    "არხის ID"
-  ],
-  "Check the authentication parameters.": [
-    "შეამოწმეთ ავთენტიკაციის პარამეტრები."
-  ],
   "Check the following before continuing": [
     "შეამოწმეთ შემდეგი ელემენტები გაგრძელებამდე"
   ],
@@ -554,6 +563,9 @@ export default {
   "Connect": [
     "დაკავშირება"
   ],
+  "Connect to Wi-Fi network": [
+    "Wi-Fi ქსელთან მიერთება"
+  ],
   "Connect to iSCSI targets": [
     "iSCSI სამიზნეებთან მიერთება"
   ],
@@ -574,9 +586,6 @@ export default {
   ],
   "Connecting to %s": [
     "%s-სთან მიერთება"
-  ],
-  "Connection details": [
-    "კავშირის დეტალები"
   ],
   "Connection failed": [
     "კავშირი ჩავარდა"
@@ -599,14 +608,8 @@ export default {
   "Continuing without installing the package can result in a broken system. In some cases the system might not even boot.": [
     ""
   ],
-  "Controllers": [
-    "კონტროლერები"
-  ],
   "Could not authenticate against the server.": [
     "სერვერთან ავთენტიკაცია შეუძლებელია."
-  ],
-  "Could not connect to %s": [
-    "%s-სთან მიერთების შეცდომა"
   ],
   "Could not log in": [
     "შესვლის შეცდომა"
@@ -658,6 +661,9 @@ export default {
   ],
   "DNS": [
     "DNS"
+  ],
+  "DNS Search List": [
+    "DNS ძებნის სია"
   ],
   "Deactivate": [
     "დეაქტივაცია"
@@ -719,9 +725,6 @@ export default {
   "Details": [
     "დეტალები"
   ],
-  "Details will appear after the connection is successfully established.": [
-    "დეტალები გამოჩნდება კავშირის წარმატებულად დამყარების შემდეგ."
-  ],
   "Device": [
     "მოწყობილობა"
   ],
@@ -758,14 +761,17 @@ export default {
   "Disk": [
     "დისკი"
   ],
-  "Disk Activation": [
-    "დისკის გააქტიურება"
-  ],
   "Disks": [
     "დისკები"
   ],
+  "Do not activate": [
+    "არ გააქტიურება"
+  ],
   "Do not configure": [
     "მორგება არ მოხდება"
+  ],
+  "Do not deactivate": [
+    "დეაქტივაციის გარეშე"
   ],
   "Do not format %s and keep the data": [
     "%s-ის არდაფორმატებადა მონაცემების შენარჩუნება"
@@ -776,6 +782,15 @@ export default {
   "Do not use": [
     "არ გამოიყენო"
   ],
+  "Domain": [
+    "დომენი"
+  ],
+  "Down": [
+    "გამორთ"
+  ],
+  "Download config": [
+    "კონფიგურაციის გადმოწერა"
+  ],
   "Download logs": [
     "ჟურნალის გადმოწერა"
   ],
@@ -784,6 +799,9 @@ export default {
   ],
   "Edit": [
     "ჩასწორება"
+  ],
+  "Edit binding": [
+    "მიბმის ჩასწორება"
   ],
   "Edit binding settings": [
     "მიბმის პარამეტრების ჩასწორება"
@@ -841,6 +859,9 @@ export default {
   ],
   "Enter a name for the volume group.": [
     "შეიყვანეთ სახელი ტომების ჯგუფისთვის."
+  ],
+  "Ethernet": [
+    "Ethernet"
   ],
   "ExFAT": [
     "ExFAT"
@@ -912,9 +933,6 @@ export default {
   ],
   "Find space in %s": [
     "ადგილის პოვნა %s-ში"
-  ],
-  "Finished": [
-    "დასრულებულია"
   ],
   "First user": [
     "პირველი მომხმარებელი"
@@ -1013,9 +1031,6 @@ export default {
   "IP addresses": [
     "IP მისამართები"
   ],
-  "IP settings": [
-    "IP-ის მორგება"
-  ],
   "IPs": [
     "IP-ები"
   ],
@@ -1035,7 +1050,7 @@ export default {
     "თუ დარწმუნებული არ ბრძანებით, შეამოწმეთ და გაასწორეთ საცავის პარამეტრები."
   ],
   "If you want to disable this check, please specify \"inst.ay_check=0\" at kernels command-line": [
-    ""
+    "თუ გნებავთ, გამორთოთ ეს შემოწმება, მიუთითეთ ბირთვის ბრძანების სტრიქონში \"inst_ay_check=0\""
   ],
   "Initiator": [
     "ინიციატორი"
@@ -1094,6 +1109,9 @@ export default {
   "Interface": [
     "ინტერფეისი"
   ],
+  "Invalid [zFCP] settings": [
+    "არასწორი [zFCP] პარამეტრები"
+  ],
   "Invalid settings": [
     "არასწორი პარამეტრები"
   ],
@@ -1142,9 +1160,6 @@ export default {
   "It is offline and must be activated before formatting it.": [
     "გათიშულია და უნდა გაააქტიუროთ, სანამ დააფორმატებთ."
   ],
-  "It may take some time.": [
-    "ამას რაღაც დრო შეიძლება, დასჭირდეს."
-  ],
   "JFS": [
     "JFS"
   ],
@@ -1159,6 +1174,9 @@ export default {
   ],
   "LUN": [
     "LUN"
+  ],
+  "LUNs have to be manually configured after activating a controller.": [
+    "კონტროლერების გააქტიურების შემდეგ LUN-ები ხელით უნდა მოირგოთ."
   ],
   "LVM": [
     "LVM"
@@ -1189,9 +1207,6 @@ export default {
   ],
   "Loading data...": [
     "მონაცემების ჩატვირთვა..."
-  ],
-  "Loading storage": [
-    "საცავის ჩატვირთვა"
   ],
   "Loading the installation repositories...": [
     "დაყენების რეპოზიტორიების ჩატვირთვა..."
@@ -1228,6 +1243,9 @@ export default {
   ],
   "Manage DASD devices": [
     "DASD მოწყობილობების მართვა"
+  ],
+  "Manage available connections, connect to Wi-Fi, or add a new connection.": [
+    "მართეთ ხელმისაწვდომი კავშირები, მიუერთდით Wi-Fi-ს, ან დაამატეთ ახალი კავშირი."
   ],
   "Manual": [
     "ხელით"
@@ -1321,9 +1339,6 @@ export default {
   "Multipath": [
     "მრავალბილიკიანი"
   ],
-  "Multiple conflicts found. You can address them in any order, and resolving one may resolve others.": [
-    ""
-  ],
   "NFS": [
     "NFS"
   ],
@@ -1345,11 +1360,14 @@ export default {
   "Network details": [
     "ქსელის დეტალები"
   ],
-  "Network not found or lost": [
-    "ქსელი ვერ ვიპოვე, ან დაკარგულია"
+  "Network not availble": [
+    "ქსელი ხელმისაწვდომი არაა"
   ],
   "New": [
     "ახალი"
+  ],
+  "New Wi-Fi connection": [
+    "ახალი WiFi მიერთება"
   ],
   "No": [
     "არა"
@@ -1366,11 +1384,14 @@ export default {
   "No additional software was selected.": [
     "დამატებითი პროგრამები არ არჩეულა."
   ],
-  "No conflicts to address": [
-    "გასათვალისწინებელი კონფლიქტების გარეშე"
+  "No connections match filters": [
+    "ფილტრს კავშირი არ ემთხვევა"
   ],
   "No content found": [
     "შემცველობა აღმოჩენილი არაა"
+  ],
+  "No controllers available": [
+    "კონტროლერები ხელმისაწვდომი არაა"
   ],
   "No data loss is expected": [
     "მონაცემთა კარგვა მოსალოდნელი არაა"
@@ -1432,17 +1453,17 @@ export default {
   "No valid port.": [
     "სწორი პორტის გარეშე."
   ],
-  "No wired connections were found": [
-    "მავთულიანი მიერთება აღმოჩენილი არაა"
+  "No zFCP controllers found in this machine.": [
+    "ამ მანქანაში zFCP კონტროლერები აღმოჩენილი არაა."
   ],
-  "No zFCP controllers found.": [
-    "zFCP კონტროლერები აღმოჩენილი არაა."
-  ],
-  "No zFCP disks found.": [
-    "zFCP დისკები აღმოჩენილი არაა."
+  "No zFCP devices found in this machine.": [
+    "ამ მანქანაში zFCP მოწყობილობები აღმოჩენილი არაა."
   ],
   "None": [
     "არაფერი"
+  ],
+  "None (unbound)": [
+    "არცერთი (მიბმის გარეშე)"
   ],
   "None of the keymaps match the filter.": [
     "ფილტრს არცერთი კლავიტურის განლაგება ემთხვევა."
@@ -1490,7 +1511,7 @@ export default {
     "ჩატვირთვისას"
   ],
   "Only reused partitions and space not assigned to any partition will be used.": [
-    ""
+    "გამოყენებული იქნება, მხოლოდ, თავიდან გამოყენებული დანაყოფები და ადგილი, რომელიც დანაყოფებზე მინიჭებული არაა."
   ],
   "Only reused partitions will be used.": [
     "გამოყენებული იქნება, მხოლოდ, თავიდან გამოყენებული დანაყოფები."
@@ -1564,20 +1585,14 @@ export default {
   "Passwords do not match": [
     "პაროლები არ ემთხვევა"
   ],
-  "Pending": [
-    "დარჩენილია"
-  ],
   "Perform a discovery to find available iSCSI targets.": [
     "განახორციელეთ აღმოჩენა, რომ იპოვოთ ხელმისაწვდომი iSCSI სამიზნეები."
   ],
+  "Performs auto LUN scan": [
+    "ასრულებს ავტომატურ LUN-ის სკანირებას"
+  ],
   "PiB": [
     "პიბ"
-  ],
-  "Please, try to activate a zFCP controller.": [
-    "სცადეთ, გაააქტიუროთ zFCP კონტროლერი."
-  ],
-  "Please, try to activate a zFCP disk.": [
-    "სცადეთ, გაააქტიუროთ zFCP დისკი."
   ],
   "Port": [
     "პორტი"
@@ -1635,9 +1650,6 @@ export default {
   ],
   "Read only": [
     "მხოლოდ-წაკითხვადი"
-  ],
-  "Read zFCP devices": [
-    "zFCP მოწყობილობების წაკითხვა"
   ],
   "Reboot": [
     "გადატვირთვა"
@@ -1717,6 +1729,9 @@ export default {
   ],
   "Result of applying the configuration described at the 'Settings' section above.": [
     "შედეგი იმ პარამეტრების გადატარებისა, რომლებიც აღწერილია ზემორე სექციაში 'მორგება'."
+  ],
+  "Retrieving error details": [
+    "შეცდომის დეტალების მიღება"
   ],
   "Reused partitions will not be shrunk": [
     "თავიდან გამოყენებული დანაყოფების დაპატარავება შეუძლებელია"
@@ -1809,9 +1824,6 @@ export default {
   "Select a product to continue.": [
     "გასაგრძელებლად აირჩიეთ პროდუქტი."
   ],
-  "Select a solution to continue": [
-    "გასაგრძელებლად აირჩიეთ გადაწყვეტილება"
-  ],
   "Select another device to define partitions or to mount": [
     "აირჩიეთ სხვა დისკი დანაყოფების აღწერის, ან მიმაგრებისთვის"
   ],
@@ -1835,6 +1847,12 @@ export default {
   ],
   "Select or enter a valid mount point": [
     "აირჩიეთ, ან შეიყვანეთ სწორი მიმაგრების წერტილი"
+  ],
+  "Select the controllers to activate": [
+    "აირჩიეთ გასააქტიურებელი კონტროლერები"
+  ],
+  "Select the zFCP controllers to activate:": [
+    "აირჩიეთ გასააქტიურებელი zFCP კონტრილერები:"
   ],
   "Select what to do with each partition in order to find space for allocating the new system.": [
     ""
@@ -1866,9 +1884,6 @@ export default {
   "Set a permanent hostname that won’t change with network updates.": [
     "დააყენეთ მუდმივი ჰოსტის სახელი, რომელიც არ შეიცვლება ქსელის განახლებებთან ერთად."
   ],
-  "Setting up connection": [
-    "მიმდინარეობს კავშირის მორგება"
-  ],
   "Settings": [
     "მორგება"
   ],
@@ -1888,14 +1903,8 @@ export default {
   "Show less": [
     "ნაკლების ჩვენება"
   ],
-  "Show less actions": [
-    "ნაკლები ქმედების ჩვენება"
-  ],
   "Show more": [
     "მეტის ჩვენება"
-  ],
-  "Show more actions": [
-    "მეტი ქმედების ჩვენება"
   ],
   "Shrink existing partitions": [
     "არსებული დანაყოფების დაპატარავება"
@@ -1921,20 +1930,11 @@ export default {
   "Skip to content": [
     "შემცველობაზე გადასვლა"
   ],
-  "Skip to next": [
-    "შემდეგზე გადასვლა"
-  ],
-  "Skip to previous": [
-    "წინაზე დაბრუნება"
-  ],
   "Software": [
     "პროგრამები"
   ],
   "Software %s": [
     "პროგრამული %s"
-  ],
-  "Software conflicts resolution": [
-    "პროგრამების კონფლიქტის გადაწყვეტილება"
   ],
   "Some existing partitions may be shrunk": [
     "ზოგიერთი არსებული დანაყოფი, შეიძლება, დაპატარავდეს"
@@ -2208,17 +2208,14 @@ export default {
   "The storage configuration uses elements not supported by this interface.": [
     "საცავის კონფიგურაცია იყენებს ელემენტებს, რომლებიც მხარდაჭერილი არაა ამ ინტერფეისის მიერ."
   ],
-  "The system does not support Wi-Fi connections, probably because of missing or disabled hardware.": [
-    ""
-  ],
   "The system is rebooting": [
     "მიმდინარეობს სისტემის გადატვირთვა"
   ],
   "The whole device will be used for %s": [
     "%s-სთვის გამოყენებული იქნება მთლიანი მოწყობილობა"
   ],
-  "The zFCP disk was not activated.": [
-    "zFCP დისკის გააქტიურება შეუძლებელია."
+  "There are %s deactivated zFCP controllers.": [
+    "არსებობს %s დეაქტივირებული zFCP კონტროლერები."
   ],
   "There are no disks available for the installation": [
     "დაყენებისთვის დისკები ხელმისაწვდომი არაა"
@@ -2229,6 +2226,9 @@ export default {
   "There are not usable partitions": [
     "გამოყენებადი დანაყოფები აღმოჩენილი არაა"
   ],
+  "There are not zFCP controllers pending of activation.": [
+    "გააქტიურების რიგში მყოფი zFCP კონტროლერების გარეშე."
+  ],
   "There is %d destructive action planned": [
     "დაგეგმილია %d გამანადგურებელი ქმედება",
     "დაგეგმილია %d გამანადგურებელი ქმედება"
@@ -2236,6 +2236,9 @@ export default {
   "There is %d destructive action planned affecting %s": [
     "დაგეგმილია %d დამანგრეველი ქმედება, რომელიც ეხება %s-ს",
     "დაგეგმილია %d დამანგრეველი ქმედება რომელიც ეხება %s-ს"
+  ],
+  "There is a deactivated zFCP controller.": [
+    "არსებობს დეაქტივირებული zFCP კონტროლერები."
   ],
   "These are the settings for the product to install. The installer language and keyboard layout can be adjusted via the [settings panel] accessible from the top bar.": [
     "ეს დასაყენებელი პროდუქტის პარამეტრებია. დაყენების პროგრამის ენა და კლავიატურის განლაგება შეგიძლიათ [მორგების პანელიდან] ზედა პანელიდან."
@@ -2257,12 +2260,6 @@ export default {
   ],
   "This license is not available in %s.": [
     "ეს ლიცენზია %s-ში ხელმისაწვდომი არაა."
-  ],
-  "This may take a moment while updates complete.": [
-    "განახლებების დასრულებას ცოტა დრო შეიძლება, დასჭირდეს."
-  ],
-  "This message will close automatically when everything is done.": [
-    "ეს შეტყობინება ავტომატურად დაიხურება, როცა ყველაფერი დასრულდება."
   ],
   "This pattern strikes a balance between clarity and efficiency: the modal keeps things lightweight for simple selections, while the full view supports deeper exploration and more complex actions, specially for users with tons of devices.": [
     ""
@@ -2297,6 +2294,12 @@ export default {
   "Try again": [
     "თავიდან სცადეთ"
   ],
+  "Try to activate again": [
+    "გააქტიურების თავიდან ცდა"
+  ],
+  "Try to deactivate again": [
+    "სცადეთ დეაქტივაცია თავიდან"
+  ],
   "Type": [
     "ტიპი"
   ],
@@ -2305,6 +2308,15 @@ export default {
   ],
   "Unbound": [
     "მოხსნა"
+  ],
+  "Unexpected error": [
+    "მოულოდნელი შეცდომა"
+  ],
+  "Unknown": [
+    "უცნობი"
+  ],
+  "Unknown error": [
+    "უცნობი შეცდომა"
   ],
   "Unselect": [
     "მონიშვნის მოხსნა"
@@ -2317,6 +2329,9 @@ export default {
   ],
   "Unused space": [
     "გამოუყენებელი ადგილი"
+  ],
+  "Up": [
+    "ჩართ"
   ],
   "Up to %s can be recovered by shrinking the device.": [
     "შეიძლება %s-მდე აღდგენა მოწყობილობის დაპატარავებით."
@@ -2520,7 +2535,7 @@ export default {
     "სუსტი სიგნალი"
   ],
   "When ready, click on the [install] button at the end of the page.": [
-    ""
+    "როცა მზად იქნებით, გვერდის ბოლოში დააწკაპუნეთ ღილაკზე [დაყენება]."
   ],
   "Wi-Fi": [
     "Wi-Fi"
@@ -2528,17 +2543,8 @@ export default {
   "Wi-Fi connection form": [
     "WiFi მიერთება წყაროდან"
   ],
-  "Wi-Fi networks": [
-    "Wi-Fi ქსელები"
-  ],
-  "Wi-Fi not supported": [
-    "Wi-Fi მხარდაჭერილი არაა"
-  ],
   "Will be supported in a future version.": [
     "მხარდაჭერილი იქნება მომავალ ვერსიაში."
-  ],
-  "Wired connections": [
-    "მავთულიანი კავშირები"
   ],
   "Wrong selection": [
     "არასწორი არჩევანი"
@@ -2618,7 +2624,10 @@ export default {
   "zFCP": [
     "zFCP"
   ],
-  "zFCP Disk activation form": [
-    "zFCP დისკის გააქტიურების ფორმა"
+  "zFCP controllers": [
+    "zFCP კონტროლერები"
+  ],
+  "zFCP is not available": [
+    "zFCP ხელმისაწვდომი არაა"
   ]
 };

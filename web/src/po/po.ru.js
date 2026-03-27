@@ -47,9 +47,6 @@ export default {
     "Доступны %d режима",
     "Доступно %d режимов"
   ],
-  "%d of %d": [
-    "%d из %d"
-  ],
   "%d other mode available": [
     "Доступен %d другой режим",
     "Доступны %d других режима",
@@ -91,6 +88,15 @@ export default {
   ],
   "%s with %d partitions": [
     "%s с %d разделами"
+  ],
+  "(bind by name)": [
+    ""
+  ],
+  "(bound by MAC)": [
+    ""
+  ],
+  "(bound by name)": [
+    ""
   ],
   "(step %s of %s)": [
     "(шаг %s из %s)"
@@ -158,12 +164,6 @@ export default {
   "Activate and format DASD devices": [
     "Активация и форматирование устройств DASD"
   ],
-  "Activate new disk": [
-    "Активировать новый диск"
-  ],
-  "Activate zFCP disk": [
-    "Активировать диск zFCP"
-  ],
   "Activate zFCP disks": [
     "Активировать диски zFCP"
   ],
@@ -200,6 +200,9 @@ export default {
   "Add or use partition": [
     "Добавить или использовать раздел"
   ],
+  "Add search domain": [
+    ""
+  ],
   "Additional CHAP authentication performed by the initiator": [
     "Дополнительная аутентификация CHAP, выполняемая инициатором"
   ],
@@ -218,9 +221,6 @@ export default {
   "All": [
     "Все"
   ],
-  "All conflicts have been resolved, or none were detected. You can safely continue with your setup.": [
-    "Все конфликты были разрешены, или их не было обнаружено. Вы можете безопасно продолжать установку."
-  ],
   "All content not configured to be mounted will be deleted": [
     "Всё содержимое, не настроенное на монтирование, будет удалено"
   ],
@@ -235,6 +235,9 @@ export default {
   ],
   "All network connections managed through this interface are currently set to be used only during installation and will not be copied to the installed system": [
     "Все сетевые подключения, управляемые через этот интерфейс, в настоящее время настроены на использование только во время установки и не будут скопированы в установленную систему"
+  ],
+  "All the available zFCP controllers are already activated.": [
+    ""
   ],
   "Allow growing": [
     "Разрешить рост"
@@ -259,12 +262,6 @@ export default {
   "Any partition needed to boot will be configured.": [
     "Все разделы, необходимые для загрузки, будут настроены."
   ],
-  "Apply selected solution": [
-    "Применить выбранное решение"
-  ],
-  "Applying changes": [
-    "Применение изменений"
-  ],
   "As a new partition on %s": [
     "Как новый раздел на %s"
   ],
@@ -280,9 +277,6 @@ export default {
   "Auto": [
     "Автоматически"
   ],
-  "Auto LUNs Scan": [
-    "Автоматическое сканирование LUN"
-  ],
   "Auto and manual": [
     "Автоматически и вручную"
   ],
@@ -292,11 +286,11 @@ export default {
   "Automatic (DHCP)": [
     "Автоматически (DHCP)"
   ],
-  "Automatic LUN scan is [disabled]. LUNs have to be manually configured after activating a controller.": [
-    "Автоматическое сканирование LUN [отключено]. LUN должны быть настроены вручную после активации контроллера."
+  "Automatic LUN scan is disabled": [
+    ""
   ],
-  "Automatic LUN scan is [enabled]. Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
-    "Автоматическое сканирование LUN [включено]. Активация контроллера, работающего в режиме NPIV, автоматически сконфигурирует все его LUNы."
+  "Automatic LUN scan is enabled": [
+    ""
   ],
   "Back": [
     "Назад"
@@ -436,12 +430,6 @@ export default {
   "Changes in these settings will immediately update the 'Result' section below.": [
     "Изменения этих настроек немедленно обновят секцию «Результат» ниже."
   ],
-  "Channel ID": [
-    "Идентификатор канала"
-  ],
-  "Check the authentication parameters.": [
-    "Проверьте параметры аутентификации."
-  ],
   "Check the following before continuing": [
     "Прежде чем продолжить, проверьте следующее"
   ],
@@ -572,9 +560,6 @@ export default {
   "Connecting to %s": [
     "Подключение к сети %s"
   ],
-  "Connection details": [
-    "Сведения о подключении"
-  ],
   "Connection failed": [
     "Сбой подключения"
   ],
@@ -596,14 +581,8 @@ export default {
   "Continuing without installing the package can result in a broken system. In some cases the system might not even boot.": [
     "Продолжение работы без установки пакета может привести к поломке системы. В некоторых случаях система может даже не загрузиться."
   ],
-  "Controllers": [
-    "Контроллеры"
-  ],
   "Could not authenticate against the server.": [
     "Не удалось пройти аутентификацию на сервере."
-  ],
-  "Could not connect to %s": [
-    "Не удалось подключиться к сети %s"
   ],
   "Could not log in": [
     "Не удалось войти"
@@ -655,6 +634,9 @@ export default {
   ],
   "DNS": [
     "DNS"
+  ],
+  "DNS Search List": [
+    ""
   ],
   "Deactivate": [
     "Деактивировать"
@@ -716,9 +698,6 @@ export default {
   "Details": [
     "Сведения"
   ],
-  "Details will appear after the connection is successfully established.": [
-    "После успешной установки подключения появится подробная информация."
-  ],
   "Device": [
     "Устройство"
   ],
@@ -755,9 +734,6 @@ export default {
   "Disk": [
     "Диск"
   ],
-  "Disk Activation": [
-    "Активация дисков"
-  ],
   "Disks": [
     "Диски"
   ],
@@ -769,6 +745,12 @@ export default {
   ],
   "Do not use": [
     "Не использовать"
+  ],
+  "Domain": [
+    ""
+  ],
+  "Down": [
+    ""
   ],
   "Download logs": [
     "Скачать журналы"
@@ -909,9 +891,6 @@ export default {
   "Find space in %s": [
     "Найти пространство в %s"
   ],
-  "Finished": [
-    "Завершено"
-  ],
   "First user": [
     "Первый пользователь"
   ],
@@ -1006,9 +985,6 @@ export default {
   ],
   "IP addresses": [
     "IP-адреса"
-  ],
-  "IP settings": [
-    "Настройки IP"
   ],
   "IPs": [
     "IP-адреса"
@@ -1136,9 +1112,6 @@ export default {
   "It is offline and must be activated before formatting it.": [
     "Устройство офлайн, перед форматированием его необходимо активировать."
   ],
-  "It may take some time.": [
-    "Это может занять некоторое время."
-  ],
   "JFS": [
     "JFS"
   ],
@@ -1184,9 +1157,6 @@ export default {
   "Loading data...": [
     "Загрузка данных..."
   ],
-  "Loading storage": [
-    "Загрузка хранилища"
-  ],
   "Loading the installation repositories...": [
     "Загрузка репозиториев установки..."
   ],
@@ -1222,6 +1192,9 @@ export default {
   ],
   "Manage DASD devices": [
     "Управление устройствами DASD"
+  ],
+  "Manage available connections, connect to Wi-Fi, or add a new connection.": [
+    ""
   ],
   "Manual": [
     "Вручную"
@@ -1317,9 +1290,6 @@ export default {
   "Multipath": [
     "Многопутевое"
   ],
-  "Multiple conflicts found. You can address them in any order, and resolving one may resolve others.": [
-    "Обнаружено несколько конфликтов. Вы можете решать их в любом порядке, и разрешение одного может разрешить другие."
-  ],
   "NFS": [
     "NFS"
   ],
@@ -1341,9 +1311,6 @@ export default {
   "Network details": [
     "Сведения о сети"
   ],
-  "Network not found or lost": [
-    "Сеть не найдена или потеряна"
-  ],
   "New": [
     "Новый"
   ],
@@ -1358,9 +1325,6 @@ export default {
   ],
   "No additional software was selected.": [
     "Никакого дополнительного программного обеспечения выбрано не было."
-  ],
-  "No conflicts to address": [
-    "Нет конфликтов для решения"
   ],
   "No content found": [
     "Содержимое не найдено"
@@ -1415,15 +1379,6 @@ export default {
   ],
   "No valid port.": [
     "Нет действительного порта."
-  ],
-  "No wired connections were found": [
-    "Проводные соединения не обнаружены"
-  ],
-  "No zFCP controllers found.": [
-    "Контроллеры zFCP не найдены."
-  ],
-  "No zFCP disks found.": [
-    "Диски zFCP не найдены."
   ],
   "None": [
     "Отсутствует"
@@ -1545,20 +1500,11 @@ export default {
   "Passwords do not match": [
     "Пароли не совпадают"
   ],
-  "Pending": [
-    "Ожидается"
-  ],
   "Perform a discovery to find available iSCSI targets.": [
     "Выполните обнаружение, чтобы найти доступные iSCSI-цели."
   ],
   "PiB": [
     "ПиБ"
-  ],
-  "Please, try to activate a zFCP controller.": [
-    "Пожалуйста, попробуйте активировать контроллер zFCP."
-  ],
-  "Please, try to activate a zFCP disk.": [
-    "Пожалуйста, попробуйте активировать диск zFCP."
   ],
   "Port": [
     "Порт"
@@ -1610,9 +1556,6 @@ export default {
   ],
   "Question": [
     "Вопрос"
-  ],
-  "Read zFCP devices": [
-    "Прочитать устройства zFCP"
   ],
   "Reboot": [
     "Перезагрузить"
@@ -1786,9 +1729,6 @@ export default {
   "Select a product to continue.": [
     "Выберите продукт, чтобы продолжить."
   ],
-  "Select a solution to continue": [
-    "Выберите решение, чтобы продолжить"
-  ],
   "Select another device to define partitions or to mount": [
     "Выберите другое устройство для определения разделов или монтирования"
   ],
@@ -1809,6 +1749,9 @@ export default {
   ],
   "Select or enter a valid mount point": [
     "Выберите или введите правильную точку монтирования"
+  ],
+  "Select the zFCP controllers to activate:": [
+    ""
   ],
   "Select what to do with each partition in order to find space for allocating the new system.": [
     "Выберите, что нужно сделать с каждым разделом, чтобы найти место для размещения новой системы."
@@ -1840,9 +1783,6 @@ export default {
   "Set a permanent hostname that won’t change with network updates.": [
     "Установить постоянное имя хоста, которое не будет меняться при обновлении сети."
   ],
-  "Setting up connection": [
-    "Настройка подключения"
-  ],
   "Settings": [
     "Настройки"
   ],
@@ -1863,14 +1803,8 @@ export default {
   "Show less": [
     "Свернуть"
   ],
-  "Show less actions": [
-    "Свернуть действия"
-  ],
   "Show more": [
     "Показать ещё"
-  ],
-  "Show more actions": [
-    "Другие действия"
   ],
   "Shrink existing partitions": [
     "Уменьшение существующих разделов"
@@ -1896,20 +1830,11 @@ export default {
   "Skip to content": [
     "Перейти к содержимому"
   ],
-  "Skip to next": [
-    "Перейти к следующему"
-  ],
-  "Skip to previous": [
-    "Перейти к предыдущему"
-  ],
   "Software": [
     "Программы"
   ],
   "Software %s": [
     "Программное обеспечение %s"
-  ],
-  "Software conflicts resolution": [
-    "Разрешение конфликтов ПО"
   ],
   "Some existing partitions may be shrunk": [
     "Некоторые существующие разделы могут быть уменьшены"
@@ -2191,17 +2116,11 @@ export default {
   "The storage configuration uses elements not supported by this interface.": [
     "В конфигурации хранилища используются элементы, не поддерживаемые данным интерфейсом."
   ],
-  "The system does not support Wi-Fi connections, probably because of missing or disabled hardware.": [
-    "Система не поддерживает подключение по WiFi, вероятно, из-за отсутствующего или отключённого оборудования."
-  ],
   "The system is rebooting": [
     "Система перезапускается"
   ],
   "The whole device will be used for %s": [
     "Всё устройство будет использовано для %s"
-  ],
-  "The zFCP disk was not activated.": [
-    "Диск zFCP не был активирован."
   ],
   "There are no disks available for the installation": [
     "Для установки нет доступных дисков"
@@ -2211,6 +2130,9 @@ export default {
   ],
   "There are not usable partitions": [
     "Нет пригодных для использования разделов"
+  ],
+  "There are not zFCP controllers pending of activation.": [
+    ""
   ],
   "There is %d destructive action planned": [
     "Планируется %d разрушительное действие",
@@ -2236,12 +2158,6 @@ export default {
   ],
   "This license is not available in %s.": [
     "Лицензия недоступна на этом языке: %s."
-  ],
-  "This may take a moment while updates complete.": [
-    "Это может занять некоторое время, пока обновление будет завершено."
-  ],
-  "This message will close automatically when everything is done.": [
-    "Это сообщение закроется автоматически, когда все будет готово."
   ],
   "This pattern strikes a balance between clarity and efficiency: the modal keeps things lightweight for simple selections, while the full view supports deeper exploration and more complex actions, specially for users with tons of devices.": [
     "Этот подход обеспечивает баланс между ясностью и эффективностью: модальное окно сохраняет легкость для простого выбора, в то время как полноэкранный режим поддерживает более глубокое изучение и сложные действия, специально для пользователей с большим количеством устройств."
@@ -2276,6 +2192,9 @@ export default {
   "Try again": [
     "Повторить попытку"
   ],
+  "Try to deactivate again": [
+    ""
+  ],
   "Type": [
     "Тип"
   ],
@@ -2284,6 +2203,15 @@ export default {
   ],
   "Unbound": [
     "Без привязки"
+  ],
+  "Unexpected error": [
+    ""
+  ],
+  "Unknown": [
+    ""
+  ],
+  "Unknown error": [
+    ""
   ],
   "Unselect": [
     "Отменить выбор"
@@ -2296,6 +2224,9 @@ export default {
   ],
   "Unused space": [
     "Неиспользуемое пространство"
+  ],
+  "Up": [
+    ""
   ],
   "Up to %s can be recovered by shrinking the device.": [
     "До %s можно освободить, сократив устройство."
@@ -2507,17 +2438,8 @@ export default {
   "Wi-Fi connection form": [
     "Форма подключения Wi-Fi"
   ],
-  "Wi-Fi networks": [
-    "Сети Wi-Fi"
-  ],
-  "Wi-Fi not supported": [
-    "Wi-Fi не поддерживается"
-  ],
   "Will be supported in a future version.": [
     "Будет поддерживаться в будущих версиях."
-  ],
-  "Wired connections": [
-    "Проводные соединения"
   ],
   "Wrong selection": [
     "Неверный выбор"
@@ -2596,8 +2518,5 @@ export default {
   ],
   "zFCP": [
     "zFCP"
-  ],
-  "zFCP Disk activation form": [
-    "Форма активации диска zFCP"
   ]
 };

@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Mar 23 16:29:40 UTC 2026 - Josef Reidinger <jreidinger@suse.com>
+
+- Implement setting kernel parameters for systemd boot
+  (jsc#PED-10703)
+
+-------------------------------------------------------------------
 Mon Mar 23 15:32:40 UTC 2026 - Ancor Gonzalez Sosa <ancor@suse.com>
 
 - Fix overzealous check preventing the usage of ifNotFound:create

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-13 11:58+0000\n"
+"POT-Creation-Date: 2026-03-19 07:21+0000\n"
 "PO-Revision-Date: 2026-03-12 18:04+0000\n"
 "Last-Translator: Ondřej  Sedlák <sedlak.o@tutanota.com>\n"
 "Language-Team: Czech <https://l10n.opensuse.org/projects/agama/agama-rust-"
@@ -28,6 +28,16 @@ msgstr "Ne"
 #: agama-utils/src/question/start.rs:54
 msgid "Yes"
 msgstr "Ano"
+
+#. TRANSLATORS: %s is replaced by the script name.
+#: agama-files/src/service.rs:197
+msgid "Failed to retrieve the script %s. Do you want to try again?"
+msgstr ""
+
+#. TRANSLATORS: %s is replaced by the script name.
+#: agama-files/src/service.rs:221
+msgid "Failed to write the file %s. Do you want to try again?"
+msgstr ""
 
 #: agama-manager/src/actions.rs:86
 msgid "Prepare the system"
@@ -97,13 +107,14 @@ msgstr "Připravuje se návrh úložiště"
 msgid "Storing bootloader settings"
 msgstr "Ukládá se nastavení zavaděče"
 
-#: agama-network/src/service.rs:526
-msgid "Writing configuration"
+#: agama-network/src/service.rs:512
+#, fuzzy
+msgid "Writing network configuration"
 msgstr "Zapisuji konfiguraci"
 
-#: agama-network/src/service.rs:527
-msgid "Reading configuration"
-msgstr "Načítám konfiguraci"
+#: agama-network/src/service.rs:513
+msgid "Syncing the network service state"
+msgstr ""
 
 #: agama-security/src/service.rs:226
 msgid "Reject"
@@ -231,6 +242,9 @@ msgstr ""
 #: agama-users/src/service.rs:153
 msgid "First user information is incomplete"
 msgstr "Nastavení prvního uživatele není kompletní"
+
+#~ msgid "Reading configuration"
+#~ msgstr "Načítám konfiguraci"
 
 #~ msgid "The product must be registered"
 #~ msgstr "Produkt musí být zaregistrovaný"
