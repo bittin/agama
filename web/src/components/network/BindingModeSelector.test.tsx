@@ -24,18 +24,12 @@ import React from "react";
 import { screen } from "@testing-library/react";
 import { installerRender } from "~/test-utils";
 import { useAppForm } from "~/hooks/form";
+import { connectionFormOptions } from "~/components/network/ConnectionForm";
 import BindingModeSelector from "./BindingModeSelector";
 
 function TestForm() {
-  const form = useAppForm({
-    defaultValues: { ifaceMode: "none" },
-  });
-
-  return (
-    <form.AppForm>
-      <BindingModeSelector name="ifaceMode" />
-    </form.AppForm>
-  );
+  const form = useAppForm({ ...connectionFormOptions });
+  return <BindingModeSelector form={form} />;
 }
 
 describe("BindingModeSelector", () => {

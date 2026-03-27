@@ -24,29 +24,19 @@ import React from "react";
 import { screen } from "@testing-library/react";
 import { installerRender } from "~/test-utils";
 import { useAppForm } from "~/hooks/form";
+import { connectionFormOptions } from "~/components/network/ConnectionForm";
 import IpSettings from "./IpSettings";
-
-const FIELD_NAMES = {
-  mode: "ipv4Mode",
-  addresses: "addresses4",
-  gateway: "gateway4",
-};
 
 function TestForm({ defaultValues = {} }: { defaultValues?: object }) {
   const form = useAppForm({
+    ...connectionFormOptions,
     defaultValues: {
-      ipv4Mode: "unset",
-      addresses4: "",
-      gateway4: "",
+      ...connectionFormOptions.defaultValues,
       ...defaultValues,
     },
   });
 
-  return (
-    <form.AppForm>
-      <IpSettings protocol="ipv4" fieldNames={FIELD_NAMES} />
-    </form.AppForm>
-  );
+  return <IpSettings form={form} protocol="ipv4" />;
 }
 
 describe("IpSettings", () => {

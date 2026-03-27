@@ -23,53 +23,52 @@
 import React from "react";
 import Text from "~/components/core/Text";
 import HiddenLabel from "~/components/form/HiddenLabel";
-import { useFormContext } from "~/hooks/form";
+import { connectionFormOptions } from "~/components/network/ConnectionForm";
+import { withForm } from "~/hooks/form";
 import { useDevices } from "~/hooks/model/system/network";
 import { _ } from "~/i18n";
-
-/** Props for {@link DeviceSelector}. */
-type DeviceSelectorProps = {
-  /** Form field name to bind to. */
-  name: string;
-  /**
-   * Whether to select by interface name or by MAC address.
-   *
-   * Determines which device property is used as the option value and label,
-   * with the other shown as the option description for context.
-   */
-  by: "iface" | "mac";
-};
 
 /**
  * A `ChoiceField`-based selector for picking a network device, either by
  * interface name or by MAC address. Each option shows the primary identifier
  * as the label and the secondary one as the description.
  *
- * Must be rendered inside a `useAppForm`-backed form; uses `useFormContext`
- * internally. The field name must be provided explicitly via `name`.
+ * Receives a typed form instance via `withForm`. The `by` prop determines
+ * which device property is used as the option value and which field is bound:
+ * `"iface"` binds to the `iface` field; `"mac"` binds to `ifaceMac`.
  */
-export default function DeviceSelector({ name, by }: DeviceSelectorProps) {
-  const form = useFormContext();
-  const devices = useDevices();
+const DeviceSelector = withForm({
+  ...connectionFormOptions,
+  props: {
+    by: "iface" as "iface" | "mac",
+  },
+  render: function Render({ form, by }) {
+    const devices = useDevices();
 
-  const label = by === "iface" ? _("Device name") : _("MAC address");
-  const descriptionPrefix = by === "iface" ? _("MAC:") : _("Name:");
-  const options = devices.map((d) => {
-    const value = by === "iface" ? d.name : d.macAddress;
-    return {
-      value,
-      label: value,
-      description: (
-        <Text textStyle={["textColorSubtle", "fontSizeXs"]}>
-          <Text isBold>{descriptionPrefix}</Text> {by === "iface" ? d.macAddress : d.name}
-        </Text>
-      ),
-    };
-  });
+    const name = by === "iface" ? "iface" : "ifaceMac";
+    const label = by === "iface" ? _("Device name") : _("MAC address");
+    const descriptionPrefix = by === "iface" ? _("MAC:") : _("Name:");
+    const options = devices.map((d) => {
+      const value = by === "iface" ? d.name : d.macAddress;
+      return {
+        value,
+        label: value,
+        description: (
+          <Text textStyle={["textColorSubtle", "fontSizeXs"]}>
+            <Text isBold>{descriptionPrefix}</Text> {by === "iface" ? d.macAddress : d.name}
+          </Text>
+        ),
+      };
+    });
 
-  return (
-    <form.AppField name={name as any}>
-      {(field) => <field.ChoiceField label={<HiddenLabel>{label}</HiddenLabel>} options={options} />}
-    </form.AppField>
-  );
-}
+    return (
+      <form.AppField name={name}>
+        {(field) => (
+          <field.ChoiceField label={<HiddenLabel>{label}</HiddenLabel>} options={options} />
+        )}
+      </form.AppField>
+    );
+  },
+});
+
+export default DeviceSelector;

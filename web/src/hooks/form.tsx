@@ -29,7 +29,7 @@ import ChoiceField from "~/components/form/ChoiceField";
  *
  * @see https://tanstack.com/form/latest/docs/framework/react/guides/form-composition
  */
-const { useAppForm } = createFormHook({
+const { useAppForm, withForm } = createFormHook({
   fieldContext,
   formContext,
   fieldComponents: {
@@ -38,4 +38,28 @@ const { useAppForm } = createFormHook({
   formComponents: {},
 });
 
-export { useAppForm, useFieldContext, useFormContext };
+/**
+ * Merges runtime-derived values into a `formOptions` object's `defaultValues`.
+ *
+ * Use this when some defaults depend on runtime data (e.g. values from a hook)
+ * that cannot be known when the shared options are defined statically.
+ *
+ * @example
+ * const myFormOpts = formOptions({ defaultValues: { name: "", device: "" } });
+ *
+ * function MyForm() {
+ *   const device = useCurrentDevice();
+ *   const form = useAppForm({
+ *     ...mergeFormDefaults(myFormOpts, { device: device.name }),
+ *     onSubmit: ...,
+ *   });
+ * }
+ */
+function mergeFormDefaults<T extends { defaultValues: Record<string, unknown> }>(
+  opts: T,
+  runtimeDefaults: Partial<T["defaultValues"]>,
+): T {
+  return { ...opts, defaultValues: { ...opts.defaultValues, ...runtimeDefaults } };
+}
+
+export { useAppForm, withForm, mergeFormDefaults, useFieldContext, useFormContext };

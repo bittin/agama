@@ -31,26 +31,14 @@ import {
 } from "@patternfly/react-core";
 import NestedContent from "~/components/core/NestedContent";
 import LabelText from "~/components/form/LabelText";
-import { useFormContext } from "~/hooks/form";
+import { connectionFormOptions } from "~/components/network/ConnectionForm";
+import { withForm } from "~/hooks/form";
 import { _, N_ } from "~/i18n";
 
-/** Field names used by {@link IpSettings} to bind to the parent form. */
-type FieldNames = {
-  mode: string;
-  addresses: string;
-  gateway: string;
-};
-
-/** Props for {@link IpSettings}. */
-type IpSettingsProps = {
-  protocol: "ipv4" | "ipv6";
-  fieldNames: FieldNames;
-};
-
 /**
- * Builds the mode options for the given protocol.
+ * Mode options shared by both IPv4 and IPv6 settings.
  *
- * - `auto`: no method written to the profile; the network handles IP
+ * - `unset`: no method written to the profile; the network handles IP
  *   configuration automatically. Labeled "Automatic" to avoid exposing
  *   the underlying "no method set" detail to users.
  * - `manual`: method set to manual, with required addresses and optional gateway.
@@ -60,7 +48,7 @@ type IpSettingsProps = {
  *
  * Labels and descriptions use `N_()` for extraction and `_()` at render time.
  */
-const modeOptions = (protocol: "ipv4" | "ipv6") => [
+const modeOptions = () => [
   {
     value: "unset",
     label: N_("Automatic"),
@@ -88,8 +76,8 @@ const modeOptions = (protocol: "ipv4" | "ipv6") => [
  * field. Addresses are labeled optional in Advanced mode. The gateway label
  * notes when it will be ignored (Advanced mode with no addresses).
  *
- * Must be rendered inside a `useAppForm`-backed form; uses `useFormContext`
- * internally. Field names must be provided explicitly via `fieldNames`.
+ * Receives a typed form instance via `withForm`; field names are derived
+ * from `protocol` directly.
  *
  * @remarks
  * Field labels are prefixed with the protocol name (e.g. "IPv4 Gateway"
@@ -99,95 +87,108 @@ const modeOptions = (protocol: "ipv4" | "ipv6") => [
  * each label self-sufficient for both audiences, as recommended by WCAG 2.4.6.
  * @see https://www.w3.org/WAI/WCAG21/Understanding/headings-and-labels.html
  */
-export default function IpSettings({ protocol, fieldNames }: IpSettingsProps) {
-  const form = useFormContext();
-  const isIPv4 = protocol === "ipv4";
-  const label = isIPv4 ? _("IPv4 Settings") : _("IPv6 Settings");
-  const addressesLabel = isIPv4 ? _("IPv4 Addresses") : _("IPv6 Addresses");
-  const gatewayLabel = isIPv4 ? _("IPv4 Gateway") : _("IPv6 Gateway");
-  const addressesHint = isIPv4
-    ? _("Space-separated IPv4 addresses with optional prefix, e.g. 192.168.1.1 or 192.168.1.1/24")
-    : _("Space-separated IPv6 addresses with optional prefix, e.g. 2001:db8::1 or 2001:db8::1/64");
+const IpSettings = withForm({
+  ...connectionFormOptions,
+  props: {
+    protocol: "ipv4" as "ipv4" | "ipv6",
+  },
+  render: function Render({ form, protocol }) {
+    const isIPv4 = protocol === "ipv4";
+    const label = isIPv4 ? _("IPv4 Settings") : _("IPv6 Settings");
+    const addressesLabel = isIPv4 ? _("IPv4 Addresses") : _("IPv6 Addresses");
+    const gatewayLabel = isIPv4 ? _("IPv4 Gateway") : _("IPv6 Gateway");
+    const addressesHint = isIPv4
+      ? _("Space-separated IPv4 addresses with optional prefix, e.g. 192.168.1.1 or 192.168.1.1/24")
+      : _(
+          "Space-separated IPv6 addresses with optional prefix, e.g. 2001:db8::1 or 2001:db8::1/64",
+        );
 
-  return (
-    <>
-      <form.AppField name={fieldNames.mode as any}>
-        {(field) => (
-          <field.ChoiceField
-            label={label}
-            options={modeOptions(protocol).map((o) => ({
-              ...o,
-              // eslint-disable-next-line agama-i18n/string-literals
-              label: _(o.label),
-              // eslint-disable-next-line agama-i18n/string-literals
-              description: _(o.description),
-            }))}
-          />
-        )}
-      </form.AppField>
+    const modeField = isIPv4 ? "ipv4Mode" : "ipv6Mode";
+    const addressesField = isIPv4 ? "addresses4" : "addresses6";
+    const gatewayField = isIPv4 ? "gateway4" : "gateway6";
 
-      <form.Subscribe selector={(s) => (s.values as any)[fieldNames.mode]}>
-        {(mode) =>
-          (mode === "manual" || mode === "auto") && (
-            <NestedContent margin="mxLg">
-              <form.Field name={fieldNames.addresses as any}>
-                {(field) => (
-                  <FormGroup
-                    fieldId={field.name}
-                    label={
-                      mode === "auto" ? (
-                        <LabelText suffix={_("(optional)")}>{addressesLabel}</LabelText>
-                      ) : (
-                        addressesLabel
-                      )
-                    }
-                  >
-                    <TextArea
-                      id={field.name}
-                      value={field.state.value}
-                      onChange={(_, v) => field.handleChange(v)}
-                      resizeOrientation="vertical"
-                      aria-describedby={`${field.name}-hint`}
-                    />
-                    <FormHelperText>
-                      <HelperText>
-                        <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
-                          {addressesHint}
-                        </HelperTextItem>
-                      </HelperText>
-                    </FormHelperText>
-                  </FormGroup>
-                )}
-              </form.Field>
+    return (
+      <>
+        <form.AppField name={modeField}>
+          {(field) => (
+            <field.ChoiceField
+              label={label}
+              options={modeOptions().map((o) => ({
+                ...o,
+                // eslint-disable-next-line agama-i18n/string-literals
+                label: _(o.label),
+                // eslint-disable-next-line agama-i18n/string-literals
+                description: _(o.description),
+              }))}
+            />
+          )}
+        </form.AppField>
 
-              <form.Field name={fieldNames.gateway as any}>
-                {(field) => (
-                  <FormGroup
-                    fieldId={field.name}
-                    label={
-                      <LabelText
-                        suffix={
-                          mode === "auto"
-                            ? _("(optional, ignored if no addresses provided)")
-                            : _("(optional)")
-                        }
-                      >
-                        {gatewayLabel}
-                      </LabelText>
-                    }
-                  >
-                    <TextInput
-                      id={field.name}
-                      value={field.state.value}
-                      onChange={(_, v) => field.handleChange(v)}
-                    />
-                  </FormGroup>
-                )}
-              </form.Field>
-            </NestedContent>
-          )
-        }
-      </form.Subscribe>
-    </>
-  );
-}
+        <form.Subscribe selector={(s) => s.values[modeField]}>
+          {(mode) =>
+            (mode === "manual" || mode === "auto") && (
+              <NestedContent margin="mxLg">
+                <form.Field name={addressesField}>
+                  {(field) => (
+                    <FormGroup
+                      fieldId={field.name}
+                      label={
+                        mode === "auto" ? (
+                          <LabelText suffix={_("(optional)")}>{addressesLabel}</LabelText>
+                        ) : (
+                          addressesLabel
+                        )
+                      }
+                    >
+                      <TextArea
+                        id={field.name}
+                        value={field.state.value}
+                        onChange={(_, v) => field.handleChange(v)}
+                        resizeOrientation="vertical"
+                        aria-describedby={`${field.name}-hint`}
+                      />
+                      <FormHelperText>
+                        <HelperText>
+                          <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
+                            {addressesHint}
+                          </HelperTextItem>
+                        </HelperText>
+                      </FormHelperText>
+                    </FormGroup>
+                  )}
+                </form.Field>
+
+                <form.Field name={gatewayField}>
+                  {(field) => (
+                    <FormGroup
+                      fieldId={field.name}
+                      label={
+                        <LabelText
+                          suffix={
+                            mode === "auto"
+                              ? _("(optional, ignored if no addresses provided)")
+                              : _("(optional)")
+                          }
+                        >
+                          {gatewayLabel}
+                        </LabelText>
+                      }
+                    >
+                      <TextInput
+                        id={field.name}
+                        value={field.state.value}
+                        onChange={(_, v) => field.handleChange(v)}
+                      />
+                    </FormGroup>
+                  )}
+                </form.Field>
+              </NestedContent>
+            )
+          }
+        </form.Subscribe>
+      </>
+    );
+  },
+});
+
+export default IpSettings;

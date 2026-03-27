@@ -21,7 +21,8 @@
  */
 
 import React from "react";
-import { useFormContext } from "~/hooks/form";
+import { connectionFormOptions } from "~/components/network/ConnectionForm";
+import { withForm } from "~/hooks/form";
 import { _, N_ } from "~/i18n";
 
 const BINDING_MODE_OPTIONS = [
@@ -42,39 +43,35 @@ const BINDING_MODE_OPTIONS = [
   },
 ];
 
-/** Props for {@link BindingModeSelector}. */
-type BindingModeSelectorProps = {
-  /** Form field name to bind to. */
-  name: string;
-};
-
 /**
  * A `ChoiceField`-based selector for the connection binding mode.
  *
- * Offers three options: Unbound (any device may use the connection),
- * To device name (bind by interface name), and To MAC address (bind by
- * hardware address).
+ * Offers three options: Any (system chooses automatically), Chosen by name
+ * (bind by interface name), and Chosen by MAC (bind by hardware address).
  *
- * Must be rendered inside a `useAppForm`-backed form; uses `useFormContext`
- * internally.
+ * Receives a typed form instance via `withForm`; always binds to the
+ * `ifaceMode` field.
  */
-export default function BindingModeSelector({ name }: BindingModeSelectorProps) {
-  const form = useFormContext();
+const BindingModeSelector = withForm({
+  ...connectionFormOptions,
+  render: function Render({ form }) {
+    return (
+      <form.AppField name="ifaceMode">
+        {(field) => (
+          <field.ChoiceField
+            label={_("Device")}
+            options={BINDING_MODE_OPTIONS.map((o) => ({
+              ...o,
+              // eslint-disable-next-line agama-i18n/string-literals
+              label: _(o.label),
+              // eslint-disable-next-line agama-i18n/string-literals
+              description: _(o.description),
+            }))}
+          />
+        )}
+      </form.AppField>
+    );
+  },
+});
 
-  return (
-    <form.AppField name={name as any}>
-      {(field) => (
-        <field.ChoiceField
-          label={_("Device")}
-          options={BINDING_MODE_OPTIONS.map((o) => ({
-            ...o,
-            // eslint-disable-next-line agama-i18n/string-literals
-            label: _(o.label),
-            // eslint-disable-next-line agama-i18n/string-literals
-            description: _(o.description),
-          }))}
-        />
-      )}
-    </form.AppField>
-  );
-}
+export default BindingModeSelector;

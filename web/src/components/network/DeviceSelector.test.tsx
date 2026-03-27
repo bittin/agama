@@ -25,6 +25,7 @@ import { screen } from "@testing-library/react";
 import { installerRender } from "~/test-utils";
 import { useAppForm } from "~/hooks/form";
 import { ConnectionType, DeviceState } from "~/types/network";
+import { connectionFormOptions } from "~/components/network/ConnectionForm";
 import DeviceSelector from "./DeviceSelector";
 
 const mockDevices = [
@@ -47,20 +48,8 @@ jest.mock("~/hooks/model/system/network", () => ({
 }));
 
 function TestForm({ by }: { by: "iface" | "mac" }) {
-  const form = useAppForm({
-    defaultValues: {
-      iface: mockDevices[0].name,
-      ifaceMac: mockDevices[0].macAddress,
-    },
-  });
-
-  const name = by === "iface" ? "iface" : "ifaceMac";
-
-  return (
-    <form.AppForm>
-      <DeviceSelector name={name} by={by} />
-    </form.AppForm>
-  );
+  const form = useAppForm({ ...connectionFormOptions });
+  return <DeviceSelector form={form} by={by} />;
 }
 
 describe("DeviceSelector", () => {

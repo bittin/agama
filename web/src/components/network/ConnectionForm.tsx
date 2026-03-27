@@ -45,7 +45,8 @@ import DeviceSelector from "~/components/network/DeviceSelector";
 import { Connection, ConnectionBindingMode, ConnectionMethod } from "~/types/network";
 import { buildAddress } from "~/utils/network";
 import { useConnectionMutation } from "~/hooks/model/config/network";
-import { useAppForm } from "~/hooks/form";
+import { formOptions } from "@tanstack/react-form";
+import { useAppForm, mergeFormDefaults } from "~/hooks/form";
 import { useDevices } from "~/hooks/model/system/network";
 import { NETWORK } from "~/routes/paths";
 import { _ } from "~/i18n";
@@ -70,6 +71,34 @@ const withPrefix = (address: string): string => {
 
 /** Parses a space/newline separated string of addresses into IPAddress objects. */
 const parseAddresses = (raw: string) => parseTokens(raw).map(withPrefix).map(buildAddress);
+
+/**
+ * Shared form options for ConnectionForm and its `withForm`-based sub-components
+ * (IpSettings, BindingModeSelector, DeviceSelector).
+ *
+ * Sub-components spread these options in their `withForm` definition so
+ * TanStack Form can infer the field types, enabling type-safe `name` props.
+ * {@link ConnectionForm} uses {@link mergeFormDefaults} to add runtime device
+ * data for `iface` and `ifaceMac` before passing the options to `useAppForm`.
+ */
+export const connectionFormOptions = formOptions({
+  defaultValues: {
+    name: "",
+    ifaceMode: "none" as ConnectionBindingMode,
+    iface: "",
+    ifaceMac: "",
+    ipv4Mode: "unset",
+    addresses4: "",
+    gateway4: "",
+    ipv6Mode: "unset",
+    addresses6: "",
+    gateway6: "",
+    useCustomDns: false,
+    nameservers: "",
+    useCustomDnsSearch: false,
+    dnsSearchList: "",
+  },
+});
 
 /**
  * Maps form mode values to their corresponding {@link ConnectionMethod}.
@@ -104,22 +133,10 @@ export default function ConnectionForm() {
   const { mutateAsync: updateConnection } = useConnectionMutation();
 
   const form = useAppForm({
-    defaultValues: {
-      name: "",
-      ifaceMode: "none" as ConnectionBindingMode,
+    ...mergeFormDefaults(connectionFormOptions, {
       iface: devices[0]?.name ?? "",
       ifaceMac: devices[0]?.macAddress ?? "",
-      ipv4Mode: "unset",
-      addresses4: "",
-      gateway4: "",
-      ipv6Mode: "unset",
-      addresses6: "",
-      gateway6: "",
-      useCustomDns: false,
-      nameservers: "",
-      useCustomDnsSearch: false,
-      dnsSearchList: "",
-    },
+    }),
     validators: {
       onSubmitAsync: async ({ value }) => {
         const ipv4Addresses =
@@ -188,29 +205,23 @@ export default function ConnectionForm() {
 
             <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
               <FlexItem>
-                <BindingModeSelector name="ifaceMode" />
+                <BindingModeSelector form={form} />
               </FlexItem>
 
               <form.Subscribe selector={(s) => s.values.ifaceMode}>
                 {(mode) =>
                   mode !== "none" && (
                     <FlexItem>
-                      <DeviceSelector name={mode === "iface" ? "iface" : "ifaceMac"} by={mode} />
+                      <DeviceSelector form={form} by={mode} />
                     </FlexItem>
                   )
                 }
               </form.Subscribe>
             </Flex>
 
-            <IpSettings
-              protocol="ipv4"
-              fieldNames={{ mode: "ipv4Mode", addresses: "addresses4", gateway: "gateway4" }}
-            />
+            <IpSettings form={form} protocol="ipv4" />
 
-            <IpSettings
-              protocol="ipv6"
-              fieldNames={{ mode: "ipv6Mode", addresses: "addresses6", gateway: "gateway6" }}
-            />
+            <IpSettings form={form} protocol="ipv6" />
 
             <form.Field name="useCustomDns">
               {(dnsToggle) => (
