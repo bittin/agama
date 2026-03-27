@@ -46,6 +46,10 @@ export interface System {
    */
   availableMdRaids?: number[];
   /**
+   * SIDs of the available LVM volume groups
+   */
+  availableVolumeGroups?: number[];
+  /**
    * SIDs of the drives that are candidate for installation
    */
   candidateDrives?: number[];
