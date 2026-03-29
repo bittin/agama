@@ -36,8 +36,8 @@ describe("BindingModeSelector", () => {
   it("shows all options with their descriptions", async () => {
     const { user } = installerRender(<TestForm />);
     await user.click(screen.getByLabelText("Device"));
-    screen.getByRole("option", { name: /^Any.*system chooses/ });
-    screen.getByRole("option", { name: /^Chosen by name.*with this name/ });
-    screen.getByRole("option", { name: /^Chosen by MAC.*hardware address/ });
+    screen.getByRole("option", { name: /^Any.*all devices/ });
+    screen.getByRole("option", { name: /^Chosen by name.*Restricted.*specific device/ });
+    screen.getByRole("option", { name: /^Chosen by MAC.*Restricted.*specific device and follows/ });
   });
 });

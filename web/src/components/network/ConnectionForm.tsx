@@ -42,12 +42,12 @@ import IpSettings from "~/components/network/IpSettings";
 import BindingModeSelector from "~/components/network/BindingModeSelector";
 import DeviceSelector from "~/components/network/DeviceSelector";
 import { Connection, ConnectionBindingMode, ConnectionMethod } from "~/types/network";
-import { buildAddress } from "~/utils/network";
 import { useConnectionMutation } from "~/hooks/model/config/network";
 import { formOptions } from "@tanstack/react-form";
 import { useAppForm, mergeFormDefaults } from "~/hooks/form";
 import { useDevices } from "~/hooks/model/system/network";
 import { NETWORK } from "~/routes/paths";
+import { buildAddress } from "~/utils/network";
 import { _ } from "~/i18n";
 
 const IPV4_DEFAULT_PREFIX = 24;
@@ -72,18 +72,15 @@ const withPrefix = (address: string): string => {
 const parseAddresses = (raw: string) => parseTokens(raw).map(withPrefix).map(buildAddress);
 
 /**
- * Shared form options for ConnectionForm and its `withForm`-based sub-components
- * (IpSettings, BindingModeSelector, DeviceSelector).
+ * Shared form options for ConnectionForm and its `withForm` based
+ * sub-components
  *
  * Sub-components spread these options in their `withForm` definition so
- * TanStack Form can infer the field types, enabling type-safe `name` props.
- * {@link ConnectionForm} uses {@link mergeFormDefaults} to add runtime device
- * data for `iface` and `ifaceMac` before passing the options to `useAppForm`.
+ * TanStack Form can infer the field types, enabling type-safe props.
  */
 export const connectionFormOptions = formOptions({
   defaultValues: {
     name: "",
-    ifaceMode: "none" as ConnectionBindingMode,
     iface: "",
     ifaceMac: "",
     ipv4Mode: "unset",
@@ -92,10 +89,11 @@ export const connectionFormOptions = formOptions({
     ipv6Mode: "unset",
     addresses6: "",
     gateway6: "",
-    useCustomDns: false,
     nameservers: "",
-    useCustomDnsSearch: false,
     dnsSearchList: "",
+    useCustomDns: false,
+    useCustomDnsSearch: false,
+    bindingMode: "none" as ConnectionBindingMode,
   },
 });
 
@@ -148,8 +146,8 @@ export default function ConnectionForm() {
             : [];
 
         const connection = new Connection(value.name, {
-          iface: value.ifaceMode === "iface" ? value.iface : "",
-          macAddress: value.ifaceMode === "mac" ? value.ifaceMac : "",
+          iface: value.bindingMode === "iface" ? value.iface : "",
+          macAddress: value.bindingMode === "mac" ? value.ifaceMac : "",
           method4: MODE_TO_METHOD[value.ipv4Mode],
           gateway4: ipv4Addresses.length > 0 ? value.gateway4 : "",
           method6: MODE_TO_METHOD[value.ipv6Mode],
@@ -193,7 +191,7 @@ export default function ConnectionForm() {
             <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
               <BindingModeSelector form={form} />
 
-              <form.Subscribe selector={(s) => s.values.ifaceMode}>
+              <form.Subscribe selector={(s) => s.values.bindingMode}>
                 {(mode) => mode !== "none" && <DeviceSelector form={form} by={mode} />}
               </form.Subscribe>
             </Flex>

@@ -29,43 +29,39 @@ const BINDING_MODE_OPTIONS = [
   {
     value: "none",
     label: N_("Any"),
-    description: N_("The system chooses the device automatically"),
+    description: N_("Available for all devices"),
   },
   {
     value: "iface",
     label: N_("Chosen by name"),
-    description: N_("Only use the device with this name"),
+    description: N_("Restricted to a specific device name"),
   },
   {
     value: "mac",
     label: N_("Chosen by MAC"),
-    description: N_("Only use the device with this hardware address"),
+    description: N_("Restricted to a specific device and follows it even if renamed"),
   },
 ];
 
 /**
- * A `ChoiceField`-based selector for the connection binding mode.
+ * A `ChoiceField` based selector for the connection binding mode.
  *
- * Offers three options: Any (system chooses automatically), Chosen by name
- * (bind by interface name), and Chosen by MAC (bind by hardware address).
- *
- * Receives a typed form instance via `withForm`; always binds to the
- * `ifaceMode` field.
+ * Receives a typed form instance via `withForm`.
  */
 const BindingModeSelector = withForm({
   ...connectionFormOptions,
   render: function Render({ form }) {
     return (
-      <form.AppField name="ifaceMode">
+      <form.AppField name="bindingMode">
         {(field) => (
           <field.ChoiceField
             label={_("Device")}
-            options={BINDING_MODE_OPTIONS.map((o) => ({
-              ...o,
+            options={BINDING_MODE_OPTIONS.map(({ value, label, description }) => ({
+              value,
               // eslint-disable-next-line agama-i18n/string-literals
-              label: _(o.label),
+              label: _(label),
               // eslint-disable-next-line agama-i18n/string-literals
-              description: _(o.description),
+              description: _(description),
             }))}
           />
         )}

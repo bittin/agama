@@ -28,13 +28,10 @@ import { useDevices } from "~/hooks/model/system/network";
 import { _ } from "~/i18n";
 
 /**
- * A `ChoiceField`-based selector for picking a network device, either by
- * interface name or by MAC address. Each option shows the primary identifier
- * as the label and the secondary one as the description.
+ * A `ChoiceField` based selector for picking a network device, either by
+ * interface name or by MAC address.
  *
- * Receives a typed form instance via `withForm`. The `by` prop determines
- * which device property is used as the option value and which field is bound:
- * `"iface"` binds to the `iface` field; `"mac"` binds to `ifaceMac`.
+ * Receives a typed form instance via `withForm`.
  */
 const DeviceSelector = withForm({
   ...connectionFormOptions,
@@ -43,18 +40,18 @@ const DeviceSelector = withForm({
   },
   render: function Render({ form, by }) {
     const devices = useDevices();
+    const valueKey = by === "iface" ? "name" : "macAddress";
 
     const name = by === "iface" ? "iface" : "ifaceMac";
     const label = by === "iface" ? _("Device name") : _("MAC address");
-    const descriptionPrefix = by === "iface" ? _("MAC:") : _("Name:");
     const options = devices.map((d) => {
-      const value = by === "iface" ? d.name : d.macAddress;
+      const value = d[valueKey];
       return {
         value,
         label: value,
         description: (
           <Text textStyle={["textColorSubtle", "fontSizeXs"]}>
-            <Text isBold>{descriptionPrefix}</Text> {by === "iface" ? d.macAddress : d.name}
+            {by === "iface" ? d.macAddress : d.name}
           </Text>
         ),
       };

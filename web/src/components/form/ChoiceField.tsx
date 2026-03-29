@@ -58,15 +58,13 @@ type ChoiceFieldProps<T> = {
  * `useFieldContext`. Must be used inside a `form.Field` render prop.
  *
  * Supports a render prop `children` for dependent content that should appear
- * or change based on the selected value. Field values are preserved in form
- * state when hidden, so switching back to a previous option restores what the
- * user entered.
+ * or change based on the selected value.
  *
  * @example
  * <form.AppField name="ipv4Mode">
  *   {(field) => (
  *     <field.ChoiceField label={_("IPv4 Settings")} options={IPV4_MODE_OPTIONS}>
- *       {(value) => value === "custom" && <CustomIpv4Fields />}
+ *       {(value) => value !== "unset" && <IpAddressFields />}
  *     </field.ChoiceField>
  *   )}
  * </form.AppField>
@@ -80,8 +78,9 @@ export default function ChoiceField<T extends string>({
 }: ChoiceFieldProps<T>) {
   const field = useFieldContext<T>();
   const [isOpen, setIsOpen] = useState(false);
+  const toggle = () => setIsOpen(!isOpen);
 
-  const selectedOption = options.find((o) => o.value === field.state.value);
+  const selectedOption = options.find(({ value }) => value === field.state.value);
 
   return (
     <FormGroup fieldId={field.name} label={label}>
@@ -98,7 +97,7 @@ export default function ChoiceField<T extends string>({
           <MenuToggle
             id={field.name}
             ref={ref}
-            onClick={() => setIsOpen((o) => !o)}
+            onClick={toggle}
             isExpanded={isOpen}
             isDisabled={isDisabled}
           >

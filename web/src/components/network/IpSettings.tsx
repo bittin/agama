@@ -66,18 +66,16 @@ const modeOptions = () => [
   },
 ];
 
+type IpSettingsProps = {
+  protocol: "ipv4" | "ipv6";
+};
+
 /**
  * Protocol-specific IP settings block for a connection form.
  *
- * Shows a mode selector with three options: Automatic, Manual, and Advanced.
- * Each option has a short description.
+ * Shows a selector with three options: Automatic, Manual, and Advanced.
  *
- * Selecting Manual or Advanced reveals an addresses textarea and a gateway
- * field. Addresses are labeled optional in Advanced mode. The gateway label
- * notes when it will be ignored (Advanced mode with no addresses).
- *
- * Receives a typed form instance via `withForm`; field names are derived
- * from `protocol` directly.
+ * Receives a typed form instance via `withForm`.
  *
  * @remarks
  * Field labels are prefixed with the protocol name (e.g. "IPv4 Gateway"
@@ -90,8 +88,8 @@ const modeOptions = () => [
 const IpSettings = withForm({
   ...connectionFormOptions,
   props: {
-    protocol: "ipv4" as "ipv4" | "ipv6",
-  },
+    protocol: "ipv4",
+  } as IpSettingsProps,
   render: function Render({ form, protocol }) {
     const isIPv4 = protocol === "ipv4";
     const label = isIPv4 ? _("IPv4 Settings") : _("IPv6 Settings");
@@ -113,12 +111,12 @@ const IpSettings = withForm({
           {(field) => (
             <field.ChoiceField
               label={label}
-              options={modeOptions().map((o) => ({
-                ...o,
+              options={modeOptions().map(({ value, label, description }) => ({
+                value,
                 // eslint-disable-next-line agama-i18n/string-literals
-                label: _(o.label),
+                label: _(label),
                 // eslint-disable-next-line agama-i18n/string-literals
-                description: _(o.description),
+                description: _(description),
               }))}
             />
           )}

@@ -29,11 +29,8 @@ but it cannot be blank on submit.
 Note: a pre-filled field is still required. Do not add an `(optional)` suffix
 just because the field has a default value.
 
-**Current example:** Interface. It is always needed and defaults to the first
-available device.
-
-**Not yet an example:** Name. It will have an auto-generated default derived
-from the selected interface, but that is not implemented yet.
+**Current example:** Name. It is always shown and required on submit. An
+auto-generated default derived from the selected device is not yet implemented.
 
 ### 2. Always shown, optional or context-dependent
 
@@ -48,10 +45,9 @@ suffix that describes what is currently expected. This is a special case and
 should be used sparingly: if you find yourself reaching for it often, the form
 likely needs restructuring.
 
-**Example:** IP Addresses. It may become effectively required depending on the
-selected configuration mode. The label suffix can adapt to clarify expectations,
-for example `(optional)` when configuration is automatic or `(IPv4 required)`
-when IPv4 is manually configured.
+**Not yet an example in `ConnectionForm`.** A future candidate might be a
+field whose visibility is stable but whose requirement changes based on other
+selections, and where hiding it would hurt discoverability.
 
 ### 3. Conditionally shown, required when shown
 
@@ -59,9 +55,11 @@ The field is hidden until another field reaches a specific value. When it
 appears, it is required. No suffix is needed: the user caused it to appear by
 their own action, so its purpose is self-evident.
 
-**Example:** not yet present in `ConnectionForm`. A future example might be a
-port or VLAN identifier field that appears only when a specific connection type
-is selected and must be filled in.
+**Example:** Device name and MAC address selectors. They are hidden when the
+binding mode is "Any". When the user selects "Chosen by name" or "Chosen by
+MAC", the corresponding selector appears and must be filled in. Both selectors
+are pre-filled with the first available device, but the field is still required
+because omitting it would produce an incomplete connection profile.
 
 ### 4. Conditionally shown, optional when shown
 
@@ -70,14 +68,14 @@ appears it can legitimately be left blank, so it carries the `(optional)`
 suffix.
 
 **Example:** IPv4 Gateway and IPv6 Gateway. They are hidden when the
-corresponding method is automatic. When the method is set to manual they
-appear, but even then a gateway is not strictly required by NetworkManager.
+corresponding mode is Automatic. When the mode is Manual or Advanced, they
+appear, but a gateway is not strictly required by NetworkManager even then.
 
 Showing the field directly, rather than behind a checkbox, is the right choice
-here because the user has already made a related decision: they chose manual
-mode. Asking them to also check a box to reveal the gateway would be an extra
-step with no benefit. The field appears naturally as part of the consequence of
-their choice.
+here because the user has already made a related decision: they chose a
+configuration mode. Asking them to also check a box to reveal the gateway would
+be an extra step with no benefit. The field appears naturally as part of the
+consequence of their choice.
 
 ### 5. Choice selector (mode or behavior selection)
 
@@ -110,12 +108,22 @@ entered data.
 
 **Example:** IPv4 Settings selector.
 
-- `Default` — backend decides configuration. No additional fields shown.
-- `Custom` — user configures the protocol explicitly. Method selector and
-  related fields appear.
+- `Automatic` — address and gateway come from the network. No additional
+  fields shown.
+- `Manual` — fixed addressing. Addresses and gateway fields appear; the
+  gateway is optional, the addresses field has no suffix but required
+  validation is not yet enforced.
+- `Advanced` — automatic addressing, with optional addresses and gateway
+  added on top of what the network provides.
 
 This avoids the confusion of a checkbox such as "Configure IPv4", which may
 suggest that no IP configuration exists unless enabled.
+
+**Example:** Device binding mode selector.
+
+- `Any` — the connection is available on all devices. No additional fields.
+- `Chosen by name` — a device name selector appears (pattern 3).
+- `Chosen by MAC` — a MAC address selector appears (pattern 3).
 
 #### Payload behavior
 
@@ -141,7 +149,8 @@ Use this pattern for advanced or rarely needed options that most users should
 never see. Do not use it when the field is likely to be needed by the majority
 of users: that just adds an unnecessary click.
 
-**Example:** "Use custom DNS servers" checkbox reveals the DNS Servers field.
+**Examples:** "Use custom DNS" checkbox reveals the DNS servers field.
+"Use custom DNS search domains" checkbox reveals the DNS search domains field.
 
 ## Accessibility notes
 
@@ -180,7 +189,7 @@ See:
 Patterns can and should be combined within the same form when different fields
 have different needs.
 
-Patterns 2–4 commonly appear inside a choice selector (pattern 5), where
+Patterns 3 and 4 commonly appear inside a choice selector (pattern 5), where
 selecting a mode reveals required or optional refinements of that choice.
 
 Patterns 2 and 6 also combine well when a form has one common optional field
