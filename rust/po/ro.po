@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-13 11:58+0000\n"
+"POT-Creation-Date: 2026-03-19 07:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -26,6 +26,16 @@ msgstr ""
 #: agama-autoinstall/src/questions.rs:41 agama-utils/src/api/question.rs:293
 #: agama-utils/src/question/start.rs:54
 msgid "Yes"
+msgstr ""
+
+#. TRANSLATORS: %s is replaced by the script name.
+#: agama-files/src/service.rs:197
+msgid "Failed to retrieve the script %s. Do you want to try again?"
+msgstr ""
+
+#. TRANSLATORS: %s is replaced by the script name.
+#: agama-files/src/service.rs:221
+msgid "Failed to write the file %s. Do you want to try again?"
 msgstr ""
 
 #: agama-manager/src/actions.rs:86
@@ -96,12 +106,12 @@ msgstr ""
 msgid "Storing bootloader settings"
 msgstr ""
 
-#: agama-network/src/service.rs:526
-msgid "Writing configuration"
+#: agama-network/src/service.rs:512
+msgid "Writing network configuration"
 msgstr ""
 
-#: agama-network/src/service.rs:527
-msgid "Reading configuration"
+#: agama-network/src/service.rs:513
+msgid "Syncing the network service state"
 msgstr ""
 
 #: agama-security/src/service.rs:226

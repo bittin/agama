@@ -9,6 +9,9 @@ export default {
   "\"%s\" does not exist or is no longer available.": [
     "\"%s\" не існує або більше не доступна."
   ],
+  "%1$d of %2$d connections match filters": [
+    "%1$d з %2$d з'єднань відповідають фільтрам"
+  ],
   "%1$d of %2$d devices match filters": [
     "%1$d з %2$d пристроїв відповідають фільтрам"
   ],
@@ -45,6 +48,9 @@ export default {
     "%1$s, %2$s та [ще %3$d]",
     "%1$s, %2$s та [ще %3$d]"
   ],
+  "%d connections available": [
+    "%d з'єднань доступно"
+  ],
   "%d devices available": [
     "%d пристроїв доступно"
   ],
@@ -52,9 +58,6 @@ export default {
     "Доступний %d режим",
     "Доступно %d режими",
     "Доступно %d режимів"
-  ],
-  "%d of %d": [
-    "%d з %d"
   ],
   "%d other mode available": [
     "Доступно %d інший режим",
@@ -97,6 +100,15 @@ export default {
   ],
   "%s with %d partitions": [
     "%s з %d розділами"
+  ],
+  "(bind by name)": [
+    "(прив'язати за назвами)"
+  ],
+  "(bound by MAC)": [
+    "(прив'язаний до MAC-адреси)"
+  ],
+  "(bound by name)": [
+    "(прив'язаний за назвою)"
   ],
   "(step %s of %s)": [
     "(крок %s з %s)"
@@ -169,17 +181,17 @@ export default {
   "Activate and format DASD devices": [
     "Активувати та форматувати DASD-пристрої"
   ],
-  "Activate new disk": [
-    "Активувати новий диск"
-  ],
-  "Activate zFCP disk": [
-    "Активувати диск zFCP"
+  "Activate controllers": [
+    "Активувати контроллери"
   ],
   "Activate zFCP disks": [
     "Активувати диски zFCP"
   ],
   "Activated": [
     "Активовано"
+  ],
+  "Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
+    "Увімкнення контролера, що працює в режимі NPIV, автоматично налаштовує всі його LUN."
   ],
   "Active": [
     "Активно"
@@ -205,6 +217,12 @@ export default {
   "Add another address": [
     "Додати іншу адресу"
   ],
+  "Add another search domain": [
+    "Додати ще один домен для пошуку"
+  ],
+  "Add connection": [
+    "Додати з'єднання"
+  ],
   "Add device menu": [
     "Меню додавання пристроїв"
   ],
@@ -213,6 +231,9 @@ export default {
   ],
   "Add or use partition": [
     "Створити або використати розділ"
+  ],
+  "Add search domain": [
+    "Додати домен для пошуку"
   ],
   "Additional CHAP authentication performed by the initiator": [
     "Додаткова аутентифікація CHAP, що виконується ініціатором"
@@ -232,9 +253,6 @@ export default {
   "All": [
     "Всі"
   ],
-  "All conflicts have been resolved, or none were detected. You can safely continue with your setup.": [
-    "Всі конфлікти вирішено, або не виявлено жодного. Ви можете безпечно продовжити встановлення."
-  ],
   "All content not configured to be mounted will be deleted": [
     "Весь вміст, не налаштований на монтування, буде видалений"
   ],
@@ -249,6 +267,9 @@ export default {
   ],
   "All network connections managed through this interface are currently set to be used only during installation and will not be copied to the installed system": [
     "Усі мережеві з'єднання, керовані через цей інтерфейс, наразі налаштовані на використання лише під час інсталяції і не будуть скопійовані до інстальованої системи"
+  ],
+  "All the available zFCP controllers are already activated.": [
+    "Усі наявні контролери zFCP вже активовано."
   ],
   "Allow growing": [
     "Дозволити зростання"
@@ -273,12 +294,6 @@ export default {
   "Any partition needed to boot will be configured.": [
     "Усі розділи, необхідні для завантаження, буде налаштовано."
   ],
-  "Apply selected solution": [
-    "Застосувати обране рішення"
-  ],
-  "Applying changes": [
-    "Застосування змін"
-  ],
   "As a new partition on %s": [
     "Як новий розділ на %s"
   ],
@@ -294,8 +309,8 @@ export default {
   "Auto": [
     "Автоматично"
   ],
-  "Auto LUNs Scan": [
-    "Автоматичне сканування LUN"
+  "Auto Scanned": [
+    "Автоматично проскановано"
   ],
   "Auto and manual": [
     "Автоматичне та ручне"
@@ -306,11 +321,11 @@ export default {
   "Automatic (DHCP)": [
     "Автоматично (DHCP)"
   ],
-  "Automatic LUN scan is [disabled]. LUNs have to be manually configured after activating a controller.": [
-    "Автоматичне сканування LUN [вимкнено]. LUN мають бути налаштовані вручну після активації контролера."
+  "Automatic LUN scan is disabled": [
+    "Автоматичне сканування LUN вимкнено"
   ],
-  "Automatic LUN scan is [enabled]. Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
-    "Автоматичне сканування LUN [увімкнено]. Активація контролера, що працює в режимі NPIV, автоматично сконфігурує всі його LUNи."
+  "Automatic LUN scan is enabled": [
+    "Увімкнено автоматичне сканування LUN"
   ],
   "Back": [
     "Назад"
@@ -453,12 +468,6 @@ export default {
   "Channel": [
     "Канал"
   ],
-  "Channel ID": [
-    "Ідентифікатор каналу"
-  ],
-  "Check the authentication parameters.": [
-    "Перевірте параметри автентифікації."
-  ],
   "Check the following before continuing": [
     "Перш ніж продовжити, перевірте наступне"
   ],
@@ -568,6 +577,9 @@ export default {
   "Connect": [
     "З'єднати"
   ],
+  "Connect to Wi-Fi network": [
+    "З'єднатися з мережею Wi-Fi"
+  ],
   "Connect to iSCSI targets": [
     "Підключення до об'єктів iSCSI"
   ],
@@ -588,9 +600,6 @@ export default {
   ],
   "Connecting to %s": [
     "З'єднання з мережею %s"
-  ],
-  "Connection details": [
-    "Відомості про підключення"
   ],
   "Connection failed": [
     "Збій підключення"
@@ -613,14 +622,8 @@ export default {
   "Continuing without installing the package can result in a broken system. In some cases the system might not even boot.": [
     "Продовження роботи без встановлення пакунка може призвести до поломки системи. У деяких випадках система може навіть не завантажитися."
   ],
-  "Controllers": [
-    "Контролери"
-  ],
   "Could not authenticate against the server.": [
     "Не вдалося виконати автентифікацію на сервері."
-  ],
-  "Could not connect to %s": [
-    "Не вдалося під'єднатися до %s"
   ],
   "Could not log in": [
     "Не вдалося увійти"
@@ -672,6 +675,9 @@ export default {
   ],
   "DNS": [
     "DNS"
+  ],
+  "DNS Search List": [
+    "Список пошуку DNS"
   ],
   "Deactivate": [
     "Деактивувати"
@@ -733,9 +739,6 @@ export default {
   "Details": [
     "Подробиці"
   ],
-  "Details will appear after the connection is successfully established.": [
-    "Подробиці з'являться після того як з'єднання буде успішно встановлено."
-  ],
   "Device": [
     "Пристрій"
   ],
@@ -772,14 +775,17 @@ export default {
   "Disk": [
     "Диск"
   ],
-  "Disk Activation": [
-    "Активація дисків"
-  ],
   "Disks": [
     "Диски"
   ],
+  "Do not activate": [
+    "Не активувати"
+  ],
   "Do not configure": [
     "Не налаштовувати"
+  ],
+  "Do not deactivate": [
+    "Не деактивувати"
   ],
   "Do not format %s and keep the data": [
     "Не форматувати %s і зберегти дані"
@@ -790,6 +796,15 @@ export default {
   "Do not use": [
     "Не використовувати"
   ],
+  "Domain": [
+    "Домен"
+  ],
+  "Down": [
+    "Вниз"
+  ],
+  "Download config": [
+    "Завантажити конфігурацію"
+  ],
   "Download logs": [
     "Завантажити журнали"
   ],
@@ -798,6 +813,9 @@ export default {
   ],
   "Edit": [
     "Редагувати"
+  ],
+  "Edit binding": [
+    "Редагувати прив'язку"
   ],
   "Edit binding settings": [
     "Змінити налаштування прив'язки"
@@ -855,6 +873,9 @@ export default {
   ],
   "Enter a name for the volume group.": [
     "Введіть назву групи томів."
+  ],
+  "Ethernet": [
+    "Ethernet"
   ],
   "ExFAT": [
     "ExFAT"
@@ -928,9 +949,6 @@ export default {
   ],
   "Find space in %s": [
     "Знайти місце в %s"
-  ],
-  "Finished": [
-    "Завершено"
   ],
   "First user": [
     "Перший користувач"
@@ -1030,9 +1048,6 @@ export default {
   "IP addresses": [
     "IP адреси"
   ],
-  "IP settings": [
-    "Налаштування IP"
-  ],
   "IPs": [
     "IP"
   ],
@@ -1111,6 +1126,9 @@ export default {
   "Interface": [
     "Інтерфейс"
   ],
+  "Invalid [zFCP] settings": [
+    "Неправильні налаштування [zFCP]"
+  ],
   "Invalid settings": [
     "Неправильні налаштування"
   ],
@@ -1159,9 +1177,6 @@ export default {
   "It is offline and must be activated before formatting it.": [
     "Пристрій офлайн, перед форматуванням його необхідно активувати."
   ],
-  "It may take some time.": [
-    "Це займе деякий час."
-  ],
   "JFS": [
     "JFS"
   ],
@@ -1176,6 +1191,9 @@ export default {
   ],
   "LUN": [
     "LUN"
+  ],
+  "LUNs have to be manually configured after activating a controller.": [
+    "Після активації контролера LUN-диски необхідно налаштувати вручну."
   ],
   "LVM": [
     "LVM"
@@ -1206,9 +1224,6 @@ export default {
   ],
   "Loading data...": [
     "Завантаження даних..."
-  ],
-  "Loading storage": [
-    "Завантаження сховища"
   ],
   "Loading the installation repositories...": [
     "Завантаження інсталяційних репозиторіїв..."
@@ -1245,6 +1260,9 @@ export default {
   ],
   "Manage DASD devices": [
     "Керування DASD-пристроями"
+  ],
+  "Manage available connections, connect to Wi-Fi, or add a new connection.": [
+    "Керуйте наявними підключеннями, підключіться до Wi-Fi або додайте нове підключення."
   ],
   "Manual": [
     "Вручну"
@@ -1340,9 +1358,6 @@ export default {
   "Multipath": [
     "Багатошляхове"
   ],
-  "Multiple conflicts found. You can address them in any order, and resolving one may resolve others.": [
-    "Виявлено кілька конфліктів. Ви можете вирішувати їх у довільному порядку, і вирішення одного з них може вирішити й інші."
-  ],
   "NFS": [
     "NFS"
   ],
@@ -1364,11 +1379,14 @@ export default {
   "Network details": [
     "Відомості про мережу"
   ],
-  "Network not found or lost": [
-    "Мережу не знайдено або втрачено"
+  "Network not availble": [
+    "Мережа недоступна"
   ],
   "New": [
     "Новий"
+  ],
+  "New Wi-Fi connection": [
+    "Нове підключення до Wi-Fi"
   ],
   "No": [
     "Ні"
@@ -1385,11 +1403,14 @@ export default {
   "No additional software was selected.": [
     "Додаткове програмне забезпечення не було обрано."
   ],
-  "No conflicts to address": [
-    "Немає конфліктів для вирішення"
+  "No connections match filters": [
+    "Жодне з'єднання не відповідає фільтрам"
   ],
   "No content found": [
     "Вміст не знайдено"
+  ],
+  "No controllers available": [
+    "Контролери відсутні"
   ],
   "No data loss is expected": [
     "Втрати даних не передбачено"
@@ -1451,17 +1472,17 @@ export default {
   "No valid port.": [
     "Немає придатного порту."
   ],
-  "No wired connections were found": [
-    "Дротові з'єднання не знайдено"
+  "No zFCP controllers found in this machine.": [
+    "У цій машині не виявлено контролерів zFCP."
   ],
-  "No zFCP controllers found.": [
-    "Контролери zFCP не знайдені."
-  ],
-  "No zFCP disks found.": [
-    "Диски zFCP не знайдені."
+  "No zFCP devices found in this machine.": [
+    "У цій машині не виявлено пристроїв zFCP."
   ],
   "None": [
     "Відсутнє"
+  ],
+  "None (unbound)": [
+    "Немає (не прив'язано)"
   ],
   "None of the keymaps match the filter.": [
     "Жодна з карт не відповідає фільтру."
@@ -1583,20 +1604,14 @@ export default {
   "Passwords do not match": [
     "Паролі не співпадають"
   ],
-  "Pending": [
-    "Очікуйте"
-  ],
   "Perform a discovery to find available iSCSI targets.": [
     "Виконайте виявлення, щоб знайти доступні цілі iSCSI."
   ],
+  "Performs auto LUN scan": [
+    "Виконує автоматичне сканування LUN"
+  ],
   "PiB": [
     "ПіБ"
-  ],
-  "Please, try to activate a zFCP controller.": [
-    "Будь ласка, спробуйте активувати контролер zFCP."
-  ],
-  "Please, try to activate a zFCP disk.": [
-    "Будь ласка, спробуйте активувати диск zFCP."
   ],
   "Port": [
     "Порт"
@@ -1654,9 +1669,6 @@ export default {
   ],
   "Read only": [
     "Тільки читання"
-  ],
-  "Read zFCP devices": [
-    "Прочитати пристрої zFCP"
   ],
   "Reboot": [
     "Перезавантажити"
@@ -1737,6 +1749,9 @@ export default {
   ],
   "Result of applying the configuration described at the 'Settings' section above.": [
     "Результат застосування конфігурації, описаної у розділі «Налаштування» вище."
+  ],
+  "Retrieving error details": [
+    "Отримання інформації про помилку"
   ],
   "Reused partitions will not be shrunk": [
     "Повторно використані розділи не будуть зменшені"
@@ -1830,9 +1845,6 @@ export default {
   "Select a product to continue.": [
     "Виберіть продукт для продовження."
   ],
-  "Select a solution to continue": [
-    "Виберіть рішення для продовження"
-  ],
   "Select another device to define partitions or to mount": [
     "Виберіть інший пристрій для створення розділів або монтування"
   ],
@@ -1856,6 +1868,12 @@ export default {
   ],
   "Select or enter a valid mount point": [
     "Виберіть або введіть дійсну точку монтування"
+  ],
+  "Select the controllers to activate": [
+    "Виберіть контролери, які потрібно активувати"
+  ],
+  "Select the zFCP controllers to activate:": [
+    "Виберіть контролери zFCP, які потрібно активувати:"
   ],
   "Select what to do with each partition in order to find space for allocating the new system.": [
     "Виберіть, що робити з кожним розділом, щоб знайти місце для розміщення нової системи."
@@ -1887,9 +1905,6 @@ export default {
   "Set a permanent hostname that won’t change with network updates.": [
     "Встановити постійну назву хоста, яка не змінюватиметься з оновленнями мережі."
   ],
-  "Setting up connection": [
-    "Встановлення з'єднання"
-  ],
   "Settings": [
     "Налаштування"
   ],
@@ -1910,14 +1925,8 @@ export default {
   "Show less": [
     "Показати менше"
   ],
-  "Show less actions": [
-    "Згорнути дії"
-  ],
   "Show more": [
     "Показати більше"
-  ],
-  "Show more actions": [
-    "Показати більше дій"
   ],
   "Shrink existing partitions": [
     "Зменшення наявних розділів"
@@ -1943,20 +1952,11 @@ export default {
   "Skip to content": [
     "Перейти до вмісту"
   ],
-  "Skip to next": [
-    "Перейти до наступного"
-  ],
-  "Skip to previous": [
-    "Перейти до попереднього"
-  ],
   "Software": [
     "Програми"
   ],
   "Software %s": [
     "Програмне забезпечення %s"
-  ],
-  "Software conflicts resolution": [
-    "Вирішення конфліктів ПЗ"
   ],
   "Some existing partitions may be shrunk": [
     "Деякі наявні розділи можуть бути зменшені"
@@ -2238,17 +2238,14 @@ export default {
   "The storage configuration uses elements not supported by this interface.": [
     "Конфігурація сховища використовує елементи, не підтримувані цим інтерфейсом."
   ],
-  "The system does not support Wi-Fi connections, probably because of missing or disabled hardware.": [
-    "Система не підтримує Wi-Fi з'єднання, ймовірно, через відсутність або відключення обладнання."
-  ],
   "The system is rebooting": [
     "Система перезапускається"
   ],
   "The whole device will be used for %s": [
     "Весь пристрій буде використано для %s"
   ],
-  "The zFCP disk was not activated.": [
-    "Диск zFCP не було активовано."
+  "There are %s deactivated zFCP controllers.": [
+    "Є %s вимкнених контролерів zFCP."
   ],
   "There are no disks available for the installation": [
     "Немає доступних дисків для встановлення"
@@ -2259,6 +2256,9 @@ export default {
   "There are not usable partitions": [
     "Існують не придатні для використання розділи"
   ],
+  "There are not zFCP controllers pending of activation.": [
+    "Наразі немає контролерів zFCP, які очікують на активацію."
+  ],
   "There is %d destructive action planned": [
     "Запланована %d руйнівна дія",
     "Заплановано %d руйнівні дії",
@@ -2268,6 +2268,9 @@ export default {
     "Планується %d руйнівна дія, що вплине на %s",
     "Планується %d руйнівні дії, що вплине на %s",
     "Планується %d руйнівних дій, що вплине на %s"
+  ],
+  "There is a deactivated zFCP controller.": [
+    "Є вимкнений контролер zFCP."
   ],
   "These are the settings for the product to install. The installer language and keyboard layout can be adjusted via the [settings panel] accessible from the top bar.": [
     "Це налаштування для встановлюваного продукту. Мову програми встановлення та розкладку клавіатури можна змінити через [панель налаштувань], доступну на верхній панелі."
@@ -2289,12 +2292,6 @@ export default {
   ],
   "This license is not available in %s.": [
     "Ліцензія недоступна цією мовою: %s."
-  ],
-  "This may take a moment while updates complete.": [
-    "Це може зайняти деякий час, поки оновлення завершиться."
-  ],
-  "This message will close automatically when everything is done.": [
-    "Це повідомлення закриється автоматично, коли все буде готово."
   ],
   "This pattern strikes a balance between clarity and efficiency: the modal keeps things lightweight for simple selections, while the full view supports deeper exploration and more complex actions, specially for users with tons of devices.": [
     "Цей підхід забезпечує баланс між ясністю та ефективністю: модальне вікно зберігає легкість для простого вибору, в той час як повноекранний режим підтримує глибше вивчення і складніші дії, спеціально для користувачів з великою кількістю пристроїв."
@@ -2329,6 +2326,12 @@ export default {
   "Try again": [
     "Спробуйте ще раз"
   ],
+  "Try to activate again": [
+    "Спробуйте активувати ще раз"
+  ],
+  "Try to deactivate again": [
+    "Спробуйте знову вимкнути"
+  ],
   "Type": [
     "Тип"
   ],
@@ -2337,6 +2340,15 @@ export default {
   ],
   "Unbound": [
     "Без прив'язки"
+  ],
+  "Unexpected error": [
+    "Несподівана помилка"
+  ],
+  "Unknown": [
+    "Невідоме"
+  ],
+  "Unknown error": [
+    "Невідома помилка"
   ],
   "Unselect": [
     "Відмінити обране"
@@ -2349,6 +2361,9 @@ export default {
   ],
   "Unused space": [
     "Невикористаний простір"
+  ],
+  "Up": [
+    "Вгору"
   ],
   "Up to %s can be recovered by shrinking the device.": [
     "До %s можна відновити шляхом стискання пристрою."
@@ -2560,17 +2575,8 @@ export default {
   "Wi-Fi connection form": [
     "Форма з'єднання Wi-Fi"
   ],
-  "Wi-Fi networks": [
-    "Мережі Wi-Fi"
-  ],
-  "Wi-Fi not supported": [
-    "Wi-Fi не підтримується"
-  ],
   "Will be supported in a future version.": [
     "Буде підтримуватися у наступній версії."
-  ],
-  "Wired connections": [
-    "Дротові з'єднання"
   ],
   "Wrong selection": [
     "Неправильний вибір"
@@ -2650,7 +2656,10 @@ export default {
   "zFCP": [
     "zFCP"
   ],
-  "zFCP Disk activation form": [
-    "Форма активації диска zFCP"
+  "zFCP controllers": [
+    "Контролери zFCP"
+  ],
+  "zFCP is not available": [
+    "zFCP недоступний"
   ]
 };

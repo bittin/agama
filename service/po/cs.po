@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-03 15:34+0000\n"
-"PO-Revision-Date: 2025-08-13 08:59+0000\n"
-"Last-Translator: Jan Papež <honyczek@centrum.cz>\n"
+"POT-Creation-Date: 2026-03-16 17:01+0000\n"
+"PO-Revision-Date: 2026-03-12 18:04+0000\n"
+"Last-Translator: Ondřej  Sedlák <sedlak.o@tutanota.com>\n"
 "Language-Team: Czech <https://l10n.opensuse.org/projects/agama/agama-service-"
 "master/cs/>\n"
 "Language: cs\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 5.12.2\n"
+"X-Generator: Weblate 5.16.2\n"
 
 #. Reports the problems and decide whether to continue or not.
 #.
@@ -28,29 +28,20 @@ msgid "Found unsupported elements in the AutoYaST profile: %{keys}."
 msgstr "Nalezen nepodporovaný prvek profilu AutoYaST: %{keys}."
 
 #. Implementation for the API method #Probe.
-#: service/lib/agama/dbus/storage/dasd.rb:66
-#, fuzzy
+#: service/lib/agama/dbus/storage/dasd.rb:68
 msgid "Probing DASD devices"
-msgstr "Sonduji úložná zařízení"
+msgstr "Prohledávám zařízení DASD"
 
-#. Performs the configuration process in a separate thread.
-#.
-#. The configuration could take long time  (e.g., formatting devices). It is important to not
-#. block the service in order to make possible to attend other requests.
-#.
-#. @raise if there is an unfinished configuration.
-#.
-#. @param config_json [Hash]
-#: service/lib/agama/dbus/storage/dasd.rb:119
-#, fuzzy
+#. The configuration could take long time  (e.g., formatting devices). It is important to
+#. not block the service in order to make possible to attend other requests.
+#: service/lib/agama/dbus/storage/dasd.rb:94
 msgid "Configuring DASD"
-msgstr "Konfiguruje se Iguana"
+msgstr "Konfiguruji DASD"
 
 #. Do not configure if there is nothing to change.
 #: service/lib/agama/dbus/storage/iscsi.rb:80
-#, fuzzy
 msgid "Configuring iSCSI"
-msgstr "Konfiguruje se Iguana"
+msgstr "Konfiguruji iSCSI"
 
 #. Performs an iSCSI discovery.
 #.
@@ -58,47 +49,44 @@ msgstr "Konfiguruje se Iguana"
 #. @return [Number] 0 success; 1 failure.
 #: service/lib/agama/dbus/storage/iscsi.rb:105
 msgid "Performing iSCSI discovery"
-msgstr ""
+msgstr "Provádím vyhledávání iSCSI"
 
 #. Implementation for the API method #Install.
-#: service/lib/agama/dbus/storage/manager.rb:186
+#: service/lib/agama/dbus/storage/manager.rb:187
 msgid "Preparing bootloader proposal"
 msgstr "Připravuji návrh boot zavaděče"
 
-#: service/lib/agama/dbus/storage/manager.rb:189
+#: service/lib/agama/dbus/storage/manager.rb:190
 msgid "Preparing the storage devices"
 msgstr "Připravuji úložná zařízení"
 
-#: service/lib/agama/dbus/storage/manager.rb:192
+#: service/lib/agama/dbus/storage/manager.rb:193
 msgid "Writing bootloader sysconfig"
 msgstr "Zapisuji konfiguraci boot zavaděče v sysconfig"
 
 #. Implementation for the API method #Finish.
-#: service/lib/agama/dbus/storage/manager.rb:200
-#, fuzzy
+#: service/lib/agama/dbus/storage/manager.rb:201
 msgid "Finishing installation"
-msgstr "Přerušit instalaci"
+msgstr "Dokončuji instalaci"
 
 #. Implementation for the API method #Umount.
-#: service/lib/agama/dbus/storage/manager.rb:207
-#, fuzzy
+#: service/lib/agama/dbus/storage/manager.rb:208
 msgid "Unmounting devices"
-msgstr "Odpojuji úložná zařízení"
+msgstr "Odpojuji zařízení"
 
 #. after loading config try to apply it, so proper packages can be requested
 #. TODO: generate also new issue from configuration
-#: service/lib/agama/dbus/storage/manager.rb:236
+#: service/lib/agama/dbus/storage/manager.rb:237
 msgid "Activating storage devices"
 msgstr "Aktivuji úložná zařízení"
 
-#: service/lib/agama/dbus/storage/manager.rb:239
+#: service/lib/agama/dbus/storage/manager.rb:240
 msgid "Probing storage devices"
 msgstr "Sonduji úložná zařízení"
 
-#: service/lib/agama/dbus/storage/manager.rb:242
-#, fuzzy
+#: service/lib/agama/dbus/storage/manager.rb:243
 msgid "Applying storage configuration"
-msgstr "Nastavování konfigurace úložiště"
+msgstr "Aplikuji konfiguraci úložiště"
 
 #. TRANSLATORS: SSL certificate details
 #: service/lib/agama/ssl/certificate_details.rb:31
@@ -450,10 +438,9 @@ msgstr "Konfigurovování snímků souborového systému"
 #. Returns an issue if there is no candidate device for installation
 #.
 #. @return [Issue, nil]
-#: service/lib/agama/storage/manager.rb:252
-#, fuzzy
+#: service/lib/agama/storage/manager.rb:251
 msgid "There is no suitable device for installation"
-msgstr "Není vybráno zařízení pro instalaci"
+msgstr "Nebylo nalezeno žádné vhodné zařízení pro instalaci"
 
 #. Issue representing the proposal is not valid.
 #.
@@ -489,16 +476,16 @@ msgstr "Odpojuji úložná zařízení"
 #: service/lib/agama/storage/zfcp/manager.rb:206
 #, c-format
 msgid "The zFCP controller %s cannot be activated"
-msgstr ""
+msgstr "Řadič zFCP %s nelze aktivovat"
 
 #. Activates a device if it is not active yet.
 #.
 #. @param device [Device]
 #. @return [Boolean] Whether the device was activated.
 #: service/lib/agama/storage/zfcp/manager.rb:239
-#, fuzzy, c-format
+#, c-format
 msgid "The zFCP device %s cannot be activated"
-msgstr "Nelze provést automatický výběr zaváděcího zařízení"
+msgstr "Zařízení zFCP %s nelze aktivovat"
 
 #. Deactivates a device if it is active.
 #.
@@ -507,9 +494,9 @@ msgstr "Nelze provést automatický výběr zaváděcího zařízení"
 #. @param device [Device]
 #. @return [Boolean] Whether the device was deactivated.
 #: service/lib/agama/storage/zfcp/manager.rb:277
-#, fuzzy, c-format
+#, c-format
 msgid "The zFCP device %s cannot be deactivated"
-msgstr "Nelze provést automatický výběr zaváděcího zařízení"
+msgstr "Zařízení zFCP %s nelze deaktivovat"
 
 #. Issue if the controller is missing.
 #.
@@ -518,7 +505,7 @@ msgstr "Nelze provést automatický výběr zaváděcího zařízení"
 #: service/lib/agama/storage/zfcp/manager.rb:307
 #, c-format
 msgid "Unknown zFCP controller %s"
-msgstr ""
+msgstr "Neznámý řadič zFCP %s"
 
 #. Issue if the device is missing.
 #.
@@ -527,7 +514,7 @@ msgstr ""
 #: service/lib/agama/storage/zfcp/manager.rb:326
 #, c-format
 msgid "Unknown zFCP LUN %s"
-msgstr ""
+msgstr "Neznámé zFCP LUN %s"
 
 #~ msgid "Logout iSCSI targets"
 #~ msgstr "Odhlásit iSCSI cíle"

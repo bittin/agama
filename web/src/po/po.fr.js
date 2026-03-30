@@ -7,7 +7,7 @@ export default {
     ""
   ],
   "\"%s\" does not exist or is no longer available.": [
-    ""
+    "\"%s\" n’existe pas ou n’est plus disponible."
   ],
   "%1$s (%2$s)": [
     "%1$s (%2$s)"
@@ -19,7 +19,7 @@ export default {
     "%1$s sur %2$s"
   ],
   "%1$s keyboard - %2$s timezone": [
-    ""
+    "Clavier %1$s - fuseau horaire %2$s"
   ],
   "%1$s will be created as a partition at %2$s": [
     "%1$s sera crée en tant que partition à %2$s",
@@ -28,14 +28,11 @@ export default {
   "%1$s will still contain the LVM group '%2$s' and any partition needed to boot": [
     "%1$s contiendra toujours le groupe LVM '%2$s' et toute partition nécessaire au démarrage"
   ],
-  "%d of %d": [
-    "%d sur %d"
-  ],
   "%s - %s": [
     "%s - %s"
   ],
   "%s and %d others": [
-    ""
+    "%s et %d autres"
   ],
   "%s disk": [
     "Disque %s"
@@ -55,6 +52,15 @@ export default {
   ],
   "%s with %d partitions": [
     "%s avec %d partitions"
+  ],
+  "(bind by name)": [
+    ""
+  ],
+  "(bound by MAC)": [
+    ""
+  ],
+  "(bound by name)": [
+    ""
   ],
   "1 device selected. Use the actions toolbar to apply changes.": [
     "",
@@ -113,12 +119,6 @@ export default {
   "Activate and format DASD devices": [
     "Activer et formater les périphériques DASD"
   ],
-  "Activate new disk": [
-    "Activer un nouveau disque"
-  ],
-  "Activate zFCP disk": [
-    "Activer le disque zFCP"
-  ],
   "Activate zFCP disks": [
     "Activer les disques zFCP"
   ],
@@ -155,6 +155,9 @@ export default {
   "Add or use partition": [
     "Ajouter ou utiliser une partition"
   ],
+  "Add search domain": [
+    ""
+  ],
   "Address": [
     "Adresse"
   ],
@@ -167,9 +170,6 @@ export default {
   "Adjust the settings below to make the new system fit into the available space.": [
     "Ajustez les paramètres ci-dessous pour que le nouveau système s'adapte à l'espace disponible."
   ],
-  "All conflicts have been resolved, or none were detected. You can safely continue with your setup.": [
-    "Tous les conflits ont été résolus, ou aucun n'a été détecté. Vous pouvez poursuivre votre installation en toute sécurité."
-  ],
   "All content not configured to be mounted will be deleted": [
     "Tout le contenu qui n'est pas configuré pour le montage sera supprimé"
   ],
@@ -181,6 +181,9 @@ export default {
   ],
   "All network connections managed through this interface are currently set to be used only during installation and will not be copied to the installed system": [
     "Toutes les connexions réseau gérées par cette interface sont actuellement définies pour être utilisées uniquement pendant l'installation et ne seront pas copiées sur le système installé"
+  ],
+  "All the available zFCP controllers are already activated.": [
+    "Tous les contrôleurs zFCP disponibles sont déjà activés."
   ],
   "Allow growing": [
     "Permettre l'agrandissement"
@@ -204,12 +207,6 @@ export default {
   "Any partition needed to boot will be configured.": [
     "Toutes les éventuelles partitions nécessaires au démarrage seront configurées."
   ],
-  "Apply selected solution": [
-    "Appliquer la solution sélectionnée"
-  ],
-  "Applying changes": [
-    "Appliquer changements"
-  ],
   "As a new partition on %s": [
     "En tant que nouvelle partition sur %s"
   ],
@@ -225,11 +222,8 @@ export default {
   "Auto": [
     "Auto"
   ],
-  "Auto LUNs Scan": [
-    "Balayage LUN automatique"
-  ],
   "Auto and manual": [
-    ""
+    "Auto et manuelle"
   ],
   "Automatic": [
     "Automatique"
@@ -237,11 +231,11 @@ export default {
   "Automatic (DHCP)": [
     "Automatique (DHCP)"
   ],
-  "Automatic LUN scan is [disabled]. LUNs have to be manually configured after activating a controller.": [
-    "Le balayage automatique des LUN est [désactivé]. Les LUN doivent être configurés manuellement après l'activation d'un contrôleur."
+  "Automatic LUN scan is disabled": [
+    ""
   ],
-  "Automatic LUN scan is [enabled]. Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
-    "Le balayage automatique des LUN est [activé]. L'activation d'un contrôleur fonctionnant en mode NPIV configurera automatiquement tous ses LUN."
+  "Automatic LUN scan is enabled": [
+    ""
   ],
   "Back": [
     "Retour"
@@ -295,7 +289,7 @@ export default {
     "Btrfs avec clichés"
   ],
   "By proceeding, the installation will begin with defined settings.": [
-    ""
+    "En procédant, l’installation commencera avec les paramètres définis."
   ],
   "CPU": [
     ""
@@ -346,13 +340,7 @@ export default {
     "Modifier le système de fichiers ou le point de montage"
   ],
   "Changes in these settings will immediately update the 'Result' section below.": [
-    ""
-  ],
-  "Channel ID": [
-    "ID du canal"
-  ],
-  "Check the authentication parameters.": [
-    "Vérifiez les paramètres d'authentification."
+    "Les modifications apportées à ces paramètres mettront immédiatement à jour la section « Résultat » ci-dessous."
   ],
   "Check the following before continuing": [
     "Vérifiez ce qui suit avant de continuer"
@@ -435,9 +423,6 @@ export default {
   "Connecting to %s": [
     "Connexion à %s"
   ],
-  "Connection details": [
-    "Détails de la connexion"
-  ],
   "Connection is available to all devices.": [
     "La connexion est disponible pour tous les appareils."
   ],
@@ -455,12 +440,6 @@ export default {
   ],
   "Continuing without installing the package can result in a broken system. In some cases the system might not even boot.": [
     "Si vous poursuivez sans installer le paquet, votre système risque d'être défectueux. Dans certains cas, le système peut même ne pas démarrer."
-  ],
-  "Controllers": [
-    "Contrôleurs"
-  ],
-  "Could not connect to %s": [
-    "Impossible de se connecter à %s"
   ],
   "Create LVM volume group %s": [
     "Créer le groupe de volumes LVM %s"
@@ -503,6 +482,9 @@ export default {
   ],
   "DNS": [
     "DNS"
+  ],
+  "DNS Search List": [
+    ""
   ],
   "Deactivate": [
     "Désactiver"
@@ -547,7 +529,7 @@ export default {
     "Supprimer le contenu actuel"
   ],
   "Delete existing data and install %s?": [
-    ""
+    "Supprimer données existantes et installer %s ?"
   ],
   "Delete volume group": [
     "Supprimer le groupe de volumes"
@@ -563,9 +545,6 @@ export default {
   ],
   "Details": [
     "Détails"
-  ],
-  "Details will appear after the connection is successfully established.": [
-    "Les détails s'afficheront une fois la connexion établie avec succès."
   ],
   "Device": [
     "Périphérique"
@@ -606,11 +585,17 @@ export default {
   "Do not use": [
     "Ne pas utiliser"
   ],
+  "Domain": [
+    ""
+  ],
+  "Down": [
+    ""
+  ],
   "Download logs": [
     "Télécharger les journaux"
   ],
   "Download logs to troubleshoot or share with support.": [
-    ""
+    "Télécharger les journaux pour résolution ou partage avec le support."
   ],
   "Edit": [
     "Modifier"
@@ -634,7 +619,7 @@ export default {
     "Vider le groupe de volumes LVM %s"
   ],
   "Enable mutual verification": [
-    ""
+    "Activer vérification mutuelle"
   ],
   "Encrypt the system": [
     "Chiffrer le système"
@@ -673,7 +658,7 @@ export default {
     "ExFAT"
   ],
   "Example: %s": [
-    "Exemple : %s"
+    "Exemple : %s"
   ],
   "Excellent signal": [
     "Signal excellent"
@@ -736,9 +721,6 @@ export default {
   ],
   "Find space in %s": [
     "Trouver de l'espace dans %s"
-  ],
-  "Finished": [
-    "Terminé"
   ],
   "First user": [
     "Premier utilisateur"
@@ -831,9 +813,6 @@ export default {
   "IP addresses": [
     "Adresses IP"
   ],
-  "IP settings": [
-    "Paramètres IP"
-  ],
   "IPs": [
     ""
   ],
@@ -847,10 +826,10 @@ export default {
     "Si un périphérique local a été utilisé pour exécuter ce programme d'installation, retirez-le avant le prochain démarrage."
   ],
   "If you are unsure, check and adjust the storage settings.": [
-    ""
+    "Si vous n’êtes pas sûr(e), vérifiez et ajustez les paramètres de stockage."
   ],
   "If you want to disable this check, please specify \"inst.ay_check=0\" at kernels command-line": [
-    ""
+    "Si vous voulez désactiver cette vérification, veuillez spécifier \"inst.ay_check=0\" en ligne de commande des noyaux"
   ],
   "Initiator": [
     "Initiateur"
@@ -862,10 +841,10 @@ export default {
     "Installer"
   ],
   "Install now with potential data loss": [
-    ""
+    "Installer maintenant avec perte de données potentielle"
   ],
   "Installation settings will automatically update to match the new product's defaults.": [
-    ""
+    "Les paramètres d’installation seront automatiquement mis à jour pour correspondre aux paramètres par défaut du nouveau produit."
   ],
   "Installation will take %s.": [
     "L'installation utilisera %s."
@@ -921,9 +900,6 @@ export default {
   "It is offline and must be activated before formatting it.": [
     "Il est hors ligne et doit être activé avant de le formater."
   ],
-  "It may take some time.": [
-    "Cela peut prendre un certain temps."
-  ],
   "JFS": [
     "JFS"
   ],
@@ -955,16 +931,13 @@ export default {
     "Laisser le programme d'installation proposer une taille adaptée"
   ],
   "License acceptance is required to continue.": [
-    ""
+    "L’acceptation de la licence est requise pour continuer."
   ],
   "Loading": [
     "Chargement"
   ],
   "Loading data...": [
     "Chargement des données..."
-  ],
-  "Loading storage": [
-    "Chargement du stockage"
   ],
   "Loading the installation repositories...": [
     "Chargement des dépôts d'installation..."
@@ -973,7 +946,7 @@ export default {
     "Localisation"
   ],
   "Locked targets cannot be managed from here and do not offer any actions.": [
-    ""
+    "Les cibles verrouillées ne peuvent pas être gérées à partir d’ici et n’offrent aucune action."
   ],
   "Log in": [
     "Se connecter"
@@ -999,6 +972,9 @@ export default {
   "Manage DASD devices": [
     "Gérer les périphériques DASD"
   ],
+  "Manage available connections, connect to Wi-Fi, or add a new connection.": [
+    ""
+  ],
   "Manual": [
     "Manuel"
   ],
@@ -1006,7 +982,7 @@ export default {
     "Canal max"
   ],
   "Memory": [
-    ""
+    "Mémoire"
   ],
   "MiB": [
     "MiB"
@@ -1015,7 +991,7 @@ export default {
     "Canal min"
   ],
   "Missing": [
-    ""
+    "Manquant(e)"
   ],
   "Mode": [
     "Mode"
@@ -1024,7 +1000,7 @@ export default {
     "Modifier les paramètres et les volumes physiques"
   ],
   "More": [
-    ""
+    "Davantage"
   ],
   "More actions": [
     "Autres actions"
@@ -1082,9 +1058,6 @@ export default {
   "Multipath": [
     "Chemins multiples"
   ],
-  "Multiple conflicts found. You can address them in any order, and resolving one may resolve others.": [
-    "Plusieurs conflits ont été trouvés. Vous pouvez les traiter dans n'importe quel ordre, et la résolution d'un conflit peut en résoudre d'autres."
-  ],
   "NFS": [
     "NFS"
   ],
@@ -1103,9 +1076,6 @@ export default {
   "Network details": [
     "Détails du réseau"
   ],
-  "Network not found or lost": [
-    "Réseau introuvable ou perdu"
-  ],
   "New": [
     "Nouveau"
   ],
@@ -1121,14 +1091,11 @@ export default {
   "No additional software was selected.": [
     "Aucun logiciel supplémentaire n'a été sélectionné."
   ],
-  "No conflicts to address": [
-    "Aucun conflit à traiter"
-  ],
   "No content found": [
     "Aucun contenu n'a été trouvé"
   ],
   "No data loss is expected": [
-    ""
+    "Aucune perte de données n’est attendue"
   ],
   "No device is currently using this connection.": [
     "Aucun appareil n’utilise actuellement cette connexion."
@@ -1155,22 +1122,13 @@ export default {
     "Aucune prise en charge n'est prévue."
   ],
   "No targets have been discovered or configured.": [
-    ""
+    "Aucune cible n’a été découverte ni configurée."
   ],
   "No user defined yet.": [
     "Aucun utilisateur n'a été défini."
   ],
   "No valid port.": [
-    ""
-  ],
-  "No wired connections were found": [
-    "Aucune connexion filaire n'a été trouvée"
-  ],
-  "No zFCP controllers found.": [
-    "Aucun contrôleur zFCP n'a été trouvé."
-  ],
-  "No zFCP disks found.": [
-    "Aucun disque zFCP n'a été trouvé."
+    "Pas de port valide."
   ],
   "None": [
     "Aucun"
@@ -1242,7 +1200,7 @@ export default {
     "Les partitions qui ne sont pas réutilisées seraient redimensionnées si nécessaire."
   ],
   "Partitions to boot will be set up if needed at the installation disk. Currently %1$s, based on the location of the %2$s file system.": [
-    ""
+    "Les partitions à démarrer seront configurées si nécessaire sur le disque d’installation. Actuellement %1$s, en fonction de l’emplacement du système de fichiers %2$s."
   ],
   "Partitions will be used and created for %s": [
     "Des partitions seront créées et utilisées pour %s"
@@ -1268,17 +1226,8 @@ export default {
   "Passwords do not match": [
     "Les mots de passe ne correspondent pas"
   ],
-  "Pending": [
-    "En attente"
-  ],
   "PiB": [
     "PiB"
-  ],
-  "Please, try to activate a zFCP controller.": [
-    "Veuillez essayer d'activer un contrôleur zFCP."
-  ],
-  "Please, try to activate a zFCP disk.": [
-    "Veuillez essayer d'activer un disque zFCP."
   ],
   "Port": [
     "Port"
@@ -1287,19 +1236,19 @@ export default {
     "Portail"
   ],
   "Potential data loss": [
-    ""
+    "Perte potentielle de données"
   ],
   "Potential data loss affecting at least %s": [
-    ""
+    "Perte potentielle de données affectant au moins %s"
   ],
   "Prefix length or netmask": [
     "Longueur du préfixe ou masque de sous-réseau"
   ],
   "Proceeding may result in data loss": [
-    ""
+    "Le processus pourrait entraîner une perte de données"
   ],
   "Proceeding will delete existing data, including %s": [
-    ""
+    "La procédure supprimera les données existantes, y compris %s"
   ],
   "Product is already registered": [
     "Le produit est déjà enregistré"
@@ -1322,14 +1271,11 @@ export default {
   "Question": [
     "Question"
   ],
-  "Read zFCP devices": [
-    "Lire les périphériques zFCP"
-  ],
   "Reboot": [
     "Redémarrer"
   ],
   "Reboot to try again.": [
-    ""
+    "Redémarrer pour essayer à nouveau."
   ],
   "Recommended": [
     "Recommandé"
@@ -1371,7 +1317,7 @@ export default {
     "Échec du chargement du dépôt"
   ],
   "Required packages": [
-    ""
+    "Paquets requis"
   ],
   "Required packages and %s pattern": [
     "",
@@ -1393,7 +1339,7 @@ export default {
     "Résultat"
   ],
   "Result of applying the configuration described at the 'Settings' section above.": [
-    ""
+    "Résultat de l’application de la configuration décrite dans la section « Paramètres » ci-dessus."
   ],
   "Reused partitions will not be shrunk": [
     "Les partitions réutilisées ne seront pas réduites"
@@ -1458,9 +1404,6 @@ export default {
   "Select a product": [
     "Sélectionner un produit"
   ],
-  "Select a solution to continue": [
-    "Sélectionner une solution pour continuer"
-  ],
   "Select another device to define partitions or to mount": [
     "Sélectionner un autre périphérique pour définir des partitions ou effectuer le montage"
   ],
@@ -1478,6 +1421,9 @@ export default {
   ],
   "Select or enter a valid mount point": [
     "Sélectionner ou entrer un point de montage valide"
+  ],
+  "Select the zFCP controllers to activate:": [
+    ""
   ],
   "Select what to do with each partition in order to find space for allocating the new system.": [
     "Sélectionnez ce qu'il faut faire avec chaque partition afin de trouver de l'espace pour allouer le nouveau système."
@@ -1509,9 +1455,6 @@ export default {
   "Set a permanent hostname that won’t change with network updates.": [
     "Définissez un nom d'hôte permanent qui ne changera pas avec les mises à jour du réseau."
   ],
-  "Setting up connection": [
-    "Configuration de la connexion"
-  ],
   "Settings": [
     "Paramètres"
   ],
@@ -1527,12 +1470,6 @@ export default {
   ],
   "Show information about %s": [
     "Afficher les informations sur %s"
-  ],
-  "Show less actions": [
-    "Afficher moins d'actions"
-  ],
-  "Show more actions": [
-    "Afficher plus d'actions"
   ],
   "Shrink existing partitions": [
     "Réduire les partitions existantes"
@@ -1558,20 +1495,11 @@ export default {
   "Skip to content": [
     "Passer au contenu"
   ],
-  "Skip to next": [
-    "Passer au suivant"
-  ],
-  "Skip to previous": [
-    "Passer au précédent"
-  ],
   "Software": [
     "Logiciel"
   ],
   "Software %s": [
     "Logiciel %s"
-  ],
-  "Software conflicts resolution": [
-    "Résolution des conflits de logiciels"
   ],
   "Some existing partitions may be shrunk": [
     "Il se peut que certaines partitions existantes soient réduites"
@@ -1622,19 +1550,19 @@ export default {
     "Swap"
   ],
   "Switch to a different mode": [
-    ""
+    "Passer à un mode différent"
   ],
   "TPM sealing requires the new system to be booted directly.": [
     "Le cryptage via TPM impose que le nouveau système soit démarré directement."
   ],
   "Take a moment to review the installation settings below and adjust them as needed.": [
-    ""
+    "Prenez un moment pour examiner les paramètres d’installation ci-dessous et les ajuster si nécessaire."
   ],
   "Target not found": [
-    ""
+    "Cible non trouvée"
   ],
   "Temporary name that may change after reboot or network changes": [
-    ""
+    "Nom temporaire qui pourrait changer après un redémarrage ou des modifications du réseau"
   ],
   "The LVM group '%1$s' will remain at %2$s": [
     "Le groupe LVM '%1$s' restera sur %2$s"
@@ -1772,10 +1700,10 @@ export default {
     "Le mot de passe ne sera pas nécessaire pour démarrer et accéder aux données si le TPM peut vérifier l'intégrité du système. Le verrouillage du TPM requiert que le nouveau système soit démarré directement lors de sa première exécution."
   ],
   "The product was not found in the repositories so it is not possible to proceed with the installation.": [
-    ""
+    "Le produit n’a pas été trouvé dans les dépôts, il n’est donc pas possible de procéder à l’installation."
   ],
   "The product will be registered with \"%s\" hostname": [
-    ""
+    "Le produit sera enregistré avec le nom d’hôte \"%s\""
   ],
   "The size for %1$s will be dynamically adjusted based on the amount of RAM in the system and the presence of a separate file system for %2$s.": [
     "La taille de %1$s sera ajustée dynamiquement en fonction de la quantité de mémoire vive du système et de la présence d'un système de fichiers distinct pour %2$s."
@@ -1819,20 +1747,17 @@ export default {
   "The storage configuration uses elements not supported by this interface.": [
     "La configuration du stockage utilise des éléments qui ne sont pas pris en charge par cette interface."
   ],
-  "The system does not support Wi-Fi connections, probably because of missing or disabled hardware.": [
-    "Le système ne prend pas en charge les connexions Wi-Fi, probablement en raison d'un matériel manquant ou désactivé."
-  ],
   "The whole device will be used for %s": [
     "Tout le périphérique sera utilisé pour %s"
-  ],
-  "The zFCP disk was not activated.": [
-    "Le disque zFCP n'a pas été activé."
   ],
   "There are not disks available for the installation. You may need to configure some device.": [
     "Il n'y a pas de disques disponibles pour l'installation. Il se peut que vous deviez configurer un périphérique."
   ],
   "There are not usable partitions": [
     "Il n'existe aucune partition utilisable"
+  ],
+  "There are not zFCP controllers pending of activation.": [
+    ""
   ],
   "There is %d destructive action planned": [
     "Il y a %d action destructrice prévue",
@@ -1856,12 +1781,6 @@ export default {
   ],
   "This license is not available in %s.": [
     "Cette licence n'est pas disponible dans %s."
-  ],
-  "This may take a moment while updates complete.": [
-    "Cela peut prendre un moment pendant que les mises à jour s'accomplissent."
-  ],
-  "This message will close automatically when everything is done.": [
-    "Ce message se fermera automatiquement lorsque tout est fait."
   ],
   "This pattern strikes a balance between clarity and efficiency: the modal keeps things lightweight for simple selections, while the full view supports deeper exploration and more complex actions, specially for users with tons of devices.": [
     "Ce modèle trouve un équilibre entre clarté et efficacité : la fenêtre modale reste légère pour des sélections simples, tandis que la vue complète permet une exploration plus approfondie et des actions plus complexes, notamment pour les utilisateurs ayant de nombreux périphériques."
@@ -1896,6 +1815,9 @@ export default {
   "Try again": [
     "Réessayer"
   ],
+  "Try to deactivate again": [
+    "Essayer de désactiver à nouveau"
+  ],
   "Type": [
     "Type"
   ],
@@ -1904,6 +1826,12 @@ export default {
   ],
   "Unbound": [
     "Non lié(e)"
+  ],
+  "Unexpected error": [
+    "Erreur inattendue"
+  ],
+  "Unknown error": [
+    "Erreur inconnue"
   ],
   "Unselect": [
     "Désélectionner"
@@ -1916,6 +1844,9 @@ export default {
   ],
   "Unused space": [
     "Espace inutilisé"
+  ],
+  "Up": [
+    ""
   ],
   "Up to %s can be recovered by shrinking the device.": [
     "Jusqu'à %s peuvent être récupérés en réduisant le périphérique."
@@ -2071,7 +2002,7 @@ export default {
     "Utilisation d'un nom d'hôte transitoire : %s"
   ],
   "View license": [
-    ""
+    "Vue license"
   ],
   "Volume group '%s' already exists. Enter a different name.": [
     "Le groupe de volumes '%s' existe déjà. Saisissez un autre nom."
@@ -2086,7 +2017,7 @@ export default {
     "WWPN"
   ],
   "Wait until current operations are completed.": [
-    ""
+    "Attendez que les opérations actuelles soient terminées."
   ],
   "Waiting for a mount point": [
     "En attente d'un point de montage"
@@ -2098,7 +2029,7 @@ export default {
     "Signal faible"
   ],
   "When ready, click on the [install] button at the end of the page.": [
-    ""
+    "Lorsque vous êtes prêt(e), cliquez sur le bouton [installer] à la fin de la page."
   ],
   "Wi-Fi": [
     "Wi-Fi"
@@ -2106,17 +2037,8 @@ export default {
   "Wi-Fi connection form": [
     "Formulaire de connexion Wi-Fi"
   ],
-  "Wi-Fi networks": [
-    "Réseaux Wi-Fi"
-  ],
-  "Wi-Fi not supported": [
-    "Wi-Fi non pris en charge"
-  ],
   "Will be supported in a future version.": [
     "Prise en charge dans une prochaine version."
-  ],
-  "Wired connections": [
-    "Connexions filaires"
   ],
   "XFS": [
     "XFS"
@@ -2128,7 +2050,7 @@ export default {
     "Vous pouvez procéder à l'installation en conservant les paramètres actuels ou en abandonnant la configuration et en repartant de zéro avec une configuration simple."
   ],
   "You can safely close this window.": [
-    ""
+    "Vous pouvez fermer cette fenêtre en toute sécurité."
   ],
   "You cannot change it later. Go to the %s section if you want to modify it before proceeding with registration.": [
     "Vous ne pouvez pas modifier cette valeur ultérieurement. Allez à la section %s si vous voulez la modifier avant de procéder à l'enregistrement."
@@ -2167,7 +2089,7 @@ export default {
     "iSCSI"
   ],
   "immutable Btrfs": [
-    ""
+    "Btrfs immuable"
   ],
   "logical volume": [
     "volume logique"
@@ -2186,8 +2108,5 @@ export default {
   ],
   "zFCP": [
     "zFCP"
-  ],
-  "zFCP Disk activation form": [
-    "Formulaire d'activation du disque zFCP"
   ]
 };

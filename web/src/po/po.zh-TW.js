@@ -30,9 +30,6 @@ export default {
   "%1$s, %2$s and [%3$d more]": [
     ""
   ],
-  "%d of %d": [
-    "%d / %d"
-  ],
   "%s - %s": [
     "%s - %s"
   ],
@@ -59,6 +56,15 @@ export default {
   ],
   "%s with %d partitions": [
     "%s (包含 %d 個分割區)"
+  ],
+  "(bind by name)": [
+    ""
+  ],
+  "(bound by MAC)": [
+    ""
+  ],
+  "(bound by name)": [
+    ""
   ],
   "1 device selected. Use the actions toolbar to apply changes.": [
     ""
@@ -114,12 +120,6 @@ export default {
   "Activate and format DASD devices": [
     "啟用並格式化 DASD 裝置"
   ],
-  "Activate new disk": [
-    "啟用新磁碟"
-  ],
-  "Activate zFCP disk": [
-    "啟用 zFCP 磁碟"
-  ],
   "Activate zFCP disks": [
     "啟用 zFCP 磁碟"
   ],
@@ -156,6 +156,9 @@ export default {
   "Add or use partition": [
     "新增或使用分割區"
   ],
+  "Add search domain": [
+    ""
+  ],
   "Address": [
     "位址"
   ],
@@ -168,9 +171,6 @@ export default {
   "Adjust the settings below to make the new system fit into the available space.": [
     "請調整下面的設定，以使新系統適配可用空間。"
   ],
-  "All conflicts have been resolved, or none were detected. You can safely continue with your setup.": [
-    "所有衝突都已解決，或者未偵測到任何衝突。您可以安心繼續進行設定。"
-  ],
   "All content not configured to be mounted will be deleted": [
     "將刪除未設定為待掛接的所有內容"
   ],
@@ -182,6 +182,9 @@ export default {
   ],
   "All network connections managed through this interface are currently set to be used only during installation and will not be copied to the installed system": [
     "透過此介面管理的所有網路連接目前都設定為僅在安裝期間使用，並且不會複製到安裝好的系統中"
+  ],
+  "All the available zFCP controllers are already activated.": [
+    ""
   ],
   "Allow growing": [
     "允許增長"
@@ -204,12 +207,6 @@ export default {
   "Any partition needed to boot will be configured.": [
     "將設定開機所需的所有分割區。"
   ],
-  "Apply selected solution": [
-    "套用所選的解決方案"
-  ],
-  "Applying changes": [
-    "正在套用變更"
-  ],
   "As a new partition on %s": [
     "做為 %s 上的新分割區"
   ],
@@ -222,9 +219,6 @@ export default {
   "Authentication": [
     "驗證"
   ],
-  "Auto LUNs Scan": [
-    "自動掃描 LUN"
-  ],
   "Auto and manual": [
     ""
   ],
@@ -234,11 +228,11 @@ export default {
   "Automatic (DHCP)": [
     "自動 (DHCP)"
   ],
-  "Automatic LUN scan is [disabled]. LUNs have to be manually configured after activating a controller.": [
-    "自動掃描 LUN 功能 [已停用]。啟用控制器後必須手動設定 LUN。"
+  "Automatic LUN scan is disabled": [
+    ""
   ],
-  "Automatic LUN scan is [enabled]. Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
-    "自動掃描 LUN 功能 [已啟用]。如果啟用在 NPIV 模式下 執行的控制器，將自動設定其所有 LUN。"
+  "Automatic LUN scan is enabled": [
+    ""
   ],
   "Back": [
     "後退"
@@ -345,12 +339,6 @@ export default {
   "Changes in these settings will immediately update the 'Result' section below.": [
     ""
   ],
-  "Channel ID": [
-    "通道 ID"
-  ],
-  "Check the authentication parameters.": [
-    "請檢查驗證參數。"
-  ],
   "Check the following before continuing": [
     "繼續操作前，請檢查以下內容"
   ],
@@ -432,9 +420,6 @@ export default {
   "Connecting to %s": [
     "正在連接至 %s"
   ],
-  "Connection details": [
-    "連接詳細資料"
-  ],
   "Connection is available to all devices.": [
     "連接可用於所有裝置。"
   ],
@@ -452,12 +437,6 @@ export default {
   ],
   "Continuing without installing the package can result in a broken system. In some cases the system might not even boot.": [
     "如果繼續操作而不安裝該套件，可能會使系統損毀。在某些情況下，系統甚至可能無法開機。"
-  ],
-  "Controllers": [
-    "控制器"
-  ],
-  "Could not connect to %s": [
-    "無法連接至 %s"
   ],
   "Create LVM volume group %s": [
     "建立 LVM 磁碟區群組 %s"
@@ -503,6 +482,9 @@ export default {
   ],
   "DNS": [
     "DNS"
+  ],
+  "DNS Search List": [
+    ""
   ],
   "Deactivate": [
     "停用"
@@ -564,9 +546,6 @@ export default {
   "Details": [
     "詳細資料"
   ],
-  "Details will appear after the connection is successfully established.": [
-    "成功建立連接後將會顯示詳細資料。"
-  ],
   "Device": [
     "裝置"
   ],
@@ -602,6 +581,12 @@ export default {
   ],
   "Do not use": [
     "不使用"
+  ],
+  "Domain": [
+    ""
+  ],
+  "Down": [
+    ""
   ],
   "Download logs": [
     "下載記錄"
@@ -665,6 +650,9 @@ export default {
   ],
   "Enter a name for the volume group.": [
     "輸入磁碟區群組的名稱。"
+  ],
+  "Ethernet": [
+    ""
   ],
   "ExFAT": [
     "ExFAT"
@@ -734,9 +722,6 @@ export default {
   ],
   "Find space in %s": [
     "在 %s 中尋找可用空間"
-  ],
-  "Finished": [
-    "已完成"
   ],
   "First user": [
     "首個使用者"
@@ -828,9 +813,6 @@ export default {
   "IP addresses": [
     "IP 位址"
   ],
-  "IP settings": [
-    "IP 設定"
-  ],
   "IPs": [
     ""
   ],
@@ -918,9 +900,6 @@ export default {
   "It is offline and must be activated before formatting it.": [
     "該裝置已離線，必須將其啟用才能進行格式化。"
   ],
-  "It may take some time.": [
-    "這可能需要一些時間。"
-  ],
   "JFS": [
     "JFS"
   ],
@@ -960,9 +939,6 @@ export default {
   "Loading data...": [
     "正在載入資料..."
   ],
-  "Loading storage": [
-    "正在載入儲存"
-  ],
   "Loading the installation repositories...": [
     "正在載入安裝儲存庫..."
   ],
@@ -995,6 +971,9 @@ export default {
   ],
   "Manage DASD devices": [
     "管理 DASD 裝置"
+  ],
+  "Manage available connections, connect to Wi-Fi, or add a new connection.": [
+    ""
   ],
   "Manual": [
     "手動"
@@ -1077,9 +1056,6 @@ export default {
   "Multipath": [
     "多重路徑"
   ],
-  "Multiple conflicts found. You can address them in any order, and resolving one may resolve others.": [
-    "發現多處衝突。您可以採用任何順序解決這些衝突，解決某個衝突後可能會連帶解決其他衝突。"
-  ],
   "NFS": [
     "NFS"
   ],
@@ -1101,9 +1077,6 @@ export default {
   "Network details": [
     "網路詳細資料"
   ],
-  "Network not found or lost": [
-    "未找到網路，或者網路中斷"
-  ],
   "New": [
     "新增"
   ],
@@ -1118,9 +1091,6 @@ export default {
   ],
   "No additional software was selected.": [
     "沒有選取其他軟體。"
-  ],
-  "No conflicts to address": [
-    "沒有需要解決的衝突"
   ],
   "No content found": [
     "未找到內容"
@@ -1160,15 +1130,6 @@ export default {
   ],
   "No valid port.": [
     ""
-  ],
-  "No wired connections were found": [
-    "未找到有線連接"
-  ],
-  "No zFCP controllers found.": [
-    "未找到 zFCP 控制器。"
-  ],
-  "No zFCP disks found.": [
-    "未找到 zFCP 磁碟。"
   ],
   "None": [
     "無"
@@ -1266,17 +1227,8 @@ export default {
   "Passwords do not match": [
     "密碼不符"
   ],
-  "Pending": [
-    "待處理"
-  ],
   "PiB": [
     "PiB"
-  ],
-  "Please, try to activate a zFCP controller.": [
-    "請嘗試啟用 zFCP 控制器。"
-  ],
-  "Please, try to activate a zFCP disk.": [
-    "請嘗試啟用 zFCP 磁碟。"
   ],
   "Port": [
     "連接埠"
@@ -1319,9 +1271,6 @@ export default {
   ],
   "Question": [
     "問題"
-  ],
-  "Read zFCP devices": [
-    "讀取 zFCP 裝置"
   ],
   "Reboot": [
     "重新開機"
@@ -1461,9 +1410,6 @@ export default {
   "Select a product": [
     "請選取產品"
   ],
-  "Select a solution to continue": [
-    "選取一個解決方案以繼續"
-  ],
   "Select another device to define partitions or to mount": [
     "選取另一個要定義分割區或要掛接的裝置"
   ],
@@ -1481,6 +1427,9 @@ export default {
   ],
   "Select or enter a valid mount point": [
     "請選取或輸入有效的掛接點"
+  ],
+  "Select the zFCP controllers to activate:": [
+    ""
   ],
   "Select what to do with each partition in order to find space for allocating the new system.": [
     "選擇如何處理每個分割區，以便為新系統配置空間。"
@@ -1512,9 +1461,6 @@ export default {
   "Set a permanent hostname that won’t change with network updates.": [
     "設定不會因網路更新而變更的永久主機名稱。"
   ],
-  "Setting up connection": [
-    "正在設定連接"
-  ],
   "Settings": [
     "設定"
   ],
@@ -1529,12 +1475,6 @@ export default {
   ],
   "Show information about %s": [
     "顯示 %s 的相關資訊"
-  ],
-  "Show less actions": [
-    "收起部分動作"
-  ],
-  "Show more actions": [
-    "顯示更多動作"
   ],
   "Shrink existing partitions": [
     "縮小現有分割區"
@@ -1560,20 +1500,11 @@ export default {
   "Skip to content": [
     "跳到內容"
   ],
-  "Skip to next": [
-    "跳到下一個"
-  ],
-  "Skip to previous": [
-    "跳到上一個"
-  ],
   "Software": [
     "軟體"
   ],
   "Software %s": [
     "軟體 %s"
-  ],
-  "Software conflicts resolution": [
-    "軟體衝突解決情況"
   ],
   "Some existing partitions may be shrunk": [
     "可能會縮小部分現有分割區"
@@ -1815,20 +1746,17 @@ export default {
   "The storage configuration uses elements not supported by this interface.": [
     "儲存組態使用了此介面不支援的元素。"
   ],
-  "The system does not support Wi-Fi connections, probably because of missing or disabled hardware.": [
-    "系統不支援 WiFi 連接，原因可能是缺少硬體或硬體已停用。"
-  ],
   "The whole device will be used for %s": [
     "整部裝置將用於 %s"
-  ],
-  "The zFCP disk was not activated.": [
-    "未啟用该 zFCP 磁碟。"
   ],
   "There are not disks available for the installation. You may need to configure some device.": [
     "沒有可用於安裝的磁碟。您可能需要設定一些裝置。"
   ],
   "There are not usable partitions": [
     "沒有可使用的分割區"
+  ],
+  "There are not zFCP controllers pending of activation.": [
+    ""
   ],
   "There is %d destructive action planned": [
     "已規劃執行 %d 個破壞性動作"
@@ -1850,12 +1778,6 @@ export default {
   ],
   "This license is not available in %s.": [
     "此授權在 %s 中不可用。"
-  ],
-  "This may take a moment while updates complete.": [
-    "更新可能需要一段時間才能完成。"
-  ],
-  "This message will close automatically when everything is done.": [
-    "當所有操作均完成後，此訊息會自動關閉。"
   ],
   "This pattern strikes a balance between clarity and efficiency: the modal keeps things lightweight for simple selections, while the full view supports deeper exploration and more complex actions, specially for users with tons of devices.": [
     "此模式力求在清楚具體和快捷高效之間取得平衡：強制回應視窗提供簡單、便捷的選擇介面，而完整檢視則支援更深入的探索和更複雜的動作，專為擁有大量裝置的使用者而設計。"
@@ -1890,6 +1812,9 @@ export default {
   "Try again": [
     "再試一次"
   ],
+  "Try to deactivate again": [
+    ""
+  ],
   "Type": [
     "類型"
   ],
@@ -1898,6 +1823,15 @@ export default {
   ],
   "Unbound": [
     "已取消結合"
+  ],
+  "Unexpected error": [
+    ""
+  ],
+  "Unknown": [
+    ""
+  ],
+  "Unknown error": [
+    ""
   ],
   "Unselect": [
     "取消選取"
@@ -1910,6 +1844,9 @@ export default {
   ],
   "Unused space": [
     "未使用的空間"
+  ],
+  "Up": [
+    ""
   ],
   "Up to %s can be recovered by shrinking the device.": [
     "透過縮小裝置最多可回收 %s 的空間。"
@@ -2100,17 +2037,8 @@ export default {
   "Wi-Fi connection form": [
     "Wi-Fi 連接表單"
   ],
-  "Wi-Fi networks": [
-    "Wi-Fi 網路"
-  ],
-  "Wi-Fi not supported": [
-    "不支援 Wi-Fi"
-  ],
   "Will be supported in a future version.": [
     "未來的版本中會提供支援。"
-  ],
-  "Wired connections": [
-    "有線連接"
   ],
   "XFS": [
     "XFS"
@@ -2183,8 +2111,5 @@ export default {
   ],
   "zFCP": [
     "zFCP"
-  ],
-  "zFCP Disk activation form": [
-    "zFCP 磁碟啟用表單"
   ]
 };

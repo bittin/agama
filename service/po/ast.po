@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-03 15:34+0000\n"
+"POT-Creation-Date: 2026-03-16 17:01+0000\n"
 "PO-Revision-Date: 2025-09-11 02:48+0000\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -26,19 +26,13 @@ msgid "Found unsupported elements in the AutoYaST profile: %{keys}."
 msgstr ""
 
 #. Implementation for the API method #Probe.
-#: service/lib/agama/dbus/storage/dasd.rb:66
+#: service/lib/agama/dbus/storage/dasd.rb:68
 msgid "Probing DASD devices"
 msgstr ""
 
-#. Performs the configuration process in a separate thread.
-#.
-#. The configuration could take long time  (e.g., formatting devices). It is important to not
-#. block the service in order to make possible to attend other requests.
-#.
-#. @raise if there is an unfinished configuration.
-#.
-#. @param config_json [Hash]
-#: service/lib/agama/dbus/storage/dasd.rb:119
+#. The configuration could take long time  (e.g., formatting devices). It is important to
+#. not block the service in order to make possible to attend other requests.
+#: service/lib/agama/dbus/storage/dasd.rb:94
 msgid "Configuring DASD"
 msgstr ""
 
@@ -56,39 +50,39 @@ msgid "Performing iSCSI discovery"
 msgstr ""
 
 #. Implementation for the API method #Install.
-#: service/lib/agama/dbus/storage/manager.rb:186
+#: service/lib/agama/dbus/storage/manager.rb:187
 msgid "Preparing bootloader proposal"
 msgstr ""
 
-#: service/lib/agama/dbus/storage/manager.rb:189
+#: service/lib/agama/dbus/storage/manager.rb:190
 msgid "Preparing the storage devices"
 msgstr ""
 
-#: service/lib/agama/dbus/storage/manager.rb:192
+#: service/lib/agama/dbus/storage/manager.rb:193
 msgid "Writing bootloader sysconfig"
 msgstr ""
 
 #. Implementation for the API method #Finish.
-#: service/lib/agama/dbus/storage/manager.rb:200
+#: service/lib/agama/dbus/storage/manager.rb:201
 msgid "Finishing installation"
 msgstr ""
 
 #. Implementation for the API method #Umount.
-#: service/lib/agama/dbus/storage/manager.rb:207
+#: service/lib/agama/dbus/storage/manager.rb:208
 msgid "Unmounting devices"
 msgstr ""
 
 #. after loading config try to apply it, so proper packages can be requested
 #. TODO: generate also new issue from configuration
-#: service/lib/agama/dbus/storage/manager.rb:236
+#: service/lib/agama/dbus/storage/manager.rb:237
 msgid "Activating storage devices"
 msgstr ""
 
-#: service/lib/agama/dbus/storage/manager.rb:239
+#: service/lib/agama/dbus/storage/manager.rb:240
 msgid "Probing storage devices"
 msgstr ""
 
-#: service/lib/agama/dbus/storage/manager.rb:242
+#: service/lib/agama/dbus/storage/manager.rb:243
 msgid "Applying storage configuration"
 msgstr ""
 
@@ -419,7 +413,7 @@ msgstr ""
 #. Returns an issue if there is no candidate device for installation
 #.
 #. @return [Issue, nil]
-#: service/lib/agama/storage/manager.rb:252
+#: service/lib/agama/storage/manager.rb:251
 msgid "There is no suitable device for installation"
 msgstr ""
 
