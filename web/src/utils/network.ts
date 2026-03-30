@@ -58,14 +58,21 @@ const isValidAddress = (value: string): boolean =>
 
 /** Returns true if the value is a valid IPv4 address, with or without a CIDR prefix. */
 const isValidIPv4Address = (value: string): boolean =>
-  isValidAddress(value) && ipaddr.IPv4.isValid(value.split("/")[0]);
+  isValidAddress(value) && ipaddr.IPv4.isValidFourPartDecimal(value.split("/")[0]);
 
 /** Returns true if the value is a valid IPv6 address, with or without a CIDR prefix. */
 const isValidIPv6Address = (value: string): boolean =>
   isValidAddress(value) && ipaddr.IPv6.isValid(value.split("/")[0]);
 
+/** Returns true if the value is a valid bare IPv4 address (no CIDR prefix). */
+const isValidIPv4 = (value: string): boolean => ipaddr.IPv4.isValidFourPartDecimal(value);
+
+/** Returns true if the value is a valid bare IPv6 address (no CIDR prefix). */
+const isValidIPv6 = (value: string): boolean => ipaddr.IPv6.isValid(value);
+
 /** Returns true if the value is a valid nameserver address (bare IPv4 or IPv6, no CIDR). */
-const isValidNameserver = (value: string): boolean => ipaddr.isValid(value);
+const isValidNameserver = (value: string): boolean =>
+  ipaddr.IPv4.isValidFourPartDecimal(value) || ipaddr.IPv6.isValid(value);
 
 /**
  * Matches a valid DNS search domain or hostname per RFC 952 / RFC 1123.
@@ -241,6 +248,8 @@ const connectionBindingMode = (connection: Connection): ConnectionBindingMode =>
 export {
   buildAddress,
   isValidAddress,
+  isValidIPv4,
+  isValidIPv6,
   isValidIPv4Address,
   isValidIPv6Address,
   isValidNameserver,

@@ -21,7 +21,13 @@
  */
 
 import React from "react";
-import { FormGroup, TextInput } from "@patternfly/react-core";
+import {
+  FormGroup,
+  FormHelperText,
+  HelperText,
+  HelperTextItem,
+  TextInput,
+} from "@patternfly/react-core";
 import NestedContent from "~/components/core/NestedContent";
 import LabelText from "~/components/form/LabelText";
 import { connectionFormOptions } from "~/components/network/ConnectionForm";
@@ -140,28 +146,39 @@ const IpSettings = withForm({
                 </form.AppField>
 
                 <form.Field name={gatewayField}>
-                  {(field) => (
-                    <FormGroup
-                      fieldId={field.name}
-                      label={
-                        <LabelText
-                          suffix={
-                            mode === "auto"
-                              ? _("(optional, ignored if no addresses provided)")
-                              : _("(optional)")
-                          }
-                        >
-                          {gatewayLabel}
-                        </LabelText>
-                      }
-                    >
-                      <TextInput
-                        id={field.name}
-                        value={field.state.value}
-                        onChange={(_, v) => field.handleChange(v)}
-                      />
-                    </FormGroup>
-                  )}
+                  {(field) => {
+                    const error = field.state.meta.errors[0] as string | undefined;
+                    return (
+                      <FormGroup
+                        fieldId={field.name}
+                        label={
+                          <LabelText
+                            suffix={
+                              mode === "auto"
+                                ? _("(optional, ignored if no addresses provided)")
+                                : _("(optional)")
+                            }
+                          >
+                            {gatewayLabel}
+                          </LabelText>
+                        }
+                      >
+                        <TextInput
+                          id={field.name}
+                          value={field.state.value}
+                          validated={error ? "error" : "default"}
+                          onChange={(_, v) => field.handleChange(v)}
+                        />
+                        {error && (
+                          <FormHelperText>
+                            <HelperText>
+                              <HelperTextItem variant="error">{error}</HelperTextItem>
+                            </HelperText>
+                          </FormHelperText>
+                        )}
+                      </FormGroup>
+                    );
+                  }}
                 </form.Field>
               </NestedContent>
             )

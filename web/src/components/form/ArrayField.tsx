@@ -499,6 +499,7 @@ export default function ArrayField({
   };
 
   const hasErrors = value.some(errorFor);
+  const entryErrors = unique(sift(value.map(errorFor)));
   const hasAnyError = hasErrors || fieldErrors.length > 0;
 
   return (
@@ -575,20 +576,27 @@ export default function ArrayField({
 
       <FormHelperText>
         <HelperText>
-          {hasAnyError && (
-            <HelperTextItem variant="error" screenReaderText="">
-              {_("Select entries to edit or remove them.")}
-              {hasErrors && (
-                <>
-                  {" "}
-                  {_("Or ")}{" "}
-                  <Button variant="link" isInline onClick={clearInvalid}>
-                    {_("remove all invalid entries")}
-                  </Button>
-                  {"."}
-                </>
-              )}
-            </HelperTextItem>
+          {!hasErrors &&
+            fieldErrors.map((err, i) => (
+              <HelperTextItem key={i} variant="error">
+                {err as string}
+              </HelperTextItem>
+            ))}
+          {hasErrors && (
+            <>
+              {entryErrors.map((err, i) => (
+                <HelperTextItem key={i} variant="error">
+                  {err}
+                </HelperTextItem>
+              ))}
+              <HelperTextItem variant="error" screenReaderText="">
+                {_("Select entries to edit or remove them.")} {_("Or ")}{" "}
+                <Button variant="link" isInline onClick={clearInvalid}>
+                  {_("remove all invalid entries")}
+                </Button>
+                {"."}
+              </HelperTextItem>
+            </>
           )}
           <HelperTextItem id={hintId} variant="indeterminate" screenReaderText="">
             {hasAnyError && helperText && <>{helperText}. </>}
