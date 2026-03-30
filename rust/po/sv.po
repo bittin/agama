@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-13 11:58+0000\n"
-"PO-Revision-Date: 2026-03-09 08:04+0000\n"
+"POT-Creation-Date: 2026-03-19 07:21+0000\n"
+"PO-Revision-Date: 2026-03-20 07:04+0000\n"
 "Last-Translator: Luna  Jernberg <bittin@opensuse.org>\n"
 "Language-Team: Swedish <https://l10n.opensuse.org/projects/agama/agama-rust-"
 "master/sv/>\n"
@@ -28,6 +28,16 @@ msgstr "Nej"
 #: agama-utils/src/question/start.rs:54
 msgid "Yes"
 msgstr "Ja"
+
+#. TRANSLATORS: %s is replaced by the script name.
+#: agama-files/src/service.rs:197
+msgid "Failed to retrieve the script %s. Do you want to try again?"
+msgstr "Misslyckades med att hämta skriptet %s. Vill du försöka igen?"
+
+#. TRANSLATORS: %s is replaced by the script name.
+#: agama-files/src/service.rs:221
+msgid "Failed to write the file %s. Do you want to try again?"
+msgstr "Misslyckades med att skriva filen %s. Vill du försöka igen?"
 
 #: agama-manager/src/actions.rs:86
 msgid "Prepare the system"
@@ -97,13 +107,13 @@ msgstr "Förbereder lagringsförslag"
 msgid "Storing bootloader settings"
 msgstr "Lagrar starthanterare inställningar"
 
-#: agama-network/src/service.rs:526
-msgid "Writing configuration"
-msgstr "Skriver konfiguration"
+#: agama-network/src/service.rs:512
+msgid "Writing network configuration"
+msgstr "Skriver nätverkskonfiguration"
 
-#: agama-network/src/service.rs:527
-msgid "Reading configuration"
-msgstr "Läser konfiguration"
+#: agama-network/src/service.rs:513
+msgid "Syncing the network service state"
+msgstr "Synkronisera nätverkstjänstens status"
 
 #: agama-security/src/service.rs:226
 msgid "Reject"
@@ -232,6 +242,9 @@ msgstr ""
 #: agama-users/src/service.rs:153
 msgid "First user information is incomplete"
 msgstr "Informationen om den första användaren är ofullständig"
+
+#~ msgid "Reading configuration"
+#~ msgstr "Läser konfiguration"
 
 #~ msgid "The product must be registered"
 #~ msgstr "Produkten måste vara registrerad"

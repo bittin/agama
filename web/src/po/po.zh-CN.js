@@ -27,9 +27,6 @@ export default {
   "%1$s will still contain the LVM group '%2$s' and any partition needed to boot": [
     "%1$s 仍将包含 LVM 组 '%2$s' 和引导所需的任何分区"
   ],
-  "%d of %d": [
-    "%d / %d"
-  ],
   "%s - %s": [
     "%s - %s"
   ],
@@ -53,6 +50,15 @@ export default {
   ],
   "%s with %d partitions": [
     "%s （包含 %d 个分区）"
+  ],
+  "(bind by name)": [
+    ""
+  ],
+  "(bound by MAC)": [
+    ""
+  ],
+  "(bound by name)": [
+    ""
   ],
   "1 device selected. Use the actions toolbar to apply changes.": [
     ""
@@ -108,12 +114,6 @@ export default {
   "Activate and format DASD devices": [
     "激活并格式化 DASD 设备"
   ],
-  "Activate new disk": [
-    "激活新磁盘"
-  ],
-  "Activate zFCP disk": [
-    "激活 zFCP 磁盘"
-  ],
   "Activate zFCP disks": [
     "激活 zFCP 磁盘"
   ],
@@ -150,6 +150,9 @@ export default {
   "Add or use partition": [
     "添加或使用分区"
   ],
+  "Add search domain": [
+    ""
+  ],
   "Address": [
     "地址"
   ],
@@ -162,9 +165,6 @@ export default {
   "Adjust the settings below to make the new system fit into the available space.": [
     "请调整下面的设置，使新系统适配可用空间。"
   ],
-  "All conflicts have been resolved, or none were detected. You can safely continue with your setup.": [
-    "所有冲突都已解决，或者未检测到任何冲突。您可以安心继续进行设置。"
-  ],
   "All content not configured to be mounted will be deleted": [
     "将删除未配置为待挂载的所有内容"
   ],
@@ -176,6 +176,9 @@ export default {
   ],
   "All network connections managed through this interface are currently set to be used only during installation and will not be copied to the installed system": [
     "通过此界面管理的所有网络连接当前都设置为仅在安装过程中使用，并且不会复制到安装好的系统中"
+  ],
+  "All the available zFCP controllers are already activated.": [
+    ""
   ],
   "Allow growing": [
     "允许增长"
@@ -198,12 +201,6 @@ export default {
   "Any partition needed to boot will be configured.": [
     "将配置引导所需的所有分区。"
   ],
-  "Apply selected solution": [
-    "应用所选的解决方案"
-  ],
-  "Applying changes": [
-    "正在应用更改"
-  ],
   "As a new partition on %s": [
     "作为 %s 上的新分区"
   ],
@@ -219,9 +216,6 @@ export default {
   "Auto": [
     "自动"
   ],
-  "Auto LUNs Scan": [
-    "自动扫描 LUN"
-  ],
   "Auto and manual": [
     ""
   ],
@@ -231,11 +225,11 @@ export default {
   "Automatic (DHCP)": [
     "自动（DHCP）"
   ],
-  "Automatic LUN scan is [disabled]. LUNs have to be manually configured after activating a controller.": [
-    "自动扫描 LUN 功能[已停用]。激活控制器后必须手动配置 LUN。"
+  "Automatic LUN scan is disabled": [
+    ""
   ],
-  "Automatic LUN scan is [enabled]. Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
-    "自动扫描 LUN 功能[已启用]。如果激活在 NPIV 模式下 运行的控制器，将自动配置其所有 LUN。"
+  "Automatic LUN scan is enabled": [
+    ""
   ],
   "Back": [
     "返回"
@@ -342,12 +336,6 @@ export default {
   "Changes in these settings will immediately update the 'Result' section below.": [
     ""
   ],
-  "Channel ID": [
-    "通道 ID"
-  ],
-  "Check the authentication parameters.": [
-    "请检查身份验证参数。"
-  ],
   "Check the following before continuing": [
     "继续操作前请检查以下内容"
   ],
@@ -429,9 +417,6 @@ export default {
   "Connecting to %s": [
     "正在连接到 %s"
   ],
-  "Connection details": [
-    "连接详细信息"
-  ],
   "Connection is available to all devices.": [
     "连接可用于所有设备。"
   ],
@@ -449,12 +434,6 @@ export default {
   ],
   "Continuing without installing the package can result in a broken system. In some cases the system might not even boot.": [
     "如果继续但不安装该软件包，可能会使系统损坏。在某些情况下，系统甚至可能无法引导。"
-  ],
-  "Controllers": [
-    "控制器"
-  ],
-  "Could not connect to %s": [
-    "无法连接到 %s"
   ],
   "Create LVM volume group %s": [
     "创建 LVM 卷组 %s"
@@ -497,6 +476,9 @@ export default {
   ],
   "DNS": [
     "DNS"
+  ],
+  "DNS Search List": [
+    ""
   ],
   "Deactivate": [
     "停用"
@@ -558,9 +540,6 @@ export default {
   "Details": [
     "细节"
   ],
-  "Details will appear after the connection is successfully established.": [
-    "成功建立连接后将会显示详细信息。"
-  ],
   "Device": [
     "设备"
   ],
@@ -599,6 +578,12 @@ export default {
   ],
   "Do not use": [
     "不使用"
+  ],
+  "Domain": [
+    ""
+  ],
+  "Down": [
+    ""
   ],
   "Download logs": [
     "下载日志"
@@ -729,9 +714,6 @@ export default {
   "Find space in %s": [
     "在 %s 中查找可用空间"
   ],
-  "Finished": [
-    "已完成"
-  ],
   "First user": [
     "首个用户"
   ],
@@ -822,9 +804,6 @@ export default {
   "IP addresses": [
     "IP 地址"
   ],
-  "IP settings": [
-    "IP 设置"
-  ],
   "IPs": [
     ""
   ],
@@ -912,9 +891,6 @@ export default {
   "It is offline and must be activated before formatting it.": [
     "该设备已脱机，必须将其激活才能格式化。"
   ],
-  "It may take some time.": [
-    "这可能需要一些时间。"
-  ],
   "JFS": [
     "JFS"
   ],
@@ -954,9 +930,6 @@ export default {
   "Loading data...": [
     "正在读取数据……"
   ],
-  "Loading storage": [
-    "正在加载存储"
-  ],
   "Loading the installation repositories...": [
     "正在加载安装储存库..."
   ],
@@ -989,6 +962,9 @@ export default {
   ],
   "Manage DASD devices": [
     "管理 DASD 设备"
+  ],
+  "Manage available connections, connect to Wi-Fi, or add a new connection.": [
+    ""
   ],
   "Manual": [
     "手动"
@@ -1071,9 +1047,6 @@ export default {
   "Multipath": [
     "多路径"
   ],
-  "Multiple conflicts found. You can address them in any order, and resolving one may resolve others.": [
-    "发现多处冲突。您可以采用任何顺序解决这些冲突，解决某个冲突后可能会连带解决其他冲突。"
-  ],
   "NFS": [
     "NFS"
   ],
@@ -1095,9 +1068,6 @@ export default {
   "Network details": [
     "网络详细信息"
   ],
-  "Network not found or lost": [
-    "未找到网络，或者网络中断"
-  ],
   "New": [
     "新建"
   ],
@@ -1112,9 +1082,6 @@ export default {
   ],
   "No additional software was selected.": [
     "没有选择附加软件。"
-  ],
-  "No conflicts to address": [
-    "没有需要解决的冲突"
   ],
   "No content found": [
     "未找到内容"
@@ -1154,15 +1121,6 @@ export default {
   ],
   "No valid port.": [
     ""
-  ],
-  "No wired connections were found": [
-    "未找到有线连接"
-  ],
-  "No zFCP controllers found.": [
-    "未找到 zFCP 控制器。"
-  ],
-  "No zFCP disks found.": [
-    "未发现 zFCP 磁盘。"
   ],
   "None": [
     "无"
@@ -1260,17 +1218,8 @@ export default {
   "Passwords do not match": [
     "密码不匹配"
   ],
-  "Pending": [
-    "等待中"
-  ],
   "PiB": [
     "PiB"
-  ],
-  "Please, try to activate a zFCP controller.": [
-    "请尝试激活 zFCP 控制器。"
-  ],
-  "Please, try to activate a zFCP disk.": [
-    "请尝试激活 zFCP 磁盘。"
   ],
   "Port": [
     "端口"
@@ -1313,9 +1262,6 @@ export default {
   ],
   "Question": [
     "问题"
-  ],
-  "Read zFCP devices": [
-    "读取 zFCP 设备"
   ],
   "Reboot": [
     "重启"
@@ -1446,9 +1392,6 @@ export default {
   "Select a product": [
     "请选择产品"
   ],
-  "Select a solution to continue": [
-    "选择一个解决方案以继续"
-  ],
   "Select another device to define partitions or to mount": [
     "选择另一个要定义分区或要挂载的设备"
   ],
@@ -1466,6 +1409,9 @@ export default {
   ],
   "Select or enter a valid mount point": [
     "请选择或输入有效的挂载点"
+  ],
+  "Select the zFCP controllers to activate:": [
+    ""
   ],
   "Select what to do with each partition in order to find space for allocating the new system.": [
     "选择如何处理每个分区，以便为新系统分配空间。"
@@ -1497,9 +1443,6 @@ export default {
   "Set a permanent hostname that won’t change with network updates.": [
     "设置不会因网络更新而更改的永久主机名。"
   ],
-  "Setting up connection": [
-    "正在设置连接"
-  ],
   "Settings": [
     "设置"
   ],
@@ -1514,12 +1457,6 @@ export default {
   ],
   "Show information about %s": [
     "显示关于 %s 的信息"
-  ],
-  "Show less actions": [
-    "收起部分操作"
-  ],
-  "Show more actions": [
-    "显示更多操作"
   ],
   "Shrink existing partitions": [
     "缩小现有分区"
@@ -1545,20 +1482,11 @@ export default {
   "Skip to content": [
     "跳到内容"
   ],
-  "Skip to next": [
-    "跳到下一个"
-  ],
-  "Skip to previous": [
-    "跳到上一个"
-  ],
   "Software": [
     "软件"
   ],
   "Software %s": [
     "软件 %s"
-  ],
-  "Software conflicts resolution": [
-    "软件冲突解决情况"
   ],
   "Some existing partitions may be shrunk": [
     "可能会收缩部分现有分区"
@@ -1800,20 +1728,17 @@ export default {
   "The storage configuration uses elements not supported by this interface.": [
     "存储配置使用了此界面不支持的元素。"
   ],
-  "The system does not support Wi-Fi connections, probably because of missing or disabled hardware.": [
-    "系统不支持 WiFi 连接，可能由于硬件缺失或已被禁用。"
-  ],
   "The whole device will be used for %s": [
     "整个设备将用于 %s"
-  ],
-  "The zFCP disk was not activated.": [
-    "zFCP 磁盘未激活。"
   ],
   "There are not disks available for the installation. You may need to configure some device.": [
     "没有可用于安装的磁盘。您可能需要配置某些设备。"
   ],
   "There are not usable partitions": [
     "没有可使用的分区"
+  ],
+  "There are not zFCP controllers pending of activation.": [
+    ""
   ],
   "There is %d destructive action planned": [
     "已计划执行 %d 个具有破坏性的操作"
@@ -1835,12 +1760,6 @@ export default {
   ],
   "This license is not available in %s.": [
     "此许可证在 %s 中不可用。"
-  ],
-  "This may take a moment while updates complete.": [
-    "更新可能需要一段时间才能完成。"
-  ],
-  "This message will close automatically when everything is done.": [
-    "当所有操作完成后，此消息将会自动关闭。"
   ],
   "This pattern strikes a balance between clarity and efficiency: the modal keeps things lightweight for simple selections, while the full view supports deeper exploration and more complex actions, specially for users with tons of devices.": [
     "此模式力求在清楚具体和快捷高效之间取得平衡：模态窗口提供简单、便捷的选择界面，而完整视图则支持更深入的探索和更复杂的操作，专为拥有大量设备的用户而设计。"
@@ -1875,6 +1794,9 @@ export default {
   "Try again": [
     "重试"
   ],
+  "Try to deactivate again": [
+    ""
+  ],
   "Type": [
     "类型"
   ],
@@ -1883,6 +1805,15 @@ export default {
   ],
   "Unbound": [
     "已取消绑定"
+  ],
+  "Unexpected error": [
+    ""
+  ],
+  "Unknown": [
+    ""
+  ],
+  "Unknown error": [
+    ""
   ],
   "Unselect": [
     "取消选择"
@@ -1895,6 +1826,9 @@ export default {
   ],
   "Unused space": [
     "未使用的空间"
+  ],
+  "Up": [
+    ""
   ],
   "Up to %s can be recovered by shrinking the device.": [
     "通过收缩设备最多可回收 %s 的空间。"
@@ -2085,17 +2019,8 @@ export default {
   "Wi-Fi connection form": [
     "Wi-Fi 连接表单"
   ],
-  "Wi-Fi networks": [
-    "Wi-Fi 网络"
-  ],
-  "Wi-Fi not supported": [
-    "不支持 Wi-Fi"
-  ],
   "Will be supported in a future version.": [
     "未来的版本中会提供支持。"
-  ],
-  "Wired connections": [
-    "有线连接"
   ],
   "XFS": [
     "XFS"
@@ -2162,8 +2087,5 @@ export default {
   ],
   "zFCP": [
     "zFCP"
-  ],
-  "zFCP Disk activation form": [
-    "zFCP 磁盘激活表单"
   ]
 };
