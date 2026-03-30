@@ -23,6 +23,7 @@
 import { createFormHook } from "@tanstack/react-form";
 import { fieldContext, formContext, useFieldContext, useFormContext } from "~/hooks/form-contexts";
 import ChoiceField from "~/components/form/ChoiceField";
+import ArrayField from "~/components/form/ArrayField";
 
 /**
  * Application-wide TanStack Form hook.
@@ -34,6 +35,7 @@ const { useAppForm, withForm } = createFormHook({
   formContext,
   fieldComponents: {
     ChoiceField,
+    ArrayField,
   },
   formComponents: {},
 });
