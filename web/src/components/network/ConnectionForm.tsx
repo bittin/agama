@@ -30,10 +30,6 @@ import {
   Flex,
   Form,
   FormGroup,
-  FormHelperText,
-  HelperText,
-  HelperTextItem,
-  TextArea,
   TextInput,
 } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
@@ -47,18 +43,11 @@ import { formOptions } from "@tanstack/react-form";
 import { useAppForm, mergeFormDefaults } from "~/hooks/form";
 import { useDevices } from "~/hooks/model/system/network";
 import { NETWORK } from "~/routes/paths";
-import { buildAddress } from "~/utils/network";
+import { buildAddress, isValidNameserver, isValidDNSSearchDomain } from "~/utils/network";
 import { _ } from "~/i18n";
 
 const IPV4_DEFAULT_PREFIX = 24;
 const IPV6_DEFAULT_PREFIX = 64;
-
-/** Splits a space/newline separated string into a trimmed, non-empty token array. */
-const parseTokens = (raw: string): string[] =>
-  raw
-    .split(/[\s\n]+/)
-    .map((s) => s.trim())
-    .filter(Boolean);
 
 /** Ensures a CIDR string has a prefix, adding a protocol-appropriate default if missing. */
 const withPrefix = (address: string): string => {
@@ -67,9 +56,6 @@ const withPrefix = (address: string): string => {
     ? `${address}/${IPV6_DEFAULT_PREFIX}`
     : `${address}/${IPV4_DEFAULT_PREFIX}`;
 };
-
-/** Parses a space/newline separated string of addresses into IPAddress objects. */
-const parseAddresses = (raw: string) => parseTokens(raw).map(withPrefix).map(buildAddress);
 
 /**
  * Shared form options for ConnectionForm and its `withForm` based
@@ -84,13 +70,13 @@ export const connectionFormOptions = formOptions({
     iface: "",
     ifaceMac: "",
     ipv4Mode: "unset",
-    addresses4: "",
+    addresses4: [] as string[],
     gateway4: "",
     ipv6Mode: "unset",
-    addresses6: "",
+    addresses6: [] as string[],
     gateway6: "",
-    nameservers: "",
-    dnsSearchList: "",
+    nameservers: [] as string[],
+    dnsSearchList: [] as string[],
     useCustomDns: false,
     useCustomDnsSearch: false,
     bindingMode: "none" as ConnectionBindingMode,
@@ -138,11 +124,11 @@ export default function ConnectionForm() {
       onSubmitAsync: async ({ value }) => {
         const ipv4Addresses =
           value.ipv4Mode === "manual" || value.ipv4Mode === "auto"
-            ? parseAddresses(value.addresses4)
+            ? value.addresses4.map(withPrefix).map(buildAddress)
             : [];
         const ipv6Addresses =
           value.ipv6Mode === "manual" || value.ipv6Mode === "auto"
-            ? parseAddresses(value.addresses6)
+            ? value.addresses6.map(withPrefix).map(buildAddress)
             : [];
 
         const connection = new Connection(value.name, {
@@ -153,8 +139,8 @@ export default function ConnectionForm() {
           method6: MODE_TO_METHOD[value.ipv6Mode],
           gateway6: ipv6Addresses.length > 0 ? value.gateway6 : "",
           addresses: [...ipv4Addresses, ...ipv6Addresses],
-          nameservers: value.useCustomDns ? parseTokens(value.nameservers) : [],
-          dnsSearchList: value.useCustomDnsSearch ? parseTokens(value.dnsSearchList) : [],
+          nameservers: value.useCustomDns ? value.nameservers : [],
+          dnsSearchList: value.useCustomDnsSearch ? value.dnsSearchList : [],
         });
         try {
           await updateConnection(connection);
@@ -223,26 +209,17 @@ export default function ConnectionForm() {
                   />
                   {dnsToggle.state.value && (
                     <NestedContent margin="mxLg">
-                      <form.Field name="nameservers">
+                      <form.AppField name="nameservers">
                         {(field) => (
-                          <FormGroup fieldId={field.name}>
-                            <TextArea
-                              id={field.name}
-                              value={field.state.value}
-                              onChange={(_, v) => field.handleChange(v)}
-                              aria-label={_("DNS servers")}
-                              aria-describedby={`${field.name}-hint`}
-                            />
-                            <FormHelperText>
-                              <HelperText>
-                                <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
-                                  {_("Space-separated list of DNS server addresses")}
-                                </HelperTextItem>
-                              </HelperText>
-                            </FormHelperText>
-                          </FormGroup>
+                          <field.ArrayField
+                            label={_("DNS servers")}
+                            skipDuplicates
+                            validateOnSubmit={(v) =>
+                              isValidNameserver(v) ? undefined : _("Invalid DNS server address")
+                            }
+                          />
                         )}
-                      </form.Field>
+                      </form.AppField>
                     </NestedContent>
                   )}
                 </>
@@ -260,26 +237,17 @@ export default function ConnectionForm() {
                   />
                   {dnsSearchToggle.state.value && (
                     <NestedContent margin="mxLg">
-                      <form.Field name="dnsSearchList">
+                      <form.AppField name="dnsSearchList">
                         {(field) => (
-                          <FormGroup fieldId={field.name}>
-                            <TextArea
-                              id={field.name}
-                              value={field.state.value}
-                              onChange={(_, v) => field.handleChange(v)}
-                              aria-label={_("DNS search domains")}
-                              aria-describedby={`${field.name}-hint`}
-                            />
-                            <FormHelperText>
-                              <HelperText>
-                                <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
-                                  {_("Space-separated, e.g. example.com local.lan")}
-                                </HelperTextItem>
-                              </HelperText>
-                            </FormHelperText>
-                          </FormGroup>
+                          <field.ArrayField
+                            label={_("DNS search domains")}
+                            skipDuplicates
+                            validateOnSubmit={(v) =>
+                              isValidDNSSearchDomain(v) ? undefined : _("Invalid DNS search domain")
+                            }
+                          />
                         )}
-                      </form.Field>
+                      </form.AppField>
                     </NestedContent>
                   )}
                 </>

@@ -158,12 +158,18 @@ describe("ConnectionForm", () => {
 
     await user.click(screen.getByLabelText("IPv4 Settings"));
     await user.click(screen.getByRole("option", { name: /^Manual/ }));
-    await user.type(screen.getByLabelText("IPv4 Addresses"), "192.168.1.100 192.168.1.200/12");
+    await user.type(
+      screen.getByLabelText("IPv4 Addresses"),
+      "192.168.1.100{Enter}192.168.1.200/12{Enter}",
+    );
     await user.type(screen.getByLabelText("IPv4 Gateway (optional)"), "192.168.1.1");
 
     await user.click(screen.getByLabelText("IPv6 Settings"));
     await user.click(screen.getByRole("option", { name: /^Manual/ }));
-    await user.type(screen.getByLabelText("IPv6 Addresses"), "2001:db8::1 2001:db8::2/24");
+    await user.type(
+      screen.getByLabelText("IPv6 Addresses"),
+      "2001:db8::1{Enter}2001:db8::2/24{Enter}",
+    );
     await user.type(screen.getByLabelText("IPv6 Gateway (optional)"), "::1");
 
     await user.click(screen.getByRole("button", { name: "Accept" }));
@@ -196,7 +202,7 @@ describe("ConnectionForm", () => {
     it("shows the DNS servers field when the checkbox is checked", async () => {
       const { user } = installerRender(<ConnectionForm />);
       await user.click(screen.getByLabelText("Use custom DNS"));
-      screen.getByRole("textbox", { name: "DNS servers" });
+      screen.getByLabelText("DNS servers");
     });
 
     it("submits with parsed nameservers when checkbox is checked", async () => {
@@ -204,8 +210,8 @@ describe("ConnectionForm", () => {
       await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
       await user.click(screen.getByLabelText("Use custom DNS"));
       await user.type(
-        screen.getByRole("textbox", { name: "DNS servers" }),
-        "8.8.8.8 1.1.1.1 2001:db8::1",
+        screen.getByLabelText("DNS servers"),
+        "8.8.8.8{Enter}1.1.1.1{Enter}2001:db8::1{Enter}",
       );
       await user.click(screen.getByRole("button", { name: "Accept" }));
       await waitFor(() =>
@@ -220,7 +226,7 @@ describe("ConnectionForm", () => {
       await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
       const checkbox = screen.getByRole("checkbox", { name: "Use custom DNS" });
       await user.click(checkbox);
-      await user.type(screen.getByRole("textbox", { name: "DNS servers" }), "8.8.8.8");
+      await user.type(screen.getByLabelText("DNS servers"), "8.8.8.8{Enter}");
       await user.click(checkbox);
       expect(checkbox).not.toBeChecked();
       await user.click(screen.getByRole("button", { name: "Accept" }));
@@ -239,7 +245,7 @@ describe("ConnectionForm", () => {
     it("shows the DNS search domains field when the checkbox is checked", async () => {
       const { user } = installerRender(<ConnectionForm />);
       await user.click(screen.getByLabelText("Use custom DNS search domains"));
-      screen.getByRole("textbox", { name: "DNS search domains" });
+      screen.getByLabelText("DNS search domains");
     });
 
     it("submits with parsed dnsSearchList when checkbox is checked", async () => {
@@ -247,8 +253,8 @@ describe("ConnectionForm", () => {
       await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
       await user.click(screen.getByLabelText("Use custom DNS search domains"));
       await user.type(
-        screen.getByRole("textbox", { name: "DNS search domains" }),
-        "example.com local.lan",
+        screen.getByLabelText("DNS search domains"),
+        "example.com{Enter}local.lan{Enter}",
       );
       await user.click(screen.getByRole("button", { name: "Accept" }));
       await waitFor(() =>
@@ -263,7 +269,7 @@ describe("ConnectionForm", () => {
       await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
       const checkbox = screen.getByRole("checkbox", { name: "Use custom DNS search domains" });
       await user.click(checkbox);
-      await user.type(screen.getByRole("textbox", { name: "DNS search domains" }), "example.com");
+      await user.type(screen.getByLabelText("DNS search domains"), "example.com{Enter}");
       await user.click(checkbox);
       expect(checkbox).not.toBeChecked();
       await user.click(screen.getByRole("button", { name: "Accept" }));
