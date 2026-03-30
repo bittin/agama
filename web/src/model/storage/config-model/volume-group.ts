@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2025] SUSE LLC
+ * Copyright (c) [2025-2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -23,22 +23,6 @@
 import { sift } from "radashi";
 import configModel from "~/model/storage/config-model";
 import type { ConfigModel, Data } from "~/model/storage/config-model";
-
-function movePartitions(
-  device: ConfigModel.Drive | ConfigModel.MdRaid,
-  volumeGroup: ConfigModel.VolumeGroup,
-) {
-  if (!device.partitions) return;
-
-  const newPartitions = device.partitions.filter((p) => !p.name);
-  const reusedPartitions = device.partitions.filter((p) => p.name);
-  device.partitions = [...reusedPartitions];
-  const logicalVolumes = volumeGroup.logicalVolumes || [];
-  volumeGroup.logicalVolumes = [
-    ...logicalVolumes,
-    ...newPartitions.map(configModel.logicalVolume.createFromPartition),
-  ];
-}
 
 function adjustSpacePolicies(config: ConfigModel.Config, targets: string[]) {
   const devices = configModel.partitionable.all(config);
@@ -92,7 +76,7 @@ function add(
     configModel.partitionable
       .all(config)
       .filter((d) => data.targetDevices.includes(d.name))
-      .forEach((d) => movePartitions(d, volumeGroup));
+      .forEach((d) => configModel.partitionable.convertPartitionsToLogicalVolumes(d, volumeGroup));
   }
 
   config.volumeGroups ||= [];
@@ -153,23 +137,6 @@ function generateName(config: ConfigModel.Config): string {
   return `system${Math.max(...numbers) + 1}`;
 }
 
-function addFromPartitionable(config: ConfigModel.Config, devName: string): ConfigModel.Config {
-  config = configModel.clone(config);
-
-  const device = configModel.partitionable.all(config).find((d) => d.name === devName);
-  if (!device) return config;
-
-  const volumeGroup = create({
-    vgName: generateName(config),
-    targetDevices: [devName],
-  });
-  movePartitions(device, volumeGroup);
-  config.volumeGroups ||= [];
-  config.volumeGroups.push(volumeGroup);
-
-  return config;
-}
-
 function convertToPartitionable(config: ConfigModel.Config, vgName: string): ConfigModel.Config {
   config = configModel.clone(config);
 
@@ -187,13 +154,14 @@ function convertToPartitionable(config: ConfigModel.Config, vgName: string): Con
   const partitions = device.partitions || [];
   device.partitions = [
     ...partitions,
-    ...logicalVolumes.map(configModel.partition.createFromLogicalVolume),
+    ...logicalVolumes.map(configModel.logicalVolume.convertToPartition),
   ];
 
   return config;
 }
 
 export default {
+  generateName,
   create,
   usedMountPaths,
   findIndex,
@@ -201,6 +169,5 @@ export default {
   add,
   edit,
   remove,
-  addFromPartitionable,
   convertToPartitionable,
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2025] SUSE LLC
+ * Copyright (c) [2025-2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -192,6 +192,55 @@ function convert(
   return config;
 }
 
+function convertToDrive(
+  config: ConfigModel.Config,
+  name: string,
+  driveData: Data.Drive,
+): ConfigModel.Config {
+  return convert(config, name, driveData.name, "drives");
+}
+
+function convertToMdRaid(
+  config: ConfigModel.Config,
+  name: string,
+  mdRaidData: Data.MdRaid,
+): ConfigModel.Config {
+  return convert(config, name, mdRaidData.name, "mdRaids");
+}
+
+function convertPartitionsToLogicalVolumes(
+  device: ConfigModel.Drive | ConfigModel.MdRaid,
+  volumeGroup: ConfigModel.VolumeGroup,
+) {
+  if (!device.partitions) return;
+
+  const newPartitions = device.partitions.filter((p) => !p.name);
+  const reusedPartitions = device.partitions.filter((p) => p.name);
+  device.partitions = [...reusedPartitions];
+  const logicalVolumes = volumeGroup.logicalVolumes || [];
+  volumeGroup.logicalVolumes = [
+    ...logicalVolumes,
+    ...newPartitions.map(configModel.partition.convertToLogicalVolume),
+  ];
+}
+
+function convertToVolumeGroup(config: ConfigModel.Config, devName: string): ConfigModel.Config {
+  config = configModel.clone(config);
+
+  const device = all(config).find((d) => d.name === devName);
+  if (!device) return config;
+
+  const volumeGroup = configModel.volumeGroup.create({
+    vgName: configModel.volumeGroup.generateName(config),
+    targetDevices: [devName],
+  });
+  convertPartitionsToLogicalVolumes(device, volumeGroup);
+  config.volumeGroups ||= [];
+  config.volumeGroups.push(volumeGroup);
+
+  return config;
+}
+
 function setActions(device: ConfigModel.Drive, actions: Data.SpacePolicyAction[]) {
   device.partitions ||= [];
 
@@ -272,7 +321,10 @@ export default {
   isReusingPartitions,
   remove,
   removeIfUnused,
-  convert,
+  convertToDrive,
+  convertToMdRaid,
+  convertPartitionsToLogicalVolumes,
+  convertToVolumeGroup,
   setSpacePolicy,
   setFilesystem,
 };

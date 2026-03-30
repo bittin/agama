@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2025] SUSE LLC
+ * Copyright (c) [2025-2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -129,12 +129,12 @@ function useDeleteDrive(): DeleteDriveFn {
   };
 }
 
-type AddDriveFromMdRaidFn = (oldName: string, drive: Data.Drive) => void;
+type ConvertDriveToMdRaidFn = (name: string, mdRaidData: Data.MdRaid) => void;
 
-function useAddDriveFromMdRaid(): AddDriveFromMdRaidFn {
+function useConvertDriveToMdRaid(): ConvertDriveToMdRaidFn {
   const config = useConfigModel();
-  return (oldName: string, drive: Data.Drive) => {
-    putStorageModel(configModel.drive.addFromMdRaid(config, oldName, drive));
+  return (driveName: string, mdRaidData: Data.MdRaid) => {
+    putStorageModel(configModel.partitionable.convertToMdRaid(config, driveName, mdRaidData));
   };
 }
 
@@ -168,12 +168,12 @@ function useDeleteMdRaid(): DeleteMdRaidFn {
   };
 }
 
-type AddMdRaidFromDriveFn = (oldName: string, raid: Data.MdRaid) => void;
+type ConvertMdRaidToDriveFn = (name: string, driveData: Data.Drive) => void;
 
-function useAddMdRaidFromDrive(): AddMdRaidFromDriveFn {
+function useConvertMdRaidToDrive(): ConvertMdRaidToDriveFn {
   const config = useConfigModel();
-  return (oldName: string, raid: Data.MdRaid) => {
-    putStorageModel(configModel.mdRaid.addFromDrive(config, oldName, raid));
+  return (name: string, driveData: Data.Drive) => {
+    putStorageModel(configModel.partitionable.convertToDrive(config, name, driveData));
   };
 }
 
@@ -214,12 +214,12 @@ function useDeleteVolumeGroup(): DeleteVolumeGroupFn {
   };
 }
 
-type AddVolumeGroupFromPartitionableFn = (driveName: string) => void;
+type ConvertPartitionableToVolumeGroupFn = (name: string) => void;
 
-function useAddVolumeGroupFromPartitionable(): AddVolumeGroupFromPartitionableFn {
+function useConvertPartitionableToVolumeGroup(): ConvertPartitionableToVolumeGroupFn {
   const config = useConfigModel();
-  return (driveName: string) => {
-    putStorageModel(configModel.volumeGroup.addFromPartitionable(config, driveName));
+  return (name: string) => {
+    putStorageModel(configModel.partitionable.convertToVolumeGroup(config, name));
   };
 }
 
@@ -339,16 +339,16 @@ export {
   useDrive,
   useAddDrive,
   useDeleteDrive,
-  useAddDriveFromMdRaid,
+  useConvertMdRaidToDrive,
   useMdRaid,
   useAddMdRaid,
   useDeleteMdRaid,
-  useAddMdRaidFromDrive,
+  useConvertDriveToMdRaid,
   useVolumeGroup,
   useAddVolumeGroup,
   useEditVolumeGroup,
   useDeleteVolumeGroup,
-  useAddVolumeGroupFromPartitionable,
+  useConvertPartitionableToVolumeGroup,
   useAddLogicalVolume,
   useEditLogicalVolume,
   useDeleteLogicalVolume,

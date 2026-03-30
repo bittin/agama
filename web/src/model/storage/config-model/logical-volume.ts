@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2025] SUSE LLC
+ * Copyright (c) [2025-2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -37,13 +37,6 @@ function create(data: Data.LogicalVolume): ConfigModel.LogicalVolume {
     ...data,
     filesystem: data.filesystem ? createFilesystem(data.filesystem) : undefined,
     size: data.size ? createSize(data.size) : undefined,
-  };
-}
-
-function createFromPartition(partition: ConfigModel.Partition): ConfigModel.LogicalVolume {
-  return {
-    ...partition,
-    lvName: partition.mountPath ? generateName(partition.mountPath) : undefined,
   };
 }
 
@@ -106,4 +99,12 @@ function remove(config: ConfigModel.Config, vgName: string, mountPath: string): 
   return config;
 }
 
-export default { generateName, create, createFromPartition, add, edit, remove };
+function convertToPartition(lv: ConfigModel.LogicalVolume): ConfigModel.Partition {
+  return {
+    mountPath: lv.mountPath,
+    filesystem: lv.filesystem,
+    size: lv.size,
+  };
+}
+
+export default { generateName, create, add, edit, remove, convertToPartition };

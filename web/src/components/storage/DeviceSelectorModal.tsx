@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2025] SUSE LLC
+ * Copyright (c) [2025-2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -46,7 +46,8 @@ type DeviceSelectorProps = {
 };
 
 const size = (device: Storage.Device) => {
-  return deviceSize(device.block.size);
+  const bytes = device.volumeGroup?.size || device.block?.size || 0;
+  return deviceSize(bytes);
 };
 
 const description = (device: Storage.Device) => {
