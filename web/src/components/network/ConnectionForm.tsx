@@ -27,32 +27,28 @@ import {
   ActionGroup,
   Button,
   Checkbox,
+  Flex,
   Form,
   FormGroup,
   FormHelperText,
-  FormSelect,
-  FormSelectOption,
   HelperText,
   HelperTextItem,
-  Split,
   TextArea,
   TextInput,
 } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
 import NestedContent from "~/components/core/NestedContent";
-import LabelText from "~/components/form/LabelText";
-import { Connection, ConnectionMethod } from "~/types/network";
-import { buildAddress } from "~/utils/network";
+import IpSettings from "~/components/network/IpSettings";
+import BindingModeSelector from "~/components/network/BindingModeSelector";
+import DeviceSelector from "~/components/network/DeviceSelector";
+import { Connection, ConnectionBindingMode, ConnectionMethod } from "~/types/network";
 import { useConnectionMutation } from "~/hooks/model/config/network";
-import { useAppForm } from "~/hooks/form";
+import { formOptions } from "@tanstack/react-form";
+import { useAppForm, mergeFormDefaults } from "~/hooks/form";
 import { useDevices } from "~/hooks/model/system/network";
 import { NETWORK } from "~/routes/paths";
-import { _, N_ } from "~/i18n";
-
-const METHOD_OPTIONS = [
-  { value: ConnectionMethod.AUTO, label: N_("Automatic (DHCP)") },
-  { value: ConnectionMethod.MANUAL, label: N_("Manual") },
-];
+import { buildAddress } from "~/utils/network";
+import { _ } from "~/i18n";
 
 const IPV4_DEFAULT_PREFIX = 24;
 const IPV6_DEFAULT_PREFIX = 64;
@@ -76,6 +72,45 @@ const withPrefix = (address: string): string => {
 const parseAddresses = (raw: string) => parseTokens(raw).map(withPrefix).map(buildAddress);
 
 /**
+ * Shared form options for ConnectionForm and its `withForm` based
+ * sub-components
+ *
+ * Sub-components spread these options in their `withForm` definition so
+ * TanStack Form can infer the field types, enabling type-safe props.
+ */
+export const connectionFormOptions = formOptions({
+  defaultValues: {
+    name: "",
+    iface: "",
+    ifaceMac: "",
+    ipv4Mode: "unset",
+    addresses4: "",
+    gateway4: "",
+    ipv6Mode: "unset",
+    addresses6: "",
+    gateway6: "",
+    nameservers: "",
+    dnsSearchList: "",
+    useCustomDns: false,
+    useCustomDnsSearch: false,
+    bindingMode: "none" as ConnectionBindingMode,
+  },
+});
+
+/**
+ * Maps form mode values to their corresponding {@link ConnectionMethod}.
+ *
+ * "unset" is intentionally absent: omitting it causes the Connection
+ * constructor to write no method, delegating the decision to NetworkManager.
+ * This map can be dropped once the form mode values align with
+ * {@link ConnectionMethod} enum values.
+ */
+const MODE_TO_METHOD: Record<string, ConnectionMethod> = {
+  auto: ConnectionMethod.AUTO,
+  manual: ConnectionMethod.MANUAL,
+};
+
+/**
  * Form for creating a new network connection.
  *
  * @remarks
@@ -95,28 +130,29 @@ export default function ConnectionForm() {
   const { mutateAsync: updateConnection } = useConnectionMutation();
 
   const form = useAppForm({
-    defaultValues: {
-      name: "",
-      interface: devices[0]?.name ?? "",
-      method4: ConnectionMethod.AUTO,
-      gateway4: "",
-      method6: ConnectionMethod.AUTO,
-      gateway6: "",
-      addresses: "",
-      useCustomDns: false,
-      nameservers: "",
-      useCustomDnsSearch: false,
-      dnsSearchList: "",
-    },
+    ...mergeFormDefaults(connectionFormOptions, {
+      iface: devices[0]?.name ?? "",
+      ifaceMac: devices[0]?.macAddress ?? "",
+    }),
     validators: {
       onSubmitAsync: async ({ value }) => {
+        const ipv4Addresses =
+          value.ipv4Mode === "manual" || value.ipv4Mode === "auto"
+            ? parseAddresses(value.addresses4)
+            : [];
+        const ipv6Addresses =
+          value.ipv6Mode === "manual" || value.ipv6Mode === "auto"
+            ? parseAddresses(value.addresses6)
+            : [];
+
         const connection = new Connection(value.name, {
-          iface: value.interface,
-          method4: value.method4,
-          gateway4: value.gateway4,
-          method6: value.method6,
-          gateway6: value.gateway6,
-          addresses: parseAddresses(value.addresses),
+          iface: value.bindingMode === "iface" ? value.iface : "",
+          macAddress: value.bindingMode === "mac" ? value.ifaceMac : "",
+          method4: MODE_TO_METHOD[value.ipv4Mode],
+          gateway4: ipv4Addresses.length > 0 ? value.gateway4 : "",
+          method6: MODE_TO_METHOD[value.ipv6Mode],
+          gateway6: ipv6Addresses.length > 0 ? value.gateway6 : "",
+          addresses: [...ipv4Addresses, ...ipv6Addresses],
           nameservers: value.useCustomDns ? parseTokens(value.nameservers) : [],
           dnsSearchList: value.useCustomDnsSearch ? parseTokens(value.dnsSearchList) : [],
         });
@@ -135,267 +171,135 @@ export default function ConnectionForm() {
   return (
     <Page breadcrumbs={breadcrumbs}>
       <Page.Content>
-        <Form
-          onSubmit={(e) => {
-            e.preventDefault();
-            form.handleSubmit();
-          }}
-        >
-          <form.Subscribe selector={(s) => s.errorMap.onSubmit?.form}>
-            {(serverError) =>
-              serverError && (
-                <Alert variant="danger" isInline title={_("The connection could not be saved")}>
-                  {serverError}
-                </Alert>
-              )
-            }
-          </form.Subscribe>
-
-          <form.Field name="name">
-            {(field) => (
-              <FormGroup fieldId={field.name} label={_("Name")}>
-                <TextInput
-                  id={field.name}
-                  value={field.state.value}
-                  onChange={(_, v) => field.handleChange(v)}
-                />
-              </FormGroup>
-            )}
-          </form.Field>
-
-          <form.Field name="interface">
-            {(field) => (
-              <FormGroup fieldId={field.name} label={_("Interface")}>
-                <FormSelect
-                  id={field.name}
-                  value={field.state.value}
-                  onChange={(_, v) => field.handleChange(v)}
-                >
-                  {devices.map((d) => (
-                    <FormSelectOption key={d.name} value={d.name} label={d.name} />
-                  ))}
-                </FormSelect>
-              </FormGroup>
-            )}
-          </form.Field>
-
-          <Split hasGutter>
-            <form.Field name="method4">
-              {(field) => (
-                <FormGroup fieldId={field.name} label={_("IPv4 Method")}>
-                  <FormSelect
-                    id={field.name}
-                    value={field.state.value}
-                    onChange={(_, v) => field.handleChange(v as ConnectionMethod)}
-                  >
-                    {METHOD_OPTIONS.map(({ value, label }) => (
-                      // eslint-disable-next-line agama-i18n/string-literals
-                      <FormSelectOption key={value} value={value} label={_(label)} />
-                    ))}
-                  </FormSelect>
-                </FormGroup>
-              )}
-            </form.Field>
-
-            <form.Subscribe selector={(s) => s.values.method4}>
-              {(method4) =>
-                method4 === ConnectionMethod.MANUAL && (
-                  <form.Field name="gateway4">
-                    {(field) => (
-                      <FormGroup
-                        fieldId={field.name}
-                        label={<LabelText suffix={_("(optional)")}>{_("IPv4 Gateway")}</LabelText>}
-                      >
-                        <TextInput
-                          id={field.name}
-                          value={field.state.value}
-                          onChange={(_, v) => field.handleChange(v)}
-                        />
-                      </FormGroup>
-                    )}
-                  </form.Field>
-                )
-              }
-            </form.Subscribe>
-          </Split>
-
-          <Split hasGutter>
-            <form.Field name="method6">
-              {(field) => (
-                <FormGroup fieldId={field.name} label={_("IPv6 Method")}>
-                  <FormSelect
-                    id={field.name}
-                    value={field.state.value}
-                    onChange={(_, v) => field.handleChange(v as ConnectionMethod)}
-                  >
-                    {METHOD_OPTIONS.map(({ value, label }) => (
-                      // eslint-disable-next-line agama-i18n/string-literals
-                      <FormSelectOption key={value} value={value} label={_(label)} />
-                    ))}
-                  </FormSelect>
-                </FormGroup>
-              )}
-            </form.Field>
-
-            <form.Subscribe selector={(s) => s.values.method6}>
-              {(method6) =>
-                method6 === ConnectionMethod.MANUAL && (
-                  <form.Field name="gateway6">
-                    {(field) => (
-                      <FormGroup
-                        fieldId={field.name}
-                        label={<LabelText suffix={_("(optional)")}>{_("IPv6 Gateway")}</LabelText>}
-                      >
-                        <TextInput
-                          id={field.name}
-                          value={field.state.value}
-                          onChange={(_, v) => field.handleChange(v)}
-                        />
-                      </FormGroup>
-                    )}
-                  </form.Field>
-                )
-              }
-            </form.Subscribe>
-          </Split>
-
-          <form.Subscribe
-            selector={(s) => ({
-              method4: s.values.method4,
-              method6: s.values.method6,
-            })}
-          >
-            {({ method4, method6 }) => {
-              const manual4 = method4 === ConnectionMethod.MANUAL;
-              const manual6 = method6 === ConnectionMethod.MANUAL;
-
-              const addressesLabel = () => {
-                if (manual4 && manual6)
-                  return (
-                    <LabelText suffix={_("(IPv4 and IPv6 required)")}>
-                      {_("IP Addresses")}
-                    </LabelText>
-                  );
-                if (manual4)
-                  return <LabelText suffix={_("(IPv4 required)")}>{_("IP Addresses")}</LabelText>;
-                if (manual6)
-                  return <LabelText suffix={_("(IPv6 required)")}>{_("IP Addresses")}</LabelText>;
-                return <LabelText suffix={_("(optional)")}>{_("IP Addresses")}</LabelText>;
-              };
-              const label = addressesLabel();
-
-              return (
-                <form.Field name="addresses">
-                  {(field) => (
-                    <FormGroup fieldId={field.name} label={label}>
-                      <TextArea
-                        id={field.name}
-                        value={field.state.value}
-                        onChange={(_, v) => field.handleChange(v)}
-                        resizeOrientation="vertical"
-                        aria-describedby={`${field.name}-hint`}
-                      />
-                      <FormHelperText>
-                        <HelperText>
-                          <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
-                            {_("Space-separated, e.g. 192.168.1.1/24 2001:db8::1")}
-                          </HelperTextItem>
-                        </HelperText>
-                      </FormHelperText>
-                    </FormGroup>
-                  )}
-                </form.Field>
-              );
+        <form.AppForm>
+          <Form
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
             }}
-          </form.Subscribe>
-
-          <form.Field name="useCustomDns">
-            {(dnsToggle) => (
-              <>
-                <Checkbox
-                  id={dnsToggle.name}
-                  label={_("Use custom DNS servers")}
-                  isChecked={dnsToggle.state.value}
-                  onChange={(_, checked) => dnsToggle.handleChange(checked)}
-                />
-                {dnsToggle.state.value && (
-                  <NestedContent margin="mxLg">
-                    <form.Field name="nameservers">
-                      {(field) => (
-                        <FormGroup fieldId={field.name}>
-                          <TextArea
-                            id={field.name}
-                            value={field.state.value}
-                            onChange={(_, v) => field.handleChange(v)}
-                            aria-label={_("DNS servers")}
-                            aria-describedby={`${field.name}-hint`}
-                          />
-                          <FormHelperText>
-                            <HelperText>
-                              <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
-                                {_("Space-separated, e.g. 8.8.8.8 2001:4860:4860::8888")}
-                              </HelperTextItem>
-                            </HelperText>
-                          </FormHelperText>
-                        </FormGroup>
-                      )}
-                    </form.Field>
-                  </NestedContent>
-                )}
-              </>
-            )}
-          </form.Field>
-
-          <form.Field name="useCustomDnsSearch">
-            {(dnsSearchToggle) => (
-              <>
-                <Checkbox
-                  id={dnsSearchToggle.name}
-                  label={_("Use custom DNS search domains")}
-                  isChecked={dnsSearchToggle.state.value}
-                  onChange={(_, checked) => dnsSearchToggle.handleChange(checked)}
-                />
-                {dnsSearchToggle.state.value && (
-                  <NestedContent margin="mxLg">
-                    <form.Field name="dnsSearchList">
-                      {(field) => (
-                        <FormGroup fieldId={field.name}>
-                          <TextArea
-                            id={field.name}
-                            value={field.state.value}
-                            onChange={(_, v) => field.handleChange(v)}
-                            aria-label={_("DNS search domains")}
-                            aria-describedby={`${field.name}-hint`}
-                          />
-                          <FormHelperText>
-                            <HelperText>
-                              <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
-                                {_("Space-separated, e.g. example.com local.lan")}
-                              </HelperTextItem>
-                            </HelperText>
-                          </FormHelperText>
-                        </FormGroup>
-                      )}
-                    </form.Field>
-                  </NestedContent>
-                )}
-              </>
-            )}
-          </form.Field>
-
-          <ActionGroup>
-            <form.Subscribe selector={(s) => s.isSubmitting}>
-              {(isSubmitting) => (
-                <Button type="submit" isLoading={isSubmitting} isDisabled={isSubmitting}>
-                  {_("Accept")}
-                </Button>
-              )}
+          >
+            <form.Subscribe selector={(s) => s.errorMap.onSubmit?.form}>
+              {(serverError) =>
+                serverError && (
+                  <Alert variant="danger" isInline title={_("The connection could not be saved")}>
+                    {serverError}
+                  </Alert>
+                )
+              }
             </form.Subscribe>
-            <Button variant="link" onClick={() => navigate(-1)}>
-              {_("Cancel")}
-            </Button>
-          </ActionGroup>
-        </Form>
+
+            <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
+              <BindingModeSelector form={form} />
+
+              <form.Subscribe selector={(s) => s.values.bindingMode}>
+                {(mode) => mode !== "none" && <DeviceSelector form={form} by={mode} />}
+              </form.Subscribe>
+            </Flex>
+
+            <form.Field name="name">
+              {(field) => (
+                <FormGroup fieldId={field.name} label={_("Name")}>
+                  <TextInput
+                    id={field.name}
+                    value={field.state.value}
+                    onChange={(_, v) => field.handleChange(v)}
+                  />
+                </FormGroup>
+              )}
+            </form.Field>
+
+            <IpSettings form={form} protocol="ipv4" />
+
+            <IpSettings form={form} protocol="ipv6" />
+
+            <form.Field name="useCustomDns">
+              {(dnsToggle) => (
+                <>
+                  <Checkbox
+                    id={dnsToggle.name}
+                    label={_("Use custom DNS")}
+                    isChecked={dnsToggle.state.value}
+                    onChange={(_, checked) => dnsToggle.handleChange(checked)}
+                  />
+                  {dnsToggle.state.value && (
+                    <NestedContent margin="mxLg">
+                      <form.Field name="nameservers">
+                        {(field) => (
+                          <FormGroup fieldId={field.name}>
+                            <TextArea
+                              id={field.name}
+                              value={field.state.value}
+                              onChange={(_, v) => field.handleChange(v)}
+                              aria-label={_("DNS servers")}
+                              aria-describedby={`${field.name}-hint`}
+                            />
+                            <FormHelperText>
+                              <HelperText>
+                                <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
+                                  {_("Space-separated list of DNS server addresses")}
+                                </HelperTextItem>
+                              </HelperText>
+                            </FormHelperText>
+                          </FormGroup>
+                        )}
+                      </form.Field>
+                    </NestedContent>
+                  )}
+                </>
+              )}
+            </form.Field>
+
+            <form.Field name="useCustomDnsSearch">
+              {(dnsSearchToggle) => (
+                <>
+                  <Checkbox
+                    id={dnsSearchToggle.name}
+                    label={_("Use custom DNS search domains")}
+                    isChecked={dnsSearchToggle.state.value}
+                    onChange={(_, checked) => dnsSearchToggle.handleChange(checked)}
+                  />
+                  {dnsSearchToggle.state.value && (
+                    <NestedContent margin="mxLg">
+                      <form.Field name="dnsSearchList">
+                        {(field) => (
+                          <FormGroup fieldId={field.name}>
+                            <TextArea
+                              id={field.name}
+                              value={field.state.value}
+                              onChange={(_, v) => field.handleChange(v)}
+                              aria-label={_("DNS search domains")}
+                              aria-describedby={`${field.name}-hint`}
+                            />
+                            <FormHelperText>
+                              <HelperText>
+                                <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
+                                  {_("Space-separated, e.g. example.com local.lan")}
+                                </HelperTextItem>
+                              </HelperText>
+                            </FormHelperText>
+                          </FormGroup>
+                        )}
+                      </form.Field>
+                    </NestedContent>
+                  )}
+                </>
+              )}
+            </form.Field>
+
+            <ActionGroup>
+              <form.Subscribe selector={(s) => s.isSubmitting}>
+                {(isSubmitting) => (
+                  <Button type="submit" isLoading={isSubmitting} isDisabled={isSubmitting}>
+                    {_("Accept")}
+                  </Button>
+                )}
+              </form.Subscribe>
+              <Button variant="link" onClick={() => navigate(-1)}>
+                {_("Cancel")}
+              </Button>
+            </ActionGroup>
+          </Form>
+        </form.AppForm>
       </Page.Content>
     </Page>
   );
