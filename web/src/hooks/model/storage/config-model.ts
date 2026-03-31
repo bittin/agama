@@ -25,6 +25,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useSystem } from "~/hooks/model/system/storage";
 import { solveStorageModel, getStorageModel, putStorageModel } from "~/api";
 import configModel from "~/model/storage/config-model";
+import { findDeviceByName } from "~/model/system/storage";
 import type { ConfigModel, Data, Partitionable } from "~/model/storage/config-model";
 
 const STORAGE_MODEL_KEY = "storageModel" as const;
@@ -129,15 +130,6 @@ function useDeleteDrive(): DeleteDriveFn {
   };
 }
 
-type ConvertDriveToMdRaidFn = (name: string, mdRaidData: Data.MdRaid) => void;
-
-function useConvertDriveToMdRaid(): ConvertDriveToMdRaidFn {
-  const config = useConfigModel();
-  return (driveName: string, mdRaidData: Data.MdRaid) => {
-    putStorageModel(configModel.partitionable.convertToMdRaid(config, driveName, mdRaidData));
-  };
-}
-
 function useMdRaid(index: number): ConfigModel.MdRaid | null {
   const { data } = useSuspenseQuery({
     ...configModelQuery,
@@ -168,12 +160,12 @@ function useDeleteMdRaid(): DeleteMdRaidFn {
   };
 }
 
-type ConvertMdRaidToDriveFn = (name: string, driveData: Data.Drive) => void;
+type ConvertPartitionableToVolumeGroupFn = (name: string, volumeGroupName?: string) => void;
 
-function useConvertMdRaidToDrive(): ConvertMdRaidToDriveFn {
+function useConvertPartitionableToVolumeGroup(): ConvertPartitionableToVolumeGroupFn {
   const config = useConfigModel();
-  return (name: string, driveData: Data.Drive) => {
-    putStorageModel(configModel.partitionable.convertToDrive(config, name, driveData));
+  return (name: string, volumeGroupName?: string) => {
+    putStorageModel(configModel.partitionable.convertToVolumeGroup(config, name, volumeGroupName));
   };
 }
 
@@ -211,15 +203,6 @@ function useDeleteVolumeGroup(): DeleteVolumeGroupFn {
         ? configModel.volumeGroup.convertToPartitionable(config, vgName)
         : configModel.volumeGroup.remove(config, vgName),
     );
-  };
-}
-
-type ConvertPartitionableToVolumeGroupFn = (name: string) => void;
-
-function useConvertPartitionableToVolumeGroup(): ConvertPartitionableToVolumeGroupFn {
-  const config = useConfigModel();
-  return (name: string) => {
-    putStorageModel(configModel.partitionable.convertToVolumeGroup(config, name));
   };
 }
 
@@ -327,6 +310,19 @@ function useSetSpacePolicy(): setSpacePolicyFn {
   };
 }
 
+function useConvertDevice() {
+  const model = useConfigModel();
+  const system = useSystem();
+
+  return (deviceName: string, targetDeviceName: string) => {
+    const device = findDeviceByName(system, deviceName);
+    const targetDevice = findDeviceByName(system, targetDeviceName);
+
+    if (device && targetDevice)
+      putStorageModel(configModel.convertDevice(model, device, targetDevice));
+  };
+}
+
 export {
   STORAGE_MODEL_KEY,
   useConfigModel,
@@ -339,16 +335,14 @@ export {
   useDrive,
   useAddDrive,
   useDeleteDrive,
-  useConvertMdRaidToDrive,
   useMdRaid,
   useAddMdRaid,
   useDeleteMdRaid,
-  useConvertDriveToMdRaid,
+  useConvertPartitionableToVolumeGroup,
   useVolumeGroup,
   useAddVolumeGroup,
   useEditVolumeGroup,
   useDeleteVolumeGroup,
-  useConvertPartitionableToVolumeGroup,
   useAddLogicalVolume,
   useEditLogicalVolume,
   useDeleteLogicalVolume,
@@ -358,4 +352,5 @@ export {
   useSetEncryption,
   useSetFilesystem,
   useSetSpacePolicy,
+  useConvertDevice,
 };

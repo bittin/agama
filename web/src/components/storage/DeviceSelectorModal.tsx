@@ -116,7 +116,7 @@ const DeviceSelector = ({
   );
 };
 
-type DeviceSelectorModalProps = Omit<PopupProps, "children" | "selected"> & {
+export type DeviceSelectorModalProps = Omit<PopupProps, "children" | "selected"> & {
   selected?: Storage.Device;
   devices: Storage.Device[];
   onConfirm: (selection: Storage.Device[]) => void;

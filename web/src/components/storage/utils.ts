@@ -240,7 +240,7 @@ const deviceBaseName = (device: DeviceWithName, truncate?: boolean): string => {
  */
 const deviceLabel = (device: System.Device, truncate?: boolean): string => {
   const name = deviceBaseName(device, truncate);
-  const size = device.block?.size;
+  const size = device.block?.size || device.volumeGroup?.size;
 
   return size ? `${name} (${deviceSize(size)})` : name;
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2024-2025] SUSE LLC
+ * Copyright (c) [2024-2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -45,34 +45,21 @@ const pathWithSize = (partition: ConfigModel.Partition): string => {
 };
 
 /**
- * @fixme Workaround to make possible to distinguish between partition and logical volume. Note that
- *  a logical volume has not the property 'name' yet, see {@link typeDescription}.
- */
-function isPartition(
-  device: ConfigModel.Partition | ConfigModel.LogicalVolume,
-): device is ConfigModel.Partition {
-  return Object.hasOwn(device, "name");
-}
-
-/**
  * String to identify the type of device to be created (or used).
  */
 const typeDescription = (partition: ConfigModel.Partition | ConfigModel.LogicalVolume): string => {
-  const fs = filesystemType(partition.filesystem);
-
-  if (isPartition(partition) && partition.name) {
-    if (partition.filesystem.reuse) {
+  const fsType = partition.filesystem ? filesystemType(partition.filesystem) : undefined;
+  if (partition.name) {
+    if (partition.filesystem?.reuse) {
       // TRANSLATORS: %1$s is a filesystem type (eg. Btrfs), %2$s is a device name (eg. /dev/sda3).
-      if (fs) return sprintf(_("Current %1$s at %2$s"), fs, partition.name);
-
+      if (fsType) return sprintf(_("Current %1$s at %2$s"), fsType, partition.name);
       // TRANSLATORS: %s is a device name (eg. /dev/sda3).
       return sprintf(_("Current %s"), partition.name);
     }
-
     // TRANSLATORS: %1$s is a filesystem type (eg. Btrfs), %2$s is a device name (eg. /dev/sda3).
-    return sprintf(_("%1$s at %2$s"), fs, partition.name);
+    return sprintf(_("%1$s at %2$s"), fsType, partition.name);
   }
-  return fs;
+  return fsType || "";
 };
 
 /**

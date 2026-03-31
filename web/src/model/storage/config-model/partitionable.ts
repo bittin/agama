@@ -224,19 +224,36 @@ function convertPartitionsToLogicalVolumes(
   ];
 }
 
-function convertToVolumeGroup(config: ConfigModel.Config, devName: string): ConfigModel.Config {
+function convertToVolumeGroup(
+  config: ConfigModel.Config,
+  devName: string,
+  targetName?: string,
+): ConfigModel.Config {
   config = configModel.clone(config);
 
   const device = all(config).find((d) => d.name === devName);
   if (!device) return config;
 
-  const volumeGroup = configModel.volumeGroup.create({
-    vgName: configModel.volumeGroup.generateName(config),
-    targetDevices: [devName],
-  });
+  let volumeGroup: ConfigModel.VolumeGroup;
+
+  if (targetName) {
+    volumeGroup = config.volumeGroups?.find((v) => v.name === targetName);
+    volumeGroup ||= configModel.volumeGroup.create({
+      name: targetName,
+      vgName: targetName.split("/").pop(),
+    });
+  } else {
+    volumeGroup = configModel.volumeGroup.create({
+      vgName: configModel.volumeGroup.generateName(config),
+      targetDevices: [devName],
+    });
+  }
   convertPartitionsToLogicalVolumes(device, volumeGroup);
   config.volumeGroups ||= [];
-  config.volumeGroups.push(volumeGroup);
+  if (!config.volumeGroups.find((v) => v.name === targetName))
+    config.volumeGroups.push(volumeGroup);
+
+  config = removeIfUnused(config, devName);
 
   return config;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2025] SUSE LLC
+ * Copyright (c) [2025-2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -50,7 +50,7 @@ import MenuButton, { CustomToggleProps } from "~/components/core/MenuButton";
 import ConfigEditorItem from "~/components/storage/ConfigEditorItem";
 import Icon, { IconProps } from "~/components/layout/Icon";
 import { STORAGE as PATHS } from "~/routes/paths";
-import { baseName, formattedPath } from "~/components/storage/utils";
+import { baseName, deviceLabel, formattedPath } from "~/components/storage/utils";
 import { contentDescription } from "~/components/storage/utils/volume-group";
 import { generateEncodedPath } from "~/utils";
 import { isEmpty } from "radashi";
@@ -58,13 +58,16 @@ import { sprintf } from "sprintf-js";
 import { _, n_, formatList } from "~/i18n";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import spacingStyles from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import SearchedVolumeGroupMenu from "~/components/storage/SearchedVolumeGroupMenu";
 import {
   useConfigModel,
   useDeleteVolumeGroup,
   useDeleteLogicalVolume,
 } from "~/hooks/model/storage/config-model";
 import configModel from "~/model/storage/config-model";
+import { useDevice } from "~/hooks/model/system/storage";
 import type { ConfigModel } from "~/model/storage/config-model";
+import type { Storage as System } from "~/model/system";
 
 const DeleteVgOption = ({ vg }: { vg: ConfigModel.VolumeGroup }) => {
   const config = useConfigModel();
@@ -72,7 +75,7 @@ const DeleteVgOption = ({ vg }: { vg: ConfigModel.VolumeGroup }) => {
   const lvs = vg.logicalVolumes.map((lv) => formattedPath(lv.mountPath));
   const targetDevices = configModel.volumeGroup.filterTargetDevices(config, vg);
   const convert = targetDevices.length === 1 && !!lvs.length;
-  let description;
+  let description: string;
 
   if (lvs.length) {
     if (convert) {
@@ -190,19 +193,31 @@ const LvRow = ({ lv, vg }) => {
   );
 };
 
-const VgHeader = ({ vg }: { vg: ConfigModel.VolumeGroup }) => {
-  const title = vg.logicalVolumes.length
-    ? _("Create LVM volume group %s")
-    : _("Empty LVM volume group %s");
+type VgHeaderProps = {
+  deviceConfig: ConfigModel.VolumeGroup;
+  device: System.Device;
+};
 
-  return <Title headingLevel="h4">{sprintf(title, vg.vgName)}</Title>;
+const VgHeader = ({ deviceConfig, device }: VgHeaderProps) => {
+  let title: string;
+
+  if (device) {
+    title = sprintf(_("Use LVM volume group %s"), deviceLabel(device, true));
+  } else {
+    title = deviceConfig.logicalVolumes.length
+      ? _("Create LVM volume group %s")
+      : _("Empty LVM volume group %s");
+  }
+
+  return <Title headingLevel="h4">{sprintf(title, deviceConfig.vgName)}</Title>;
 };
 
 type VgMenuToggleProps = CustomToggleProps & {
-  vg: ConfigModel.VolumeGroup;
+  deviceConfig: ConfigModel.VolumeGroup;
+  device?: System.Device;
 };
 
-const VgMenuToggle = forwardRef(({ vg, ...props }: VgMenuToggleProps, ref) => {
+const VgMenuToggle = forwardRef(({ deviceConfig, device, ...props }: VgMenuToggleProps, ref) => {
   return (
     <Button
       variant="link"
@@ -218,7 +233,7 @@ const VgMenuToggle = forwardRef(({ vg, ...props }: VgMenuToggleProps, ref) => {
         style={{ whiteSpace: "normal", textAlign: "start" }}
       >
         <FlexItem>
-          <VgHeader vg={vg} {...props} />
+          <VgHeader deviceConfig={deviceConfig} device={device} {...props} />
         </FlexItem>
         <FlexItem>
           <Icon name="keyboard_arrow_down" style={{ verticalAlign: "middle" }} />
@@ -228,16 +243,35 @@ const VgMenuToggle = forwardRef(({ vg, ...props }: VgMenuToggleProps, ref) => {
   );
 });
 
-const VgMenu = ({ vg }: { vg: ConfigModel.VolumeGroup }) => {
+const NewVgMenu = ({ deviceConfig }: { deviceConfig: ConfigModel.VolumeGroup }) => {
   return (
     <MenuButton
       menuProps={{
         popperProps: { position: "end", maxWidth: "fit-content", minWidth: "fit-content" },
       }}
-      customToggle={<VgMenuToggle vg={vg} />}
-      items={[<EditVgOption key="edit" vg={vg} />, <DeleteVgOption key="delete" vg={vg} />]}
+      customToggle={<VgMenuToggle deviceConfig={deviceConfig} />}
+      items={[
+        <EditVgOption key="edit" vg={deviceConfig} />,
+        <DeleteVgOption key="delete" vg={deviceConfig} />,
+      ]}
     />
   );
+};
+
+const ReusedVgMenu = ({ deviceConfig }: { deviceConfig: ConfigModel.VolumeGroup }) => {
+  const device = useDevice(deviceConfig.name);
+
+  return (
+    <SearchedVolumeGroupMenu
+      deviceConfig={deviceConfig}
+      device={device}
+      toggle={<VgMenuToggle device={device} deviceConfig={deviceConfig} />}
+    />
+  );
+};
+
+const VgMenu = ({ vg }: { vg: ConfigModel.VolumeGroup }) => {
+  return vg.name ? <ReusedVgMenu deviceConfig={vg} /> : <NewVgMenu deviceConfig={vg} />;
 };
 
 const AddLvButton = ({ vg }: { vg: ConfigModel.VolumeGroup }) => {
@@ -305,9 +339,11 @@ const LogicalVolumes = ({ vg }: { vg: ConfigModel.VolumeGroup }) => {
               isCompact
               style={{ width: "fit-content", minWidth: "40dvw", maxWidth: "60dwh" }}
             >
-              {vg.logicalVolumes.map((lv) => {
-                return <LvRow key={lv.mountPath} lv={lv} vg={vg} />;
-              })}
+              {vg.logicalVolumes
+                .filter((l) => l.mountPath)
+                .map((lv) => {
+                  return <LvRow key={lv.mountPath} lv={lv} vg={vg} />;
+                })}
             </DataList>
             <Content component="p" style={{ marginBlockStart: "1rem" }}>
               <AddLvButton vg={vg} />

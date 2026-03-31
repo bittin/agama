@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2025] SUSE LLC
+ * Copyright (c) [2025-2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -27,9 +27,12 @@ import mdRaid from "~/model/storage/config-model/md-raid";
 import partition from "~/model/storage/config-model/partition";
 import volumeGroup from "~/model/storage/config-model/volume-group";
 import logicalVolume from "~/model/storage/config-model/logical-volume";
+import { compact } from "~/utils";
+import { sift } from "radashi";
 import type * as ConfigModel from "~/openapi/storage/config-model";
 import type * as Partitionable from "~/model/storage/config-model/partitionable";
 import type * as Data from "~/model/storage/config-model/data";
+import type { Storage as System } from "~/model/system";
 
 function clone(config: ConfigModel.Config): ConfigModel.Config {
   return JSON.parse(JSON.stringify(config));
@@ -61,11 +64,94 @@ function setEncryption(
   return config;
 }
 
+function findDevice(
+  config: ConfigModel.Config,
+  deviceName: string,
+): ConfigModel.Drive | ConfigModel.MdRaid | ConfigModel.VolumeGroup | undefined {
+  const devices = compact([config.drives, config.mdRaids, config.volumeGroups]).flat();
+  return devices.find((d) => d.name === deviceName);
+}
+
+function convertPartitionable(
+  model: ConfigModel.Config,
+  device: System.Device,
+  targetDevice: System.Device,
+) {
+  if (targetDevice.class === "drive") {
+    return partitionable.convertToDrive(model, device.name, {
+      name: targetDevice.name,
+    });
+  }
+  if (targetDevice.class === "mdRaid") {
+    return partitionable.convertToMdRaid(model, device.name, {
+      name: targetDevice.name,
+    });
+  }
+  if (targetDevice.class === "volumeGroup") {
+    return partitionable.convertToVolumeGroup(model, device.name, targetDevice.name);
+  }
+}
+
+const extractVgName = (name: string) => name.split("/").pop();
+
+function convertVolumeGroup(
+  model: ConfigModel.Config,
+  device: System.Device,
+  targetDevice: System.Device,
+) {
+  const vgName = extractVgName(device.name);
+  if (targetDevice.class === "drive") {
+    return volumeGroup.convertToDrive(model, vgName, targetDevice.name);
+  }
+  if (targetDevice.class === "mdRaid") {
+    return volumeGroup.convertToMdRaid(model, vgName, targetDevice.name);
+  }
+  if (targetDevice.class === "volumeGroup") {
+    const targetVgName = extractVgName(targetDevice.name);
+    return volumeGroup.convertToVolumeGroup(model, vgName, targetVgName);
+  }
+}
+
+function convertDevice(
+  model: ConfigModel.Config,
+  device: System.Device,
+  targetDevice: System.Device,
+): ConfigModel.Config {
+  if (device.class === "drive") return convertPartitionable(model, device, targetDevice);
+  if (device.class === "mdRaid") return convertPartitionable(model, device, targetDevice);
+  if (device.class === "volumeGroup") return convertVolumeGroup(model, device, targetDevice);
+
+  return model;
+}
+
+/*
+ * Pretty artificial logic used to decide whether the UI should display buttons to remove some
+ * devices.
+ */
+function hasAdditionalDevices(config: ConfigModel.Config): boolean {
+  const entries = sift([config.drives, config.mdRaids, config.volumeGroups]).flat();
+
+  if (entries.length <= 1) return false;
+  if (entries.length > 2) return true;
+
+  // If there are only two devices, the following logic avoids the corner case in which first
+  // deleting one of them and then changing the boot settings can lead to zero disks. But it is
+  // far from being fully reasonable or understandable for the user.
+  const onlyToBoot = entries.find(
+    (e) => boot.hasExplicitDevice(config, e.name) && !partitionable.isUsed(config, e.name),
+  );
+
+  return !onlyToBoot;
+}
+
 export default {
   clone,
   usedMountPaths,
   isTargetDevice,
   setEncryption,
+  findDevice,
+  convertDevice,
+  hasAdditionalDevices,
   boot,
   partitionable,
   drive,

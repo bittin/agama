@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2025] SUSE LLC
+ * Copyright (c) [2025-2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -28,7 +28,9 @@ import type { ConfigModel } from "~/model/storage/config-model";
 const contentDescription = (vg: ConfigModel.VolumeGroup): string => {
   if (vg.logicalVolumes.length === 0) return _("No logical volumes are defined yet");
 
-  const mountPaths = vg.logicalVolumes.map((v) => formattedPath(v.mountPath));
+  const mountPaths = vg.logicalVolumes
+    .filter((v) => v.mountPath)
+    .map((v) => formattedPath(v.mountPath));
   return sprintf(
     // TRANSLATORS: %s is a list of formatted mount points like '"/", "/var" and "swap"' (or a
     // single mount point in the singular case).
