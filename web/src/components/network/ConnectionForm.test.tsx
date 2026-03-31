@@ -311,6 +311,86 @@ describe("ConnectionForm", () => {
     });
   });
 
+  describe("when merging config and system connections for editing", () => {
+    beforeEach(() => {
+      mockParams({ id: "eth0" });
+    });
+
+    it("shows Automatic IPv4 when config has no method, despite system reporting auto", () => {
+      mockUseConfig.mockReturnValue({ connections: [makeConnection("eth0")] });
+      mockUseSystem.mockReturnValue({
+        connections: [makeConnection("eth0", { method4: "auto" })],
+      });
+      installerRender(<ConnectionForm />);
+      expect(screen.queryByText("IPv4 Addresses")).not.toBeInTheDocument();
+    });
+
+    it("shows Manual IPv4 when config sets method4 to manual, despite system reporting auto", () => {
+      mockUseConfig.mockReturnValue({
+        connections: [makeConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] })],
+      });
+      mockUseSystem.mockReturnValue({
+        connections: [makeConnection("eth0", { method4: "auto" })],
+      });
+      installerRender(<ConnectionForm />);
+      expect(screen.getByText("IPv4 Addresses")).toBeInTheDocument();
+    });
+
+    it("shows Advanced IPv4 when config sets method4 to auto, despite system reporting manual", () => {
+      mockUseConfig.mockReturnValue({
+        connections: [makeConnection("eth0", { method4: "auto" })],
+      });
+      mockUseSystem.mockReturnValue({
+        connections: [makeConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] })],
+      });
+      installerRender(<ConnectionForm />);
+      expect(
+        screen.getByLabelText("IPv4 Gateway (optional, ignored if no addresses provided)"),
+      ).toBeInTheDocument();
+    });
+
+    it.todo(
+      "shows Advanced IPv4 when config has no method but system already has IPv4 addresses",
+    );
+
+    it("shows Automatic IPv6 when config has no method, despite system reporting auto", () => {
+      mockUseConfig.mockReturnValue({ connections: [makeConnection("eth0")] });
+      mockUseSystem.mockReturnValue({
+        connections: [makeConnection("eth0", { method6: "auto" })],
+      });
+      installerRender(<ConnectionForm />);
+      expect(screen.queryByText("IPv6 Addresses")).not.toBeInTheDocument();
+    });
+
+    it("shows Manual IPv6 when config sets method6 to manual, despite system reporting auto", () => {
+      mockUseConfig.mockReturnValue({
+        connections: [makeConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] })],
+      });
+      mockUseSystem.mockReturnValue({
+        connections: [makeConnection("eth0", { method6: "auto" })],
+      });
+      installerRender(<ConnectionForm />);
+      expect(screen.getByText("IPv6 Addresses")).toBeInTheDocument();
+    });
+
+    it("shows Advanced IPv6 when config sets method6 to auto, despite system reporting manual", () => {
+      mockUseConfig.mockReturnValue({
+        connections: [makeConnection("eth0", { method6: "auto" })],
+      });
+      mockUseSystem.mockReturnValue({
+        connections: [makeConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] })],
+      });
+      installerRender(<ConnectionForm />);
+      expect(
+        screen.getByLabelText("IPv6 Gateway (optional, ignored if no addresses provided)"),
+      ).toBeInTheDocument();
+    });
+
+    it.todo(
+      "shows Advanced IPv6 when config has no method but system already has IPv6 addresses",
+    );
+  });
+
   describe("DNS search domains", () => {
     it("does not show the DNS search domains field by default", () => {
       installerRender(<ConnectionForm />);

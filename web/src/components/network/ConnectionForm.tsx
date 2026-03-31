@@ -43,9 +43,10 @@ import IpSettings from "~/components/network/IpSettings";
 import BindingModeSelector from "~/components/network/BindingModeSelector";
 import DeviceSelector from "~/components/network/DeviceSelector";
 import { Connection, ConnectionBindingMode, ConnectionMethod } from "~/types/network";
-import { useConnectionMutation } from "~/hooks/model/config/network";
+import { useConnectionMutation, useConfig } from "~/hooks/model/config/network";
 import { useAppForm, mergeFormDefaults } from "~/hooks/form";
 import { useSystem, useDevices } from "~/hooks/model/system/network";
+import { extendCollection } from "~/utils";
 import { NETWORK } from "~/routes/paths";
 import {
   buildAddress,
@@ -468,8 +469,21 @@ function NewConnectionForm() {
 
 function EditConnectionForm() {
   const { id } = useParams();
+  const { connections: configConns } = useConfig();
   const { connections: systemConns } = useSystem();
-  const connection = systemConns.find((c) => c.id === id);
+  // Merge config and system connections so the form reflects the user's
+  // explicit settings (config) while filling gaps from the live system state.
+  // Config wins: e.g. configConn.method4 === undefined (the user chose
+  // "Automatic", meaning "do not put method in the config") must override
+  // systemConn.method4 === "auto" that Agama backend or NetworkManager might
+  // report.
+  //
+  // FIXME: when config has no method (Automatic) but the system connection
+  // already has addresses, the merged result will show Automatic while the
+  // connection is actually behaving as Advanced. Consider deriving the mode
+  // from the system addresses in that case for a more accurate representation.
+  const { all: connections } = extendCollection(configConns || [], { with: systemConns });
+  const connection = connections.find((c) => c.id === id);
 
   return (
     <ConnectionFormContent
