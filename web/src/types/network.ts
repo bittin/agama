@@ -258,8 +258,8 @@ type APIConnection = {
   dnsSearchList?: string[];
   gateway4?: string;
   gateway6?: string;
-  method4: string;
-  method6: string;
+  method4?: string;
+  method6?: string;
   wireless?: Wireless;
   status: ConnectionStatus;
   state: ConnectionState;
@@ -306,6 +306,17 @@ type ConnectionOptions = {
   persistent?: boolean;
 };
 
+// FIXME: Connection is modeled after an earlier API iteration that has not
+// yet been fully aligned with APIv2. Few inconsistencies
+// make the translation to/from form values and the API error-prone:
+// - Fields like gateway4/gateway6 default to "" rather than being absent,
+//   forcing toApi() to delete them explicitly and the form to mirror the
+//   empty-string default.
+// - Concepts like binding mode and IP method mode (e.g. "unset") have no
+//   direct field here; the form derives them from other fields or omits
+//   them entirely.
+// Hence, this class is worth revisiting or even dropping in favor of plain
+// types when moving closer to APIv2.
 class Connection {
   id: string;
   status: ConnectionStatus = ConnectionStatus.UP;
@@ -317,8 +328,8 @@ class Connection {
   dnsSearchList: string[] = [];
   gateway4?: string = "";
   gateway6?: string = "";
-  method4: ConnectionMethod = ConnectionMethod.AUTO;
-  method6: ConnectionMethod = ConnectionMethod.AUTO;
+  method4?: ConnectionMethod;
+  method6?: ConnectionMethod;
   wireless?: Wireless;
   persistent: boolean;
 
@@ -337,7 +348,7 @@ class Connection {
     const nameservers = connection.nameservers || [];
     const dnsSearchList = connection.dnsSearchList || [];
     const addresses = connection.addresses?.map(buildAddress) || [];
-    return new Connection(id, {
+    const conn = new Connection(id, {
       ...options,
       status,
       // FIXME: try a better approach for methods/gateway and/or typecasting
@@ -348,6 +359,19 @@ class Connection {
       nameservers,
       dnsSearchList,
     });
+    // The constructor skips undefined values, meaning fields
+    // absent from the API response are never assigned as own properties.
+    // This matters when merging config and system connections via spread:
+    //   { ...systemConn, ...configConn }
+    // If configConn has no method4 own property, system's "auto" silently
+    // wins. That is not the expected behavior: choosing "Automatic" in the
+    // UI stores no method in config (undefined), which should override
+    // system's "auto" since config represents the user's explicit preferences.
+    // Assigning undefined explicitly ensures method4/method6 are always own
+    // properties, so the user's choice is honored when editing.
+    conn.method4 = options.method4 as ConnectionMethod | undefined;
+    conn.method6 = options.method6 as ConnectionMethod | undefined;
+    return conn;
   }
 
   toApi() {
@@ -360,6 +384,8 @@ class Connection {
 
     if (result.gateway4 === "") delete result.gateway4;
     if (result.gateway6 === "") delete result.gateway6;
+    if (result.method4 === undefined) delete result.method4;
+    if (result.method6 === undefined) delete result.method6;
 
     return result;
   }
