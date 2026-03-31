@@ -26,13 +26,13 @@ import {
   FormHelperText,
   HelperText,
   HelperTextItem,
-  TextArea,
   TextInput,
 } from "@patternfly/react-core";
 import NestedContent from "~/components/core/NestedContent";
 import LabelText from "~/components/form/LabelText";
 import { connectionFormOptions } from "~/components/network/ConnectionForm";
 import { withForm } from "~/hooks/form";
+import { isValidIPv4Address, isValidIPv6Address } from "~/utils/network";
 import { _, N_ } from "~/i18n";
 
 /**
@@ -95,12 +95,6 @@ const IpSettings = withForm({
     const label = isIPv4 ? _("IPv4 Settings") : _("IPv6 Settings");
     const addressesLabel = isIPv4 ? _("IPv4 Addresses") : _("IPv6 Addresses");
     const gatewayLabel = isIPv4 ? _("IPv4 Gateway") : _("IPv6 Gateway");
-    const addressesHint = isIPv4
-      ? _("Space-separated IPv4 addresses with optional prefix, e.g. 192.168.1.1 or 192.168.1.1/24")
-      : _(
-          "Space-separated IPv6 addresses with optional prefix, e.g. 2001:db8::1 or 2001:db8::1/64",
-        );
-
     const modeField = isIPv4 ? "ipv4Mode" : "ipv6Mode";
     const addressesField = isIPv4 ? "addresses4" : "addresses6";
     const gatewayField = isIPv4 ? "gateway4" : "gateway6";
@@ -126,10 +120,9 @@ const IpSettings = withForm({
           {(mode) =>
             (mode === "manual" || mode === "auto") && (
               <NestedContent margin="mxLg">
-                <form.Field name={addressesField}>
+                <form.AppField name={addressesField}>
                   {(field) => (
-                    <FormGroup
-                      fieldId={field.name}
+                    <field.ArrayField
                       label={
                         mode === "auto" ? (
                           <LabelText suffix={_("(optional)")}>{addressesLabel}</LabelText>
@@ -137,48 +130,55 @@ const IpSettings = withForm({
                           addressesLabel
                         )
                       }
-                    >
-                      <TextArea
-                        id={field.name}
-                        value={field.state.value}
-                        onChange={(_, v) => field.handleChange(v)}
-                        resizeOrientation="vertical"
-                        aria-describedby={`${field.name}-hint`}
-                      />
-                      <FormHelperText>
-                        <HelperText>
-                          <HelperTextItem variant="indeterminate" id={`${field.name}-hint`}>
-                            {addressesHint}
-                          </HelperTextItem>
-                        </HelperText>
-                      </FormHelperText>
-                    </FormGroup>
+                      inputAriaLabel={
+                        mode === "auto" ? `${addressesLabel} ${_("(optional)")}` : addressesLabel
+                      }
+                      skipDuplicates
+                      validateOnSubmit={(v) =>
+                        (isIPv4 ? isValidIPv4Address(v) : isValidIPv6Address(v))
+                          ? undefined
+                          : isIPv4
+                            ? _("Invalid IPv4 address")
+                            : _("Invalid IPv6 address")
+                      }
+                    />
                   )}
-                </form.Field>
+                </form.AppField>
 
                 <form.Field name={gatewayField}>
-                  {(field) => (
-                    <FormGroup
-                      fieldId={field.name}
-                      label={
-                        <LabelText
-                          suffix={
-                            mode === "auto"
-                              ? _("(optional, ignored if no addresses provided)")
-                              : _("(optional)")
-                          }
-                        >
-                          {gatewayLabel}
-                        </LabelText>
-                      }
-                    >
-                      <TextInput
-                        id={field.name}
-                        value={field.state.value}
-                        onChange={(_, v) => field.handleChange(v)}
-                      />
-                    </FormGroup>
-                  )}
+                  {(field) => {
+                    const error = field.state.meta.errors[0] as string | undefined;
+                    return (
+                      <FormGroup
+                        fieldId={field.name}
+                        label={
+                          <LabelText
+                            suffix={
+                              mode === "auto"
+                                ? _("(optional, ignored if no addresses provided)")
+                                : _("(optional)")
+                            }
+                          >
+                            {gatewayLabel}
+                          </LabelText>
+                        }
+                      >
+                        <TextInput
+                          id={field.name}
+                          value={field.state.value}
+                          validated={error ? "error" : "default"}
+                          onChange={(_, v) => field.handleChange(v)}
+                        />
+                        {error && (
+                          <FormHelperText>
+                            <HelperText>
+                              <HelperTextItem variant="error">{error}</HelperTextItem>
+                            </HelperText>
+                          </FormHelperText>
+                        )}
+                      </FormGroup>
+                    );
+                  }}
                 </form.Field>
               </NestedContent>
             )

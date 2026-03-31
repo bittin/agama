@@ -52,6 +52,46 @@ const isValidIp = (value: IPAddress["address"]) => ipaddr.IPv4.isValidFourPartDe
  * @param value - An netmask or a network prefix
  * @return true if given IP is valid; false otherwise.
  */
+/** Returns true if the value is a valid IP address, with or without a CIDR prefix. */
+const isValidAddress = (value: string): boolean =>
+  ipaddr.isValidCIDR(value) || ipaddr.isValid(value);
+
+/** Returns true if the value is a valid IPv4 address, with or without a CIDR prefix. */
+const isValidIPv4Address = (value: string): boolean =>
+  isValidAddress(value) && ipaddr.IPv4.isValidFourPartDecimal(value.split("/")[0]);
+
+/** Returns true if the value is a valid IPv6 address, with or without a CIDR prefix. */
+const isValidIPv6Address = (value: string): boolean =>
+  isValidAddress(value) && ipaddr.IPv6.isValid(value.split("/")[0]);
+
+/** Returns true if the value is a valid bare IPv4 address (no CIDR prefix). */
+const isValidIPv4 = (value: string): boolean => ipaddr.IPv4.isValidFourPartDecimal(value);
+
+/** Returns true if the value is a valid bare IPv6 address (no CIDR prefix). */
+const isValidIPv6 = (value: string): boolean => ipaddr.IPv6.isValid(value);
+
+/** Returns true if the value is a valid nameserver address (bare IPv4 or IPv6, no CIDR). */
+const isValidNameserver = (value: string): boolean =>
+  ipaddr.IPv4.isValidFourPartDecimal(value) || ipaddr.IPv6.isValid(value);
+
+/**
+ * Matches a valid DNS search domain or hostname per RFC 952 / RFC 1123.
+ *
+ * Rules:
+ * - Each label starts and ends with an alphanumeric character.
+ * - Labels may contain hyphens but not as the first or last character.
+ * - Labels are 1–63 characters long.
+ * - Labels are separated by dots.
+ * - No trailing dot (NetworkManager does not require one).
+ *
+ * Examples: `local`, `example.com`, `sub.example.com`.
+ */
+const DNS_SEARCH_DOMAIN_RE =
+  /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/;
+
+/** Returns true if the value is a valid DNS search domain or hostname. */
+const isValidDNSSearchDomain = (value: string): boolean => DNS_SEARCH_DOMAIN_RE.test(value);
+
 const isValidIpPrefix = (value: IPAddress["prefix"]) => {
   const prefix = String(value);
 
@@ -207,6 +247,13 @@ const connectionBindingMode = (connection: Connection): ConnectionBindingMode =>
 
 export {
   buildAddress,
+  isValidAddress,
+  isValidIPv4,
+  isValidIPv6,
+  isValidIPv4Address,
+  isValidIPv6Address,
+  isValidNameserver,
+  isValidDNSSearchDomain,
   buildAddresses,
   buildRoutes,
   connectionAddresses,
