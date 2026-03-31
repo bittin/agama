@@ -94,8 +94,8 @@ export const connectionFormOptions = formOptions({
     gateway6: "",
     nameservers: [] as string[],
     dnsSearchList: [] as string[],
-    useCustomDns: false,
-    useCustomDnsSearch: false,
+    customDns: false,
+    customDnsSearch: false,
     bindingMode: "none" as ConnectionBindingMode,
   },
 });
@@ -189,14 +189,14 @@ function validateConnectionForm(formValues: FormValues): FormFieldErrors | undef
       _("Invalid IPv6 gateway"),
     ),
     nameservers: validateActiveList(
-      formValues.useCustomDns,
+      formValues.customDns,
       formValues.nameservers,
       isValidNameserver,
       _("At least one DNS server is required"),
       _("Some DNS server addresses are invalid"),
     ),
     dnsSearchList: validateActiveList(
-      formValues.useCustomDnsSearch,
+      formValues.customDnsSearch,
       formValues.dnsSearchList,
       isValidDNSSearchDomain,
       _("At least one DNS search domain is required"),
@@ -228,8 +228,8 @@ function buildConnection(formValues: FormValues): Connection {
     method6: MODE_TO_METHOD[formValues.ipv6Mode],
     gateway6: ipv6Addresses.length > 0 ? formValues.gateway6 : "",
     addresses: [...ipv4Addresses, ...ipv6Addresses],
-    nameservers: formValues.useCustomDns ? formValues.nameservers : [],
-    dnsSearchList: formValues.useCustomDnsSearch ? formValues.dnsSearchList : [],
+    nameservers: formValues.customDns ? formValues.nameservers : [],
+    dnsSearchList: formValues.customDnsSearch ? formValues.dnsSearchList : [],
   });
 }
 
@@ -341,7 +341,7 @@ export default function ConnectionForm() {
 
             <IpSettings form={form} protocol="ipv6" />
 
-            <form.Field name="useCustomDns">
+            <form.Field name="customDns">
               {(dnsToggle) => (
                 <>
                   <Checkbox
@@ -369,7 +369,7 @@ export default function ConnectionForm() {
               )}
             </form.Field>
 
-            <form.Field name="useCustomDnsSearch">
+            <form.Field name="customDnsSearch">
               {(dnsSearchToggle) => (
                 <>
                   <Checkbox
