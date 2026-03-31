@@ -21,7 +21,9 @@
  */
 
 import React from "react";
-import { useNavigate } from "react-router";
+import { formOptions } from "@tanstack/react-form";
+import { useNavigate, useParams } from "react-router";
+import { isEmpty, shake } from "radashi";
 import {
   Alert,
   ActionGroup,
@@ -42,12 +44,13 @@ import BindingModeSelector from "~/components/network/BindingModeSelector";
 import DeviceSelector from "~/components/network/DeviceSelector";
 import { Connection, ConnectionBindingMode, ConnectionMethod } from "~/types/network";
 import { useConnectionMutation } from "~/hooks/model/config/network";
-import { formOptions } from "@tanstack/react-form";
 import { useAppForm, mergeFormDefaults } from "~/hooks/form";
-import { useDevices } from "~/hooks/model/system/network";
+import { useSystem, useDevices } from "~/hooks/model/system/network";
 import { NETWORK } from "~/routes/paths";
 import {
   buildAddress,
+  connectionBindingMode,
+  formatIp,
   isValidIPv4,
   isValidIPv6,
   isValidIPv4Address,
@@ -55,7 +58,6 @@ import {
   isValidNameserver,
   isValidDNSSearchDomain,
 } from "~/utils/network";
-import { isEmpty, shake } from "radashi";
 import { _ } from "~/i18n";
 
 const IPV4_DEFAULT_PREFIX = 24;
@@ -102,6 +104,44 @@ export const connectionFormOptions = formOptions({
 
 type FormValues = typeof connectionFormOptions.defaultValues;
 type FormFieldErrors = Partial<Record<keyof FormValues, string>>;
+
+/**
+ * Derives the form mode string from a stored {@link ConnectionMethod}.
+ *
+ * `undefined` means the connection profile has no explicit method set, which
+ * corresponds to the "Automatic" (unset) option. An explicit {@link ConnectionMethod.AUTO}
+ * corresponds to "Advanced" (DHCP forced), and {@link ConnectionMethod.MANUAL} to "Manual".
+ */
+function ipModeFromMethod(method: ConnectionMethod | undefined): string {
+  if (method === ConnectionMethod.MANUAL) return "manual";
+  if (method === ConnectionMethod.AUTO) return "auto";
+  return "unset";
+}
+
+/**
+ * Maps an existing {@link Connection} to initial form values for editing.
+ */
+function connectionToFormValues(connection: Connection): Partial<FormValues> {
+  const addresses4 = connection.addresses.filter((a) => !a.address.includes(":")).map(formatIp);
+  const addresses6 = connection.addresses.filter((a) => a.address.includes(":")).map(formatIp);
+
+  return {
+    name: connection.id,
+    iface: connection.iface ?? "",
+    ifaceMac: connection.macAddress ?? "",
+    bindingMode: connectionBindingMode(connection),
+    ipv4Mode: ipModeFromMethod(connection.method4),
+    addresses4,
+    gateway4: connection.gateway4 ?? "",
+    ipv6Mode: ipModeFromMethod(connection.method6),
+    addresses6,
+    gateway6: connection.gateway6 ?? "",
+    nameservers: connection.nameservers,
+    dnsSearchList: connection.dnsSearchList,
+    customDns: connection.nameservers.length > 0,
+    customDnsSearch: connection.dnsSearchList.length > 0,
+  };
+}
 
 /**
  * Returns an error when the given list is active and empty or has invalid entries.
@@ -247,7 +287,12 @@ function buildConnection(formValues: FormValues): Connection {
  * @see https://tanstack.com/form/latest/docs/framework/react/guides/validation
  * @see https://github.com/TanStack/form/discussions/623#discussioncomment-13026699
  */
-export default function ConnectionForm() {
+type ConnectionFormContentProps = {
+  defaults?: Partial<FormValues>;
+  pageLabel: string;
+};
+
+function ConnectionFormContent({ defaults, pageLabel }: ConnectionFormContentProps) {
   const navigate = useNavigate();
   const devices = useDevices();
   const { mutateAsync: updateConnection } = useConnectionMutation();
@@ -256,6 +301,7 @@ export default function ConnectionForm() {
     ...mergeFormDefaults(connectionFormOptions, {
       iface: devices[0]?.name ?? "",
       ifaceMac: devices[0]?.macAddress ?? "",
+      ...defaults,
     }),
     validators: {
       onSubmitAsync: async ({ value: formValues }) => {
@@ -272,7 +318,7 @@ export default function ConnectionForm() {
     onSubmit: () => navigate(-1),
   });
 
-  const breadcrumbs = [{ label: _("Network"), path: NETWORK.root }, { label: _("New connection") }];
+  const breadcrumbs = [{ label: _("Network"), path: NETWORK.root }, { label: pageLabel }];
 
   return (
     <Page breadcrumbs={breadcrumbs}>
@@ -414,4 +460,44 @@ export default function ConnectionForm() {
       </Page.Content>
     </Page>
   );
+}
+
+function NewConnectionForm() {
+  return <ConnectionFormContent pageLabel={_("New connection")} />;
+}
+
+function EditConnectionForm() {
+  const { id } = useParams();
+  const { connections: systemConns } = useSystem();
+  const connection = systemConns.find((c) => c.id === id);
+
+  return (
+    <ConnectionFormContent
+      pageLabel={_("Edit connection")}
+      defaults={connection && connectionToFormValues(connection)}
+    />
+  );
+}
+
+/**
+ * Form for creating or editing a network connection.
+ *
+ * @remarks
+ * Renders {@link NewConnectionForm} when no route `id` param is present, or
+ * {@link EditConnectionForm} when editing an existing connection. Both delegate
+ * to {@link ConnectionFormContent} for the shared form rendering.
+ *
+ * Server errors are surfaced via TanStack Form's `validators.onSubmitAsync`.
+ * This is the recommended pattern for forms where the server acts as the
+ * validator: the call lives in the async validator, which returns `{ form:
+ * message }` on failure. TanStack then exposes the message via
+ * `state.errorMap.onSubmit.form` without throwing, keeping the button
+ * re-enabled for a retry.
+ *
+ * @see https://tanstack.com/form/latest/docs/framework/react/guides/validation
+ * @see https://github.com/TanStack/form/discussions/623#discussioncomment-13026699
+ */
+export default function ConnectionForm() {
+  const { id } = useParams();
+  return id ? <EditConnectionForm /> : <NewConnectionForm />;
 }

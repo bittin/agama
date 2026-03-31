@@ -22,9 +22,9 @@
 
 import React from "react";
 import { screen, waitFor } from "@testing-library/react";
-import { installerRender } from "~/test-utils";
+import { installerRender, mockParams } from "~/test-utils";
+import { Connection, ConnectionMethod, ConnectionState, ConnectionStatus, ConnectionType, DeviceState } from "~/types/network";
 import ConnectionForm from "~/components/network/ConnectionForm";
-import { ConnectionMethod, ConnectionType, DeviceState } from "~/types/network";
 
 const mockDevice1 = {
   name: "enp1s0",
@@ -41,18 +41,36 @@ const mockDevice2 = {
 };
 
 const mockMutateAsync = jest.fn().mockResolvedValue({});
+const mockUseConfig = jest.fn().mockReturnValue({ connections: [] });
+const mockUseSystem = jest.fn().mockReturnValue({ connections: [] });
 
 jest.mock("~/hooks/model/config/network", () => ({
   useConnectionMutation: () => ({ mutateAsync: mockMutateAsync }),
+  useConfig: () => mockUseConfig(),
 }));
 
 jest.mock("~/hooks/model/system/network", () => ({
   useDevices: () => [mockDevice1, mockDevice2],
+  useSystem: () => mockUseSystem(),
 }));
+
+/** Builds a Connection instance from minimal API data, with sensible defaults. */
+const makeConnection = (id: string, overrides = {}) =>
+  Connection.fromApi({
+    id,
+    status: ConnectionStatus.UP,
+    state: ConnectionState.activated,
+    persistent: true,
+    addresses: [],
+    nameservers: [],
+    dnsSearchList: [],
+    ...overrides,
+  });
 
 describe("ConnectionForm", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockParams({});
   });
 
   it("renders common connection fields and options", () => {
@@ -232,6 +250,63 @@ describe("ConnectionForm", () => {
       await user.click(screen.getByRole("button", { name: "Accept" }));
       await waitFor(() =>
         expect(mockMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ nameservers: [] })),
+      );
+    });
+  });
+
+  describe("when editing an existing connection", () => {
+    beforeEach(() => {
+      mockParams({ id: "eth0" });
+      mockUseSystem.mockReturnValue({ connections: [makeConnection("eth0")] });
+    });
+
+    it("pre-fills the name with the connection id", () => {
+      installerRender(<ConnectionForm />);
+      expect(screen.getByLabelText("Name")).toHaveValue("eth0");
+    });
+
+    it("pre-selects Manual IPv4 when the connection uses manual IPv4 addressing", () => {
+      mockUseSystem.mockReturnValue({
+        connections: [makeConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] })],
+      });
+      installerRender(<ConnectionForm />);
+      expect(screen.getByText("IPv4 Addresses")).toBeInTheDocument();
+    });
+
+    it("pre-selects Manual IPv6 when the connection uses manual IPv6 addressing", () => {
+      mockUseSystem.mockReturnValue({
+        connections: [makeConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] })],
+      });
+      installerRender(<ConnectionForm />);
+      expect(screen.getByText("IPv6 Addresses")).toBeInTheDocument();
+    });
+
+    it("pre-checks custom DNS when the connection has nameservers", () => {
+      mockUseSystem.mockReturnValue({
+        connections: [makeConnection("eth0", { nameservers: ["8.8.8.8"] })],
+      });
+      installerRender(<ConnectionForm />);
+      expect(screen.getByRole("checkbox", { name: "Use custom DNS" })).toBeChecked();
+    });
+
+    it("pre-checks custom DNS search domains when the connection has search domains", () => {
+      mockUseSystem.mockReturnValue({
+        connections: [makeConnection("eth0", { dnsSearchList: ["example.com"] })],
+      });
+      installerRender(<ConnectionForm />);
+      expect(screen.getByRole("checkbox", { name: "Use custom DNS search domains" })).toBeChecked();
+    });
+
+    it("submits the updated connection when accepting the form", async () => {
+      mockUseSystem.mockReturnValue({
+        connections: [makeConnection("eth0", { nameservers: ["8.8.8.8"] })],
+      });
+      const { user } = installerRender(<ConnectionForm />);
+      await user.click(screen.getByRole("button", { name: "Accept" }));
+      await waitFor(() =>
+        expect(mockMutateAsync).toHaveBeenCalledWith(
+          expect.objectContaining({ id: "eth0", nameservers: ["8.8.8.8"] }),
+        ),
       );
     });
   });
