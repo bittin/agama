@@ -290,10 +290,11 @@ function buildConnection(formValues: FormValues): Connection {
  */
 type ConnectionFormContentProps = {
   defaults?: Partial<FormValues>;
-  pageLabel: string;
+  title: string;
+  isEditing?: boolean;
 };
 
-function ConnectionFormContent({ defaults, pageLabel }: ConnectionFormContentProps) {
+function ConnectionFormContent({ defaults, title, isEditing = false }: ConnectionFormContentProps) {
   const navigate = useNavigate();
   const devices = useDevices();
   const { mutateAsync: updateConnection } = useConnectionMutation();
@@ -319,7 +320,7 @@ function ConnectionFormContent({ defaults, pageLabel }: ConnectionFormContentPro
     onSubmit: () => navigate(-1),
   });
 
-  const breadcrumbs = [{ label: _("Network"), path: NETWORK.root }, { label: pageLabel }];
+  const breadcrumbs = [{ label: _("Network"), path: NETWORK.root }, { label: title }];
 
   return (
     <Page breadcrumbs={breadcrumbs}>
@@ -361,28 +362,30 @@ function ConnectionFormContent({ defaults, pageLabel }: ConnectionFormContentPro
               </form.Subscribe>
             </Flex>
 
-            <form.Field name="name">
-              {(field) => {
-                const error = field.state.meta.errors[0] as string | undefined;
-                return (
-                  <FormGroup fieldId={field.name} label={_("Name")}>
-                    <TextInput
-                      id={field.name}
-                      value={field.state.value}
-                      validated={error ? "error" : "default"}
-                      onChange={(_, v) => field.handleChange(v)}
-                    />
-                    {error && (
-                      <FormHelperText>
-                        <HelperText>
-                          <HelperTextItem variant="error">{error}</HelperTextItem>
-                        </HelperText>
-                      </FormHelperText>
-                    )}
-                  </FormGroup>
-                );
-              }}
-            </form.Field>
+            {!isEditing && (
+              <form.Field name="name">
+                {(field) => {
+                  const error = field.state.meta.errors[0] as string | undefined;
+                  return (
+                    <FormGroup fieldId={field.name} label={_("Name")}>
+                      <TextInput
+                        id={field.name}
+                        value={field.state.value}
+                        validated={error ? "error" : "default"}
+                        onChange={(_, v) => field.handleChange(v)}
+                      />
+                      {error && (
+                        <FormHelperText>
+                          <HelperText>
+                            <HelperTextItem variant="error">{error}</HelperTextItem>
+                          </HelperText>
+                        </FormHelperText>
+                      )}
+                    </FormGroup>
+                  );
+                }}
+              </form.Field>
+            )}
 
             <IpSettings form={form} protocol="ipv4" />
 
@@ -464,7 +467,7 @@ function ConnectionFormContent({ defaults, pageLabel }: ConnectionFormContentPro
 }
 
 function NewConnectionForm() {
-  return <ConnectionFormContent pageLabel={_("New connection")} />;
+  return <ConnectionFormContent title={_("New connection")} />;
 }
 
 function EditConnectionForm() {
@@ -487,8 +490,9 @@ function EditConnectionForm() {
 
   return (
     <ConnectionFormContent
-      pageLabel={_("Edit connection")}
+      title={connection.id}
       defaults={connection && connectionToFormValues(connection)}
+      isEditing
     />
   );
 }

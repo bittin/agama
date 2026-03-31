@@ -260,9 +260,9 @@ describe("ConnectionForm", () => {
       mockUseSystem.mockReturnValue({ connections: [makeConnection("eth0")] });
     });
 
-    it("pre-fills the name with the connection id", () => {
+    it("does not show the name field since it cannot be changed", () => {
       installerRender(<ConnectionForm />);
-      expect(screen.getByLabelText("Name")).toHaveValue("eth0");
+      expect(screen.queryByLabelText("Name")).not.toBeInTheDocument();
     });
 
     it("pre-selects Manual IPv4 when the connection uses manual IPv4 addressing", () => {
