@@ -107,8 +107,8 @@ module Agama
       # A device is usable if it contains neither a mounted filesystem nor a repository for the
       # installation.
       #
-      # For "compounded" devices like MD RAIDs or volume groups, all the devices used for creating
-      # it has to be usable for the installation too.
+      # For "compound" devices like MD RAIDs or volume groups, all the devices used for creating
+      # them have to be usable for the installation too.
       #
       # See {#available_drives}, {#available_md_raids} and {#available_volume_groups}
       #
