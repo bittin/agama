@@ -23,7 +23,14 @@
 import React from "react";
 import { screen, waitFor } from "@testing-library/react";
 import { installerRender, mockParams } from "~/test-utils";
-import { Connection, ConnectionMethod, ConnectionState, ConnectionStatus, ConnectionType, DeviceState } from "~/types/network";
+import {
+  Connection,
+  ConnectionMethod,
+  ConnectionState,
+  ConnectionStatus,
+  ConnectionType,
+  DeviceState,
+} from "~/types/network";
 import ConnectionForm from "~/components/network/ConnectionForm";
 
 const mockDevice1 = {
@@ -254,6 +261,18 @@ describe("ConnectionForm", () => {
     });
   });
 
+  describe("when the connection to edit is not found", () => {
+    beforeEach(() => {
+      mockParams({ id: "eth0" });
+    });
+
+    it("renders an empty state with a link back to network", () => {
+      installerRender(<ConnectionForm />);
+      screen.getByText("Connection not found");
+      screen.getByRole("link", { name: "Back to network" });
+    });
+  });
+
   describe("when editing an existing connection", () => {
     beforeEach(() => {
       mockParams({ id: "eth0" });
@@ -349,9 +368,7 @@ describe("ConnectionForm", () => {
       ).toBeInTheDocument();
     });
 
-    it.todo(
-      "shows Advanced IPv4 when config has no method but system already has IPv4 addresses",
-    );
+    it.todo("shows Advanced IPv4 when config has no method but system already has IPv4 addresses");
 
     it("shows Automatic IPv6 when config has no method, despite system reporting auto", () => {
       mockUseConfig.mockReturnValue({ connections: [makeConnection("eth0")] });
@@ -386,9 +403,7 @@ describe("ConnectionForm", () => {
       ).toBeInTheDocument();
     });
 
-    it.todo(
-      "shows Advanced IPv6 when config has no method but system already has IPv6 addresses",
-    );
+    it.todo("shows Advanced IPv6 when config has no method but system already has IPv6 addresses");
   });
 
   describe("DNS search domains", () => {
