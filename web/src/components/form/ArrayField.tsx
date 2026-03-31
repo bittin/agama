@@ -295,6 +295,31 @@ type MultiValueFieldProps = {
  * Must be used inside a TanStack Form `AppField` context that provides a
  * `string[]` field value.
  *
+ * @remarks
+ * **Keyboard focus model**
+ *
+ * This component uses `aria-activedescendant` instead of roving tabIndex.
+ *
+ * The MDN guide on keyboard-navigable widgets
+ * (https://developer.mozilla.org/en-US/docs/Web/Accessibility/Guides/Keyboard-navigable_JavaScript_widgets)
+ * describes two approaches: roving tabIndex (move DOM focus between elements)
+ * and `aria-activedescendant` (keep DOM focus on one element and point to the
+ * active descendant by id).
+ *
+ * Roving tabIndex was tried first but did not work reliably here. When an
+ * `onClick` prop is passed to PatternFly's `Label` component, PF renders the
+ * label content inside a `<button>`, which adds an extra tab stop and
+ * interferes with focus management. Focus would jump into the button's
+ * internals rather than land on the entry element as expected.
+ *
+ * The fix was to not pass `onClick` to `Label` at all and instead handle
+ * pointer interaction via `onMouseDown` + `preventDefault()` on a wrapper
+ * `<span>`. With that, entries are rendered as plain non-focusable elements
+ * inside a `role="listbox"` container, the `<input>` always holds real DOM
+ * focus, and the active entry is communicated to assistive technology via
+ * `aria-activedescendant` on the input pointing to the entry's id. Keyboard
+ * navigation updates `aria-activedescendant` without touching DOM focus.
+ *
  * @todo Support a layout option where entries render one per line, for use
  *   cases with long values such as SSH public keys.
  * @todo Rework the layout so entries sit above the input row, with a visual
