@@ -20,7 +20,7 @@
  * find current contact information at www.suse.com.
  */
 
-import React from "react";
+import React, { useEffect } from "react";
 import { formOptions } from "@tanstack/react-form";
 import { useNavigate, useParams } from "react-router";
 import { isEmpty, shake } from "radashi";
@@ -43,8 +43,15 @@ import ResourceNotFound from "~/components/core/ResourceNotFound";
 import IpSettings from "~/components/network/IpSettings";
 import BindingModeSelector from "~/components/network/BindingModeSelector";
 import DeviceSelector from "~/components/network/DeviceSelector";
-import { Connection, ConnectionBindingMode, ConnectionMethod } from "~/types/network";
+import {
+  Connection,
+  ConnectionBindingMode,
+  ConnectionMethod,
+  ConnectionType,
+} from "~/types/network";
+import { useStore } from "@tanstack/react-form";
 import { useConnectionMutation, useConfig } from "~/hooks/model/config/network";
+import { useConnectionName } from "~/hooks/use-connection-name";
 import { useAppForm, mergeFormDefaults } from "~/hooks/form";
 import { useSystem, useDevices } from "~/hooks/model/system/network";
 import { extendCollection } from "~/utils";
@@ -298,7 +305,6 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
   const navigate = useNavigate();
   const devices = useDevices();
   const { mutateAsync: updateConnection } = useConnectionMutation();
-
   const form = useAppForm({
     ...mergeFormDefaults(connectionFormOptions, {
       iface: devices[0]?.name ?? "",
@@ -319,6 +325,30 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
     },
     onSubmit: () => navigate(-1),
   });
+
+  // Track whether the user has manually edited the name. `isDirty` is used
+  // instead of `isTouched` because a user could focus and blur the field
+  // without changing it, which would set `isTouched` but not `isDirty`.
+  const { bindingMode, iface, ifaceMac, nameDirty } = useStore(form.store, (s) => ({
+    bindingMode: s.values.bindingMode,
+    iface: s.values.iface,
+    ifaceMac: s.values.ifaceMac,
+    nameDirty: s.fieldMeta["name"]?.isDirty ?? false,
+  }));
+
+  const generatedName = useConnectionName(ConnectionType.ETHERNET, {
+    mode: bindingMode,
+    iface,
+    mac: ifaceMac,
+  });
+
+  // Keep the name in sync with the auto-generated value as long as the user
+  // has not manually edited it. `dontUpdateMeta` prevents `setFieldValue`
+  // from marking the field as dirty/touched, which would stop future updates.
+  useEffect(() => {
+    if (!isEditing && !nameDirty)
+      form.setFieldValue("name", generatedName, { dontUpdateMeta: true });
+  }, [form, isEditing, generatedName, nameDirty]);
 
   return (
     <form.AppForm>

@@ -124,6 +124,7 @@ describe("ConnectionForm", () => {
 
   it("submits with the entered values", async () => {
     const { user } = installerRender(<ConnectionForm />);
+    await user.clear(screen.getByLabelText("Name"));
     await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
     await user.click(screen.getByRole("button", { name: "Accept" }));
     await waitFor(() =>
@@ -404,6 +405,36 @@ describe("ConnectionForm", () => {
     });
 
     it.todo("shows Advanced IPv6 when config has no method but system already has IPv6 addresses");
+  });
+
+  describe("Auto-generated name", () => {
+    it("pre-fills with the connection type when binding is Any", async () => {
+      installerRender(<ConnectionForm />);
+      expect(screen.getByLabelText("Name")).toHaveValue("ethernet");
+    });
+
+    it("pre-fills with type_device when binding is changed to Chosen by name", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+      await user.click(screen.getByLabelText("Device"));
+      await user.click(screen.getByRole("option", { name: /^Chosen by name/ }));
+      expect(screen.getByLabelText("Name")).toHaveValue("ethernet_enp1s0");
+    });
+
+    it("pre-fills with type_mac when binding is changed to Chosen by MAC", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+      await user.click(screen.getByLabelText("Device"));
+      await user.click(screen.getByRole("option", { name: /^Chosen by MAC/ }));
+      expect(screen.getByLabelText("Name")).toHaveValue("ethernet_001122334455");
+    });
+
+    it("stops auto-updating once the user manually edits the name", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+      await user.clear(screen.getByLabelText("Name"));
+      await user.type(screen.getByLabelText("Name"), "My Connection");
+      await user.click(screen.getByLabelText("Device"));
+      await user.click(screen.getByRole("option", { name: /^Chosen by name/ }));
+      expect(screen.getByLabelText("Name")).toHaveValue("My Connection");
+    });
   });
 
   describe("DNS search domains", () => {
