@@ -383,9 +383,16 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
         <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
           <BindingModeSelector form={form} />
 
-          <form.Subscribe selector={(s) => s.values.bindingMode}>
-            {(mode) => mode !== "none" && <DeviceSelector form={form} by={mode} />}
-          </form.Subscribe>
+          {bindingMode === "iface" && (
+            <DeviceSelector
+              form={form}
+              by="iface"
+              sync={{ field: "ifaceMac", with: (d) => d.macAddress }}
+            />
+          )}
+          {bindingMode === "mac" && (
+            <DeviceSelector form={form} by="mac" sync={{ field: "iface", with: (d) => d.name }} />
+          )}
         </Flex>
 
         {!isEditing && (

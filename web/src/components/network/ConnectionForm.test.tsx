@@ -108,6 +108,29 @@ describe("ConnectionForm", () => {
       );
     });
 
+    it("preserves the selected device when switching binding modes", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+      await user.click(screen.getByLabelText("Device"));
+      await user.click(screen.getByRole("option", { name: /^Chosen by name/ }));
+      await user.click(screen.getByLabelText("Device name"));
+      await user.click(screen.getByRole("option", { name: /^enp2s0/ }));
+      await user.click(screen.getByLabelText("Device"));
+      await user.click(screen.getByRole("option", { name: /^Chosen by MAC/ }));
+      await user.click(screen.getByLabelText("MAC address"));
+      expect(screen.getByRole("option", { name: /^AA:BB:CC:DD:EE:FF/ })).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
+      await user.click(screen.getByRole("option", { name: /^00:11:22:33:44:55/ }));
+      await user.click(screen.getByLabelText("Device"));
+      await user.click(screen.getByRole("option", { name: /^Chosen by name/ }));
+      await user.click(screen.getByLabelText("Device name"));
+      expect(screen.getByRole("option", { name: /^enp1s0/ })).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
+    });
+
     it("submits with macAddress when binding by MAC", async () => {
       const { user } = installerRender(<ConnectionForm />);
       await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
