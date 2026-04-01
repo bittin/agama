@@ -269,7 +269,7 @@ describe("ConnectionForm", () => {
     it("renders an empty state with a link back to network", () => {
       installerRender(<ConnectionForm />);
       screen.getByText("Connection not found");
-      screen.getByRole("link", { name: "Back to network" });
+      screen.getByRole("link", { name: "Go to network page" });
     });
   });
 

@@ -29,8 +29,6 @@ import {
   ActionGroup,
   Button,
   Checkbox,
-  EmptyState,
-  EmptyStateBody,
   Flex,
   Form,
   FormGroup,
@@ -39,9 +37,9 @@ import {
   HelperTextItem,
   TextInput,
 } from "@patternfly/react-core";
-import Link from "~/components/core/Link";
 import Page from "~/components/core/Page";
 import NestedContent from "~/components/core/NestedContent";
+import ResourceNotFound from "~/components/core/ResourceNotFound";
 import IpSettings from "~/components/network/IpSettings";
 import BindingModeSelector from "~/components/network/BindingModeSelector";
 import DeviceSelector from "~/components/network/DeviceSelector";
@@ -468,14 +466,12 @@ function NewConnectionForm() {
 
 function ConnectionNotFound() {
   return (
-    <EmptyState headingLevel="h2" titleText={_("Connection not found")} variant="sm">
-      <EmptyStateBody>
-        {_("The connection does not exist or is no longer available.")}
-      </EmptyStateBody>
-      <Link to={NETWORK.root} variant="link">
-        {_("Back to network")}
-      </Link>
-    </EmptyState>
+    <ResourceNotFound
+      title={_("Connection not found")}
+      body={_("The connection does not exist or is no longer available.")}
+      linkText={_("Go to network page")}
+      linkPath={NETWORK.root}
+    />
   );
 }
 
