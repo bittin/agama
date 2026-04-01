@@ -433,21 +433,21 @@ describe("ConnectionForm", () => {
   describe("Auto-generated name", () => {
     it("pre-fills with the connection type when binding is Any", async () => {
       installerRender(<ConnectionForm />);
-      expect(screen.getByLabelText("Name")).toHaveValue("ethernet");
+      expect(screen.getByLabelText("Name")).toHaveValue("Ethernet");
     });
 
     it("pre-fills with type_device when binding is changed to Chosen by name", async () => {
       const { user } = installerRender(<ConnectionForm />);
       await user.click(screen.getByLabelText("Device"));
       await user.click(screen.getByRole("option", { name: /^Chosen by name/ }));
-      expect(screen.getByLabelText("Name")).toHaveValue("ethernet_enp1s0");
+      expect(screen.getByLabelText("Name")).toHaveValue("Ethernet enp1s0");
     });
 
     it("pre-fills with type_mac when binding is changed to Chosen by MAC", async () => {
       const { user } = installerRender(<ConnectionForm />);
       await user.click(screen.getByLabelText("Device"));
       await user.click(screen.getByRole("option", { name: /^Chosen by MAC/ }));
-      expect(screen.getByLabelText("Name")).toHaveValue("ethernet_001122334455");
+      expect(screen.getByLabelText("Name")).toHaveValue("Ethernet 00:11:22:33:44:55");
     });
 
     it("stops auto-updating once the user manually edits the name", async () => {

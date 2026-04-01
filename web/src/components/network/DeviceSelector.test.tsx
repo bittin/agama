@@ -66,6 +66,17 @@ describe("DeviceSelector", () => {
     sync = undefined;
   });
 
+  describe("when mounting with no device selected", () => {
+    it("pre-selects the first available device", async () => {
+      const { user } = installerRender(<TestSelectors />);
+      await user.click(screen.getByLabelText("Device name"));
+      expect(screen.getByRole("option", { name: /^enp1s0/ })).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
+    });
+  });
+
   describe("when by is iface", () => {
     it("shows device names as options", async () => {
       const { user } = installerRender(<TestSelectors />);

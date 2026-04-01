@@ -70,22 +70,28 @@ const DeviceSelector = withForm({
       };
     });
 
-    const listeners = sync
-      ? {
-          onChange: ({ value }: { value: string }) => {
-            const device =
-              by === "iface"
-                ? devices.find((d) => d.name === value)
-                : devices.find((d) => d.macAddress === value);
-            if (device)
-              form.setFieldValue(sync.field, sync.with(device), {
-                // Prevents the counterpart field's listener from firing in
-                // response, which would otherwise cause an infinite loop.
-                dontRunListeners: true,
-              });
-          },
-        }
-      : undefined;
+    const listeners = {
+      // Pre-select the first available device when the selector mounts with no
+      // value, e.g. when the user switches from "Any device" binding mode.
+      onMount: ({ value }: { value: string }) => {
+        if (!value && devices.length > 0)
+          form.setFieldValue(name, devices[0][valueKey], { dontUpdateMeta: true });
+      },
+      ...(sync && {
+        onChange: ({ value }: { value: string }) => {
+          const device =
+            by === "iface"
+              ? devices.find((d) => d.name === value)
+              : devices.find((d) => d.macAddress === value);
+          if (device)
+            form.setFieldValue(sync.field, sync.with(device), {
+              // Prevents the counterpart field's listener from firing in
+              // response, which would otherwise cause an infinite loop.
+              dontRunListeners: true,
+            });
+        },
+      }),
+    };
 
     return (
       <form.AppField name={name} listeners={listeners}>
