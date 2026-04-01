@@ -487,9 +487,10 @@ function EditConnectionForm() {
   // report.
   //
   // FIXME: when config has no method (Automatic) but the system connection
-  // already has addresses, the merged result will show Automatic while the
-  // connection is actually behaving as Advanced. Consider deriving the mode
-  // from the system addresses in that case for a more accurate representation.
+  // already has manually set addresses, the merged result will show Automatic
+  // while the connection is actually behaving as Advanced. Consider deriving
+  // the mode from the system addresses in that case for a more accurate
+  // representation.
   const { all: connections } = extendCollection(configConns || [], { with: systemConns });
   const connection = connections.find((c) => c.id === id);
 
