@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Apr  1 14:46:08 UTC 2026 - Ladislav Slezák <lslezak@suse.com>
+
+- Run the shell at tty8 as a login shell (to initialize some
+  environment variables like $PAGER from /etc/profile)
+  (gh#agama-project/agama#3354)
+
+-------------------------------------------------------------------
 Tue Mar 31 14:28:52 UTC 2026 - Shawn Dunn <sfalken@opensuse.org>
 
 - Add userChrome.css to simplify the firefox UI
