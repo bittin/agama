@@ -35,47 +35,47 @@ describe("useConnectionName", () => {
   });
 
   describe("when binding mode is 'none'", () => {
-    it("returns the type as the name", () => {
+    it("returns only the type as the name", () => {
       const { result } = renderHook(() =>
         useConnectionName("ethernet", { mode: "none", iface: "enp1s0", mac: "AA:BB:CC:DD:EE:FF" }),
       );
-      expect(result.current).toBe("ethernet");
+      expect(result.current).toBe("Ethernet");
     });
   });
 
   describe("when binding mode is 'iface'", () => {
-    it("returns type_iface as the name", () => {
+    it("returns type and name as the name", () => {
       const { result } = renderHook(() =>
         useConnectionName("ethernet", { mode: "iface", iface: "enp1s0", mac: "AA:BB:CC:DD:EE:FF" }),
       );
-      expect(result.current).toBe("ethernet_enp1s0");
+      expect(result.current).toBe("Ethernet enp1s0");
     });
   });
 
   describe("when binding mode is 'mac'", () => {
-    it("returns type_mac (colons stripped) as the name", () => {
+    it("returns type and MACN as the name", () => {
       const { result } = renderHook(() =>
         useConnectionName("ethernet", { mode: "mac", iface: "enp1s0", mac: "AA:BB:CC:DD:EE:FF" }),
       );
-      expect(result.current).toBe("ethernet_AABBCCDDEEFF");
+      expect(result.current).toBe("Ethernet AA:BB:CC:DD:EE:FF");
     });
   });
 
   describe("when the base name is already taken", () => {
     it("appends _2 as suffix", () => {
-      mockConnections.push({ id: "ethernet" });
+      mockConnections.push({ id: "Ethernet" });
       const { result } = renderHook(() =>
         useConnectionName("ethernet", { mode: "none", iface: "", mac: "" }),
       );
-      expect(result.current).toBe("ethernet_2");
+      expect(result.current).toBe("Ethernet 2");
     });
 
     it("increments the suffix until a unique name is found", () => {
-      mockConnections.push({ id: "ethernet" }, { id: "ethernet_2" }, { id: "ethernet_3" });
+      mockConnections.push({ id: "Ethernet" }, { id: "Ethernet 2" }, { id: "Ethernet 3" });
       const { result } = renderHook(() =>
         useConnectionName("ethernet", { mode: "none", iface: "", mac: "" }),
       );
-      expect(result.current).toBe("ethernet_4");
+      expect(result.current).toBe("Ethernet 4");
     });
   });
 });
