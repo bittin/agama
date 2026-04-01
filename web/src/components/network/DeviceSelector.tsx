@@ -57,8 +57,17 @@ const DeviceSelector = withForm({
       };
     });
 
+    const listeners = {
+      // Pre-select the first available device when the selector mounts with no
+      // value, e.g. when the user switches from "Any device" binding mode.
+      onMount: ({ value }: { value: string }) => {
+        if (!value && devices.length > 0)
+          form.setFieldValue(name, devices[0][valueKey], { dontUpdateMeta: true });
+      },
+    };
+
     return (
-      <form.AppField name={name}>
+      <form.AppField name={name} listeners={listeners}>
         {(field) => <field.ChoiceField label={<Text srOnly>{label}</Text>} options={options} />}
       </form.AppField>
     );
