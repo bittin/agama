@@ -21,7 +21,9 @@
  */
 
 import React from "react";
-import { useNavigate } from "react-router";
+import { formOptions } from "@tanstack/react-form";
+import { useNavigate, useParams } from "react-router";
+import { isEmpty, shake } from "radashi";
 import {
   Alert,
   ActionGroup,
@@ -37,17 +39,20 @@ import {
 } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
 import NestedContent from "~/components/core/NestedContent";
+import ResourceNotFound from "~/components/core/ResourceNotFound";
 import IpSettings from "~/components/network/IpSettings";
 import BindingModeSelector from "~/components/network/BindingModeSelector";
 import DeviceSelector from "~/components/network/DeviceSelector";
 import { Connection, ConnectionBindingMode, ConnectionMethod } from "~/types/network";
-import { useConnectionMutation } from "~/hooks/model/config/network";
-import { formOptions } from "@tanstack/react-form";
+import { useConnectionMutation, useConfig } from "~/hooks/model/config/network";
 import { useAppForm, mergeFormDefaults } from "~/hooks/form";
-import { useDevices } from "~/hooks/model/system/network";
+import { useSystem, useDevices } from "~/hooks/model/system/network";
+import { extendCollection } from "~/utils";
 import { NETWORK } from "~/routes/paths";
 import {
   buildAddress,
+  connectionBindingMode,
+  formatIp,
   isValidIPv4,
   isValidIPv6,
   isValidIPv4Address,
@@ -55,7 +60,6 @@ import {
   isValidNameserver,
   isValidDNSSearchDomain,
 } from "~/utils/network";
-import { isEmpty, shake } from "radashi";
 import { _ } from "~/i18n";
 
 const IPV4_DEFAULT_PREFIX = 24;
@@ -102,6 +106,44 @@ export const connectionFormOptions = formOptions({
 
 type FormValues = typeof connectionFormOptions.defaultValues;
 type FormFieldErrors = Partial<Record<keyof FormValues, string>>;
+
+/**
+ * Derives the form mode string from a stored {@link ConnectionMethod}.
+ *
+ * `undefined` means the connection profile has no explicit method set, which
+ * corresponds to the "Automatic" (unset) option. An explicit {@link ConnectionMethod.AUTO}
+ * corresponds to "Advanced" (DHCP forced), and {@link ConnectionMethod.MANUAL} to "Manual".
+ */
+function ipModeFromMethod(method: ConnectionMethod | undefined): string {
+  if (method === ConnectionMethod.MANUAL) return "manual";
+  if (method === ConnectionMethod.AUTO) return "auto";
+  return "unset";
+}
+
+/**
+ * Maps an existing {@link Connection} to initial form values for editing.
+ */
+function connectionToFormValues(connection: Connection): Partial<FormValues> {
+  const addresses4 = connection.addresses.filter((a) => !a.address.includes(":")).map(formatIp);
+  const addresses6 = connection.addresses.filter((a) => a.address.includes(":")).map(formatIp);
+
+  return {
+    name: connection.id,
+    iface: connection.iface ?? "",
+    ifaceMac: connection.macAddress ?? "",
+    bindingMode: connectionBindingMode(connection),
+    ipv4Mode: ipModeFromMethod(connection.method4),
+    addresses4,
+    gateway4: connection.gateway4 ?? "",
+    ipv6Mode: ipModeFromMethod(connection.method6),
+    addresses6,
+    gateway6: connection.gateway6 ?? "",
+    nameservers: connection.nameservers,
+    dnsSearchList: connection.dnsSearchList,
+    customDns: connection.nameservers.length > 0,
+    customDnsSearch: connection.dnsSearchList.length > 0,
+  };
+}
 
 /**
  * Returns an error when the given list is active and empty or has invalid entries.
@@ -247,7 +289,12 @@ function buildConnection(formValues: FormValues): Connection {
  * @see https://tanstack.com/form/latest/docs/framework/react/guides/validation
  * @see https://github.com/TanStack/form/discussions/623#discussioncomment-13026699
  */
-export default function ConnectionForm() {
+type ConnectionFormContentProps = {
+  defaults?: Partial<FormValues>;
+  isEditing?: boolean;
+};
+
+function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormContentProps) {
   const navigate = useNavigate();
   const devices = useDevices();
   const { mutateAsync: updateConnection } = useConnectionMutation();
@@ -256,6 +303,7 @@ export default function ConnectionForm() {
     ...mergeFormDefaults(connectionFormOptions, {
       iface: devices[0]?.name ?? "",
       ifaceMac: devices[0]?.macAddress ?? "",
+      ...defaults,
     }),
     validators: {
       onSubmitAsync: async ({ value: formValues }) => {
@@ -272,146 +320,211 @@ export default function ConnectionForm() {
     onSubmit: () => navigate(-1),
   });
 
-  const breadcrumbs = [{ label: _("Network"), path: NETWORK.root }, { label: _("New connection") }];
+  return (
+    <form.AppForm>
+      <Form
+        onSubmit={(e) => {
+          e.preventDefault();
+          // Validation is intentionally deferred to submission so users are
+          // not interrupted while filling the form. All rules live in
+          // onSubmitAsync rather than per-field onSubmit validators because
+          // several checks are cross-field (e.g. gateway validity depends on
+          // the addresses list). TanStack Form only clears field errors set
+          // by onSubmitAsync when a per-field onSubmit validator runs for
+          // the same cause — which never happens here — so canSubmit stays
+          // false after a failed attempt. setErrorMap resets every field's
+          // errorMap.onSubmit before each new attempt, restoring canSubmit
+          // so onSubmitAsync is called again.
+          // @see https://tanstack.com/form/latest/docs/reference/formApi#seterrormap
+          form.setErrorMap({ onSubmit: { fields: {} } });
+          form.handleSubmit();
+        }}
+      >
+        <form.Subscribe selector={(s) => s.errorMap.onSubmit?.form}>
+          {(serverError) =>
+            serverError && (
+              <Alert variant="danger" isInline title={_("The connection could not be saved")}>
+                {serverError}
+              </Alert>
+            )
+          }
+        </form.Subscribe>
+
+        <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
+          <BindingModeSelector form={form} />
+
+          <form.Subscribe selector={(s) => s.values.bindingMode}>
+            {(mode) => mode !== "none" && <DeviceSelector form={form} by={mode} />}
+          </form.Subscribe>
+        </Flex>
+
+        {!isEditing && (
+          <form.Field name="name">
+            {(field) => {
+              const error = field.state.meta.errors[0] as string | undefined;
+              return (
+                <FormGroup fieldId={field.name} label={_("Name")}>
+                  <TextInput
+                    id={field.name}
+                    value={field.state.value}
+                    validated={error ? "error" : "default"}
+                    onChange={(_, v) => field.handleChange(v)}
+                  />
+                  {error && (
+                    <FormHelperText>
+                      <HelperText>
+                        <HelperTextItem variant="error">{error}</HelperTextItem>
+                      </HelperText>
+                    </FormHelperText>
+                  )}
+                </FormGroup>
+              );
+            }}
+          </form.Field>
+        )}
+
+        <IpSettings form={form} protocol="ipv4" />
+
+        <IpSettings form={form} protocol="ipv6" />
+
+        <form.Field name="customDns">
+          {(dnsToggle) => (
+            <>
+              <Checkbox
+                id={dnsToggle.name}
+                label={_("Use custom DNS")}
+                isChecked={dnsToggle.state.value}
+                onChange={(_, checked) => dnsToggle.handleChange(checked)}
+              />
+              {dnsToggle.state.value && (
+                <NestedContent margin="mxLg">
+                  <form.AppField name="nameservers">
+                    {(field) => (
+                      <field.ArrayField
+                        label={_("DNS servers")}
+                        skipDuplicates
+                        validateOnSubmit={(v) =>
+                          isValidNameserver(v) ? undefined : _("Invalid DNS server address")
+                        }
+                      />
+                    )}
+                  </form.AppField>
+                </NestedContent>
+              )}
+            </>
+          )}
+        </form.Field>
+
+        <form.Field name="customDnsSearch">
+          {(dnsSearchToggle) => (
+            <>
+              <Checkbox
+                id={dnsSearchToggle.name}
+                label={_("Use custom DNS search domains")}
+                isChecked={dnsSearchToggle.state.value}
+                onChange={(_, checked) => dnsSearchToggle.handleChange(checked)}
+              />
+              {dnsSearchToggle.state.value && (
+                <NestedContent margin="mxLg">
+                  <form.AppField name="dnsSearchList">
+                    {(field) => (
+                      <field.ArrayField
+                        label={_("DNS search domains")}
+                        skipDuplicates
+                        validateOnSubmit={(v) =>
+                          isValidDNSSearchDomain(v) ? undefined : _("Invalid DNS search domain")
+                        }
+                      />
+                    )}
+                  </form.AppField>
+                </NestedContent>
+              )}
+            </>
+          )}
+        </form.Field>
+
+        <ActionGroup>
+          <form.Subscribe selector={(s) => s.isSubmitting}>
+            {(isSubmitting) => (
+              <Button type="submit" isLoading={isSubmitting} isDisabled={isSubmitting}>
+                {_("Accept")}
+              </Button>
+            )}
+          </form.Subscribe>
+          <Button variant="link" onClick={() => navigate(-1)}>
+            {_("Cancel")}
+          </Button>
+        </ActionGroup>
+      </Form>
+    </form.AppForm>
+  );
+}
+
+function NewConnectionForm() {
+  return <ConnectionFormContent />;
+}
+
+function ConnectionNotFound() {
+  return (
+    <ResourceNotFound
+      title={_("Connection not found")}
+      body={_("The connection does not exist or is no longer available.")}
+      linkText={_("Go to network page")}
+      linkPath={NETWORK.root}
+    />
+  );
+}
+
+function EditConnectionForm() {
+  const { id } = useParams();
+  const { connections: configConns } = useConfig();
+  const { connections: systemConns } = useSystem();
+  // Merge config and system connections so the form reflects the user's
+  // explicit settings (config) while filling gaps from the live system state.
+  // Config wins: e.g. configConn.method4 === undefined (the user chose
+  // "Automatic", meaning "do not put method in the config") must override
+  // systemConn.method4 === "auto" that Agama backend or NetworkManager might
+  // report.
+  //
+  // FIXME: when config has no method (Automatic) but the system connection
+  // already has manually set addresses, the merged result will show Automatic
+  // while the connection is actually behaving as Advanced. Consider deriving
+  // the mode from the system addresses in that case for a more accurate
+  // representation.
+  const { all: connections } = extendCollection(configConns || [], { with: systemConns });
+  const connection = connections.find((c) => c.id === id);
+
+  if (!connection) return <ConnectionNotFound />;
+
+  return <ConnectionFormContent defaults={connectionToFormValues(connection)} isEditing />;
+}
+
+/**
+ * Form for creating or editing a network connection.
+ *
+ * @remarks
+ * Renders {@link NewConnectionForm} when no route `id` param is present, or
+ * {@link EditConnectionForm} when editing an existing connection. Both delegate
+ * to {@link ConnectionFormContent} for the shared form rendering.
+ *
+ * Server errors are surfaced via TanStack Form's `validators.onSubmitAsync`.
+ * This is the recommended pattern for forms where the server acts as the
+ * validator: the call lives in the async validator, which returns `{ form:
+ * message }` on failure. TanStack then exposes the message via
+ * `state.errorMap.onSubmit.form` without throwing, keeping the button
+ * re-enabled for a retry.
+ *
+ * @see https://tanstack.com/form/latest/docs/framework/react/guides/validation
+ * @see https://github.com/TanStack/form/discussions/623#discussioncomment-13026699
+ */
+export default function ConnectionForm() {
+  const { id } = useParams();
+  const title = id ?? _("New connection");
+  const breadcrumbs = [{ label: _("Network"), path: NETWORK.root }, { label: title }];
 
   return (
     <Page breadcrumbs={breadcrumbs}>
-      <Page.Content>
-        <form.AppForm>
-          <Form
-            onSubmit={(e) => {
-              e.preventDefault();
-              // Validation is intentionally deferred to submission so users are
-              // not interrupted while filling the form. All rules live in
-              // onSubmitAsync rather than per-field onSubmit validators because
-              // several checks are cross-field (e.g. gateway validity depends on
-              // the addresses list). TanStack Form only clears field errors set
-              // by onSubmitAsync when a per-field onSubmit validator runs for
-              // the same cause — which never happens here — so canSubmit stays
-              // false after a failed attempt. setErrorMap resets every field's
-              // errorMap.onSubmit before each new attempt, restoring canSubmit
-              // so onSubmitAsync is called again.
-              // @see https://tanstack.com/form/latest/docs/reference/formApi#seterrormap
-              form.setErrorMap({ onSubmit: { fields: {} } });
-              form.handleSubmit();
-            }}
-          >
-            <form.Subscribe selector={(s) => s.errorMap.onSubmit?.form}>
-              {(serverError) =>
-                serverError && (
-                  <Alert variant="danger" isInline title={_("The connection could not be saved")}>
-                    {serverError}
-                  </Alert>
-                )
-              }
-            </form.Subscribe>
-
-            <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
-              <BindingModeSelector form={form} />
-
-              <form.Subscribe selector={(s) => s.values.bindingMode}>
-                {(mode) => mode !== "none" && <DeviceSelector form={form} by={mode} />}
-              </form.Subscribe>
-            </Flex>
-
-            <form.Field name="name">
-              {(field) => {
-                const error = field.state.meta.errors[0] as string | undefined;
-                return (
-                  <FormGroup fieldId={field.name} label={_("Name")}>
-                    <TextInput
-                      id={field.name}
-                      value={field.state.value}
-                      validated={error ? "error" : "default"}
-                      onChange={(_, v) => field.handleChange(v)}
-                    />
-                    {error && (
-                      <FormHelperText>
-                        <HelperText>
-                          <HelperTextItem variant="error">{error}</HelperTextItem>
-                        </HelperText>
-                      </FormHelperText>
-                    )}
-                  </FormGroup>
-                );
-              }}
-            </form.Field>
-
-            <IpSettings form={form} protocol="ipv4" />
-
-            <IpSettings form={form} protocol="ipv6" />
-
-            <form.Field name="customDns">
-              {(dnsToggle) => (
-                <>
-                  <Checkbox
-                    id={dnsToggle.name}
-                    label={_("Use custom DNS")}
-                    isChecked={dnsToggle.state.value}
-                    onChange={(_, checked) => dnsToggle.handleChange(checked)}
-                  />
-                  {dnsToggle.state.value && (
-                    <NestedContent margin="mxLg">
-                      <form.AppField name="nameservers">
-                        {(field) => (
-                          <field.ArrayField
-                            label={_("DNS servers")}
-                            skipDuplicates
-                            validateOnSubmit={(v) =>
-                              isValidNameserver(v) ? undefined : _("Invalid DNS server address")
-                            }
-                          />
-                        )}
-                      </form.AppField>
-                    </NestedContent>
-                  )}
-                </>
-              )}
-            </form.Field>
-
-            <form.Field name="customDnsSearch">
-              {(dnsSearchToggle) => (
-                <>
-                  <Checkbox
-                    id={dnsSearchToggle.name}
-                    label={_("Use custom DNS search domains")}
-                    isChecked={dnsSearchToggle.state.value}
-                    onChange={(_, checked) => dnsSearchToggle.handleChange(checked)}
-                  />
-                  {dnsSearchToggle.state.value && (
-                    <NestedContent margin="mxLg">
-                      <form.AppField name="dnsSearchList">
-                        {(field) => (
-                          <field.ArrayField
-                            label={_("DNS search domains")}
-                            skipDuplicates
-                            validateOnSubmit={(v) =>
-                              isValidDNSSearchDomain(v) ? undefined : _("Invalid DNS search domain")
-                            }
-                          />
-                        )}
-                      </form.AppField>
-                    </NestedContent>
-                  )}
-                </>
-              )}
-            </form.Field>
-
-            <ActionGroup>
-              <form.Subscribe selector={(s) => s.isSubmitting}>
-                {(isSubmitting) => (
-                  <Button type="submit" isLoading={isSubmitting} isDisabled={isSubmitting}>
-                    {_("Accept")}
-                  </Button>
-                )}
-              </form.Subscribe>
-              <Button variant="link" onClick={() => navigate(-1)}>
-                {_("Cancel")}
-              </Button>
-            </ActionGroup>
-          </Form>
-        </form.AppForm>
-      </Page.Content>
+      <Page.Content>{id ? <EditConnectionForm /> : <NewConnectionForm />}</Page.Content>
     </Page>
   );
 }

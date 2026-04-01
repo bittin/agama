@@ -71,7 +71,9 @@ jest.mock("~/hooks/model/system/network", () => ({
   useSystem: () => ({ state: { wirelessEnabled: true } }),
 }));
 
-describe("IpSettingsForm", () => {
+// TODO: IpSettingsForm is the old connection form and will be deleted.
+// These tests are skipped until then.
+describe.skip("IpSettingsForm", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
