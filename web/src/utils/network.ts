@@ -21,7 +21,7 @@
  */
 
 import ipaddr from "ipaddr.js";
-import { isUndefined } from "radashi";
+import { isUndefined, title } from "radashi";
 import {
   APIRoute,
   ApFlags,
@@ -245,6 +245,39 @@ const connectionBindingMode = (connection: Connection): ConnectionBindingMode =>
   }
 };
 
+/**
+ * Generates a unique connection name based on type and binding.
+ *
+ * The name follows the pattern `Type device` where device is the interface
+ * name, the MAC address, or nothing when binding mode is "none". If the base
+ * name is already taken, a numeric suffix is appended starting at 2
+ * (e.g. `Ethernet enp1s0 2`).
+ *
+ * @param type - Connection type string (e.g. "ethernet").
+ * @param mode - Current binding mode.
+ * @param iface - Interface name (used when mode is "iface").
+ * @param mac - MAC address (used when mode is "mac").
+ * @param existingIds - Set of already taken connection IDs.
+ */
+const generateConnectionName = (
+  type: string,
+  mode: ConnectionBindingMode,
+  iface: string,
+  mac: string,
+  existingIds: Set<string>,
+): string => {
+  const devicePartByMode: Record<ConnectionBindingMode, string> = { none: "", iface, mac };
+  const typePart = title(type);
+  const devicePart = devicePartByMode[mode];
+  const baseName = devicePart ? `${typePart} ${devicePart}` : typePart;
+
+  if (!existingIds.has(baseName)) return baseName;
+
+  let n = 2;
+  while (existingIds.has(`${baseName} ${n}`)) n++;
+  return `${baseName} ${n}`;
+};
+
 export {
   buildAddress,
   isValidAddress,
@@ -259,6 +292,7 @@ export {
   connectionAddresses,
   connectionBindingMode,
   formatIp,
+  generateConnectionName,
   intToIPString,
   ipPrefixFor,
   isValidIp,

@@ -51,7 +51,6 @@ import {
 } from "~/types/network";
 import { useStore } from "@tanstack/react-form";
 import { useConnectionMutation, useConfig } from "~/hooks/model/config/network";
-import { useConnectionName } from "~/hooks/use-connection-name";
 import { useAppForm, mergeFormDefaults } from "~/hooks/form";
 import { useSystem, useDevices } from "~/hooks/model/system/network";
 import { extendCollection } from "~/utils";
@@ -60,6 +59,7 @@ import {
   buildAddress,
   connectionBindingMode,
   formatIp,
+  generateConnectionName,
   isValidIPv4,
   isValidIPv6,
   isValidIPv4Address,
@@ -327,6 +327,7 @@ type ConnectionFormContentProps = {
 function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormContentProps) {
   const navigate = useNavigate();
   const devices = useDevices();
+  const { connections: systemConns } = useSystem();
   const { mutateAsync: updateConnection } = useConnectionMutation();
   const form = useAppForm({
     ...mergeFormDefaults(connectionFormOptions, {
@@ -359,19 +360,18 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
     nameDirty: s.fieldMeta["name"]?.isDirty ?? false,
   }));
 
-  const generatedName = useConnectionName(ConnectionType.ETHERNET, {
-    mode: bindingMode,
-    iface,
-    mac: ifaceMac,
-  });
-
   // Keep the name in sync with the auto-generated value as long as the user
   // has not manually edited it. `dontUpdateMeta` prevents `setFieldValue`
   // from marking the field as dirty/touched, which would stop future updates.
   useEffect(() => {
-    if (!isEditing && !nameDirty)
-      form.setFieldValue("name", generatedName, { dontUpdateMeta: true });
-  }, [form, isEditing, generatedName, nameDirty]);
+    if (isEditing || nameDirty) return;
+    const existingIds = new Set(systemConns.map((c) => c.id));
+    form.setFieldValue(
+      "name",
+      generateConnectionName(ConnectionType.ETHERNET, bindingMode, iface, ifaceMac, existingIds),
+      { dontUpdateMeta: true },
+    );
+  }, [form, isEditing, bindingMode, iface, ifaceMac, nameDirty, systemConns]);
 
   return (
     <form.AppForm>
