@@ -24,7 +24,6 @@ import React from "react";
 import { screen } from "@testing-library/react";
 import { installerRender } from "~/test-utils";
 import { useAppForm } from "~/hooks/form";
-import TextField from "./TextField";
 
 function TextFieldForm({ defaultValue = "" }: { defaultValue?: string }) {
   const form = useAppForm({ defaultValues: { text: defaultValue } });

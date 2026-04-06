@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2022-2025] SUSE LLC
+ * Copyright (c) [2022-2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -19,8 +19,6 @@
  * To contact SUSE LLC about this file by physical or electronic mail, you may
  * find current contact information at www.suse.com.
  */
-
-// @ts-check
 
 import { Connection, SecurityProtocols } from "~/types/network";
 import {
@@ -128,9 +126,9 @@ describe("connectionBindingMode", () => {
 describe("generateConnectionName", () => {
   describe("when binding mode is 'none'", () => {
     it("returns only the type as the name", () => {
-      expect(generateConnectionName("ethernet", "none", "enp1s0", "AA:BB:CC:DD:EE:FF", new Set())).toBe(
-        "Ethernet",
-      );
+      expect(
+        generateConnectionName("ethernet", "none", "enp1s0", "AA:BB:CC:DD:EE:FF", new Set()),
+      ).toBe("Ethernet");
     });
   });
 

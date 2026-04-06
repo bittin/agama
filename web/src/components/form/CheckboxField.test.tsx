@@ -24,15 +24,14 @@ import React from "react";
 import { screen } from "@testing-library/react";
 import { installerRender } from "~/test-utils";
 import { useAppForm } from "~/hooks/form";
-import CheckboxField from "./CheckboxField";
 
-function CheckboxFieldForm({ defaultValue = false }: { defaultValue?: boolean }) {
-  const form = useAppForm({ defaultValues: { flag: defaultValue } });
+function CheckboxFieldForm({ initChecked = false }: { initChecked?: boolean }) {
+  const form = useAppForm({ defaultValues: { licenseAccepted: initChecked } });
 
   return (
     <form.AppForm>
-      <form.AppField name="flag">
-        {(field) => <field.CheckboxField label="My checkbox" />}
+      <form.AppField name="licenseAccepted">
+        {(field) => <field.CheckboxField label="Accept license" />}
       </form.AppField>
     </form.AppForm>
   );
@@ -41,22 +40,22 @@ function CheckboxFieldForm({ defaultValue = false }: { defaultValue?: boolean })
 describe("CheckboxField", () => {
   it("renders the label", () => {
     installerRender(<CheckboxFieldForm />);
-    expect(screen.getByLabelText("My checkbox")).toBeInTheDocument();
+    expect(screen.getByLabelText("Accept license")).toBeInTheDocument();
   });
 
   it("is unchecked when the value is false", () => {
-    installerRender(<CheckboxFieldForm defaultValue={false} />);
-    expect(screen.getByLabelText("My checkbox")).not.toBeChecked();
+    installerRender(<CheckboxFieldForm initChecked={false} />);
+    expect(screen.getByLabelText("Accept license")).not.toBeChecked();
   });
 
   it("is checked when the value is true", () => {
-    installerRender(<CheckboxFieldForm defaultValue={true} />);
-    expect(screen.getByLabelText("My checkbox")).toBeChecked();
+    installerRender(<CheckboxFieldForm initChecked />);
+    expect(screen.getByLabelText("Accept license")).toBeChecked();
   });
 
   it("toggles when clicked", async () => {
     const { user } = installerRender(<CheckboxFieldForm />);
-    await user.click(screen.getByLabelText("My checkbox"));
-    expect(screen.getByLabelText("My checkbox")).toBeChecked();
+    await user.click(screen.getByLabelText("Accept license"));
+    expect(screen.getByLabelText("Accept license")).toBeChecked();
   });
 });
