@@ -192,6 +192,17 @@ describe("ConnectionForm", () => {
     expect(screen.queryByText("IPv6 Addresses")).not.toBeInTheDocument();
   });
 
+  it("shows an error when addresses are invalid in advanced mode", async () => {
+    const { user } = installerRender(<ConnectionForm />);
+    await user.type(screen.getByLabelText("Name"), "Test");
+    await user.click(screen.getByLabelText("IPv4 Settings"));
+    await user.click(screen.getByRole("option", { name: /^Advanced/ }));
+    await user.type(screen.getByLabelText("IPv4 Addresses (optional)"), "not-an-ip{Enter}");
+    await user.click(screen.getByRole("button", { name: "Accept" }));
+    await screen.findByText("Invalid IPv4 address");
+    expect(mockMutateAsync).not.toHaveBeenCalled();
+  });
+
   it("submits empty addresses when both settings are automatic", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.type(screen.getByLabelText("Name"), "Testing Connection 1");

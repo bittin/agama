@@ -153,19 +153,42 @@ function connectionToFormValues(connection: Connection): Partial<FormValues> {
 }
 
 /**
- * Returns an error when the given list is active and empty or has invalid entries.
+ * Returns an error when the given list is active and has invalid or missing entries.
  * Returns undefined when inactive or when all entries are valid.
+ *
+ * @param active - Whether the list should be validated at all.
+ * @param emptyMsg - Error to return when the list is empty. Omit for optional
+ *   lists where entries are not required but must be valid when provided.
  */
 function validateActiveList(
   active: boolean,
   values: string[],
   isValid: (v: string) => boolean,
-  emptyMsg: string,
+  emptyMsg: string | undefined,
   invalidMsg: string,
 ): string | undefined {
   if (!active) return undefined;
-  if (values.length === 0) return emptyMsg;
+  if (emptyMsg !== undefined && values.length === 0) return emptyMsg;
   if (values.some((v) => !isValid(v))) return invalidMsg;
+}
+
+/**
+ * Returns an error for an IP addresses list based on the current IP mode.
+ *
+ * - `manual`: addresses are required and must be valid.
+ * - `auto`: addresses are optional but must be valid when provided.
+ * - `unset`: no validation.
+ */
+function validateIpAddresses(
+  mode: string,
+  addresses: string[],
+  isValid: (v: string) => boolean,
+  emptyMsg: string,
+  invalidMsg: string,
+): string | undefined {
+  const required = mode === "manual";
+  const active = required || (mode === "auto" && addresses.length > 0);
+  return validateActiveList(active, addresses, isValid, required ? emptyMsg : undefined, invalidMsg);
 }
 
 /**
@@ -209,15 +232,15 @@ function validateConnectionForm(formValues: FormValues): FormFieldErrors | undef
 
   const fieldErrors = shake({
     name: !formValues.name.trim() ? _("Name is required") : undefined,
-    addresses4: validateActiveList(
-      formValues.ipv4Mode === "manual",
+    addresses4: validateIpAddresses(
+      formValues.ipv4Mode,
       formValues.addresses4,
       isValidIPv4Address,
       _("At least one IPv4 address is required"),
       _("Some IPv4 addresses are invalid"),
     ),
-    addresses6: validateActiveList(
-      formValues.ipv6Mode === "manual",
+    addresses6: validateIpAddresses(
+      formValues.ipv6Mode,
       formValues.addresses6,
       isValidIPv6Address,
       _("At least one IPv6 address is required"),
