@@ -290,7 +290,7 @@ module Agama
         #
         # @note Skips if no proposal has been calculated yet.
         def configure_with_current
-          return unless proposal.storage_json
+          return unless manager.product_config
 
           calculate_proposal(manager.config_json)
           # The storage proposal with the current settings is not explicitly requested. It is
