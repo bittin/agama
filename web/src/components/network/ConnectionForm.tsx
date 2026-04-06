@@ -20,7 +20,7 @@
  * find current contact information at www.suse.com.
  */
 
-import React, { useEffect } from "react";
+import React from "react";
 import { formOptions } from "@tanstack/react-form";
 import { useNavigate, useParams } from "react-router";
 import { isEmpty, shake } from "radashi";
@@ -49,7 +49,6 @@ import {
   ConnectionMethod,
   ConnectionType,
 } from "~/types/network";
-import { useStore } from "@tanstack/react-form";
 import { useConnectionMutation, useConfig } from "~/hooks/model/config/network";
 import { useAppForm, mergeFormDefaults } from "~/hooks/form";
 import { useSystem, useDevices } from "~/hooks/model/system/network";
@@ -188,7 +187,13 @@ function validateIpAddresses(
 ): string | undefined {
   const required = mode === "manual";
   const active = required || (mode === "auto" && addresses.length > 0);
-  return validateActiveList(active, addresses, isValid, required ? emptyMsg : undefined, invalidMsg);
+  return validateActiveList(
+    active,
+    addresses,
+    isValid,
+    required ? emptyMsg : undefined,
+    invalidMsg,
+  );
 }
 
 /**
@@ -329,6 +334,27 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
   const devices = useDevices();
   const { connections: systemConns } = useSystem();
   const { mutateAsync: updateConnection } = useConnectionMutation();
+
+  // Generates and writes the auto-computed name when the binding changes, as
+  // long as the user has not manually edited it. `isDirty` is used instead of
+  // `isTouched` because a user could focus and blur the field without changing
+  // it, which would set `isTouched` but not `isDirty`. `dontRunListeners`
+  // prevents the name update from re-triggering this listener.
+  //
+  // @see https://tanstack.com/form/latest/docs/framework/react/guides/listeners#form-listeners
+  const syncName = ({ formApi }) => {
+    if (formApi.getFieldMeta("name")?.isDirty) return;
+    const { bindingMode, iface, ifaceMac } = formApi.state.values;
+    const existingIds = new Set(systemConns.map((c) => c.id));
+    formApi.setFieldValue(
+      "name",
+      generateConnectionName(ConnectionType.ETHERNET, bindingMode, iface, ifaceMac, existingIds),
+      { dontUpdateMeta: true, dontRunListeners: true },
+    );
+  };
+
+  const syncNameListeners = { onMount: syncName, onChange: syncName };
+
   const form = useAppForm({
     ...mergeFormDefaults(connectionFormOptions, {
       iface: devices[0]?.name ?? "",
@@ -348,30 +374,8 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
       },
     },
     onSubmit: () => navigate(-1),
+    listeners: isEditing ? undefined : syncNameListeners,
   });
-
-  // Track whether the user has manually edited the name. `isDirty` is used
-  // instead of `isTouched` because a user could focus and blur the field
-  // without changing it, which would set `isTouched` but not `isDirty`.
-  const { bindingMode, iface, ifaceMac, nameDirty } = useStore(form.store, (s) => ({
-    bindingMode: s.values.bindingMode,
-    iface: s.values.iface,
-    ifaceMac: s.values.ifaceMac,
-    nameDirty: s.fieldMeta["name"]?.isDirty ?? false,
-  }));
-
-  // Keep the name in sync with the auto-generated value as long as the user
-  // has not manually edited it. `dontUpdateMeta` prevents `setFieldValue`
-  // from marking the field as dirty/touched, which would stop future updates.
-  useEffect(() => {
-    if (isEditing || nameDirty) return;
-    const existingIds = new Set(systemConns.map((c) => c.id));
-    form.setFieldValue(
-      "name",
-      generateConnectionName(ConnectionType.ETHERNET, bindingMode, iface, ifaceMac, existingIds),
-      { dontUpdateMeta: true },
-    );
-  }, [form, isEditing, bindingMode, iface, ifaceMac, nameDirty, systemConns]);
 
   return (
     <form.AppForm>
@@ -406,16 +410,26 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
         <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
           <BindingModeSelector form={form} />
 
-          {bindingMode === "iface" && (
-            <DeviceSelector
-              form={form}
-              by="iface"
-              sync={{ field: "ifaceMac", with: (d) => d.macAddress }}
-            />
-          )}
-          {bindingMode === "mac" && (
-            <DeviceSelector form={form} by="mac" sync={{ field: "iface", with: (d) => d.name }} />
-          )}
+          <form.Subscribe selector={(s) => s.values.bindingMode}>
+            {(bindingMode) => (
+              <>
+                {bindingMode === "iface" && (
+                  <DeviceSelector
+                    form={form}
+                    by="iface"
+                    sync={{ field: "ifaceMac", with: (d) => d.macAddress }}
+                  />
+                )}
+                {bindingMode === "mac" && (
+                  <DeviceSelector
+                    form={form}
+                    by="mac"
+                    sync={{ field: "iface", with: (d) => d.name }}
+                  />
+                )}
+              </>
+            )}
+          </form.Subscribe>
         </Flex>
 
         {!isEditing && (
