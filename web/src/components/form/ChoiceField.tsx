@@ -55,10 +55,12 @@ type ChoiceFieldProps<T> = {
 
 /**
  * A form field that renders a select tied to a TanStack Form field via
- * `useFieldContext`. Must be used inside a `form.Field` render prop.
+ * `useFieldContext`. Must be used inside a `form.AppField` render prop.
  *
  * Supports a render prop `children` for dependent content that should appear
  * or change based on the selected value.
+ *
+ * @see useFieldContext for field component conventions.
  *
  * @example
  * <form.AppField name="ipv4Mode">

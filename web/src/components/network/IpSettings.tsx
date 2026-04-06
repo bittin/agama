@@ -21,13 +21,6 @@
  */
 
 import React from "react";
-import {
-  FormGroup,
-  FormHelperText,
-  HelperText,
-  HelperTextItem,
-  TextInput,
-} from "@patternfly/react-core";
 import NestedContent from "~/components/core/NestedContent";
 import LabelText from "~/components/form/LabelText";
 import { connectionFormOptions } from "~/components/network/ConnectionForm";
@@ -145,41 +138,23 @@ const IpSettings = withForm({
                   )}
                 </form.AppField>
 
-                <form.Field name={gatewayField}>
-                  {(field) => {
-                    const error = field.state.meta.errors[0] as string | undefined;
-                    return (
-                      <FormGroup
-                        fieldId={field.name}
-                        label={
-                          <LabelText
-                            suffix={
-                              mode === "auto"
-                                ? _("(optional, ignored if no addresses provided)")
-                                : _("(optional)")
-                            }
-                          >
-                            {gatewayLabel}
-                          </LabelText>
-                        }
-                      >
-                        <TextInput
-                          id={field.name}
-                          value={field.state.value}
-                          validated={error ? "error" : "default"}
-                          onChange={(_, v) => field.handleChange(v)}
-                        />
-                        {error && (
-                          <FormHelperText>
-                            <HelperText>
-                              <HelperTextItem variant="error">{error}</HelperTextItem>
-                            </HelperText>
-                          </FormHelperText>
-                        )}
-                      </FormGroup>
-                    );
-                  }}
-                </form.Field>
+                <form.AppField name={gatewayField}>
+                  {(field) => (
+                    <field.TextField
+                      label={
+                        <LabelText
+                          suffix={
+                            mode === "auto"
+                              ? _("(optional, ignored if no addresses provided)")
+                              : _("(optional)")
+                          }
+                        >
+                          {gatewayLabel}
+                        </LabelText>
+                      }
+                    />
+                  )}
+                </form.AppField>
               </NestedContent>
             )
           }

@@ -24,19 +24,7 @@ import React from "react";
 import { formOptions } from "@tanstack/react-form";
 import { useNavigate, useParams } from "react-router";
 import { isEmpty, shake } from "radashi";
-import {
-  Alert,
-  ActionGroup,
-  Button,
-  Checkbox,
-  Flex,
-  Form,
-  FormGroup,
-  FormHelperText,
-  HelperText,
-  HelperTextItem,
-  TextInput,
-} from "@patternfly/react-core";
+import { Alert, ActionGroup, Button, Flex, Form } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
 import NestedContent from "~/components/core/NestedContent";
 import ResourceNotFound from "~/components/core/ResourceNotFound";
@@ -433,89 +421,60 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
         </Flex>
 
         {!isEditing && (
-          <form.Field name="name">
-            {(field) => {
-              const error = field.state.meta.errors[0] as string | undefined;
-              return (
-                <FormGroup fieldId={field.name} label={_("Name")}>
-                  <TextInput
-                    id={field.name}
-                    value={field.state.value}
-                    validated={error ? "error" : "default"}
-                    onChange={(_, v) => field.handleChange(v)}
-                  />
-                  {error && (
-                    <FormHelperText>
-                      <HelperText>
-                        <HelperTextItem variant="error">{error}</HelperTextItem>
-                      </HelperText>
-                    </FormHelperText>
-                  )}
-                </FormGroup>
-              );
-            }}
-          </form.Field>
+          <form.AppField name="name">
+            {(field) => <field.TextField label={_("Name")} />}
+          </form.AppField>
         )}
 
         <IpSettings form={form} protocol="ipv4" />
 
         <IpSettings form={form} protocol="ipv6" />
 
-        <form.Field name="customDns">
-          {(dnsToggle) => (
-            <>
-              <Checkbox
-                id={dnsToggle.name}
-                label={_("Use custom DNS")}
-                isChecked={dnsToggle.state.value}
-                onChange={(_, checked) => dnsToggle.handleChange(checked)}
-              />
-              {dnsToggle.state.value && (
-                <NestedContent margin="mxLg">
-                  <form.AppField name="nameservers">
-                    {(field) => (
-                      <field.ArrayField
-                        label={_("DNS servers")}
-                        skipDuplicates
-                        validateOnSubmit={(v) =>
-                          isValidNameserver(v) ? undefined : _("Invalid DNS server address")
-                        }
-                      />
-                    )}
-                  </form.AppField>
-                </NestedContent>
-              )}
-            </>
-          )}
-        </form.Field>
+        <form.AppField name="customDns">
+          {(field) => <field.CheckboxField label={_("Use custom DNS")} />}
+        </form.AppField>
+        <form.Subscribe selector={(s) => s.values.customDns}>
+          {(customDns) =>
+            customDns && (
+              <NestedContent margin="mxLg">
+                <form.AppField name="nameservers">
+                  {(field) => (
+                    <field.ArrayField
+                      label={_("DNS servers")}
+                      skipDuplicates
+                      validateOnSubmit={(v) =>
+                        isValidNameserver(v) ? undefined : _("Invalid DNS server address")
+                      }
+                    />
+                  )}
+                </form.AppField>
+              </NestedContent>
+            )
+          }
+        </form.Subscribe>
 
-        <form.Field name="customDnsSearch">
-          {(dnsSearchToggle) => (
-            <>
-              <Checkbox
-                id={dnsSearchToggle.name}
-                label={_("Use custom DNS search domains")}
-                isChecked={dnsSearchToggle.state.value}
-                onChange={(_, checked) => dnsSearchToggle.handleChange(checked)}
-              />
-              {dnsSearchToggle.state.value && (
-                <NestedContent margin="mxLg">
-                  <form.AppField name="dnsSearchList">
-                    {(field) => (
-                      <field.ArrayField
-                        label={_("DNS search domains")}
-                        skipDuplicates
-                        validateOnSubmit={(v) =>
-                          isValidDNSSearchDomain(v) ? undefined : _("Invalid DNS search domain")
-                        }
-                      />
-                    )}
-                  </form.AppField>
-                </NestedContent>
-              )}
-            </>
-          )}
-        </form.Field>
+        <form.AppField name="customDnsSearch">
+          {(field) => <field.CheckboxField label={_("Use custom DNS search domains")} />}
+        </form.AppField>
+        <form.Subscribe selector={(s) => s.values.customDnsSearch}>
+          {(customDnsSearch) =>
+            customDnsSearch && (
+              <NestedContent margin="mxLg">
+                <form.AppField name="dnsSearchList">
+                  {(field) => (
+                    <field.ArrayField
+                      label={_("DNS search domains")}
+                      skipDuplicates
+                      validateOnSubmit={(v) =>
+                        isValidDNSSearchDomain(v) ? undefined : _("Invalid DNS search domain")
+                      }
+                    />
+                  )}
+                </form.AppField>
+              </NestedContent>
+            )
+          }
+        </form.Subscribe>
 
         <ActionGroup>
           <form.Subscribe selector={(s) => s.isSubmitting}>
