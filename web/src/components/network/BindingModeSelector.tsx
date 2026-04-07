@@ -28,17 +28,26 @@ import { _, N_ } from "~/i18n";
 const BINDING_MODE_OPTIONS = [
   {
     value: "none",
+    // TRANSLATORS: option label meaning the connection works with any network device.
     label: N_("Any"),
+    // TRANSLATORS: description for the "Any" binding mode. The connection is
+    // not limited to a specific device.
     description: N_("Available for all devices"),
   },
   {
     value: "iface",
+    // TRANSLATORS: option label for binding by device interface name (e.g. eth0).
     label: N_("Chosen by name"),
+    // TRANSLATORS: description for the "Chosen by name" binding mode. The
+    // "device name" refers to the interface name (e.g. eth0).
     description: N_("Restricted to a specific device name"),
   },
   {
     value: "mac",
+    // TRANSLATORS: option label for binding by MAC address
     label: N_("Chosen by MAC"),
+    // TRANSLATORS: description for the "Chosen by MAC" binding mode. MAC is the
+    // hardware address, persisting across interface renames.
     description: N_("Restricted to a specific device and follows it even if renamed"),
   },
 ];
@@ -55,6 +64,7 @@ const BindingModeSelector = withForm({
       <form.AppField name="bindingMode">
         {(field) => (
           <field.DropdownField
+            // TRANSLATORS: label for the device binding dropdown.
             label={_("Device")}
             options={BINDING_MODE_OPTIONS.map(({ value, label, description }) => ({
               value,

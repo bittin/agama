@@ -224,19 +224,24 @@ function validateConnectionForm(formValues: FormValues): FormFieldErrors | undef
   const validAddresses6 = formValues.addresses6.filter(isValidIPv6Address);
 
   const fieldErrors = shake({
+    // TRANSLATORS: validation error for the connection name field.
     name: !formValues.name.trim() ? _("Name is required") : undefined,
     addresses4: validateIpAddresses(
       formValues.ipv4Mode,
       formValues.addresses4,
       isValidIPv4Address,
+      // TRANSLATORS: validation error for the IPv4 addresses field.
       _("At least one IPv4 address is required"),
+      // TRANSLATORS: validation error for the IPv4 addresses field.
       _("Some IPv4 addresses are invalid"),
     ),
     addresses6: validateIpAddresses(
       formValues.ipv6Mode,
       formValues.addresses6,
       isValidIPv6Address,
+      // TRANSLATORS: validation error for the IPv6 addresses field.
       _("At least one IPv6 address is required"),
+      // TRANSLATORS: validation error for the IPv6 addresses field.
       _("Some IPv6 addresses are invalid"),
     ),
     gateway4: validateGateway(
@@ -244,6 +249,7 @@ function validateConnectionForm(formValues: FormValues): FormFieldErrors | undef
       formValues.gateway4,
       validAddresses4,
       isValidIPv4,
+      // TRANSLATORS: validation error for the IPv4 gateway field.
       _("Invalid IPv4 gateway"),
     ),
     gateway6: validateGateway(
@@ -251,20 +257,25 @@ function validateConnectionForm(formValues: FormValues): FormFieldErrors | undef
       formValues.gateway6,
       validAddresses6,
       isValidIPv6,
+      // TRANSLATORS: validation error for the IPv6 gateway field.
       _("Invalid IPv6 gateway"),
     ),
     nameservers: validateActiveList(
       formValues.customDns,
       formValues.nameservers,
       isValidNameserver,
+      // TRANSLATORS: validation error for the DNS servers field.
       _("At least one DNS server is required"),
+      // TRANSLATORS: validation error for the DNS servers field.
       _("Some DNS server addresses are invalid"),
     ),
     dnsSearchList: validateActiveList(
       formValues.customDnsSearch,
       formValues.dnsSearchList,
       isValidDNSSearchDomain,
+      // TRANSLATORS: validation error for the DNS search domains field.
       _("At least one DNS search domain is required"),
+      // TRANSLATORS: validation error for the DNS search domains field.
       _("Some DNS search domains are invalid"),
     ),
   });
@@ -388,7 +399,15 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
         <form.Subscribe selector={(s) => s.errorMap.onSubmit?.form}>
           {(serverError) =>
             serverError && (
-              <Alert variant="danger" isInline title={_("The connection could not be saved")}>
+              <Alert
+                isInline
+                title={
+                  // TRANSLATORS: title of an error for a failed network connection save.
+                  // Do not end with a period.
+                  _("The connection could not be saved")
+                }
+                variant="danger"
+              >
                 {serverError}
               </Alert>
             )
@@ -422,7 +441,14 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
 
         {!isEditing && (
           <form.AppField name="name">
-            {(field) => <field.TextField label={_("Name")} />}
+            {(field) => (
+              <field.TextField
+                label={
+                  // TRANSLATORS: label for the network connection profile name field.
+                  _("Name")
+                }
+              />
+            )}
           </form.AppField>
         )}
 
@@ -431,7 +457,14 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
         <IpSettings form={form} protocol="ipv6" />
 
         <form.AppField name="customDns">
-          {(field) => <field.CheckboxField label={_("Use custom DNS")} />}
+          {(field) => (
+            <field.CheckboxField
+              label={
+                // TRANSLATORS: checkbox label for custom DNS server configuration.
+                _("Use custom DNS")
+              }
+            />
+          )}
         </form.AppField>
         <form.Subscribe selector={(s) => s.values.customDns}>
           {(customDns) =>
@@ -440,9 +473,11 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
                 <form.AppField name="nameservers">
                   {(field) => (
                     <field.ArrayField
+                      // TRANSLATORS: label for the DNS servers field.
                       label={_("DNS servers")}
                       skipDuplicates
                       validateOnSubmit={(v) =>
+                        // TRANSLATORS: validation error for an invalid DNS server address entry.
                         isValidNameserver(v) ? undefined : _("Invalid DNS server address")
                       }
                     />
@@ -454,7 +489,14 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
         </form.Subscribe>
 
         <form.AppField name="customDnsSearch">
-          {(field) => <field.CheckboxField label={_("Use custom DNS search domains")} />}
+          {(field) => (
+            <field.CheckboxField
+              label={
+                // TRANSLATORS: checkbox label for custom DNS search domain configuration.
+                _("Use custom DNS search domains")
+              }
+            />
+          )}
         </form.AppField>
         <form.Subscribe selector={(s) => s.values.customDnsSearch}>
           {(customDnsSearch) =>
@@ -463,9 +505,11 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
                 <form.AppField name="dnsSearchList">
                   {(field) => (
                     <field.ArrayField
+                      // TRANSLATORS: label for the DNS search domains field.
                       label={_("DNS search domains")}
                       skipDuplicates
                       validateOnSubmit={(v) =>
+                        // TRANSLATORS: validation error for an invalid DNS search domain entry.
                         isValidDNSSearchDomain(v) ? undefined : _("Invalid DNS search domain")
                       }
                     />
@@ -492,8 +536,12 @@ function NewConnectionForm() {
 function ConnectionNotFound() {
   return (
     <ResourceNotFound
+      // TRANSLATORS: title of the page shown when the requested connection
+      // profile does not exist. Do not end with a period.
       title={_("Connection not found")}
+      // TRANSLATORS: body text on the connection not found page.
       body={_("The connection does not exist or is no longer available.")}
+      // TRANSLATORS: link text on the connection not found page.
       linkText={_("Go to network page")}
       linkPath={NETWORK.root}
     />
@@ -544,7 +592,9 @@ function EditConnectionForm() {
  */
 export default function ConnectionForm() {
   const { id } = useParams();
+  // TRANSLATORS: page title and breadcrumb label for creating a new connection.
   const title = id ?? _("New connection");
+  // TRANSLATORS: breadcrumb label for the network configuration section.
   const breadcrumbs = [{ label: _("Network"), path: NETWORK.root }, { label: title }];
 
   return (

@@ -44,17 +44,26 @@ import { _, N_ } from "~/i18n";
 const modeOptions = () => [
   {
     value: "unset",
+    // TRANSLATORS: option label for automatic IP configuration.
     label: N_("Automatic"),
+    // TRANSLATORS: description for the "Automatic" IP mode. Address and gateway
+    // come from the network.
     description: N_("Address and gateway from the network"),
   },
   {
     value: "manual",
+    // TRANSLATORS: option label for manual IP configuration
     label: N_("Manual"),
+    // TRANSLATORS: description for the "Manual" IP mode. Requires static
+    // addresses with an optional gateway.
     description: N_("Fixed addresses with optional gateway"),
   },
   {
     value: "auto",
+    // TRANSLATORS: option label for advanced IP configuration combining automatic and optional static settings.
     label: N_("Advanced"),
+    // TRANSLATORS: description for the "Advanced" IP mode. Uses automatic
+    // addressing with optional static addresses and gateway.
     description: N_("Automatic plus optional addresses and gateway"),
   },
 ];
@@ -85,8 +94,11 @@ const IpSettings = withForm({
   } as IpSettingsProps,
   render: function Render({ form, protocol }) {
     const isIPv4 = protocol === "ipv4";
+    // TRANSLATORS: label for the IPv4 or IPv6 settings dropdown.
     const label = isIPv4 ? _("IPv4 Settings") : _("IPv6 Settings");
+    // TRANSLATORS: label for the IP addresses field.
     const addressesLabel = isIPv4 ? _("IPv4 Addresses") : _("IPv6 Addresses");
+    // TRANSLATORS: label for the IP gateway field.
     const gatewayLabel = isIPv4 ? _("IPv4 Gateway") : _("IPv6 Gateway");
     const modeField = isIPv4 ? "ipv4Mode" : "ipv6Mode";
     const addressesField = isIPv4 ? "addresses4" : "addresses6";
@@ -118,22 +130,23 @@ const IpSettings = withForm({
                     <field.ArrayField
                       label={
                         mode === "auto" ? (
+                          // TRANSLATORS: label suffix indicating an optional field.
                           <LabelText suffix={_("(optional)")}>{addressesLabel}</LabelText>
                         ) : (
                           addressesLabel
                         )
                       }
                       inputAriaLabel={
+                        // TRANSLATORS: label suffix indicating an optional field.
                         mode === "auto" ? `${addressesLabel} ${_("(optional)")}` : addressesLabel
                       }
                       skipDuplicates
-                      validateOnSubmit={(v) =>
-                        (isIPv4 ? isValidIPv4Address(v) : isValidIPv6Address(v))
-                          ? undefined
-                          : isIPv4
-                            ? _("Invalid IPv4 address")
-                            : _("Invalid IPv6 address")
-                      }
+                      validateOnSubmit={(v) => {
+                        if (isIPv4 ? isValidIPv4Address(v) : isValidIPv6Address(v))
+                          return undefined;
+                        // TRANSLATORS: validation error for an invalid IP address entry.
+                        return isIPv4 ? _("Invalid IPv4 address") : _("Invalid IPv6 address");
+                      }}
                     />
                   )}
                 </form.AppField>
@@ -145,8 +158,10 @@ const IpSettings = withForm({
                         <LabelText
                           suffix={
                             mode === "auto"
-                              ? _("(optional, ignored if no addresses provided)")
-                              : _("(optional)")
+                              ? // TRANSLATORS: label suffix for the optional gateway field in advanced mode.
+                                _("(optional, ignored if no addresses provided)")
+                              : // TRANSLATORS: label suffix indicating an optional field.
+                                _("(optional)")
                           }
                         >
                           {gatewayLabel}

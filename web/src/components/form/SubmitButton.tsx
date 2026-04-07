@@ -44,7 +44,10 @@ type SubmitButtonProps = {
  *   <form.CancelButton />
  * </ActionGroup>
  */
-export default function SubmitButton({ label = _("Accept") }: SubmitButtonProps) {
+export default function SubmitButton({
+  // TRANSLATORS: label for the form submit button.
+  label = _("Accept"),
+}: SubmitButtonProps) {
   const form = useFormContext();
 
   return (

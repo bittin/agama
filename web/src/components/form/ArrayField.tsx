@@ -89,19 +89,29 @@ function pasteAnnouncement(
   valid: string[],
   invalid: string[],
 ): string {
+  // TRANSLATORS: %d will be replaced with a number of duplicate entries skipped.
   if (added === 0) return sprintf(_("%d duplicates skipped."), skipped);
-  if (skipped === 0)
+
+  if (skipped === 0) {
     return invalid.length === 0
-      ? sprintf(_("%d entries added."), valid.length)
-      : sprintf(_("%d entries added, %d invalid."), added, invalid.length);
-  return invalid.length === 0
-    ? sprintf(_("%d entries added, %d duplicates skipped."), valid.length, skipped)
-    : sprintf(
-        _("%d entries added, %d invalid, %d duplicates skipped."),
-        added,
-        invalid.length,
-        skipped,
-      );
+      ? // TRANSLATORS: %d will be replaced with a number of added entries.
+        sprintf(_("%d entries added."), valid.length)
+      : // TRANSLATORS: first %d is the number of added entries, second %d is
+        // the number of invalid entries.
+        sprintf(_("%d entries added, %d invalid."), added, invalid.length);
+  }
+
+  if (invalid.length === 0)
+    // TRANSLATORS: first %d is the number of added entries, second %d is the number of duplicate entries skipped.
+    return sprintf(_("%d entries added, %d duplicates skipped."), valid.length, skipped);
+
+  // TRANSLATORS: first %d is the number of added entries, second %d is the number of invalid entries, third %d is the number of duplicates skipped.
+  return sprintf(
+    _("%d entries added, %d invalid, %d duplicates skipped."),
+    added,
+    invalid.length,
+    skipped,
+  );
 }
 
 /** Splits pasted text on whitespace and commas, returning non-empty entries. */
@@ -169,13 +179,15 @@ function Entry({ item, index, isActive, error, toLabel, onEdit, onRemove, valueI
         id={valueId(index)}
         role="option"
         aria-selected={isActive}
-        aria-label={error ? sprintf(_("%s — invalid: %s"), labelText, error) : labelText}
+        // TRANSLATORS: accessible label for an invalid entry. First %s is the entry value, second %s is the validation error.
+        aria-label={error ? sprintf(_("%s is invalid: %s"), labelText, error) : labelText}
         color={error ? "red" : undefined}
         closeBtnProps={{
           tabIndex: -1,
           onMouseDown: handleCloseMouseDown,
         }}
         onClose={handleRemove}
+        // TRANSLATORS: accessible label for the remove button of an entry. %s is the entry value.
         closeBtnAriaLabel={sprintf(_("Remove %s"), labelText)}
         style={{
           outline: isActive
@@ -402,6 +414,7 @@ export default function ArrayField({
 
     if (skipDuplicates && value.includes(normalized)) {
       setDraft("");
+      // TRANSLATORS: screen reader announcement when a duplicate entry is skipped. %s is the entry value.
       announce(sprintf(_("%s already exists, skipped."), toLabel(normalized)));
       return;
     }
@@ -411,8 +424,12 @@ export default function ArrayField({
     clearActive();
     announce(
       error
-        ? sprintf(_("%s added but is invalid: %s. Select to edit."), normalized, error)
-        : sprintf(_("%s added."), normalized),
+        ? // TRANSLATORS: screen reader announcement when an invalid entry is
+          // added. First %s is the entry value, second %s is the validation error.
+          sprintf(_("%s added but is invalid: %s. Select to edit."), normalized, error)
+        : // TRANSLATORS: screen reader announcement when an entry is added. %s
+          // is the entry value.
+          sprintf(_("%s added."), normalized),
     );
   };
 
@@ -420,6 +437,8 @@ export default function ArrayField({
     const item = value[index];
     const newValue = value.filter((_, i) => i !== index);
     onChange(newValue);
+    // TRANSLATORS: screen reader announcement when an entry is removed. %s is
+    // the entry value.
     announce(sprintf(_("%s removed."), toLabel(item)));
 
     if (newValue.length === 0) clearActive();
@@ -433,6 +452,8 @@ export default function ArrayField({
     onChange(pending ? [...remaining, pending.normalized] : remaining);
     setDraft(asDraft(item));
     clearActive();
+    // TRANSLATORS: screen reader announcement when an entry is moved to the
+    // input for editing. %s is the entry value.
     announce(sprintf(_("%s moved to input for editing."), toLabel(item)));
     inputRef.current?.focus();
   };
@@ -441,6 +462,8 @@ export default function ArrayField({
     const [valid, invalid] = fork(value, (v) => !errorFor(v));
     onChange(valid);
     clearActive();
+    // TRANSLATORS: screen reader announcement when all invalid entries are
+    // cleared. %d is the number of removed entries.
     announce(sprintf(_("%d invalid entries removed."), invalid.length));
     inputRef.current?.focus();
   };
@@ -450,8 +473,9 @@ export default function ArrayField({
 
     if (navigating) {
       if (!NAVIGATION_KEYS.has(e.key)) {
-        // Tab, Escape, or any other key: exit navigation without consuming the event.
-        // Tab keeps its default so focus can move away; regular characters land in the draft.
+        // Tab, Escape, or any other key: exit navigation without consuming the
+        // event. Tab keeps its default so focus can move away. Regular
+        // characters land in the draft.
         clearActive();
         return;
       }
@@ -560,6 +584,8 @@ export default function ArrayField({
             {value.length > 0 && (
               <div
                 role="listbox"
+                // TRANSLATORS: accessible label for the entries list. %s is the
+                // field label (e.g. "DNS servers").
                 aria-label={ariaLabel ? sprintf(_("%s entries"), ariaLabel) : undefined}
                 style={{ display: "flex", flexWrap: "wrap", gap: "0.25rem", padding: "0.2rem 0" }}
               >
@@ -637,9 +663,12 @@ export default function ArrayField({
           )}
           <HelperTextItem id={hintId} variant="indeterminate">
             {hasAnyError && helperText && <>{helperText}. </>}
-            {_(
-              "Enter or Tab to add; arrow keys to navigate entries, Escape to exit; Backspace or Delete to remove.",
-            )}
+            {
+              // TRANSLATORS: keyboard usage hint shown below the field.
+              _(
+                "Enter or Tab to add; arrow keys to navigate entries, Escape to exit; Backspace or Delete to remove.",
+              )
+            }
           </HelperTextItem>
         </HelperText>
       </FormHelperText>
