@@ -36,7 +36,7 @@ type SyncConfig = {
 };
 
 /**
- * A `ChoiceField` based selector for picking a network device, either by
+ * A `DropdownField` based selector for picking a network device, either by
  * interface name or by MAC address.
  *
  * Receives a typed form instance via `withForm`. When `sync` is provided,
@@ -95,7 +95,7 @@ const DeviceSelector = withForm({
 
     return (
       <form.AppField name={name} listeners={listeners}>
-        {(field) => <field.ChoiceField label={<Text srOnly>{label}</Text>} options={options} />}
+        {(field) => <field.DropdownField label={<Text srOnly>{label}</Text>} options={options} />}
       </form.AppField>
     );
   },

@@ -24,7 +24,7 @@ import { createFormHook } from "@tanstack/react-form";
 import { fieldContext, formContext, useFieldContext, useFormContext } from "~/hooks/form-contexts";
 import ArrayField from "~/components/form/ArrayField";
 import CheckboxField from "~/components/form/CheckboxField";
-import ChoiceField from "~/components/form/ChoiceField";
+import DropdownField from "~/components/form/DropdownField";
 import TextField from "~/components/form/TextField";
 
 /**
@@ -38,7 +38,7 @@ const { useAppForm, withForm } = createFormHook({
   fieldComponents: {
     ArrayField,
     CheckboxField,
-    ChoiceField,
+    DropdownField,
     TextField,
   },
   formComponents: {},

@@ -96,7 +96,7 @@ const IpSettings = withForm({
       <>
         <form.AppField name={modeField}>
           {(field) => (
-            <field.ChoiceField
+            <field.DropdownField
               label={label}
               options={modeOptions().map(({ value, label, description }) => ({
                 value,

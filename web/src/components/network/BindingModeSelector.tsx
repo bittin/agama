@@ -44,7 +44,7 @@ const BINDING_MODE_OPTIONS = [
 ];
 
 /**
- * A `ChoiceField` based selector for the connection binding mode.
+ * A `DropdownField` based selector for the connection binding mode.
  *
  * Receives a typed form instance via `withForm`.
  */
@@ -54,7 +54,7 @@ const BindingModeSelector = withForm({
     return (
       <form.AppField name="bindingMode">
         {(field) => (
-          <field.ChoiceField
+          <field.DropdownField
             label={_("Device")}
             options={BINDING_MODE_OPTIONS.map(({ value, label, description }) => ({
               value,

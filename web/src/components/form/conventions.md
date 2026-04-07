@@ -171,7 +171,7 @@ For this reason, `aria-label` is used as the fallback for fields without a
 visible label when rendered inside `FormGroup`.
 
 When a component accepts a `label` prop directly and does not reserve visual
-space for it (e.g. `ChoiceField`), pass `<Text srOnly>{label}</Text>` as the
+space for it (e.g. `DropdownField`), pass `<Text srOnly>{label}</Text>` as the
 label value instead. This preserves translation support and avoids the layout
 side effect.
 
