@@ -25,20 +25,33 @@ import Text from "~/components/core/Text";
 import { connectionFormOptions } from "~/components/network/ConnectionForm";
 import { withForm } from "~/hooks/form";
 import { useDevices } from "~/hooks/model/system/network";
+import { Device } from "~/types/network";
 import { _ } from "~/i18n";
+
+type SyncConfig = {
+  /** The form field to keep in sync with the selected device. */
+  field: "iface" | "ifaceMac";
+  /** Returns the value to write into the synced field for a given device. */
+  with: (device: Device) => string;
+};
 
 /**
  * A `ChoiceField` based selector for picking a network device, either by
  * interface name or by MAC address.
  *
- * Receives a typed form instance via `withForm`.
+ * Receives a typed form instance via `withForm`. When `sync` is provided,
+ * a TanStack Form listener updates the specified field whenever a device is
+ * selected, using the `with` function to derive the value to write.
+ *
+ * @see https://tanstack.com/form/latest/docs/framework/react/guides/listeners
  */
 const DeviceSelector = withForm({
   ...connectionFormOptions,
   props: {
     by: "iface" as "iface" | "mac",
-  },
-  render: function Render({ form, by }) {
+    sync: undefined,
+  } as { by: "iface" | "mac"; sync?: SyncConfig },
+  render: function Render({ form, by, sync }) {
     const devices = useDevices();
     const valueKey = by === "iface" ? "name" : "macAddress";
 
@@ -64,6 +77,20 @@ const DeviceSelector = withForm({
         if (!value && devices.length > 0)
           form.setFieldValue(name, devices[0][valueKey], { dontUpdateMeta: true });
       },
+      ...(sync && {
+        onChange: ({ value }: { value: string }) => {
+          const device =
+            by === "iface"
+              ? devices.find((d) => d.name === value)
+              : devices.find((d) => d.macAddress === value);
+          if (device)
+            form.setFieldValue(sync.field, sync.with(device), {
+              // Prevents the counterpart field's listener from firing in
+              // response, which would otherwise cause an infinite loop.
+              dontRunListeners: true,
+            });
+        },
+      }),
     };
 
     return (
