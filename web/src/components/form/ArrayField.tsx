@@ -605,16 +605,16 @@ export default function ArrayField({
       <FormHelperText>
         <HelperText>
           {!hasErrors &&
-            fieldErrors.map((err, i) => (
+            fieldErrors.map((error, i) => (
               <HelperTextItem key={i} variant="error">
-                {err as string}
+                {error}
               </HelperTextItem>
             ))}
           {hasErrors && (
             <>
-              {entryErrors.map((err, i) => (
+              {entryErrors.map((error, i) => (
                 <HelperTextItem key={i} variant="error">
-                  {err}
+                  {error}
                 </HelperTextItem>
               ))}
               <HelperTextItem variant="error">
@@ -635,7 +635,7 @@ export default function ArrayField({
               </HelperTextItem>
             </>
           )}
-          <HelperTextItem id={hintId} variant="indeterminate" screenReaderText="">
+          <HelperTextItem id={hintId} variant="indeterminate">
             {hasAnyError && helperText && <>{helperText}. </>}
             {_(
               "Enter or Tab to add; arrow keys to navigate entries, Escape to exit; Backspace or Delete to remove.",

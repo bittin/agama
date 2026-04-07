@@ -42,7 +42,7 @@ type TextFieldProps = {
  */
 export default function TextField({ label }: TextFieldProps) {
   const field = useFieldContext<string>();
-  const error = field.state.meta.errors[0] as string | undefined;
+  const error = field.state.meta.errors[0];
 
   return (
     <FormGroup fieldId={field.name} label={label}>
