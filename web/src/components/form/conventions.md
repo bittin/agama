@@ -2,9 +2,7 @@
 
 This document captures the conventions for building forms across the
 application. It was written alongside the reimplementation of `ConnectionForm`,
-which serves as the running example throughout. That form is intentionally
-simple and still incomplete, which makes it a good starting point: the patterns
-emerge clearly without the noise of a fully featured form.
+which serves as the running example throughout.
 
 As more forms are reimplemented, this document should be updated with new
 examples and refined patterns.
@@ -29,12 +27,19 @@ but it cannot be blank on submit.
 Note: a pre-filled field is still required. Do not add an `(optional)` suffix
 just because the field has a default value.
 
-**Current example:** Name. It is always shown and required on submit. An
-auto-generated default derived from the selected device is not yet implemented.
+**Current example:** Name. It is always shown when creating a connection and
+required on submit. A default is auto-generated from the selected binding mode
+and device using a form-level `onChange` listener; the user may override it at
+any time. Once the user edits the field manually, auto-generation stops —
+`isDirty` is used rather than `isTouched` so that focusing and blurring without
+changing the value does not disable the auto-generation.
+
+In edit mode the field is not rendered at all: the connection id cannot be
+changed after creation, so offering it would be misleading.
 
 ### 2. Always shown, optional or context-dependent
 
-The field is always visible. Use this when hiding the field would hurt
+The field is always visible. Use this when omitting the field would hurt
 discoverability or when its label needs to reflect the current state of the
 form.
 
@@ -47,27 +52,27 @@ likely needs restructuring.
 
 **Not yet an example in `ConnectionForm`.** A future candidate might be a
 field whose visibility is stable but whose requirement changes based on other
-selections, and where hiding it would hurt discoverability.
+selections, and where omitting it would hurt discoverability.
 
 ### 3. Conditionally shown, required when shown
 
-The field is hidden until another field reaches a specific value. When it
+The field is not rendered until another field reaches a specific value. When it
 appears, it is required. No suffix is needed: the user caused it to appear by
 their own action, so its purpose is self-evident.
 
-**Example:** Device name and MAC address selectors. They are hidden when the
-binding mode is "Any". When the user selects "Chosen by name" or "Chosen by
+**Example:** Device name and MAC address selectors. They are not rendered when
+the binding mode is "Any". When the user selects "Chosen by name" or "Chosen by
 MAC", the corresponding selector appears and must be filled in. Both selectors
 are pre-filled with the first available device, but the field is still required
 because omitting it would produce an incomplete connection profile.
 
 ### 4. Conditionally shown, optional when shown
 
-The field is hidden until another field reaches a specific value. When it
+The field is not rendered until another field reaches a specific value. When it
 appears it can legitimately be left blank, so it carries the `(optional)`
 suffix.
 
-**Example:** IPv4 Gateway and IPv6 Gateway. They are hidden when the
+**Example:** IPv4 Gateway and IPv6 Gateway. They are not rendered when the
 corresponding mode is Automatic. When the mode is Manual or Advanced, they
 appear, but a gateway is not strictly required by NetworkManager even then.
 
@@ -91,7 +96,7 @@ Use this pattern when:
 
 - multiple mutually exclusive configurations exist,
 - the system already has a meaningful default behavior,
-- hiding configuration entirely would make the form misleading or ambiguous.
+- omitting configuration entirely would make the form misleading or ambiguous.
 
 The selector communicates that the feature is active regardless of whether the
 user customizes it.
@@ -109,12 +114,13 @@ entered data.
 **Example:** IPv4 Settings selector.
 
 - `Automatic` — address and gateway come from the network. No additional
-  fields shown.
-- `Manual` — fixed addressing. Addresses and gateway fields appear; the
-  gateway is optional, the addresses field has no suffix but required
-  validation is not yet enforced.
-- `Advanced` — automatic addressing, with optional addresses and gateway
-  added on top of what the network provides.
+  fields rendered.
+- `Manual` — fixed addressing. Addresses (required, no suffix) and gateway
+  (`(optional)`) are rendered. At least one address is required on submit.
+- `Advanced` — automatic addressing with optional static overrides. Addresses
+  carry `(optional)` and gateway carries `(optional, ignored if no addresses
+  provided)`, because a gateway without any addresses is meaningless and
+  dropped on submission.
 
 This avoids the confusion of a checkbox such as "Configure IPv4", which may
 suggest that no IP configuration exists unless enabled.
@@ -131,10 +137,10 @@ When a selector represents a default or automatic mode, additional fields
 related to other modes might not be included in the submitted payload. The
 frontend keeps their values only for user convenience when switching modes.
 
-### 6. Hidden behind a checkbox
+### 6. Revealed by a checkbox
 
 A checkbox lets the user explicitly opt into providing a value. The field is
-hidden until the checkbox is checked. Once checked, the field is required and
+not rendered until the checkbox is checked. Once checked, the field is required and
 validated on submit. No `(optional)` suffix: the user has signalled intent, so
 leaving it blank is a mistake worth reporting.
 
