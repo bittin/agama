@@ -120,20 +120,35 @@ module Agama
           parent_config = storage_config.find_device(device.partitionable)
           return unless parent_config&.filesystem
 
+          kind, message = if config.is_a?(Agama::Storage::Configs::MdRaid)
+            [
+              IssueClasses::Config::MISUSED_MD_MEMBER,
+              _(
+                # TRANSLATORS: %{parent_name} and %{reused_name} are replaced by device names (e.g.,
+                # "/dev/vda", "/dev/md0").
+                "The device '%{parent_name}' cannot be formatted because it is part of the " \
+                "reused MD RAID '%{reused_name}'"
+              )
+            ]
+          else
+            [
+              IssueClasses::Config::MISUSED_PV,
+              _(
+                # TRANSLATORS: %{parent_name} and %{reused_name} are replaced by device names (e.g.,
+                # "/dev/vda", "/dev/vg0").
+                "The device '%{parent_name}' cannot be formatted because it is a physical volume " \
+                "of the reused LVM volume group '%{reused_name}'"
+              )
+            ]
+          end
+
           error(
             format(
-              _(
-                # TRANSLATORS: %{parent_name} is replaced by a device name (e.g., "/dev/vda"),
-                #   %{reused_type} is replaced by a device type (e.g., MD RAID) and %{reused_name}
-                #   is replaced by a device name (e.g., "/dev/md0").
-                "The device '%{parent_name}' cannot be formatted because it is part of the " \
-                "%{reused_type} '%{reused_name}'"
-              ),
+              message,
               parent_name: parent_config.found_device.name,
-              reused_type: device_type,
               reused_name: config.found_device.name
             ),
-            kind: IssueClasses::Config::MISUSED_MEMBER_DEVICE
+            kind: kind
           )
         end
 
@@ -145,20 +160,35 @@ module Agama
           return unless storage_config.supporting_delete.include?(member_config)
           return unless member_config.delete? || member_config.delete_if_needed?
 
+          kind, message = if config.is_a?(Agama::Storage::Configs::MdRaid)
+            [
+              IssueClasses::Config::MISUSED_MD_MEMBER,
+              _(
+                # TRANSLATORS: %{member_name} and %{reused_name} are replaced by device names (e.g.,
+                # "/dev/vda", "/dev/md0").
+                "The device '%{member_name}' cannot be deleted because it is part of the reused " \
+                "MD RAID '%{reused_name}'"
+              )
+            ]
+          else
+            [
+              IssueClasses::Config::MISUSED_PV,
+              _(
+                # TRANSLATORS: %{member_name} and %{reused_name} are replaced by device names (e.g.,
+                # "/dev/vda", "/dev/vg0").
+                "The device '%{member_name}' cannot be deleted because it is a physical volume " \
+                "of the reused LVM volume group '%{reused_name}'"
+              )
+            ]
+          end
+
           error(
             format(
-              _(
-                # TRANSLATORS: %{member_name} is replaced by a device name (e.g., "/dev/vda"),
-                #   %{reused_type} is replaced by a device type (e.g., MD RAID) and %{reused_name}
-                #   is replaced by a device name (e.g., "/dev/md0").
-                "The device '%{member_name}' cannot be deleted because it is part of the " \
-                "%{reused_type} '%{reused_name}'"
-              ),
+              message,
               member_name: member_config.found_device.name,
-              reused_type: device_type,
               reused_name: config.found_device.name
             ),
-            kind: IssueClasses::Config::MISUSED_MEMBER_DEVICE
+            kind: kind
           )
         end
 
@@ -170,20 +200,35 @@ module Agama
           return unless storage_config.supporting_size.include?(member_config)
           return if member_config.size.default?
 
+          kind, message = if config.is_a?(Agama::Storage::Configs::MdRaid)
+            [
+              IssueClasses::Config::MISUSED_MD_MEMBER,
+              _(
+                # TRANSLATORS: %{member_name} and %{reused_name} are replaced by device names (e.g.,
+                # "/dev/vda", "/dev/md0").
+                "The device '%{member_name}' cannot be resized because it is part of the reused " \
+                "MD RAID '%{reused_name}'"
+              )
+            ]
+          else
+            [
+              IssueClasses::Config::MISUSED_PV,
+              _(
+                # TRANSLATORS: %{member_name} and %{reused_name} are replaced by device names (e.g.,
+                # "/dev/vda", "/dev/vg0").
+                "The device '%{member_name}' cannot be resized because it is a physical volume " \
+                "of the reused LVM volume group '%{reused_name}'"
+              )
+            ]
+          end
+
           error(
             format(
-              _(
-                # TRANSLATORS: %{member_name} is replaced by a device name (e.g., "/dev/vda"),
-                #   %{reused_type} is replaced by a device type (e.g., MD RAID) and %{reused_name}
-                #   is replaced by a device name (e.g., "/dev/md0").
-                "The device '%{member_name}' cannot be resized because it is part of the " \
-                "%{reused_type} '%{reused_name}'"
-              ),
+              message,
               member_name: member_config.found_device.name,
-              reused_type: device_type,
               reused_name: config.found_device.name
             ),
-            kind: IssueClasses::Config::MISUSED_MEMBER_DEVICE
+            kind: kind
           )
         end
 
@@ -195,20 +240,35 @@ module Agama
           return unless storage_config.supporting_filesystem.include?(member_config)
           return unless member_config.filesystem
 
+          kind, message = if config.is_a?(Agama::Storage::Configs::MdRaid)
+            [
+              IssueClasses::Config::MISUSED_MD_MEMBER,
+              _(
+                # TRANSLATORS: %{member_name} and %{reused_name} are replaced by device names (e.g.,
+                # "/dev/vda", "/dev/md0").
+                "The device '%{member_name}' cannot be formatted because it is part of the " \
+                "reused MD RAID '%{reused_name}'"
+              )
+            ]
+          else
+            [
+              IssueClasses::Config::MISUSED_PV,
+              _(
+                # TRANSLATORS: %{member_name} and %{reused_name} are replaced by device names (e.g.,
+                # "/dev/vda", "/dev/vg0").
+                "The device '%{member_name}' cannot be formatted because it is a physical volume " \
+                "of the reused LVM volume group '%{reused_name}'"
+              )
+            ]
+          end
+
           error(
             format(
-              _(
-                # TRANSLATORS: %{member_name} is replaced by a device name (e.g., "/dev/vda"),
-                #   %{reused_type} is replaced by a device type (e.g., MD RAID) and %{reused_name}
-                #   is replaced by a device name (e.g., "/dev/md0").
-                "The device '%{member_name}' cannot be formatted because it is part of the " \
-                "%{reused_type} '%{reused_name}'"
-              ),
+              message,
               member_name: member_config.found_device.name,
-              reused_type: device_type,
               reused_name: config.found_device.name
             ),
-            kind: IssueClasses::Config::MISUSED_MEMBER_DEVICE
+            kind: kind
           )
         end
 
@@ -220,20 +280,35 @@ module Agama
           return unless storage_config.supporting_partitions.include?(member_config)
           return unless member_config.partitions?
 
+          kind, message = if config.is_a?(Agama::Storage::Configs::MdRaid)
+            [
+              IssueClasses::Config::MISUSED_MD_MEMBER,
+              _(
+                # TRANSLATORS: %{member_name} and %{reused_name} are replaced by device names (e.g.,
+                # "/dev/vda", "/dev/md0").
+                "The device '%{member_name}' cannot be partitioned because it is part of the " \
+                "reused MD RAID '%{reused_name}'"
+              )
+            ]
+          else
+            [
+              IssueClasses::Config::MISUSED_PV,
+              _(
+                # TRANSLATORS: %{member_name} and %{reused_name} are replaced by device names (e.g.,
+                # "/dev/vda", "/dev/vg0").
+                "The device '%{member_name}' cannot be partitioned because it is a physical " \
+                "volume of the reused LVM volume group '%{reused_name}'"
+              )
+            ]
+          end
+
           error(
             format(
-              _(
-                # TRANSLATORS: %{member_name} is replaced by a device name (e.g., "/dev/vda"),
-                #   %{reused_type} is replaced by a device type (e.g., MD RAID) and %{reused_name}
-                #   is replaced by a device name (e.g., "/dev/md0").
-                "The device '%{member_name}' cannot be partitioned because it is part of the " \
-                "%{reused_type} '%{reused_name}'"
-              ),
+              message,
               member_name: member_config.found_device.name,
-              reused_type: device_type,
               reused_name: config.found_device.name
             ),
-            kind: IssueClasses::Config::MISUSED_MEMBER_DEVICE
+            kind: kind
           )
         end
 
@@ -244,20 +319,35 @@ module Agama
         def target_reused_member_issue(member_config)
           return unless users?(member_config)
 
+          kind, message = if config.is_a?(Agama::Storage::Configs::MdRaid)
+            [
+              IssueClasses::Config::MISUSED_MD_MEMBER,
+              _(
+                # TRANSLATORS: %{member_name} and %{reused_name} are replaced by device names (e.g.,
+                # "/dev/vda", "/dev/md0").
+                "The device '%{member_name}' cannot be used because it is part of the reused " \
+                "MD RAID '%{reused_name}'"
+              )
+            ]
+          else
+            [
+              IssueClasses::Config::MISUSED_PV,
+              _(
+                # TRANSLATORS: %{member_name} and %{reused_name} are replaced by device names (e.g.,
+                # "/dev/vda", "/dev/vg0").
+                "The device '%{member_name}' cannot be used because it is a physical volume " \
+                "of the reused LVM volume group '%{reused_name}'"
+              )
+            ]
+          end
+
           error(
             format(
-              _(
-                # TRANSLATORS: %{member_name} is replaced by a device name (e.g., "/dev/vda"),
-                #   %{reused_type} is replaced by a device type (e.g., MD RAID) and %{reused_name}
-                #   is replaced by a device name (e.g., "/dev/md0").
-                "The device '%{member_name}' cannot be used because it is part of the " \
-                "%{reused_type} '%{reused_name}'"
-              ),
+              message,
               member_name: member_config.found_device.name,
-              reused_type: device_type,
               reused_name: config.found_device.name
             ),
-            kind: IssueClasses::Config::MISUSED_MEMBER_DEVICE
+            kind: kind
           )
         end
 

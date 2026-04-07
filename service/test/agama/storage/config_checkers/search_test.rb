@@ -119,7 +119,7 @@ describe Agama::Storage::ConfigCheckers::Search do
           it "includes the expected issue" do
             issues = subject.issues
             expect(issues).to include an_object_having_attributes(
-              kind:        Agama::Storage::IssueClasses::Config::MISUSED_MEMBER_DEVICE,
+              kind:        Agama::Storage::IssueClasses::Config::MISUSED_MD_MEMBER,
               description: /.*vda.*cannot be formatted.*part of.* MD RAID .*md0/
             )
           end
@@ -137,7 +137,7 @@ describe Agama::Storage::ConfigCheckers::Search do
           it "includes the expected issue" do
             issues = subject.issues
             expect(issues).to include an_object_having_attributes(
-              kind:        Agama::Storage::IssueClasses::Config::MISUSED_MEMBER_DEVICE,
+              kind:        Agama::Storage::IssueClasses::Config::MISUSED_MD_MEMBER,
               description: /.*vda.*cannot be partitioned.*part of.* MD RAID .*md0/
             )
           end
@@ -155,7 +155,7 @@ describe Agama::Storage::ConfigCheckers::Search do
           it "includes the expected issue" do
             issues = subject.issues
             expect(issues).to include an_object_having_attributes(
-              kind:        Agama::Storage::IssueClasses::Config::MISUSED_MEMBER_DEVICE,
+              kind:        Agama::Storage::IssueClasses::Config::MISUSED_MD_MEMBER,
               description: /.*vda.*cannot be used.*part of.* MD RAID .*md0/
             )
           end
@@ -181,7 +181,7 @@ describe Agama::Storage::ConfigCheckers::Search do
           it "includes the expected issue" do
             issues = subject.issues
             expect(issues).to include an_object_having_attributes(
-              kind:        Agama::Storage::IssueClasses::Config::MISUSED_MEMBER_DEVICE,
+              kind:        Agama::Storage::IssueClasses::Config::MISUSED_MD_MEMBER,
               description: /.*vda1.*cannot be deleted.*part of.* MD RAID .*md0/
             )
           end
@@ -207,7 +207,7 @@ describe Agama::Storage::ConfigCheckers::Search do
           it "includes the expected issue" do
             issues = subject.issues
             expect(issues).to include an_object_having_attributes(
-              kind:        Agama::Storage::IssueClasses::Config::MISUSED_MEMBER_DEVICE,
+              kind:        Agama::Storage::IssueClasses::Config::MISUSED_MD_MEMBER,
               description: /.*vda1.*cannot be resized.*part of.* MD RAID .*md0/
             )
           end
@@ -228,7 +228,7 @@ describe Agama::Storage::ConfigCheckers::Search do
           it "includes the expected issue" do
             issues = subject.issues
             expect(issues).to include an_object_having_attributes(
-              kind:        Agama::Storage::IssueClasses::Config::MISUSED_MEMBER_DEVICE,
+              kind:        Agama::Storage::IssueClasses::Config::MISUSED_MD_MEMBER,
               description: /.*vda.*cannot be formatted.*part of.* MD RAID .*md0/
             )
           end
@@ -278,8 +278,8 @@ describe Agama::Storage::ConfigCheckers::Search do
           it "includes the expected issue" do
             issues = subject.issues
             expect(issues).to include an_object_having_attributes(
-              kind:        Agama::Storage::IssueClasses::Config::MISUSED_MEMBER_DEVICE,
-              description: /.*md0.*cannot be formatted.*part of .*volume group .*vg0/
+              kind:        Agama::Storage::IssueClasses::Config::MISUSED_PV,
+              description: /.*md0.*cannot be formatted.*physical volume of .*volume group .*vg0/
             )
           end
         end
@@ -296,8 +296,8 @@ describe Agama::Storage::ConfigCheckers::Search do
           it "includes the expected issue" do
             issues = subject.issues
             expect(issues).to include an_object_having_attributes(
-              kind:        Agama::Storage::IssueClasses::Config::MISUSED_MEMBER_DEVICE,
-              description: /.*md0.*cannot be partitioned.*part of.*volume group .*vg0/
+              kind:        Agama::Storage::IssueClasses::Config::MISUSED_PV,
+              description: /.*md0.*cannot be partitioned.*physical volume of.*volume group .*vg0/
             )
           end
         end
@@ -313,8 +313,8 @@ describe Agama::Storage::ConfigCheckers::Search do
           it "includes the expected issue" do
             issues = subject.issues
             expect(issues).to include an_object_having_attributes(
-              kind:        Agama::Storage::IssueClasses::Config::MISUSED_MEMBER_DEVICE,
-              description: /.*md0.*cannot be used.*part of.*volume group .*vg0/
+              kind:        Agama::Storage::IssueClasses::Config::MISUSED_PV,
+              description: /.*md0.*cannot be used.*physical volume of.*volume group .*vg0/
             )
           end
         end
@@ -345,8 +345,8 @@ describe Agama::Storage::ConfigCheckers::Search do
           it "includes the expected issue" do
             issues = subject.issues
             expect(issues).to include an_object_having_attributes(
-              kind:        Agama::Storage::IssueClasses::Config::MISUSED_MEMBER_DEVICE,
-              description: /.*sda3.*cannot be deleted.*part of.* volume group .*data/
+              kind:        Agama::Storage::IssueClasses::Config::MISUSED_PV,
+              description: /.*sda3.*cannot be deleted.*physical volume of.* volume group .*data/
             )
           end
         end
@@ -377,8 +377,8 @@ describe Agama::Storage::ConfigCheckers::Search do
           it "includes the expected issue" do
             issues = subject.issues
             expect(issues).to include an_object_having_attributes(
-              kind:        Agama::Storage::IssueClasses::Config::MISUSED_MEMBER_DEVICE,
-              description: /.*sda3.*cannot be resized.*part of.* volume group .*data/
+              kind:        Agama::Storage::IssueClasses::Config::MISUSED_PV,
+              description: /.*sda3.*cannot be resized.*physical volume of.* volume group .*data/
             )
           end
         end
@@ -404,8 +404,8 @@ describe Agama::Storage::ConfigCheckers::Search do
           it "includes the expected issue" do
             issues = subject.issues
             expect(issues).to include an_object_having_attributes(
-              kind:        Agama::Storage::IssueClasses::Config::MISUSED_MEMBER_DEVICE,
-              description: /.*sda.*cannot be formatted.*part of.* volume group .*data/
+              kind:        Agama::Storage::IssueClasses::Config::MISUSED_PV,
+              description: /.*sda.*cannot be formatted.*physical volume of.* volume group .*data/
             )
           end
         end
