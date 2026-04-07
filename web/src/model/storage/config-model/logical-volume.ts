@@ -107,6 +107,10 @@ function convertToPartition(lv: ConfigModel.LogicalVolume): ConfigModel.Partitio
   };
 }
 
+function isNew(logicalVolume: ConfigModel.LogicalVolume): boolean {
+  return !logicalVolume.name;
+}
+
 function isUsed(logicalVolume: ConfigModel.LogicalVolume): boolean {
   return logicalVolume.filesystem !== undefined;
 }
@@ -115,4 +119,14 @@ function isReused(logicalVolume: ConfigModel.LogicalVolume): boolean {
   return logicalVolume.name !== undefined && logicalVolume.filesystem !== undefined;
 }
 
-export default { generateName, create, add, edit, remove, convertToPartition, isUsed, isReused };
+export default {
+  generateName,
+  create,
+  add,
+  edit,
+  remove,
+  convertToPartition,
+  isNew,
+  isUsed,
+  isReused,
+};

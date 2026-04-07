@@ -27,12 +27,15 @@ import mdRaid from "~/model/storage/config-model/md-raid";
 import partition from "~/model/storage/config-model/partition";
 import volumeGroup from "~/model/storage/config-model/volume-group";
 import logicalVolume from "~/model/storage/config-model/logical-volume";
+import device from "~/model/storage/config-model/device";
 import { compact } from "~/utils";
 import { sift } from "radashi";
 import type * as ConfigModel from "~/openapi/storage/config-model";
 import type * as Partitionable from "~/model/storage/config-model/partitionable";
 import type * as Data from "~/model/storage/config-model/data";
-import type { Storage as System } from "~/model/system";
+import type { Device, Volume } from "~/model/storage/config-model/device";
+
+type DeviceCollection = "drives" | "mdRaids" | "volumeGroups";
 
 function clone(config: ConfigModel.Config): ConfigModel.Config {
   return JSON.parse(JSON.stringify(config));
@@ -64,64 +67,20 @@ function setEncryption(
   return config;
 }
 
+function devices(config: ConfigModel.Config): Device[] {
+  return compact([config.drives, config.mdRaids, config.volumeGroups]).flat();
+}
+
 function findDevice(
   config: ConfigModel.Config,
-  deviceName: string,
-): ConfigModel.Drive | ConfigModel.MdRaid | ConfigModel.VolumeGroup | undefined {
-  const devices = compact([config.drives, config.mdRaids, config.volumeGroups]).flat();
-  return devices.find((d) => d.name === deviceName);
+  collection: DeviceCollection,
+  index: number,
+): Device | null {
+  return config[collection]?.[index] ?? null;
 }
 
-function convertPartitionable(
-  model: ConfigModel.Config,
-  device: System.Device,
-  targetDevice: System.Device,
-) {
-  if (targetDevice.class === "drive") {
-    return partitionable.convertToDrive(model, device.name, {
-      name: targetDevice.name,
-    });
-  }
-  if (targetDevice.class === "mdRaid") {
-    return partitionable.convertToMdRaid(model, device.name, {
-      name: targetDevice.name,
-    });
-  }
-  if (targetDevice.class === "volumeGroup") {
-    return partitionable.convertToVolumeGroup(model, device.name, targetDevice.name);
-  }
-}
-
-const extractVgName = (name: string) => name.split("/").pop();
-
-function convertVolumeGroup(
-  model: ConfigModel.Config,
-  device: System.Device,
-  targetDevice: System.Device,
-) {
-  const vgName = extractVgName(device.name);
-  if (targetDevice.class === "drive") {
-    return volumeGroup.convertToDrive(model, vgName, targetDevice.name);
-  }
-  if (targetDevice.class === "mdRaid") {
-    return volumeGroup.convertToMdRaid(model, vgName, targetDevice.name);
-  }
-  if (targetDevice.class === "volumeGroup") {
-    const targetVgName = extractVgName(targetDevice.name);
-    return volumeGroup.convertToVolumeGroup(model, vgName, targetVgName);
-  }
-}
-
-function convertDevice(
-  model: ConfigModel.Config,
-  device: System.Device,
-  targetDevice: System.Device,
-): ConfigModel.Config {
-  if (device.class === "drive") return convertPartitionable(model, device, targetDevice);
-  if (device.class === "mdRaid") return convertPartitionable(model, device, targetDevice);
-  if (device.class === "volumeGroup") return convertVolumeGroup(model, device, targetDevice);
-
-  return model;
+function findDeviceByName(config: ConfigModel.Config, deviceName: string): Device | null {
+  return devices(config).find((d) => d.name === deviceName) ?? null;
 }
 
 /*
@@ -150,7 +109,7 @@ export default {
   isTargetDevice,
   setEncryption,
   findDevice,
-  convertDevice,
+  findDeviceByName,
   hasAdditionalDevices,
   boot,
   partitionable,
@@ -159,5 +118,6 @@ export default {
   partition,
   volumeGroup,
   logicalVolume,
+  device,
 };
-export type { ConfigModel, Data, Partitionable };
+export type { ConfigModel, Data, Partitionable, DeviceCollection, Device, Volume };

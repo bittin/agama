@@ -258,55 +258,6 @@ function convertToVolumeGroup(
   return config;
 }
 
-function setActions(device: ConfigModel.Drive, actions: Data.SpacePolicyAction[]) {
-  device.partitions ||= [];
-
-  // Reset resize/delete actions of all current partition configs.
-  device.partitions
-    .filter((p) => p.name !== undefined)
-    .forEach((partition) => {
-      partition.delete = false;
-      partition.deleteIfNeeded = false;
-      partition.resizeIfNeeded = false;
-      partition.size = undefined;
-    });
-
-  // Apply the given actions.
-  actions.forEach(({ deviceName, value }) => {
-    const isDelete = value === "delete";
-    const isResizeIfNeeded = value === "resizeIfNeeded";
-    const partition = device.partitions.find((p) => p.name === deviceName);
-
-    if (partition) {
-      partition.delete = isDelete;
-      partition.resizeIfNeeded = isResizeIfNeeded;
-    } else {
-      device.partitions.push({
-        name: deviceName,
-        delete: isDelete,
-        resizeIfNeeded: isResizeIfNeeded,
-      });
-    }
-  });
-}
-
-function setSpacePolicy(
-  config: ConfigModel.Config,
-  collection: CollectionName,
-  index: number,
-  data: Data.SpacePolicy,
-): ConfigModel.Config {
-  config = configModel.clone(config);
-  const device = find(config, collection, index);
-
-  if (device === undefined) return config;
-
-  device.spacePolicy = data.type;
-  if (data.type === "custom") setActions(device, data.actions || []);
-
-  return config;
-}
-
 function setFilesystem(
   config: ConfigModel.Config,
   collection: CollectionName,
@@ -342,7 +293,6 @@ export default {
   convertToMdRaid,
   convertPartitionsToLogicalVolumes,
   convertToVolumeGroup,
-  setSpacePolicy,
   setFilesystem,
 };
 export type { Device, CollectionName, Location };

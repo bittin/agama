@@ -95,10 +95,10 @@ function targetDevicesError(targetDevices: Storage.Device[]): string | undefined
  * model.VolumeGroup (build data.VolumeGroup from model.VolumeGroup).
  */
 export default function LvmPage() {
-  const { id } = useParams();
+  const { id: index } = useParams();
   const navigate = useNavigate();
   const config = useConfigModel();
-  const volumeGroup = useVolumeGroup(id);
+  const volumeGroup = useVolumeGroup(Number(index));
   const addVolumeGroup = useAddVolumeGroup();
   const editVolumeGroup = useEditVolumeGroup();
   const allDevices = useLvmTargetDevices();

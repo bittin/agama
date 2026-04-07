@@ -48,6 +48,7 @@ import { NestedContent } from "../core";
 import Text from "~/components/core/Text";
 import MenuButton, { CustomToggleProps } from "~/components/core/MenuButton";
 import ConfigEditorItem from "~/components/storage/ConfigEditorItem";
+import SpacePolicyMenu from "~/components/storage/SpacePolicyMenu";
 import Icon, { IconProps } from "~/components/layout/Icon";
 import { STORAGE as PATHS } from "~/routes/paths";
 import { baseName, deviceLabel, formattedPath } from "~/components/storage/utils";
@@ -61,6 +62,7 @@ import spacingStyles from "@patternfly/react-styles/css/utilities/Spacing/spacin
 import SearchedVolumeGroupMenu from "~/components/storage/SearchedVolumeGroupMenu";
 import {
   useConfigModel,
+  useVolumeGroup,
   useDeleteVolumeGroup,
   useDeleteLogicalVolume,
 } from "~/hooks/model/storage/config-model";
@@ -113,7 +115,7 @@ const DeleteVgOption = ({ vg }: { vg: ConfigModel.VolumeGroup }) => {
   );
 };
 
-const EditVgOption = ({ vg }: { vg: ConfigModel.VolumeGroup }) => {
+const EditVgOption = ({ index }: { index: number }) => {
   const navigate = useNavigate();
 
   return (
@@ -122,17 +124,18 @@ const EditVgOption = ({ vg }: { vg: ConfigModel.VolumeGroup }) => {
       itemId="edit-volume-group"
       description={_("Modify settings and physical volumes")}
       role="menuitem"
-      onClick={() => navigate(generateEncodedPath(PATHS.volumeGroup.edit, { id: vg.vgName }))}
+      onClick={() => navigate(generateEncodedPath(PATHS.volumeGroup.edit, { id: index }))}
     >
       {_("Edit volume group")}
     </MenuButton.Item>
   );
 };
 
-const LvRow = ({ lv, vg }) => {
+const LvRow = ({ index, lv }) => {
   const navigate = useNavigate();
+  const vg = useVolumeGroup(index);
   const editPath = generateEncodedPath(PATHS.volumeGroup.logicalVolume.edit, {
-    id: vg.vgName,
+    id: index,
     logicalVolumeId: lv.mountPath,
   });
   const deleteLogicalVolume = useDeleteLogicalVolume();
@@ -243,7 +246,9 @@ const VgMenuToggle = forwardRef(({ deviceConfig, device, ...props }: VgMenuToggl
   );
 });
 
-const NewVgMenu = ({ deviceConfig }: { deviceConfig: ConfigModel.VolumeGroup }) => {
+const NewVgMenu = ({ index }: { index: number }) => {
+  const deviceConfig = useVolumeGroup(index);
+
   return (
     <MenuButton
       menuProps={{
@@ -251,14 +256,15 @@ const NewVgMenu = ({ deviceConfig }: { deviceConfig: ConfigModel.VolumeGroup }) 
       }}
       customToggle={<VgMenuToggle deviceConfig={deviceConfig} />}
       items={[
-        <EditVgOption key="edit" vg={deviceConfig} />,
+        <EditVgOption key="edit" index={index} />,
         <DeleteVgOption key="delete" vg={deviceConfig} />,
       ]}
     />
   );
 };
 
-const ReusedVgMenu = ({ deviceConfig }: { deviceConfig: ConfigModel.VolumeGroup }) => {
+const ReusedVgMenu = ({ index }: { index: number }) => {
+  const deviceConfig = useVolumeGroup(index);
   const device = useDevice(deviceConfig.name);
 
   return (
@@ -270,13 +276,15 @@ const ReusedVgMenu = ({ deviceConfig }: { deviceConfig: ConfigModel.VolumeGroup 
   );
 };
 
-const VgMenu = ({ vg }: { vg: ConfigModel.VolumeGroup }) => {
-  return vg.name ? <ReusedVgMenu deviceConfig={vg} /> : <NewVgMenu deviceConfig={vg} />;
+const VgMenu = ({ index }: { index: number }) => {
+  const vg = useVolumeGroup(index);
+
+  return vg.name ? <ReusedVgMenu index={index} /> : <NewVgMenu index={index} />;
 };
 
-const AddLvButton = ({ vg }: { vg: ConfigModel.VolumeGroup }) => {
+const AddLvButton = ({ index }: { index: number }) => {
   const navigate = useNavigate();
-  const newLvPath = generateEncodedPath(PATHS.volumeGroup.logicalVolume.add, { id: vg.vgName });
+  const newLvPath = generateEncodedPath(PATHS.volumeGroup.logicalVolume.add, { id: index });
 
   return (
     <Button variant="plain" key="add-logical-volume" onClick={() => navigate(newLvPath)}>
@@ -288,10 +296,11 @@ const AddLvButton = ({ vg }: { vg: ConfigModel.VolumeGroup }) => {
   );
 };
 
-const LogicalVolumes = ({ vg }: { vg: ConfigModel.VolumeGroup }) => {
+const LogicalVolumes = ({ index }: { index: number }) => {
   const toggleId = useId();
   const contentId = useId();
   const { uiState, setUiState } = useStorageUiState();
+  const vg = useVolumeGroup(index);
   const uiIndex = `vg${vg.vgName}`;
   const isExpanded = isExpandedInState(uiState, uiIndex);
   const menuAriaLabel = sprintf(_("Logical volumes for %s"), vg.vgName);
@@ -308,7 +317,7 @@ const LogicalVolumes = ({ vg }: { vg: ConfigModel.VolumeGroup }) => {
   };
 
   if (isEmpty(vg.logicalVolumes)) {
-    return <AddLvButton vg={vg} />;
+    return <AddLvButton index={index} />;
   }
 
   const description = n_(
@@ -342,11 +351,11 @@ const LogicalVolumes = ({ vg }: { vg: ConfigModel.VolumeGroup }) => {
               {vg.logicalVolumes
                 .filter((l) => l.mountPath)
                 .map((lv) => {
-                  return <LvRow key={lv.mountPath} lv={lv} vg={vg} />;
+                  return <LvRow key={lv.mountPath} index={index} lv={lv} />;
                 })}
             </DataList>
             <Content component="p" style={{ marginBlockStart: "1rem" }}>
-              <AddLvButton vg={vg} />
+              <AddLvButton index={index} />
             </Content>
           </NestedContent>
         </NestedContent>
@@ -355,12 +364,13 @@ const LogicalVolumes = ({ vg }: { vg: ConfigModel.VolumeGroup }) => {
   );
 };
 
-export type VolumeGroupEditorProps = { vg: ConfigModel.VolumeGroup };
+export type VolumeGroupEditorProps = { index: number };
 
-export default function VolumeGroupEditor({ vg }: VolumeGroupEditorProps) {
+export default function VolumeGroupEditor({ index }: VolumeGroupEditorProps) {
   return (
-    <ConfigEditorItem header={<VgMenu vg={vg} />}>
-      <LogicalVolumes vg={vg} />
+    <ConfigEditorItem header={<VgMenu index={index} />}>
+      <LogicalVolumes index={index} />
+      <SpacePolicyMenu collection={"volumeGroups"} index={index} />
     </ConfigEditorItem>
   );
 }

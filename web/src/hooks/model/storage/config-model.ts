@@ -26,7 +26,13 @@ import { useSystem } from "~/hooks/model/system/storage";
 import { solveStorageModel, getStorageModel, putStorageModel } from "~/api";
 import configModel from "~/model/storage/config-model";
 import { findDeviceByName } from "~/model/system/storage";
-import type { ConfigModel, Data, Partitionable } from "~/model/storage/config-model";
+import type {
+  ConfigModel,
+  Data,
+  Partitionable,
+  Device,
+  DeviceCollection,
+} from "~/model/storage/config-model";
 
 const STORAGE_MODEL_KEY = "storageModel" as const;
 
@@ -83,6 +89,18 @@ type DisableBootConfigFn = () => void;
 function useDisableBoot(): DisableBootConfigFn {
   const config = useConfigModel();
   return () => putStorageModel(configModel.boot.disable(config));
+}
+
+function useDevice(collection: DeviceCollection, index: number): Device | null {
+  const { data } = useSuspenseQuery({
+    ...configModelQuery,
+    select: useCallback(
+      (data: ConfigModel.Config | null): Device | null =>
+        data ? configModel.findDevice(data, collection, index) : null,
+      [collection, index],
+    ),
+  });
+  return data;
 }
 
 function usePartitionable(
@@ -169,10 +187,16 @@ function useConvertPartitionableToVolumeGroup(): ConvertPartitionableToVolumeGro
   };
 }
 
-function useVolumeGroup(vgName: string): ConfigModel.VolumeGroup | null {
-  const config = useConfigModel();
-  const volumeGroup = config?.volumeGroups?.find((v) => v.vgName === vgName);
-  return volumeGroup || null;
+function useVolumeGroup(index: number): ConfigModel.VolumeGroup | null {
+  const { data } = useSuspenseQuery({
+    ...configModelQuery,
+    select: useCallback(
+      (data: ConfigModel.Config | null): ConfigModel.VolumeGroup | null =>
+        data ? configModel.volumeGroup.find(data, index) : null,
+      [index],
+    ),
+  });
+  return data;
 }
 
 type AddVolumeGroupFn = (data: Data.VolumeGroup, moveContent: boolean) => void;
@@ -298,15 +322,15 @@ function useSetFilesystem(): SetFilesystemFn {
 }
 
 type setSpacePolicyFn = (
-  collection: Partitionable.CollectionName,
+  collection: DeviceCollection,
   index: number,
   data: Data.SpacePolicy,
 ) => void;
 
 function useSetSpacePolicy(): setSpacePolicyFn {
   const model = useConfigModel();
-  return (collection: Partitionable.CollectionName, index: number, data: Data.SpacePolicy) => {
-    putStorageModel(configModel.partitionable.setSpacePolicy(model, collection, index, data));
+  return (collection: DeviceCollection, index: number, data: Data.SpacePolicy) => {
+    putStorageModel(configModel.device.setSpacePolicy(model, collection, index, data));
   };
 }
 
@@ -319,7 +343,7 @@ function useConvertDevice() {
     const targetDevice = findDeviceByName(system, targetDeviceName);
 
     if (device && targetDevice)
-      putStorageModel(configModel.convertDevice(model, device, targetDevice));
+      putStorageModel(configModel.device.convert(model, device, targetDevice));
   };
 }
 
@@ -331,6 +355,7 @@ export {
   useSetBootDevice,
   useSetDefaultBootDevice,
   useDisableBoot,
+  useDevice,
   usePartitionable,
   useDrive,
   useAddDrive,

@@ -48,7 +48,7 @@ const targetDevices = (
   availableDevices: Storage.Device[],
 ): Storage.Device[] => {
   return availableDevices.filter((availableDevice) => {
-    const availableDeviceConfig = configModel.findDevice(config, availableDevice.name);
+    const availableDeviceConfig = configModel.findDeviceByName(config, availableDevice.name);
 
     // Allow to select the available device if it is not configured yet.
     if (isNullish(availableDeviceConfig)) return true;

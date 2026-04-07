@@ -46,7 +46,7 @@ const targetDevices = (
   return availableDevices.filter((availableDevice) => {
     if (deviceConfig.name === availableDevice.name) return true;
 
-    const availableDeviceConfig = configModel.findDevice(config, availableDevice.name);
+    const availableDeviceConfig = configModel.findDeviceByName(config, availableDevice.name);
 
     if (deviceConfig.filesystem) {
       if (isVolumeGroup(availableDevice)) return false;

@@ -43,6 +43,10 @@ function usedMountPaths(volumeGroup: ConfigModel.VolumeGroup): string[] {
   return sift(mountPaths);
 }
 
+function find(config: ConfigModel.Config, index: number): ConfigModel.VolumeGroup | null {
+  return config.volumeGroups?.[index] ?? null;
+}
+
 function findIndex(config: ConfigModel.Config, vgName: string): number {
   return (config.volumeGroups || []).findIndex((v) => v.vgName === vgName);
 }
@@ -213,6 +217,13 @@ function convertToVolumeGroup(
   return config;
 }
 
+function isAddingLogicalVolumes(volumeGroup: ConfigModel.VolumeGroup): boolean {
+  return (
+    volumeGroup.logicalVolumes?.some((l) => l.mountPath && configModel.logicalVolume.isNew(l)) ||
+    false
+  );
+}
+
 function isReusingLogicalVolumes(volumeGroup: ConfigModel.VolumeGroup): boolean {
   return volumeGroup.logicalVolumes?.some(configModel.logicalVolume.isReused) || false;
 }
@@ -221,6 +232,7 @@ export default {
   generateName,
   create,
   usedMountPaths,
+  find,
   findIndex,
   filterTargetDevices,
   add,
@@ -230,5 +242,6 @@ export default {
   convertToDrive,
   convertToMdRaid,
   convertToVolumeGroup,
+  isAddingLogicalVolumes,
   isReusingLogicalVolumes,
 };

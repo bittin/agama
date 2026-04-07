@@ -223,7 +223,7 @@ export default function SpaceActionsTable({
 }: SpaceActionsTableProps) {
   const columns: TreeTableColumn[] = [
     {
-      name: _("proposal.Device"),
+      name: _("Device"),
       value: (item: Proposal.UnusedSlot | Proposal.Device) => <DeviceName item={item} />,
     },
     {

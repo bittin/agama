@@ -175,8 +175,8 @@ function useDefaultFilesystem(mountPoint: string): string {
 }
 
 function useInitialLogicalVolume(): ConfigModel.LogicalVolume | null {
-  const { id: vgName, logicalVolumeId: mountPath } = useParams();
-  const volumeGroup = useVolumeGroup(vgName);
+  const { id: index, logicalVolumeId: mountPath } = useParams();
+  const volumeGroup = useVolumeGroup(Number(index));
 
   if (!volumeGroup || !mountPath) return null;
 
