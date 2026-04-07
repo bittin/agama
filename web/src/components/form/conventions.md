@@ -30,8 +30,7 @@ just because the field has a default value.
 **Current example:** Name. It is always shown when creating a connection and
 required on submit. A default is auto-generated from the selected binding mode
 and device using a form-level `onChange` listener; the user may override it at
-any time. Once the user edits the field manually, auto-generation stops —
-`isDirty` is used rather than `isTouched` so that focusing and blurring without
+any time. Once the user edits the field manually, auto-generation stops: `isDirty` is used rather than `isTouched` so that focusing and blurring without
 changing the value does not disable the auto-generation.
 
 In edit mode the field is not rendered at all: the connection id cannot be
@@ -70,7 +69,10 @@ because omitting it would produce an incomplete connection profile.
 
 The field is not rendered until another field reaches a specific value. When it
 appears it can legitimately be left blank, so it carries the `(optional)`
-suffix.
+suffix. When context warrants more explanation, the suffix can be made more
+descriptive. For example, a gateway that would be silently dropped on
+submission without accompanying addresses might carry `(optional, ignored if no
+addresses provided)` instead.
 
 **Example:** IPv4 Gateway and IPv6 Gateway. They are not rendered when the
 corresponding mode is Automatic. When the mode is Manual or Advanced, they
@@ -113,11 +115,11 @@ entered data.
 
 **Example:** IPv4 Settings selector.
 
-- `Automatic` — address and gateway come from the network. No additional
+- `Automatic`: address and gateway come from the network. No additional
   fields rendered.
-- `Manual` — fixed addressing. Addresses (required, no suffix) and gateway
+- `Manual`: fixed addressing. Addresses (required, no suffix) and gateway
   (`(optional)`) are rendered. At least one address is required on submit.
-- `Advanced` — automatic addressing with optional static overrides. Addresses
+- `Advanced`: automatic addressing with optional static overrides. Addresses
   carry `(optional)` and gateway carries `(optional, ignored if no addresses
   provided)`, because a gateway without any addresses is meaningless and
   dropped on submission.
@@ -127,15 +129,21 @@ suggest that no IP configuration exists unless enabled.
 
 **Example:** Device binding mode selector.
 
-- `Any` — the connection is available on all devices. No additional fields.
-- `Chosen by name` — a device name selector appears (pattern 3).
-- `Chosen by MAC` — a MAC address selector appears (pattern 3).
+- `Any`: the connection is available on all devices. No additional fields.
+- `Chosen by name`: a device name selector appears (pattern 3).
+- `Chosen by MAC`: a MAC address selector appears (pattern 3).
 
 #### Payload behavior
 
-When a selector represents a default or automatic mode, additional fields
-related to other modes might not be included in the submitted payload. The
-frontend keeps their values only for user convenience when switching modes.
+The submitted payload only includes values that are meaningful for the current
+selections. Binding fields are excluded when the binding mode does not use
+them. IP addresses and gateway are excluded when the corresponding mode is
+Automatic, and a gateway is additionally excluded when no addresses are present,
+since a gateway without addresses has no effect. DNS fields are excluded when
+their respective checkboxes are unchecked.
+
+The form keeps all values in state regardless, so switching modes never loses
+what the user has already entered.
 
 ### 6. Revealed by a checkbox
 
@@ -190,6 +198,33 @@ See:
 
 ---
 
+## Validation
+
+Validation runs on submit only. The form does not interrupt the user while they
+are filling it in.
+
+Several rules depend on the combination of field values. For example, whether a
+gateway is valid depends on the current IP mode and on whether any addresses
+have been entered. Splitting those rules across individual fields would spread
+related logic apart and make the dependencies hard to follow. Instead, all
+validation is handled in a single `onSubmitAsync` validator on the form, which
+returns a map of field names to error messages. TanStack Form forwards each
+message to the corresponding field's error display.
+
+After a failed attempt the user may correct and resubmit. Because TanStack Form
+only clears errors set by `onSubmitAsync` when a per-field `onSubmit` validator
+also runs for the same field (which never happens here), `canSubmit` would stay
+`false` indefinitely after a failure. The form works around this by calling
+`setErrorMap` before each new attempt to reset the error state and restore
+`canSubmit`.
+
+Server errors follow the same path: a save failure returns `{ form: message }`,
+which TanStack Form exposes via `state.errorMap.onSubmit.form`. The form renders
+it as an inline alert at the top so the user knows what went wrong and can try
+again.
+
+---
+
 ## Combining patterns
 
 Patterns can and should be combined within the same form when different fields
@@ -225,4 +260,4 @@ Work through these questions in order:
 | Conditionally required            | On condition | No suffix                         | Yes                 |
 | Conditionally optional            | On condition | `(optional)`                      | No                  |
 | Choice selector                   | Always       | No suffix                         | Depends on choice   |
-| Checkbox opt-in                   | On checkbox  | No suffix                         | Yes, when shown     |
+| Checkbox opt-in                   | On checkbox  | No suffix                         | Yes, when rendered  |
