@@ -33,6 +33,7 @@ import {
   HelperTextItem,
   Button,
 } from "@patternfly/react-core";
+import Interpolate from "~/components/core/Interpolate";
 import { useFieldContext } from "~/hooks/form-contexts";
 import { _ } from "~/i18n";
 
@@ -616,12 +617,21 @@ export default function ArrayField({
                   {err}
                 </HelperTextItem>
               ))}
-              <HelperTextItem variant="error" screenReaderText="">
-                {_("Select entries to edit or remove them.")} {_("Or ")}{" "}
-                <Button variant="link" isInline onClick={clearInvalid}>
-                  {_("remove all invalid entries")}
-                </Button>
-                {"."}
+              <HelperTextItem variant="error">
+                <Interpolate
+                  // TRANSLATORS: helper text for when there are invalid
+                  // entries. Text inside square brackets [] becomes a button,
+                  // keep the brackets.
+                  template={_(
+                    "Select entries to edit or remove them. Or [remove all invalid entries.]",
+                  )}
+                >
+                  {(label) => (
+                    <Button variant="link" isInline onClick={clearInvalid}>
+                      {label}
+                    </Button>
+                  )}
+                </Interpolate>
               </HelperTextItem>
             </>
           )}
