@@ -308,6 +308,9 @@ module Agama
           manager.configure(config_json)
           manager.add_packages if manager.proposal.success?
 
+          # The return if the configuration has not changed has been removed from all the methods
+          # below in order to notify that the proposal has changed although it hasn't because the
+          # UI waits not only for the progress to be finished but also for a proposal change.
           update_serialized_config
           update_serialized_config_model
           update_serialized_proposal
@@ -324,7 +327,7 @@ module Agama
         # Updates the system info if needed.
         def update_serialized_system
           serialized_system = serialize_system
-          return if self.serialized_system == serialized_system
+          # return if self.serialized_system == serialized_system
 
           # This assignment emits a D-Bus PropertiesChanged.
           self.serialized_system = serialized_system
@@ -334,7 +337,7 @@ module Agama
         # Updates the config info if needed.
         def update_serialized_config
           serialized_config = serialize_config
-          return if self.serialized_config == serialized_config
+          # return if self.serialized_config == serialized_config
 
           # This assignment emits a D-Bus PropertiesChanged.
           self.serialized_config = serialized_config
@@ -343,7 +346,7 @@ module Agama
         # Updates the config model info if needed.
         def update_serialized_config_model
           serialized_config_model = serialize_config_model
-          return if self.serialized_config_model == serialized_config_model
+          # return if self.serialized_config_model == serialized_config_model
 
           # This assignment emits a D-Bus PropertiesChanged.
           self.serialized_config_model = serialized_config_model
@@ -352,7 +355,7 @@ module Agama
         # Updates the proposal info if needed.
         def update_serialized_proposal
           serialized_proposal = serialize_proposal
-          return if self.serialized_proposal == serialized_proposal
+          # return if self.serialized_proposal == serialized_proposal
 
           # This assignment emits a D-Bus PropertiesChanged.
           self.serialized_proposal = serialized_proposal
@@ -362,7 +365,7 @@ module Agama
         # Updates the issues info if needed.
         def update_serialized_issues
           serialized_issues = serialize_issues
-          return if self.serialized_issues == serialized_issues
+          # return if self.serialized_issues == serialized_issues
 
           # This assignment emits a D-Bus PropertiesChanged.
           self.serialized_issues = serialized_issues
