@@ -24,7 +24,7 @@ import React from "react";
 import { formOptions } from "@tanstack/react-form";
 import { useNavigate, useParams } from "react-router";
 import { isEmpty, shake } from "radashi";
-import { Alert, ActionGroup, Button, Flex, Form } from "@patternfly/react-core";
+import { Alert, ActionGroup, Flex, Form } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
 import NestedContent from "~/components/core/NestedContent";
 import ResourceNotFound from "~/components/core/ResourceNotFound";
@@ -477,16 +477,8 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
         </form.Subscribe>
 
         <ActionGroup>
-          <form.Subscribe selector={(s) => s.isSubmitting}>
-            {(isSubmitting) => (
-              <Button type="submit" isLoading={isSubmitting} isDisabled={isSubmitting}>
-                {_("Accept")}
-              </Button>
-            )}
-          </form.Subscribe>
-          <Button variant="link" onClick={() => navigate(-1)}>
-            {_("Cancel")}
-          </Button>
+          <form.SubmitButton />
+          <form.CancelButton />
         </ActionGroup>
       </Form>
     </form.AppForm>
