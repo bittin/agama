@@ -30,7 +30,8 @@ just because the field has a default value.
 **Current example:** Name. It is always shown when creating a connection and
 required on submit. A default is auto-generated from the selected binding mode
 and device using a form-level `onChange` listener; the user may override it at
-any time. Once the user edits the field manually, auto-generation stops: `isDirty` is used rather than `isTouched` so that focusing and blurring without
+any time. Once the user edits the field manually, auto-generation stops:
+`isDirty` is used rather than `isTouched` so that focusing and blurring without
 changing the value does not disable the auto-generation.
 
 In edit mode the field is not rendered at all: the connection id cannot be
@@ -49,8 +50,8 @@ suffix that describes what is currently expected. This is a special case and
 should be used sparingly: if you find yourself reaching for it often, the form
 likely needs restructuring.
 
-**Not yet an example in `ConnectionForm`.** A future candidate might be a
-field whose visibility is stable but whose requirement changes based on other
+**Not yet an example in `ConnectionForm`.** A future candidate might be a field
+whose visibility is stable but whose requirement changes based on other
 selections, and where omitting it would hurt discoverability.
 
 ### 3. Conditionally shown, required when shown
@@ -88,8 +89,8 @@ consequence of their choice.
 
 A selector allows the user to choose _how_ a feature should behave rather than
 whether a single value should be provided. Each option represents a complete
-configuration mode. Selecting an option may reveal additional fields that refine
-that choice.
+configuration mode. Selecting an option may reveal additional fields that
+refine that choice.
 
 Unlike pattern 6, this is not an opt-in toggle. The user must always select one
 option, and a sensible default should be preselected whenever possible.
@@ -115,14 +116,14 @@ entered data.
 
 **Example:** IPv4 Settings selector.
 
-- `Automatic`: address and gateway come from the network. No additional
-  fields rendered.
+- `Automatic`: address and gateway come from the network. No additional fields
+  rendered.
 - `Manual`: fixed addressing. Addresses (required, no suffix) and gateway
   (`(optional)`) are rendered. At least one address is required on submit.
 - `Advanced`: automatic addressing with optional static overrides. Addresses
   carry `(optional)` and gateway carries `(optional, ignored if no addresses
-  provided)`, because a gateway without any addresses is meaningless and
-  dropped on submission.
+provided)`, because a gateway without any addresses is meaningless and dropped
+  on submission.
 
 This avoids the confusion of a checkbox such as "Configure IPv4", which may
 suggest that no IP configuration exists unless enabled.
@@ -138,9 +139,9 @@ suggest that no IP configuration exists unless enabled.
 The submitted payload only includes values that are meaningful for the current
 selections. Binding fields are excluded when the binding mode does not use
 them. IP addresses and gateway are excluded when the corresponding mode is
-Automatic, and a gateway is additionally excluded when no addresses are present,
-since a gateway without addresses has no effect. DNS fields are excluded when
-their respective checkboxes are unchecked.
+Automatic, and a gateway is additionally excluded when no addresses are
+present, since a gateway without addresses has no effect. DNS fields are
+excluded when their respective checkboxes are unchecked.
 
 The form keeps all values in state regardless, so switching modes never loses
 what the user has already entered.
@@ -148,9 +149,9 @@ what the user has already entered.
 ### 6. Revealed by a checkbox
 
 A checkbox lets the user explicitly opt into providing a value. The field is
-not rendered until the checkbox is checked. Once checked, the field is required and
-validated on submit. No `(optional)` suffix: the user has signalled intent, so
-leaving it blank is a mistake worth reporting.
+not rendered until the checkbox is checked. Once checked, the field is required
+and validated on submit. No `(optional)` suffix: the user has signalled intent,
+so leaving it blank is a mistake worth reporting.
 
 The field value is preserved in form state when the checkbox is unchecked so
 re-checking restores what the user previously typed.
@@ -163,23 +164,23 @@ Use this pattern for advanced or rarely needed options that most users should
 never see. Do not use it when the field is likely to be needed by the majority
 of users: that just adds an unnecessary click.
 
-**Examples:** "Use custom DNS" checkbox reveals the DNS servers field.
-"Use custom DNS search domains" checkbox reveals the DNS search domains field.
+**Examples:** "Use custom DNS" checkbox reveals the DNS servers field. "Use
+custom DNS search domains" checkbox reveals the DNS search domains field.
 
 ## Accessibility notes
 
 ### Fields without a visible label
 
-Sometimes a field has no visible label because its purpose is clear from
-the surrounding context. Even then, every field needs an accessible name for
-screen readers, voice control software, and browser translation tools.
+Sometimes a field has no visible label because its purpose is clear from the
+surrounding context. Even then, every field needs an accessible name for screen
+readers, voice control software, and browser translation tools.
 
 Ideally, a real `<label>` element would be kept in the DOM with its text
-visually hidden. This is better than `aria-label` because it gets translated
-by browser tools, works with voice control software, and does not depend on
-ARIA support. However, PatternFly's `FormGroup` reserves visual space for the
-label area whenever a label is provided, even when its content is hidden,
-leaving an unwanted gap in the layout.
+visually hidden. This is better than `aria-label` because it gets translated by
+browser tools, works with voice control software, and does not depend on ARIA
+support. However, PatternFly's `FormGroup` reserves visual space for the label
+area whenever a label is provided, even when its content is hidden, leaving an
+unwanted gap in the layout.
 
 For this reason, `aria-label` is used as the fallback for fields without a
 visible label when rendered inside `FormGroup`.
@@ -219,9 +220,9 @@ also runs for the same field (which never happens here), `canSubmit` would stay
 `canSubmit`.
 
 Server errors follow the same path: a save failure returns `{ form: message }`,
-which TanStack Form exposes via `state.errorMap.onSubmit.form`. The form renders
-it as an inline alert at the top so the user knows what went wrong and can try
-again.
+which TanStack Form exposes via `state.errorMap.onSubmit.form`. The form
+renders it as an inline alert at the top so the user knows what went wrong and
+can try again.
 
 ---
 
@@ -243,11 +244,14 @@ alongside a group of rarely needed advanced options.
 Work through these questions in order:
 
 1. Is the field needed by most users and always relevant? Use pattern 1.
-2. Should the field always remain visible for clarity or discoverability? Use pattern 2.
+2. Should the field always remain visible for clarity or discoverability? Use
+   pattern 2.
 3. Does the field become required only after another choice? Use pattern 3.
 4. Does the field become optional only after another choice? Use pattern 4.
-5. Does the user need to choose between different configuration behaviors or modes? Use pattern 5.
-6. Is the field an advanced option that most users will never need? Use pattern 6.
+5. Does the user need to choose between different configuration behaviors or
+   modes? Use pattern 5.
+6. Is the field an advanced option that most users will never need? Use pattern
+7.
 
 ---
 
