@@ -53,6 +53,17 @@ function TestForm({ by }: { by: "iface" | "mac" }) {
 }
 
 describe("DeviceSelector", () => {
+  describe("when mounting with no device selected", () => {
+    it("pre-selects the first available device", async () => {
+      const { user } = installerRender(<TestForm by="iface" />);
+      await user.click(screen.getByLabelText("Device name"));
+      expect(screen.getByRole("option", { name: /^enp1s0/ })).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
+    });
+  });
+
   describe("when by is iface", () => {
     it("shows device names as options", async () => {
       const { user } = installerRender(<TestForm by="iface" />);
