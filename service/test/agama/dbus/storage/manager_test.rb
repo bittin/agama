@@ -232,7 +232,7 @@ describe Agama::DBus::Storage::Manager do
         let(:drive2) { instance_double(Y2Storage::Disk, name: "/dev/vdb", sid: 96) }
         let(:drive3) { instance_double(Y2Storage::Disk, name: "/dev/vdb", sid: 97) }
 
-        it "retuns the id of each drive" do
+        it "returns the id of each drive" do
           result = parse(subject.serialized_system)[:availableDrives]
           expect(result).to contain_exactly(95, 96, 97)
         end
@@ -254,7 +254,7 @@ describe Agama::DBus::Storage::Manager do
         let(:drive1) { instance_double(Y2Storage::Disk, name: "/dev/vda", sid: 95) }
         let(:drive2) { instance_double(Y2Storage::Disk, name: "/dev/vdb", sid: 96) }
 
-        it "retuns the id of each drive" do
+        it "returns the id of each drive" do
           result = parse(subject.serialized_system)[:candidateDrives]
           expect(result).to contain_exactly(95, 96)
         end
@@ -299,7 +299,7 @@ describe Agama::DBus::Storage::Manager do
         let(:md_raid1) { instance_double(Y2Storage::Md, name: "/dev/md0", sid: 100) }
         let(:md_raid2) { instance_double(Y2Storage::Md, name: "/dev/md1", sid: 101) }
 
-        it "retuns the path of each MD RAID" do
+        it "returns the path of each MD RAID" do
           result = parse(subject.serialized_system)[:candidateMdRaids]
           expect(result).to contain_exactly(100, 101)
         end
@@ -323,7 +323,7 @@ describe Agama::DBus::Storage::Manager do
 
         let(:drive) { instance_double(Y2Storage::Disk, name: "/dev/vda", sid: 95) }
 
-        it "retuns an empty array" do
+        it "returns an empty array" do
           result = parse(subject.serialized_system)[:issues]
           expect(result).to eq []
         end
@@ -1251,7 +1251,7 @@ describe Agama::DBus::Storage::Manager do
       end
     end
 
-    context "if an agama proposal has been succesfully calculated" do
+    context "if an agama proposal has been successfully calculated" do
       before do
         backend.configure(config_json)
       end
