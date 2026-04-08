@@ -81,16 +81,7 @@ impl ProgressMonitor {
                                 bar.set_position(progress.index as u64);
                                 bar.set_message(progress.step);
                             } else {
-                                let bar = ProgressBar::new(progress.size as u64);
-                                bar.set_style(
-                                    ProgressStyle::with_template(
-                                        "{bar:40.green} {pos:>7}/{len:7} {msg}",
-                                    )
-                                    .unwrap(),
-                                );
-                                bar.set_position(progress.index as u64);
-                                bar.set_message(progress.step);
-                                let bar = main_bar.add(bar);
+                                let bar = Self::create_progress_bar(main_bar, &progress);
                                 progress_monitor.progresses.insert(progress.scope, bar);
                             }
                         // there are not multi progress, so init it from scratch
@@ -150,13 +141,7 @@ impl ProgressMonitor {
             multibar.println(message)?;
 
             for progress in progresses {
-                let bar = ProgressBar::new(progress.size as u64);
-                bar.set_style(
-                    ProgressStyle::with_template("{bar:40.green} {pos:>7}/{len:7} {msg}").unwrap(),
-                );
-                bar.set_position(progress.index as u64);
-                bar.set_message(progress.step);
-                let bar = multibar.add(bar);
+                let bar = Self::create_progress_bar(&multibar, &progress);
                 self.progresses.insert(progress.scope, bar);
             }
             self.progress_bar = Some(multibar);
@@ -224,5 +209,19 @@ impl ProgressMonitor {
         // TODO: better formatting
         println!("{}", json!(issues).to_string());
         Ok(())
+    }
+
+    fn create_progress_bar(multibar: &MultiProgress, progress: &api::Progress) -> ProgressBar {
+        let bar = ProgressBar::new(progress.size as u64);
+        let template = if progress.scope == Scope::Manager {
+            format!("{} ({{pos:>2}}/{{len:2}}): {{wide_msg}}", gettext("Current step"))
+        } else {
+            "{wide_bar:40!.green} {pos:>5}/{len:5} {msg}".to_string()
+        };
+        // unwrap is safe as we created the style ( hope rust can do compile time check in future )
+        bar.set_style(ProgressStyle::with_template(&template).unwrap());
+        bar.set_position(progress.index as u64);
+        bar.set_message(progress.step.clone());
+        multibar.add(bar)
     }
 }
