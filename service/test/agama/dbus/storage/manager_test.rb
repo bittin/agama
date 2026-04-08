@@ -652,7 +652,7 @@ describe Agama::DBus::Storage::Manager do
 
             include_examples "do not activate or probe"
             include_examples "do not update product configuration"
-            include_examples "do not emit SystemChanged"
+            include_examples "emit SystemChanged"
             include_examples "calculate proposal"
           end
         end
@@ -722,15 +722,17 @@ describe Agama::DBus::Storage::Manager do
         {
           storage: {
             drives: [
-              ptableType: "gpt",
-              partitions: [
-                {
-                  filesystem: {
-                    type: "btrfs",
-                    path: "/"
+              {
+                ptableType: "gpt",
+                partitions: [
+                  {
+                    filesystem: {
+                      type: "btrfs",
+                      path: "/"
+                    }
                   }
-                }
-              ]
+                ]
+              }
             ]
           }
         }
@@ -825,7 +827,7 @@ describe Agama::DBus::Storage::Manager do
 
             include_examples "do not activate or probe"
             include_examples "do not update product configuration"
-            include_examples "do not emit SystemChanged"
+            include_examples "emit SystemChanged"
             include_examples "calculate new proposal"
           end
         end
@@ -1123,6 +1125,7 @@ describe Agama::DBus::Storage::Manager do
   describe "#probe" do
     before do
       allow(subject).to receive(:SystemChanged)
+      allow(subject).to receive(:ProposalChanged)
       allow(subject).to receive(:ProgressChanged)
       allow(subject).to receive(:ProgressFinished)
 
@@ -1158,31 +1161,32 @@ describe Agama::DBus::Storage::Manager do
     end
 
     context "when no storage configuration has been set" do
-      it "does not calculate a new proposal" do
-        expect(backend).to_not receive(:configure)
+      it "re-calculates the proposal" do
+        expect(backend).to receive(:configure).with(nil)
         subject.probe
       end
 
-      it "does not configure bootloader" do
-        expect(bootloader).to_not receive(:configure)
+      it "configures bootloader" do
+        expect(bootloader).to receive(:configure)
         subject.probe
       end
 
-      it "does not emit a ProposalChanged signal" do
-        expect(subject).to_not receive(:ProposalChanged)
+      it "adjusts the packages to install in the target system" do
+        allow(proposal).to receive(:success?).and_return(true)
+        expect(backend).to receive(:add_packages)
         subject.probe
       end
 
-      it "emits signals for SystemChanged, ProgressChanged and ProgressFinished" do
+      it "emits signals for ProposalChanged, SystemChanged, ProgressChanged and ProgressFinished" do
         expect(subject).to receive(:SystemChanged) do |system_str|
           system = parse(system_str)
           device = system[:devices].first
           expect(device[:name]).to eq "/dev/sda"
           expect(system[:availableDrives]).to eq [device[:sid]]
         end
+        expect(subject).to receive(:ProposalChanged)
         expect(subject).to receive(:ProgressChanged).with(/storage configuration/i)
         expect(subject).to receive(:ProgressFinished)
-
         subject.probe
       end
     end
