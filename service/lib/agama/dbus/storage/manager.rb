@@ -308,9 +308,21 @@ module Agama
           manager.configure(config_json)
           manager.add_packages if manager.proposal.success?
 
-          # The return if the configuration has not changed has been removed from all the methods
-          # below in order to notify that the proposal has changed although it hasn't because the
-          # UI waits not only for the progress to be finished but also for a proposal change.
+          # The "return if unchanged" guard has been removed from the methods below to always
+          # emit the corresponding signal.
+          #
+          # Since signals do not carry payloads yet, the UI cannot update the query cache
+          # directly and must refetch after receiving the signal. Without emitting the signal,
+          # the related queries are never invalidated and never refetched, leaving the progress
+          # overlay blocked indefinitely.
+          #
+          # The overlay intentionally waits until fresh data arrives before unblocking, since
+          # data can take time to appear after progress completes. Dismissing it
+          # earlier would cause flickering and leave users able to interact with stale data.
+          #
+          # It can be reverted (and UI progress adapted accordingly) when signals carry payloads
+          # that allow the UI to update the cache directly, removing the need to wait for a
+          # refetch as part of progress completion.
           update_serialized_config
           update_serialized_config_model
           update_serialized_proposal
