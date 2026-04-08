@@ -31,7 +31,36 @@
  * Field components import from here instead, keeping the dependency graph
  * acyclic.
  *
+ * ## Field component conventions
+ *
+ * All field components (TextField, CheckboxField, DropdownField, ArrayField)
+ * follow the same contract:
+ *
+ * - `onChange` is wired internally. No value or change handler props are
+ *   needed or accepted.
+ * - DOM events like `onBlur` and `onFocus` are intentionally not wired.
+ *   This project validates on submit only and does not currently rely on
+ *   blur or focus feedback. If a use case arises, the relevant component
+ *   can be updated and consumers can react via `form.AppField` listeners.
+ * - TanStack Form lifecycle events (`onMount`, `onUnmount`) are not DOM
+ *   events and never belong on field components. Use `form.AppField`
+ *   listeners for those.
+ * - Side effects and validators belong on `form.AppField`, not on the field
+ *   component itself:
+ *
+ * @example
+ * // Validator and listener on form.AppField, not on the field component.
+ * <form.AppField
+ *   name="gateway"
+ *   validators={{ onSubmit: ({ value }) => !value ? "Required" : undefined }}
+ *   listeners={{ onChange: ({ fieldApi }) => console.log(fieldApi.state.meta.isDirty) }}
+ * >
+ *   {(field) => <field.TextField label={_("Gateway")} />}
+ * </form.AppField>
+ *
  * @see https://tanstack.com/form/latest/docs/framework/react/guides/form-composition
+ * @see https://tanstack.com/form/latest/docs/framework/react/guides/validation
+ * @see https://tanstack.com/form/latest/docs/framework/react/guides/listeners
  */
 import { createFormHookContexts } from "@tanstack/react-form";
 

@@ -327,6 +327,8 @@ type MultiValueFieldProps = {
  * @todo Add clipboard copy support; today only paste is intercepted.
  * @todo Replace the component-local live region with a shared global one to
  *   avoid multiple `role="status"` elements on the same page.
+ *
+ * @see useFieldContext for field component conventions.
  */
 export default function ArrayField({
   label,

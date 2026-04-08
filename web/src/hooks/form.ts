@@ -22,8 +22,12 @@
 
 import { createFormHook } from "@tanstack/react-form";
 import { fieldContext, formContext, useFieldContext, useFormContext } from "~/hooks/form-contexts";
-import ChoiceField from "~/components/form/ChoiceField";
 import ArrayField from "~/components/form/ArrayField";
+import CancelButton from "~/components/form/CancelButton";
+import CheckboxField from "~/components/form/CheckboxField";
+import DropdownField from "~/components/form/DropdownField";
+import SubmitButton from "~/components/form/SubmitButton";
+import TextField from "~/components/form/TextField";
 
 /**
  * Application-wide TanStack Form hook.
@@ -34,10 +38,12 @@ const { useAppForm, withForm } = createFormHook({
   fieldContext,
   formContext,
   fieldComponents: {
-    ChoiceField,
     ArrayField,
+    CheckboxField,
+    DropdownField,
+    TextField,
   },
-  formComponents: {},
+  formComponents: { CancelButton, SubmitButton },
 });
 
 /**

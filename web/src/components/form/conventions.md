@@ -2,9 +2,7 @@
 
 This document captures the conventions for building forms across the
 application. It was written alongside the reimplementation of `ConnectionForm`,
-which serves as the running example throughout. That form is intentionally
-simple and still incomplete, which makes it a good starting point: the patterns
-emerge clearly without the noise of a fully featured form.
+which serves as the running example throughout.
 
 As more forms are reimplemented, this document should be updated with new
 examples and refined patterns.
@@ -29,12 +27,19 @@ but it cannot be blank on submit.
 Note: a pre-filled field is still required. Do not add an `(optional)` suffix
 just because the field has a default value.
 
-**Current example:** Name. It is always shown and required on submit. An
-auto-generated default derived from the selected device is not yet implemented.
+**Current example:** Name. It is always shown when creating a connection and
+required on submit. A default is auto-generated from the selected binding mode
+and device using a form-level `onChange` listener; the user may override it at
+any time. Once the user edits the field manually, auto-generation stops:
+`isDirty` is used rather than `isTouched` so that focusing and blurring without
+changing the value does not disable the auto-generation.
+
+In edit mode the field is not rendered at all: the connection id cannot be
+changed after creation, so offering it would be misleading.
 
 ### 2. Always shown, optional or context-dependent
 
-The field is always visible. Use this when hiding the field would hurt
+The field is always visible. Use this when omitting the field would hurt
 discoverability or when its label needs to reflect the current state of the
 form.
 
@@ -45,29 +50,32 @@ suffix that describes what is currently expected. This is a special case and
 should be used sparingly: if you find yourself reaching for it often, the form
 likely needs restructuring.
 
-**Not yet an example in `ConnectionForm`.** A future candidate might be a
-field whose visibility is stable but whose requirement changes based on other
-selections, and where hiding it would hurt discoverability.
+**Not yet an example in `ConnectionForm`.** A future candidate might be a field
+whose visibility is stable but whose requirement changes based on other
+selections, and where omitting it would hurt discoverability.
 
 ### 3. Conditionally shown, required when shown
 
-The field is hidden until another field reaches a specific value. When it
+The field is not rendered until another field reaches a specific value. When it
 appears, it is required. No suffix is needed: the user caused it to appear by
 their own action, so its purpose is self-evident.
 
-**Example:** Device name and MAC address selectors. They are hidden when the
-binding mode is "Any". When the user selects "Chosen by name" or "Chosen by
+**Example:** Device name and MAC address selectors. They are not rendered when
+the binding mode is "Any". When the user selects "Chosen by name" or "Chosen by
 MAC", the corresponding selector appears and must be filled in. Both selectors
 are pre-filled with the first available device, but the field is still required
 because omitting it would produce an incomplete connection profile.
 
 ### 4. Conditionally shown, optional when shown
 
-The field is hidden until another field reaches a specific value. When it
+The field is not rendered until another field reaches a specific value. When it
 appears it can legitimately be left blank, so it carries the `(optional)`
-suffix.
+suffix. When context warrants more explanation, the suffix can be made more
+descriptive. For example, a gateway that would be silently dropped on
+submission without accompanying addresses might carry `(optional, ignored if no
+addresses provided)` instead.
 
-**Example:** IPv4 Gateway and IPv6 Gateway. They are hidden when the
+**Example:** IPv4 Gateway and IPv6 Gateway. They are not rendered when the
 corresponding mode is Automatic. When the mode is Manual or Advanced, they
 appear, but a gateway is not strictly required by NetworkManager even then.
 
@@ -81,8 +89,8 @@ consequence of their choice.
 
 A selector allows the user to choose _how_ a feature should behave rather than
 whether a single value should be provided. Each option represents a complete
-configuration mode. Selecting an option may reveal additional fields that refine
-that choice.
+configuration mode. Selecting an option may reveal additional fields that
+refine that choice.
 
 Unlike pattern 6, this is not an opt-in toggle. The user must always select one
 option, and a sensible default should be preselected whenever possible.
@@ -91,7 +99,7 @@ Use this pattern when:
 
 - multiple mutually exclusive configurations exist,
 - the system already has a meaningful default behavior,
-- hiding configuration entirely would make the form misleading or ambiguous.
+- omitting configuration entirely would make the form misleading or ambiguous.
 
 The selector communicates that the feature is active regardless of whether the
 user customizes it.
@@ -108,35 +116,42 @@ entered data.
 
 **Example:** IPv4 Settings selector.
 
-- `Automatic` — address and gateway come from the network. No additional
-  fields shown.
-- `Manual` — fixed addressing. Addresses and gateway fields appear; the
-  gateway is optional, the addresses field has no suffix but required
-  validation is not yet enforced.
-- `Advanced` — automatic addressing, with optional addresses and gateway
-  added on top of what the network provides.
+- `Automatic`: address and gateway come from the network. No additional fields
+  rendered.
+- `Manual`: fixed addressing. Addresses (required, no suffix) and gateway
+  (`(optional)`) are rendered. At least one address is required on submit.
+- `Advanced`: automatic addressing with optional static overrides. Addresses
+  carry `(optional)` and gateway carries `(optional, ignored if no addresses
+provided)`, because a gateway without any addresses is meaningless and dropped
+  on submission.
 
 This avoids the confusion of a checkbox such as "Configure IPv4", which may
 suggest that no IP configuration exists unless enabled.
 
 **Example:** Device binding mode selector.
 
-- `Any` — the connection is available on all devices. No additional fields.
-- `Chosen by name` — a device name selector appears (pattern 3).
-- `Chosen by MAC` — a MAC address selector appears (pattern 3).
+- `Any`: the connection is available on all devices. No additional fields.
+- `Chosen by name`: a device name selector appears (pattern 3).
+- `Chosen by MAC`: a MAC address selector appears (pattern 3).
 
 #### Payload behavior
 
-When a selector represents a default or automatic mode, additional fields
-related to other modes might not be included in the submitted payload. The
-frontend keeps their values only for user convenience when switching modes.
+The submitted payload only includes values that are meaningful for the current
+selections. Binding fields are excluded when the binding mode does not use
+them. IP addresses and gateway are excluded when the corresponding mode is
+Automatic, and a gateway is additionally excluded when no addresses are
+present, since a gateway without addresses has no effect. DNS fields are
+excluded when their respective checkboxes are unchecked.
 
-### 6. Hidden behind a checkbox
+The form keeps all values in state regardless, so switching modes never loses
+what the user has already entered.
+
+### 6. Revealed by a checkbox
 
 A checkbox lets the user explicitly opt into providing a value. The field is
-hidden until the checkbox is checked. Once checked, the field is required and
-validated on submit. No `(optional)` suffix: the user has signalled intent, so
-leaving it blank is a mistake worth reporting.
+not rendered until the checkbox is checked. Once checked, the field is required
+and validated on submit. No `(optional)` suffix: the user has signalled intent,
+so leaving it blank is a mistake worth reporting.
 
 The field value is preserved in form state when the checkbox is unchecked so
 re-checking restores what the user previously typed.
@@ -149,29 +164,29 @@ Use this pattern for advanced or rarely needed options that most users should
 never see. Do not use it when the field is likely to be needed by the majority
 of users: that just adds an unnecessary click.
 
-**Examples:** "Use custom DNS" checkbox reveals the DNS servers field.
-"Use custom DNS search domains" checkbox reveals the DNS search domains field.
+**Examples:** "Use custom DNS" checkbox reveals the DNS servers field. "Use
+custom DNS search domains" checkbox reveals the DNS search domains field.
 
 ## Accessibility notes
 
 ### Fields without a visible label
 
-Sometimes a field has no visible label because its purpose is clear from
-the surrounding context. Even then, every field needs an accessible name for
-screen readers, voice control software, and browser translation tools.
+Sometimes a field has no visible label because its purpose is clear from the
+surrounding context. Even then, every field needs an accessible name for screen
+readers, voice control software, and browser translation tools.
 
 Ideally, a real `<label>` element would be kept in the DOM with its text
-visually hidden. This is better than `aria-label` because it gets translated
-by browser tools, works with voice control software, and does not depend on
-ARIA support. However, PatternFly's `FormGroup` reserves visual space for the
-label area whenever a label is provided, even when its content is hidden,
-leaving an unwanted gap in the layout.
+visually hidden. This is better than `aria-label` because it gets translated by
+browser tools, works with voice control software, and does not depend on ARIA
+support. However, PatternFly's `FormGroup` reserves visual space for the label
+area whenever a label is provided, even when its content is hidden, leaving an
+unwanted gap in the layout.
 
 For this reason, `aria-label` is used as the fallback for fields without a
 visible label when rendered inside `FormGroup`.
 
 When a component accepts a `label` prop directly and does not reserve visual
-space for it (e.g. `ChoiceField`), pass `<Text srOnly>{label}</Text>` as the
+space for it (e.g. `DropdownField`), pass `<Text srOnly>{label}</Text>` as the
 label value instead. This preserves translation support and avoids the layout
 side effect.
 
@@ -181,6 +196,33 @@ See:
 - <https://adrianroselli.com/2020/01/my-priority-of-methods-for-labeling-a-control.html>
 - <https://adrianroselli.com/2019/11/aria-label-does-not-translate.html>
 - <https://vispero.com/resources/should-form-labels-be-wrapped-or-separate/>
+
+---
+
+## Validation
+
+Validation runs on submit only. The form does not interrupt the user while they
+are filling it in.
+
+Several rules depend on the combination of field values. For example, whether a
+gateway is valid depends on the current IP mode and on whether any addresses
+have been entered. Splitting those rules across individual fields would spread
+related logic apart and make the dependencies hard to follow. Instead, all
+validation is handled in a single `onSubmitAsync` validator on the form, which
+returns a map of field names to error messages. TanStack Form forwards each
+message to the corresponding field's error display.
+
+After a failed attempt the user may correct and resubmit. Because TanStack Form
+only clears errors set by `onSubmitAsync` when a per-field `onSubmit` validator
+also runs for the same field (which never happens here), `canSubmit` would stay
+`false` indefinitely after a failure. The form works around this by calling
+`setErrorMap` before each new attempt to reset the error state and restore
+`canSubmit`.
+
+Server errors follow the same path: a save failure returns `{ form: message }`,
+which TanStack Form exposes via `state.errorMap.onSubmit.form`. The form
+renders it as an inline alert at the top so the user knows what went wrong and
+can try again.
 
 ---
 
@@ -202,11 +244,14 @@ alongside a group of rarely needed advanced options.
 Work through these questions in order:
 
 1. Is the field needed by most users and always relevant? Use pattern 1.
-2. Should the field always remain visible for clarity or discoverability? Use pattern 2.
+2. Should the field always remain visible for clarity or discoverability? Use
+   pattern 2.
 3. Does the field become required only after another choice? Use pattern 3.
 4. Does the field become optional only after another choice? Use pattern 4.
-5. Does the user need to choose between different configuration behaviors or modes? Use pattern 5.
-6. Is the field an advanced option that most users will never need? Use pattern 6.
+5. Does the user need to choose between different configuration behaviors or
+   modes? Use pattern 5.
+6. Is the field an advanced option that most users will never need? Use pattern
+7.
 
 ---
 
@@ -219,4 +264,4 @@ Work through these questions in order:
 | Conditionally required            | On condition | No suffix                         | Yes                 |
 | Conditionally optional            | On condition | `(optional)`                      | No                  |
 | Choice selector                   | Always       | No suffix                         | Depends on choice   |
-| Checkbox opt-in                   | On checkbox  | No suffix                         | Yes, when shown     |
+| Checkbox opt-in                   | On checkbox  | No suffix                         | Yes, when rendered  |

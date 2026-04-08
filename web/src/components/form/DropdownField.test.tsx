@@ -36,15 +36,15 @@ function TestForm({ defaultValue = "default" }: { defaultValue?: string }) {
   return (
     <form.AppField name="mode">
       {(field) => (
-        <field.ChoiceField label="IPv4 Settings" options={OPTIONS}>
+        <field.DropdownField label="IPv4 Settings" options={OPTIONS}>
           {(value) => value === "custom" && <div>Custom content</div>}
-        </field.ChoiceField>
+        </field.DropdownField>
       )}
     </form.AppField>
   );
 }
 
-describe("ChoiceField", () => {
+describe("DropdownField", () => {
   it("renders the label", () => {
     installerRender(<TestForm />);
     screen.getByText("IPv4 Settings");

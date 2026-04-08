@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2022-2024] SUSE LLC
+ * Copyright (c) [2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -20,5 +20,25 @@
  * find current contact information at www.suse.com.
  */
 
-export { default as NetworkPage } from "./NetworkPage";
-export { default as WiredConnectionPage } from "./WiredConnectionPage";
+import React from "react";
+import { screen } from "@testing-library/react";
+import { installerRender, mockNavigateFn } from "~/test-utils";
+import CancelButton from "~/components/form/CancelButton";
+
+jest.mock("react-router", () => ({
+  ...jest.requireActual("react-router"),
+  useNavigate: () => mockNavigateFn,
+}));
+
+describe("CancelButton", () => {
+  it("renders a Cancel button", () => {
+    installerRender(<CancelButton />);
+    screen.getByRole("button", { name: "Cancel" });
+  });
+
+  it("navigates back when clicked", async () => {
+    const { user } = installerRender(<CancelButton />);
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(mockNavigateFn).toHaveBeenCalledWith(-1);
+  });
+});

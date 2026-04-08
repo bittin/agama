@@ -20,23 +20,11 @@
  * find current contact information at www.suse.com.
  */
 
-import React, { useEffect } from "react";
+import React from "react";
 import { formOptions } from "@tanstack/react-form";
 import { useNavigate, useParams } from "react-router";
 import { isEmpty, shake } from "radashi";
-import {
-  Alert,
-  ActionGroup,
-  Button,
-  Checkbox,
-  Flex,
-  Form,
-  FormGroup,
-  FormHelperText,
-  HelperText,
-  HelperTextItem,
-  TextInput,
-} from "@patternfly/react-core";
+import { Alert, ActionGroup, Flex, Form } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
 import NestedContent from "~/components/core/NestedContent";
 import ResourceNotFound from "~/components/core/ResourceNotFound";
@@ -49,9 +37,7 @@ import {
   ConnectionMethod,
   ConnectionType,
 } from "~/types/network";
-import { useStore } from "@tanstack/react-form";
 import { useConnectionMutation, useConfig } from "~/hooks/model/config/network";
-import { useConnectionName } from "~/hooks/use-connection-name";
 import { useAppForm, mergeFormDefaults } from "~/hooks/form";
 import { useSystem, useDevices } from "~/hooks/model/system/network";
 import { extendCollection } from "~/utils";
@@ -60,6 +46,7 @@ import {
   buildAddress,
   connectionBindingMode,
   formatIp,
+  generateConnectionName,
   isValidIPv4,
   isValidIPv6,
   isValidIPv4Address,
@@ -153,19 +140,48 @@ function connectionToFormValues(connection: Connection): Partial<FormValues> {
 }
 
 /**
- * Returns an error when the given list is active and empty or has invalid entries.
+ * Returns an error when the given list is active and has invalid or missing entries.
  * Returns undefined when inactive or when all entries are valid.
+ *
+ * @param active - Whether the list should be validated at all.
+ * @param emptyMsg - Error to return when the list is empty. Omit for optional
+ *   lists where entries are not required but must be valid when provided.
  */
 function validateActiveList(
   active: boolean,
   values: string[],
   isValid: (v: string) => boolean,
-  emptyMsg: string,
+  emptyMsg: string | undefined,
   invalidMsg: string,
 ): string | undefined {
   if (!active) return undefined;
-  if (values.length === 0) return emptyMsg;
+  if (emptyMsg !== undefined && values.length === 0) return emptyMsg;
   if (values.some((v) => !isValid(v))) return invalidMsg;
+}
+
+/**
+ * Returns an error for an IP addresses list based on the current IP mode.
+ *
+ * - `manual`: addresses are required and must be valid.
+ * - `auto`: addresses are optional but must be valid when provided.
+ * - `unset`: no validation.
+ */
+function validateIpAddresses(
+  mode: string,
+  addresses: string[],
+  isValid: (v: string) => boolean,
+  emptyMsg: string,
+  invalidMsg: string,
+): string | undefined {
+  const required = mode === "manual";
+  const active = required || (mode === "auto" && addresses.length > 0);
+  return validateActiveList(
+    active,
+    addresses,
+    isValid,
+    required ? emptyMsg : undefined,
+    invalidMsg,
+  );
 }
 
 /**
@@ -209,15 +225,15 @@ function validateConnectionForm(formValues: FormValues): FormFieldErrors | undef
 
   const fieldErrors = shake({
     name: !formValues.name.trim() ? _("Name is required") : undefined,
-    addresses4: validateActiveList(
-      formValues.ipv4Mode === "manual",
+    addresses4: validateIpAddresses(
+      formValues.ipv4Mode,
       formValues.addresses4,
       isValidIPv4Address,
       _("At least one IPv4 address is required"),
       _("Some IPv4 addresses are invalid"),
     ),
-    addresses6: validateActiveList(
-      formValues.ipv6Mode === "manual",
+    addresses6: validateIpAddresses(
+      formValues.ipv6Mode,
       formValues.addresses6,
       isValidIPv6Address,
       _("At least one IPv6 address is required"),
@@ -304,7 +320,29 @@ type ConnectionFormContentProps = {
 function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormContentProps) {
   const navigate = useNavigate();
   const devices = useDevices();
+  const { connections: systemConns } = useSystem();
   const { mutateAsync: updateConnection } = useConnectionMutation();
+
+  // Generates and writes the auto-computed name when the binding changes, as
+  // long as the user has not manually edited it. `isDirty` is used instead of
+  // `isTouched` because a user could focus and blur the field without changing
+  // it, which would set `isTouched` but not `isDirty`. `dontRunListeners`
+  // prevents the name update from re-triggering this listener.
+  //
+  // @see https://tanstack.com/form/latest/docs/framework/react/guides/listeners#form-listeners
+  const syncName = ({ formApi }) => {
+    if (formApi.getFieldMeta("name")?.isDirty) return;
+    const { bindingMode, iface, ifaceMac } = formApi.state.values;
+    const existingIds = new Set(systemConns.map((c) => c.id));
+    formApi.setFieldValue(
+      "name",
+      generateConnectionName(ConnectionType.ETHERNET, bindingMode, iface, ifaceMac, existingIds),
+      { dontUpdateMeta: true, dontRunListeners: true },
+    );
+  };
+
+  const syncNameListeners = { onMount: syncName, onChange: syncName };
+
   const form = useAppForm({
     ...mergeFormDefaults(connectionFormOptions, {
       iface: devices[0]?.name ?? "",
@@ -324,31 +362,8 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
       },
     },
     onSubmit: () => navigate(-1),
+    listeners: isEditing ? undefined : syncNameListeners,
   });
-
-  // Track whether the user has manually edited the name. `isDirty` is used
-  // instead of `isTouched` because a user could focus and blur the field
-  // without changing it, which would set `isTouched` but not `isDirty`.
-  const { bindingMode, iface, ifaceMac, nameDirty } = useStore(form.store, (s) => ({
-    bindingMode: s.values.bindingMode,
-    iface: s.values.iface,
-    ifaceMac: s.values.ifaceMac,
-    nameDirty: s.fieldMeta["name"]?.isDirty ?? false,
-  }));
-
-  const generatedName = useConnectionName(ConnectionType.ETHERNET, {
-    mode: bindingMode,
-    iface,
-    mac: ifaceMac,
-  });
-
-  // Keep the name in sync with the auto-generated value as long as the user
-  // has not manually edited it. `dontUpdateMeta` prevents `setFieldValue`
-  // from marking the field as dirty/touched, which would stop future updates.
-  useEffect(() => {
-    if (!isEditing && !nameDirty)
-      form.setFieldValue("name", generatedName, { dontUpdateMeta: true });
-  }, [form, isEditing, generatedName, nameDirty]);
 
   return (
     <form.AppForm>
@@ -383,114 +398,87 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
         <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
           <BindingModeSelector form={form} />
 
-          {bindingMode === "iface" && (
-            <DeviceSelector
-              form={form}
-              by="iface"
-              sync={{ field: "ifaceMac", with: (d) => d.macAddress }}
-            />
-          )}
-          {bindingMode === "mac" && (
-            <DeviceSelector form={form} by="mac" sync={{ field: "iface", with: (d) => d.name }} />
-          )}
+          <form.Subscribe selector={(s) => s.values.bindingMode}>
+            {(bindingMode) => (
+              <>
+                {bindingMode === "iface" && (
+                  <DeviceSelector
+                    form={form}
+                    by="iface"
+                    sync={{ field: "ifaceMac", with: (d) => d.macAddress }}
+                  />
+                )}
+                {bindingMode === "mac" && (
+                  <DeviceSelector
+                    form={form}
+                    by="mac"
+                    sync={{ field: "iface", with: (d) => d.name }}
+                  />
+                )}
+              </>
+            )}
+          </form.Subscribe>
         </Flex>
 
         {!isEditing && (
-          <form.Field name="name">
-            {(field) => {
-              const error = field.state.meta.errors[0] as string | undefined;
-              return (
-                <FormGroup fieldId={field.name} label={_("Name")}>
-                  <TextInput
-                    id={field.name}
-                    value={field.state.value}
-                    validated={error ? "error" : "default"}
-                    onChange={(_, v) => field.handleChange(v)}
-                  />
-                  {error && (
-                    <FormHelperText>
-                      <HelperText>
-                        <HelperTextItem variant="error">{error}</HelperTextItem>
-                      </HelperText>
-                    </FormHelperText>
-                  )}
-                </FormGroup>
-              );
-            }}
-          </form.Field>
+          <form.AppField name="name">
+            {(field) => <field.TextField label={_("Name")} />}
+          </form.AppField>
         )}
 
         <IpSettings form={form} protocol="ipv4" />
 
         <IpSettings form={form} protocol="ipv6" />
 
-        <form.Field name="customDns">
-          {(dnsToggle) => (
-            <>
-              <Checkbox
-                id={dnsToggle.name}
-                label={_("Use custom DNS")}
-                isChecked={dnsToggle.state.value}
-                onChange={(_, checked) => dnsToggle.handleChange(checked)}
-              />
-              {dnsToggle.state.value && (
-                <NestedContent margin="mxLg">
-                  <form.AppField name="nameservers">
-                    {(field) => (
-                      <field.ArrayField
-                        label={_("DNS servers")}
-                        skipDuplicates
-                        validateOnSubmit={(v) =>
-                          isValidNameserver(v) ? undefined : _("Invalid DNS server address")
-                        }
-                      />
-                    )}
-                  </form.AppField>
-                </NestedContent>
-              )}
-            </>
-          )}
-        </form.Field>
+        <form.AppField name="customDns">
+          {(field) => <field.CheckboxField label={_("Use custom DNS")} />}
+        </form.AppField>
+        <form.Subscribe selector={(s) => s.values.customDns}>
+          {(customDns) =>
+            customDns && (
+              <NestedContent margin="mxLg">
+                <form.AppField name="nameservers">
+                  {(field) => (
+                    <field.ArrayField
+                      label={_("DNS servers")}
+                      skipDuplicates
+                      validateOnSubmit={(v) =>
+                        isValidNameserver(v) ? undefined : _("Invalid DNS server address")
+                      }
+                    />
+                  )}
+                </form.AppField>
+              </NestedContent>
+            )
+          }
+        </form.Subscribe>
 
-        <form.Field name="customDnsSearch">
-          {(dnsSearchToggle) => (
-            <>
-              <Checkbox
-                id={dnsSearchToggle.name}
-                label={_("Use custom DNS search domains")}
-                isChecked={dnsSearchToggle.state.value}
-                onChange={(_, checked) => dnsSearchToggle.handleChange(checked)}
-              />
-              {dnsSearchToggle.state.value && (
-                <NestedContent margin="mxLg">
-                  <form.AppField name="dnsSearchList">
-                    {(field) => (
-                      <field.ArrayField
-                        label={_("DNS search domains")}
-                        skipDuplicates
-                        validateOnSubmit={(v) =>
-                          isValidDNSSearchDomain(v) ? undefined : _("Invalid DNS search domain")
-                        }
-                      />
-                    )}
-                  </form.AppField>
-                </NestedContent>
-              )}
-            </>
-          )}
-        </form.Field>
+        <form.AppField name="customDnsSearch">
+          {(field) => <field.CheckboxField label={_("Use custom DNS search domains")} />}
+        </form.AppField>
+        <form.Subscribe selector={(s) => s.values.customDnsSearch}>
+          {(customDnsSearch) =>
+            customDnsSearch && (
+              <NestedContent margin="mxLg">
+                <form.AppField name="dnsSearchList">
+                  {(field) => (
+                    <field.ArrayField
+                      label={_("DNS search domains")}
+                      skipDuplicates
+                      validateOnSubmit={(v) =>
+                        isValidDNSSearchDomain(v) ? undefined : _("Invalid DNS search domain")
+                      }
+                    />
+                  )}
+                </form.AppField>
+              </NestedContent>
+            )
+          }
+        </form.Subscribe>
 
         <ActionGroup>
-          <form.Subscribe selector={(s) => s.isSubmitting}>
-            {(isSubmitting) => (
-              <Button type="submit" isLoading={isSubmitting} isDisabled={isSubmitting}>
-                {_("Accept")}
-              </Button>
-            )}
-          </form.Subscribe>
-          <Button variant="link" onClick={() => navigate(-1)}>
-            {_("Cancel")}
-          </Button>
+          <form.SubmitButton />
+          <form.CancelButton />
         </ActionGroup>
       </Form>
     </form.AppForm>

@@ -31,18 +31,18 @@ import {
 } from "@patternfly/react-core";
 import { useFieldContext } from "~/hooks/form-contexts";
 
-export type ChoiceOption<T> = {
+export type DropdownOption<T> = {
   value: T;
   label: React.ReactNode;
   description?: React.ReactNode;
   isDisabled?: boolean;
 };
 
-type ChoiceFieldProps<T> = {
+type DropdownFieldProps<T> = {
   /** The field label. */
   label: React.ReactNode;
   /** The available options. */
-  options: ChoiceOption<T>[];
+  options: DropdownOption<T>[];
   /** Optional helper text shown below the select. */
   helperText?: React.ReactNode;
   isDisabled?: boolean;
@@ -55,27 +55,52 @@ type ChoiceFieldProps<T> = {
 
 /**
  * A form field that renders a select tied to a TanStack Form field via
- * `useFieldContext`. Must be used inside a `form.Field` render prop.
+ * `useFieldContext`. Must be used inside a `form.AppField` render prop.
  *
  * Supports a render prop `children` for dependent content that should appear
  * or change based on the selected value.
  *
+ * ## Implementation note: PatternFly menu, not a native select
+ *
+ * Despite looking similar to a native `<select>`, this component uses
+ * PatternFly's `Select` (a menu-based combobox following the W3C APG
+ * Select-Only Combobox pattern). The two follow different ARIA patterns and
+ * behave differently with the keyboard:
+ *
+ * - Native `<select>`: arrow keys change the value immediately.
+ * - PatternFly `Select`: requires a two-step interaction — open the menu
+ *   first (Enter, Space, or click), then navigate with arrow keys, then
+ *   confirm with Enter. Values are not committed until confirmed.
+ *
+ * The two-step flow is intentional: on a native select, a screen reader user
+ * landing on the wrong option has already changed the form value before they
+ * could hear what it said. The W3C pattern separates navigation from
+ * selection to protect them.
+ *
+ * The W3C pattern does allow a middle ground — pressing ↓/↑ on a closed
+ * toggle should open the menu and focus the first or last item without
+ * committing a value. This component does not yet implement that behavior.
+ *
+ * TODO: implement arrow-key-opens-menu via a `useSelectKeyboard` hook.
+ *
+ * @see useFieldContext for field component conventions.
+ *
  * @example
  * <form.AppField name="ipv4Mode">
  *   {(field) => (
- *     <field.ChoiceField label={_("IPv4 Settings")} options={IPV4_MODE_OPTIONS}>
+ *     <field.DropdownField label={_("IPv4 Settings")} options={IPV4_MODE_OPTIONS}>
  *       {(value) => value !== "unset" && <IpAddressFields />}
- *     </field.ChoiceField>
+ *     </field.DropdownField>
  *   )}
  * </form.AppField>
  */
-export default function ChoiceField<T extends string>({
+export default function DropdownField<T extends string>({
   label,
   options,
   helperText,
   isDisabled = false,
   children,
-}: ChoiceFieldProps<T>) {
+}: DropdownFieldProps<T>) {
   const field = useFieldContext<T>();
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
