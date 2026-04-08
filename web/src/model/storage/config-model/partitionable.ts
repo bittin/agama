@@ -41,6 +41,10 @@ function all(config: ConfigModel.Config): Device[] {
   return [...drives, ...mdRaids];
 }
 
+function findByName(config: ConfigModel.Config, deviceName: string): Device | null {
+  return all(config).find((d) => d.name === deviceName) || null;
+}
+
 function find(
   config: ConfigModel.Config,
   collection: CollectionName,
@@ -278,6 +282,7 @@ export default {
   isCollectionName,
   all,
   find,
+  findByName,
   findIndex,
   findLocation,
   findPartition,
