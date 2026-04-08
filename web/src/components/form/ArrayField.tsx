@@ -648,13 +648,13 @@ export default function ArrayField({
                   // TRANSLATORS: helper text for when there are invalid
                   // entries. Text inside square brackets [] becomes a button,
                   // keep the brackets.
-                  template={_(
+                  sentence={_(
                     "Select entries to edit or remove them. Or [remove all invalid entries.]",
                   )}
                 >
-                  {(label) => (
+                  {(text) => (
                     <Button variant="link" isInline onClick={clearInvalid}>
-                      {label}
+                      {text}
                     </Button>
                   )}
                 </Interpolate>

@@ -25,88 +25,28 @@ import { plainRender } from "~/test-utils";
 import Interpolate from "./Interpolate";
 
 describe("Interpolate", () => {
-  describe("with a [label] placeholder", () => {
-    it("renders the surrounding text", () => {
+  describe("with a printf placeholder", () => {
+    it("renders surrounding text for %s", () => {
       const { container } = plainRender(
-        <Interpolate template="Go to [settings] page">
-          {(label) => <strong>{label}</strong>}
-        </Interpolate>,
+        <Interpolate sentence="Go to %s page">{() => <strong>settings</strong>}</Interpolate>,
       );
       expect(container.textContent).toBe("Go to settings page");
     });
 
-    it("passes the extracted label to children", () => {
+    it("renders surrounding text for %d", () => {
       const { container } = plainRender(
-        <Interpolate template="Go to [settings] page">
-          {(label) => <strong>{label}</strong>}
-        </Interpolate>,
+        <Interpolate sentence="There are %d issues">{() => <strong>3</strong>}</Interpolate>,
       );
-      expect(container.querySelector("strong")).toHaveTextContent("settings");
-    });
-
-    it("works when the placeholder is at the start", () => {
-      const { container } = plainRender(
-        <Interpolate template="[Start] of the sentence">
-          {(label) => <strong>{label}</strong>}
-        </Interpolate>,
-      );
-      expect(container.textContent).toBe("Start of the sentence");
-      expect(container.querySelector("strong")).toHaveTextContent("Start");
-    });
-
-    it("works when the placeholder is at the end", () => {
-      const { container } = plainRender(
-        <Interpolate template="End of the [sentence]">
-          {(label) => <strong>{label}</strong>}
-        </Interpolate>,
-      );
-      expect(container.textContent).toBe("End of the sentence");
-      expect(container.querySelector("strong")).toHaveTextContent("sentence");
-    });
-
-    it("works when the whole template is the placeholder", () => {
-      const { container } = plainRender(
-        <Interpolate template="[only]">{(label) => <strong>{label}</strong>}</Interpolate>,
-      );
-      expect(container.textContent).toBe("only");
-      expect(container.querySelector("strong")).toHaveTextContent("only");
-    });
-
-    it("passes an empty string to children when the brackets are empty", () => {
-      const { container } = plainRender(
-        <Interpolate template="Click [] to continue">
-          {(label) => <strong aria-label="injected">{label}</strong>}
-        </Interpolate>,
-      );
-      expect(container.querySelector("strong")).toBeEmptyDOMElement();
-    });
-
-    it("throws when multiple placeholders are present", () => {
-      expect(() =>
-        plainRender(
-          <Interpolate template="[first] and [second]">
-            {(label) => <strong>{label}</strong>}
-          </Interpolate>,
-        ),
-      ).toThrow("Interpolate: only one [label] placeholder is supported.");
-    });
-  });
-
-  describe("with a %s placeholder", () => {
-    it("renders the surrounding text", () => {
-      const { container } = plainRender(
-        <Interpolate template="Go to %s page">{() => <strong>settings</strong>}</Interpolate>,
-      );
-      expect(container.textContent).toBe("Go to settings page");
+      expect(container.textContent).toBe("There are 3 issues");
     });
 
     it("calls children with an empty string", () => {
       const received: string[] = [];
       plainRender(
-        <Interpolate template="Go to %s page">
-          {(label) => {
-            received.push(label);
-            return <strong>{label}</strong>;
+        <Interpolate sentence="Go to %s page">
+          {(text) => {
+            received.push(text);
+            return <strong>{text}</strong>;
           }}
         </Interpolate>,
       );
@@ -115,22 +55,21 @@ describe("Interpolate", () => {
 
     it("works when the placeholder is at the start", () => {
       const { container } = plainRender(
-        <Interpolate template="%s is at the start">{() => <strong>This</strong>}</Interpolate>,
+        <Interpolate sentence="%s is at the start">{() => <strong>This</strong>}</Interpolate>,
       );
       expect(container.textContent).toBe("This is at the start");
-      expect(container.querySelector("strong")).toHaveTextContent("This");
     });
 
     it("works when the placeholder is at the end", () => {
       const { container } = plainRender(
-        <Interpolate template="At the end: %s">{() => <strong>here</strong>}</Interpolate>,
+        <Interpolate sentence="At the end: %s">{() => <strong>here</strong>}</Interpolate>,
       );
       expect(container.textContent).toBe("At the end: here");
     });
 
-    it("works when the whole template is the placeholder", () => {
+    it("works when the whole sentence is the placeholder", () => {
       const { container } = plainRender(
-        <Interpolate template="%s">{() => <strong>everything</strong>}</Interpolate>,
+        <Interpolate sentence="%s">{() => <strong>everything</strong>}</Interpolate>,
       );
       expect(container.textContent).toBe("everything");
     });
@@ -138,17 +77,92 @@ describe("Interpolate", () => {
     it("throws when multiple placeholders are present", () => {
       expect(() =>
         plainRender(
-          <Interpolate template="First %s and second %s">{() => <strong>X</strong>}</Interpolate>,
+          <Interpolate sentence="First %s and second %d">{() => <strong>X</strong>}</Interpolate>,
         ),
-      ).toThrow("Interpolate: only one %s placeholder is supported.");
+      ).toThrow("Interpolate: only one printf placeholder is supported.");
+    });
+  });
+
+  describe("with a [marker] placeholder", () => {
+    it("renders the surrounding text", () => {
+      const { container } = plainRender(
+        <Interpolate sentence="Go to [settings] page">
+          {(text) => <strong>{text}</strong>}
+        </Interpolate>,
+      );
+      expect(container.textContent).toBe("Go to settings page");
+    });
+
+    it("passes the extracted text to children", () => {
+      const { container } = plainRender(
+        <Interpolate sentence="Go to [settings] page">
+          {(text) => <strong>{text}</strong>}
+        </Interpolate>,
+      );
+      expect(container.querySelector("strong")).toHaveTextContent("settings");
+    });
+
+    it("works when the placeholder is at the start", () => {
+      const { container } = plainRender(
+        <Interpolate sentence="[Start] of the sentence">
+          {(text) => <strong>{text}</strong>}
+        </Interpolate>,
+      );
+      expect(container.textContent).toBe("Start of the sentence");
+      expect(container.querySelector("strong")).toHaveTextContent("Start");
+    });
+
+    it("works when the placeholder is at the end", () => {
+      const { container } = plainRender(
+        <Interpolate sentence="End of the [sentence]">
+          {(text) => <strong>{text}</strong>}
+        </Interpolate>,
+      );
+      expect(container.textContent).toBe("End of the sentence");
+      expect(container.querySelector("strong")).toHaveTextContent("sentence");
+    });
+
+    it("works when the whole sentence is the placeholder", () => {
+      const { container } = plainRender(
+        <Interpolate sentence="[only]">{(text) => <strong>{text}</strong>}</Interpolate>,
+      );
+      expect(container.textContent).toBe("only");
+      expect(container.querySelector("strong")).toHaveTextContent("only");
+    });
+
+    it("passes an empty string to children when the brackets are empty", () => {
+      const { container } = plainRender(
+        <Interpolate sentence="Click [] to continue">
+          {(text) => <strong aria-label="injected">{text}</strong>}
+        </Interpolate>,
+      );
+      expect(container.querySelector("strong")).toBeEmptyDOMElement();
+    });
+
+    it("throws when multiple placeholders are present", () => {
+      expect(() =>
+        plainRender(
+          <Interpolate sentence="[first] and [second]">
+            {(text) => <strong>{text}</strong>}
+          </Interpolate>,
+        ),
+      ).toThrow("Interpolate: exactly one [marker] placeholder is supported.");
+    });
+
+    it("throws when a bracket is unmatched", () => {
+      expect(() =>
+        plainRender(
+          <Interpolate sentence="[unclosed">{(text) => <strong>{text}</strong>}</Interpolate>,
+        ),
+      ).toThrow("Interpolate: exactly one [marker] placeholder is supported.");
     });
   });
 
   describe("without a placeholder", () => {
-    it("renders the template as plain text", () => {
+    it("renders the sentence as plain text", () => {
       const { container } = plainRender(
-        <Interpolate template="No placeholder here">
-          {(label) => <strong>{label}</strong>}
+        <Interpolate sentence="No placeholder here">
+          {(text) => <strong>{text}</strong>}
         </Interpolate>,
       );
       expect(container.textContent).toBe("No placeholder here");
@@ -156,8 +170,8 @@ describe("Interpolate", () => {
 
     it("does not render any injected content", () => {
       const { container } = plainRender(
-        <Interpolate template="No placeholder here">
-          {(label) => <strong>{label}</strong>}
+        <Interpolate sentence="No placeholder here">
+          {(text) => <strong>{text}</strong>}
         </Interpolate>,
       );
       expect(container.querySelector("strong")).toBeNull();
@@ -167,7 +181,7 @@ describe("Interpolate", () => {
   describe("when children returns null", () => {
     it("renders the surrounding text without the injected node", () => {
       const { container } = plainRender(
-        <Interpolate template="Before [label] after">{() => null}</Interpolate>,
+        <Interpolate sentence="Before [marker] after">{() => null}</Interpolate>,
       );
       expect(container.textContent).toBe("Before  after");
       expect(container.querySelector("strong")).toBeNull();

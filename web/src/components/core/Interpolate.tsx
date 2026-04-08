@@ -24,62 +24,65 @@ import React from "react";
 
 export type InterpolateProps = {
   /**
-   * A translated string containing exactly one placeholder. Two styles are
-   * supported:
-   *
-   * - `[label]` — the text inside the brackets is extracted and passed to
-   *   `children` as the `label` argument.
-   * - `%s` — marks the insertion point; `label` will be an empty string since
-   *   the caller is expected to supply its own content.
-   *
-   * If the string contains no placeholder it is rendered as plain text and
-   * `children` is never called.
+   * A translated sentence containing exactly one placeholder.
    */
-  template: string;
+  sentence: string;
   /**
-   * Render prop called with the extracted label.
+   * Render prop called with the text extracted from the placeholder.
    *
-   * For `[label]` templates the label is the text inside the brackets.
-   * For `%s` templates the label is always an empty string — the caller
-   * supplies the content directly.
+   * For `[marker]` sentences the text is whatever the translator wrote inside
+   * the brackets. For printf sentences the text is always an empty string.
    */
-  children: (label: string) => React.ReactNode;
+  children: (text: string) => React.ReactNode;
 };
 
 /**
- * Renders a translated string that contains a single placeholder, replacing
- * the placeholder with arbitrary React content via a render prop.
+ * Renders a translated sentence that contains a single placeholder, replacing
+ * it with arbitrary React content via a render prop.
  *
  * This is the standard way to inject React elements (links, bold text, etc.)
- * into a translated string without breaking the translation unit. Keeping
- * the full sentence as one string lets translators reorder words freely.
+ * into a translated string without breaking the translation unit. Keeping the
+ * full sentence as one string lets translators reorder words freely.
  *
  * Two placeholder styles are supported:
  *
- * - `[label]` — the text inside the brackets is extracted and passed to
- *   `children`, allowing the caller to wrap it in any element.
- * - `%s` — marks the insertion point; the caller provides the full content.
+ * - `%s` / `%d` / `%f` / `%i`: standard gettext printf placeholders. Use these
+ *   when the injected element has its own content (e.g. a link wrapping a
+ *   dynamic count) and the translation already uses a printf specifier.
+ * - `[marker]`: the text inside the brackets is extracted and passed to
+ *   `children`. Use this when the translated string already carries the text
+ *   for the injected element and you want to wrap it in a React node.
  *
- * Only one placeholder per template is supported. Passing more than one
- * throws an error. A string with no placeholder is rendered as plain text.
+ * Only one placeholder per sentence is supported. Passing more than one (or an
+ * unmatched bracket) throws an error. A sentence with no placeholder is
+ * rendered as plain text.
  *
  * @example
- * // [label] pattern — label extracted from the translated string
- * <Interpolate template={_("When ready, click on the [install] button.")}>
- *   {(label) => <strong>{label}</strong>}
+ * // %d: caller supplies the full content; text argument is always "".
+ * <Interpolate sentence={_("There are %d issues")}>
+ *   {() => <Link to={ISSUES.root}>{count}</Link>}
  * </Interpolate>
  *
  * @example
- * // %s pattern — caller provides the inserted content
- * <Interpolate template={_("Go to the %s section to change this.")}>
- *   {() => <Link to={SETTINGS.root} isInline>{_("Settings")}</Link>}
+ * // [marker]: extracted text becomes the element content.
+ * <Interpolate sentence={_("When ready, click the [install] button.")}>
+ *   {(text) => <strong>{text}</strong>}
+ * </Interpolate>
+ *
+ * @example
+ * // [marker]: inline action embedded in helper text.
+ * <Interpolate sentence={_("Select entries to edit or remove them. Or [remove all invalid entries.]")}>
+ *   {(text) => <Button variant="link" isInline onClick={clearInvalid}>{text}</Button>}
  * </Interpolate>
  */
-export default function Interpolate({ template, children }: InterpolateProps) {
-  if (template.includes("%s")) {
-    const parts = template.split("%s");
-    if (parts.length > 2) throw new Error("Interpolate: only one %s placeholder is supported.");
-    const [start, end] = parts;
+export default function Interpolate({ sentence, children }: InterpolateProps) {
+  // Supported printf specifiers: %s (string), %d (decimal), %f (float), %i (integer).
+  const printfParts = sentence.split(/%[sdfi]/);
+
+  if (printfParts.length > 1) {
+    if (printfParts.length > 2)
+      throw new Error("Interpolate: only one printf placeholder is supported.");
+    const [start, end] = printfParts;
     return (
       <>
         {start}
@@ -89,19 +92,19 @@ export default function Interpolate({ template, children }: InterpolateProps) {
     );
   }
 
-  if (template.includes("[")) {
-    const parts = template.split(/[[\]]/);
-    if (parts.length > 3)
-      throw new Error("Interpolate: only one [label] placeholder is supported.");
-    const [start, label, end] = parts;
-    return (
-      <>
-        {start}
-        {children(label ?? "")}
-        {end}
-      </>
-    );
-  }
+  const parts = sentence.split(/[[\]]/);
 
-  return <>{template}</>;
+  if (parts.length === 1) return <>{sentence}</>;
+
+  if (parts.length !== 3)
+    throw new Error("Interpolate: exactly one [marker] placeholder is supported.");
+
+  const [start, text, end] = parts;
+  return (
+    <>
+      {start}
+      {children(text ?? "")}
+      {end}
+    </>
+  );
 }
