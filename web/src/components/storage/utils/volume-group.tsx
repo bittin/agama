@@ -145,10 +145,8 @@ const ContentActionsDescription = (
 };
 
 const contentDescription = (volumeGroup: ConfigModel.VolumeGroup): string => {
-  const newLogicalVolumes = volumeGroup.logicalVolumes.filter(configModel.logicalVolume.isNew);
-  const reusedLogicalVolumes = volumeGroup.logicalVolumes.filter(
-    configModel.logicalVolume.isReused,
-  );
+  const newLogicalVolumes = volumeGroup.logicalVolumes.filter(configModel.volume.isNew);
+  const reusedLogicalVolumes = volumeGroup.logicalVolumes.filter(configModel.volume.isReused);
 
   if (isEmpty(newLogicalVolumes)) {
     if (isEmpty(reusedLogicalVolumes)) {

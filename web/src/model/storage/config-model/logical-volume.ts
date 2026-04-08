@@ -42,13 +42,10 @@ function create(data: Data.LogicalVolume): ConfigModel.LogicalVolume {
 
 function add(
   config: ConfigModel.Config,
-  vgName: string,
+  vgIndex: number,
   data: Data.LogicalVolume,
 ): ConfigModel.Config {
   config = configModel.clone(config);
-
-  const vgIndex = configModel.volumeGroup.findIndex(config, vgName);
-  if (vgIndex === -1) return config;
 
   const volumeGroup = config.volumeGroups[vgIndex];
   const logicalVolume = create(data);
@@ -61,18 +58,15 @@ function add(
 
 function edit(
   config: ConfigModel.Config,
-  vgName: string,
-  mountPath: string,
+  vgIndex: number,
+  lvMountPath: string,
   data: Data.LogicalVolume,
 ): ConfigModel.Config {
   config = configModel.clone(config);
 
-  const vgIndex = configModel.volumeGroup.findIndex(config, vgName);
-  if (vgIndex === -1) return config;
-
   const volumeGroup = config.volumeGroups[vgIndex];
 
-  const lvIndex = findIndex(volumeGroup, mountPath);
+  const lvIndex = findIndex(volumeGroup, lvMountPath);
   if (lvIndex === -1) return config;
 
   const oldLogicalVolume = volumeGroup.logicalVolumes[lvIndex];
@@ -107,18 +101,6 @@ function convertToPartition(lv: ConfigModel.LogicalVolume): ConfigModel.Partitio
   };
 }
 
-function isNew(logicalVolume: ConfigModel.LogicalVolume): boolean {
-  return !logicalVolume.name;
-}
-
-function isUsed(logicalVolume: ConfigModel.LogicalVolume): boolean {
-  return logicalVolume.filesystem !== undefined;
-}
-
-function isReused(logicalVolume: ConfigModel.LogicalVolume): boolean {
-  return logicalVolume.name !== undefined && logicalVolume.filesystem !== undefined;
-}
-
 export default {
   generateName,
   create,
@@ -126,7 +108,4 @@ export default {
   edit,
   remove,
   convertToPartition,
-  isNew,
-  isUsed,
-  isReused,
 };

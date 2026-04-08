@@ -230,21 +230,21 @@ function useDeleteVolumeGroup(): DeleteVolumeGroupFn {
   };
 }
 
-type AddLogicalVolumeFn = (vgName: string, data: Data.LogicalVolume) => void;
+type AddLogicalVolumeFn = (vgIndex: number, data: Data.LogicalVolume) => void;
 
 function useAddLogicalVolume(): AddLogicalVolumeFn {
   const config = useConfigModel();
-  return (vgName: string, data: Data.LogicalVolume) => {
-    putStorageModel(configModel.logicalVolume.add(config, vgName, data));
+  return (vgIndex: number, data: Data.LogicalVolume) => {
+    putStorageModel(configModel.logicalVolume.add(config, vgIndex, data));
   };
 }
 
-type EditLogicalVolumeFn = (vgName: string, mountPath: string, data: Data.LogicalVolume) => void;
+type EditLogicalVolumeFn = (vgIndex: number, mountPath: string, data: Data.LogicalVolume) => void;
 
 function useEditLogicalVolume(): EditLogicalVolumeFn {
   const config = useConfigModel();
-  return (vgName: string, mountPath: string, data: Data.LogicalVolume) => {
-    putStorageModel(configModel.logicalVolume.edit(config, vgName, mountPath, data));
+  return (vgIndex: number, mountPath: string, data: Data.LogicalVolume) => {
+    putStorageModel(configModel.logicalVolume.edit(config, vgIndex, mountPath, data));
   };
 }
 

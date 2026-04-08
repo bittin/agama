@@ -28,12 +28,14 @@ import partition from "~/model/storage/config-model/partition";
 import volumeGroup from "~/model/storage/config-model/volume-group";
 import logicalVolume from "~/model/storage/config-model/logical-volume";
 import device from "~/model/storage/config-model/device";
+import volume from "~/model/storage/config-model/volume";
 import { compact } from "~/utils";
 import { sift } from "radashi";
 import type * as ConfigModel from "~/openapi/storage/config-model";
 import type * as Partitionable from "~/model/storage/config-model/partitionable";
 import type * as Data from "~/model/storage/config-model/data";
-import type { Device, Volume } from "~/model/storage/config-model/device";
+import type { Device } from "~/model/storage/config-model/device";
+import type { Volume } from "~/model/storage/config-model/volume";
 
 type DeviceCollection = "drives" | "mdRaids" | "volumeGroups";
 
@@ -108,6 +110,7 @@ export default {
   usedMountPaths,
   isTargetDevice,
   setEncryption,
+  devices,
   findDevice,
   findDeviceByName,
   hasAdditionalDevices,
@@ -119,5 +122,6 @@ export default {
   volumeGroup,
   logicalVolume,
   device,
+  volume,
 };
 export type { ConfigModel, Data, Partitionable, DeviceCollection, Device, Volume };

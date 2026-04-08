@@ -125,30 +125,10 @@ function convertToLogicalVolume(partition: ConfigModel.Partition): ConfigModel.L
   };
 }
 
-function isNew(partition: ConfigModel.Partition): boolean {
-  return !partition.name;
-}
-
-function isUsed(partition: ConfigModel.Partition): boolean {
-  return partition.filesystem !== undefined;
-}
-
-function isReused(partition: ConfigModel.Partition): boolean {
-  return !isNew(partition) && isUsed(partition);
-}
-
-function isUsedBySpacePolicy(partition: ConfigModel.Partition): boolean {
-  return partition.resizeIfNeeded || partition.delete || partition.deleteIfNeeded;
-}
-
 export default {
   create,
   add,
   edit,
   remove,
   convertToLogicalVolume,
-  isNew,
-  isUsed,
-  isReused,
-  isUsedBySpacePolicy,
 };

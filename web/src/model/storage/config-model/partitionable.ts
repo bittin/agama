@@ -86,11 +86,11 @@ function filterConfiguredExistingPartitions(device: Device): ConfigModel.Partiti
   if (device.spacePolicy === "custom")
     return device.partitions.filter(
       (p) =>
-        !configModel.partition.isNew(p) &&
-        (configModel.partition.isUsed(p) || configModel.partition.isUsedBySpacePolicy(p)),
+        !configModel.volume.isNew(p) &&
+        (configModel.volume.isUsed(p) || configModel.volume.isUsedBySpacePolicy(p)),
     );
 
-  return device.partitions.filter(configModel.partition.isReused);
+  return device.partitions.filter(configModel.volume.isReused);
 }
 
 function usedMountPaths(device: Device): string[] {
@@ -109,11 +109,11 @@ function isUsed(config: ConfigModel.Config, deviceName: string): boolean {
 }
 
 function isAddingPartitions(device: Device): boolean {
-  return device.partitions?.some((p) => p.mountPath && configModel.partition.isNew(p)) || false;
+  return device.partitions?.some((p) => p.mountPath && configModel.volume.isNew(p)) || false;
 }
 
 function isReusingPartitions(device: Device): boolean {
-  return device.partitions?.some(configModel.partition.isReused) || false;
+  return device.partitions?.some(configModel.volume.isReused) || false;
 }
 
 function remove(
@@ -171,8 +171,8 @@ function convert(
     return config;
   }
 
-  const [newPartitions, existingPartitions] = fork(device.partitions, configModel.partition.isNew);
-  const reusedPartitions = existingPartitions.filter(configModel.partition.isReused);
+  const [newPartitions, existingPartitions] = fork(device.partitions, configModel.volume.isNew);
+  const reusedPartitions = existingPartitions.filter(configModel.volume.isReused);
   const keepEntry =
     configModel.boot.hasExplicitDevice(config, device.name) || reusedPartitions.length;
 

@@ -21,12 +21,11 @@
  */
 
 import configModel from "~/model/storage/config-model";
+import type { Volume } from "~/model/storage/config-model/volume";
 import type { ConfigModel, Data } from "~/model/storage/config-model";
 import type { Storage as System } from "~/model/system";
 
 type Device = ConfigModel.Drive | ConfigModel.MdRaid | ConfigModel.VolumeGroup;
-
-type Volume = ConfigModel.Partition | ConfigModel.LogicalVolume;
 
 function volumes(device: Device): Volume[] {
   if ("partitions" in device) return device.partitions || [];
@@ -34,6 +33,10 @@ function volumes(device: Device): Volume[] {
   if ("logicalVolumes" in device) return device.logicalVolumes || [];
 
   return [];
+}
+
+function findVolumeByMountPath(device: Device, mountPath: string): Volume | null {
+  return volumes(device).find((v) => v.mountPath === mountPath) ?? null;
 }
 
 function convertPartitionable(
@@ -147,5 +150,5 @@ function setSpacePolicy(
   return config;
 }
 
-export default { volumes, convert, setSpacePolicy };
-export type { Device, Volume };
+export default { volumes, findVolumeByMountPath, convert, setSpacePolicy };
+export type { Device };

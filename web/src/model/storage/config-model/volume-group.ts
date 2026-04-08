@@ -51,6 +51,10 @@ function findIndex(config: ConfigModel.Config, vgName: string): number {
   return (config.volumeGroups || []).findIndex((v) => v.vgName === vgName);
 }
 
+function findByName(config: ConfigModel.Config, vgName: string): ConfigModel.VolumeGroup | null {
+  return (config.volumeGroups || []).find((v) => v.vgName === vgName);
+}
+
 function candidateTargetDevices(
   config: ConfigModel.Config,
 ): (ConfigModel.Drive | ConfigModel.MdRaid)[] {
@@ -172,8 +176,8 @@ function convertToPartitionable(
   targetDeviceConfig.partitions = [
     ...partitions,
     ...logicalVolumes
-      .filter(configModel.logicalVolume.isUsed)
-      .filter((l) => !configModel.logicalVolume.isReused(l))
+      .filter(configModel.volume.isUsed)
+      .filter((l) => !configModel.volume.isReused(l))
       .map(configModel.logicalVolume.convertToPartition),
   ];
 
@@ -219,13 +223,12 @@ function convertToVolumeGroup(
 
 function isAddingLogicalVolumes(volumeGroup: ConfigModel.VolumeGroup): boolean {
   return (
-    volumeGroup.logicalVolumes?.some((l) => l.mountPath && configModel.logicalVolume.isNew(l)) ||
-    false
+    volumeGroup.logicalVolumes?.some((l) => l.mountPath && configModel.volume.isNew(l)) || false
   );
 }
 
 function isReusingLogicalVolumes(volumeGroup: ConfigModel.VolumeGroup): boolean {
-  return volumeGroup.logicalVolumes?.some(configModel.logicalVolume.isReused) || false;
+  return volumeGroup.logicalVolumes?.some(configModel.volume.isReused) || false;
 }
 
 export default {
@@ -234,6 +237,7 @@ export default {
   usedMountPaths,
   find,
   findIndex,
+  findByName,
   filterTargetDevices,
   add,
   edit,
