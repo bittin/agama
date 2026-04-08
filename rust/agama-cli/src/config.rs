@@ -21,8 +21,7 @@
 use std::{io::Write, path::PathBuf, process::Command, time::Duration};
 
 use agama_lib::{
-    http::BaseHTTPClient,
-    monitor::MonitorClient,
+    http::{BaseHTTPClient, WebSocketClient},
     profile::{ProfileHTTPClient, ProfileValidator, ValidationOutcome},
     utils::FileFormat,
 };
@@ -123,7 +122,7 @@ pub async fn run(subcommand: ConfigCommands, opts: GlobalOpts) -> anyhow::Result
             validate(&http_client, CliInput::Full(json.clone()), false).await?;
         }
         ConfigCommands::Load { url_or_path } => {
-            let (http_client, monitor) = build_clients(api_url, opts.insecure).await?;
+            let (http_client, ws) = build_clients(api_url, opts.insecure).await?;
             let url_or_path = url_or_path.unwrap_or(CliInput::Stdin);
             let contents = url_or_path.read_to_string(opts.insecure)?;
             let valid = validate(&http_client, CliInput::Full(contents.clone()), false).await?;
@@ -135,7 +134,7 @@ pub async fn run(subcommand: ConfigCommands, opts: GlobalOpts) -> anyhow::Result
             let model: api::Config = serde_json::from_str(&contents)?;
             patch_config(&http_client, &model).await?;
 
-            monitor_progress(monitor).await?;
+            monitor_progress(http_client, ws).await?;
         }
         ConfigCommands::Validate { url_or_path, local } => {
             let validity = if !local {
@@ -156,7 +155,7 @@ pub async fn run(subcommand: ConfigCommands, opts: GlobalOpts) -> anyhow::Result
             generate(&http_client, url_or_path, opts.insecure).await?;
         }
         ConfigCommands::Edit { editor } => {
-            let (http_client, monitor) = build_clients(api_url, opts.insecure).await?;
+            let (http_client, ws) = build_clients(api_url, opts.insecure).await?;
             let response: api::Config = http_client.get("/v2/config").await?;
             let editor = editor
                 .or_else(|| std::env::var("EDITOR").ok())
@@ -164,7 +163,7 @@ pub async fn run(subcommand: ConfigCommands, opts: GlobalOpts) -> anyhow::Result
             let result = edit(&http_client, &response, &editor).await?;
             patch_config(&http_client, &result).await?;
 
-            monitor_progress(monitor).await?;
+            monitor_progress(http_client, ws).await?;
         }
     }
 
@@ -397,14 +396,11 @@ fn editor_command(command: &str) -> Command {
     command
 }
 
-async fn monitor_progress(monitor: MonitorClient) -> anyhow::Result<()> {
+async fn monitor_progress(http: BaseHTTPClient, ws: WebSocketClient) -> anyhow::Result<()> {
     // wait a bit to settle it down and avoid quick actions blinking
     sleep(Duration::from_secs(1)).await;
 
-    let task = tokio::spawn(async move {
-        show_progress(monitor, true).await;
-    });
-    task.await?;
+    show_progress(http, ws, true).await?;
 
     Ok(())
 }

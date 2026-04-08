@@ -52,6 +52,7 @@ dependencies = [
  "clap",
  "console",
  "fluent-uri 0.4.1",
+ "gettext-rs",
  "home",
  "indicatif",
  "inquire",

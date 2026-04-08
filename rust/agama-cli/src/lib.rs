@@ -31,7 +31,6 @@ use agama_lib::{
     error::ServiceError,
     http::{BaseHTTPClient, WebSocketClient},
     manager::ManagerHTTPClient,
-    monitor::{Monitor, MonitorClient},
 };
 use agama_transfer::Transfer;
 use agama_utils::api::{status::Stage, FinishMethod, IssueWithScope};
@@ -97,11 +96,12 @@ pub struct Cli {
     pub command: Commands,
 }
 
-async fn probe(manager: ManagerHTTPClient, monitor: MonitorClient) -> anyhow::Result<()> {
+async fn probe(http: BaseHTTPClient, ws: WebSocketClient) -> anyhow::Result<()> {
+    let manager_client = ManagerHTTPClient::new(http.clone());
     let probe = tokio::spawn(async move {
-        let _ = manager.probe().await;
+        let _ = manager_client.probe().await;
     });
-    show_progress(monitor, true).await;
+    show_progress(http, ws, true).await?;
     Ok(probe.await?)
 }
 
@@ -110,12 +110,12 @@ async fn probe(manager: ManagerHTTPClient, monitor: MonitorClient) -> anyhow::Re
 /// Before starting, it makes sure that the manager is idle.
 ///
 /// * `manager`: the manager client.
-async fn install(http_client: BaseHTTPClient, monitor: MonitorClient) -> anyhow::Result<()> {
-    wait_until_idle(monitor.clone()).await?;
+async fn install(http_client: BaseHTTPClient, ws: WebSocketClient) -> anyhow::Result<()> {
+    wait_until_idle(&http_client, &ws).await?;
 
-    let status = monitor.get_status().await?;
-    // TODO: own client for issues?
-    let issues: Vec<IssueWithScope> = http_client.get("/v2/issues").await?;
+    let manager_client = ManagerHTTPClient::new(http_client.clone());
+    let status = manager_client.status().await?;
+    let issues: Vec<IssueWithScope> = manager_client.issues().await?;
     if status.stage != Stage::Configuring {
         return Err(CliError::Installation)?;
     }
@@ -123,13 +123,13 @@ async fn install(http_client: BaseHTTPClient, monitor: MonitorClient) -> anyhow:
         return Err(CliError::Validation)?;
     }
 
-    let manager = ManagerHTTPClient::new(http_client);
-    manager.install().await?;
+    manager_client.install().await?;
 
     // wait a bit before start monitoring
     sleep(Duration::from_secs(1)).await;
     let progress = tokio::spawn(async {
-        show_progress(monitor, true).await;
+        // just prematurly finish install command if progress monitor failed
+        let _ = show_progress(http_client, ws, true).await;
     });
     let _ = progress.await;
     Ok(())
@@ -141,25 +141,21 @@ async fn install(http_client: BaseHTTPClient, monitor: MonitorClient) -> anyhow:
 ///
 /// * `manager`: the manager client.
 async fn finish(
-    manager: ManagerHTTPClient,
-    monitor: MonitorClient,
+    http: BaseHTTPClient,
+    ws: WebSocketClient,
     method: Option<FinishMethod>,
 ) -> anyhow::Result<()> {
-    wait_until_idle(monitor.clone()).await?;
+    wait_until_idle(&http, &ws).await?;
 
     let method = method
         .unwrap_or_else(|| FinishMethod::from_kernel_cmdline().unwrap_or(FinishMethod::Reboot));
+    let manager = ManagerHTTPClient::new(http);
     manager.finish(method).await?;
     Ok(())
 }
 
-async fn wait_until_idle(monitor: MonitorClient) -> anyhow::Result<()> {
-    // FIXME: implement something like "wait_until_idle" in the monitor?
-    let status = monitor.get_status().await?;
-    if !status.progresses.is_empty() {
-        eprintln!("The Agama service is busy. Waiting for it to be available...");
-        show_progress(monitor.clone(), true).await;
-    }
+async fn wait_until_idle(_http: &BaseHTTPClient, _ws: &WebSocketClient) -> anyhow::Result<()> {
+    // TODO: reimplement using sockets
     Ok(())
 }
 
@@ -263,22 +259,25 @@ fn find_client_token(api_url: &Url) -> Option<AuthToken> {
 async fn build_clients(
     api_url: Url,
     insecure: bool,
-) -> anyhow::Result<(BaseHTTPClient, MonitorClient)> {
+) -> anyhow::Result<(BaseHTTPClient, WebSocketClient)> {
     let client = build_http_client(api_url.clone(), insecure, true).await?;
     let ws_client = build_ws_client(api_url, insecure).await?;
-    let monitor = Monitor::connect(client.clone(), ws_client).await?;
-    Ok((client, monitor))
+    Ok((client, ws_client))
 }
 
 /// Helper function to display the progress in the terminal.
 ///
 /// * `monitor`: monitor client.
 /// * `stop_on_idle`: stop displaying the progress when Agama becomes idle.
-pub async fn show_progress(monitor: MonitorClient, stop_on_idle: bool) {
-    let mut progress = ProgressMonitor::new(monitor).stop_on_idle(stop_on_idle);
-    if let Err(e) = progress.run().await {
-        eprintln!("Could not display the progress: {e:?}");
-    }
+pub async fn show_progress(
+    http: BaseHTTPClient,
+    ws: WebSocketClient,
+    stop_on_idle: bool,
+) -> anyhow::Result<()> {
+    // TODO: should monitor has some non interactive version?
+    ProgressMonitor::run(http, ws, stop_on_idle).await?;
+
+    Ok(())
 }
 
 pub async fn run_command(cli: Cli) -> anyhow::Result<()> {
@@ -287,21 +286,19 @@ pub async fn run_command(cli: Cli) -> anyhow::Result<()> {
     match cli.command {
         Commands::Config(subcommand) => run_config_cmd(subcommand, cli.opts).await?,
         Commands::Probe => {
-            let (client, monitor) = build_clients(api_url, cli.opts.insecure).await?;
-            let manager = ManagerHTTPClient::new(client.clone());
-            let _ = wait_until_idle(monitor.clone()).await;
-            probe(manager, monitor).await?
+            let (http, ws) = build_clients(api_url, cli.opts.insecure).await?;
+            let _ = wait_until_idle(&http, &ws).await;
+            probe(http, ws).await?
         }
         Commands::Install => {
-            let (client, monitor) = build_clients(api_url, cli.opts.insecure).await?;
-            let _ = wait_until_idle(monitor.clone()).await;
-            install(client, monitor).await?
+            let (http, ws) = build_clients(api_url, cli.opts.insecure).await?;
+            let _ = wait_until_idle(&http, &ws).await;
+            install(http, ws).await?
         }
         Commands::Finish { method } => {
-            let (client, monitor) = build_clients(api_url, cli.opts.insecure).await?;
-            let manager = ManagerHTTPClient::new(client.clone());
-            let _ = wait_until_idle(monitor.clone()).await;
-            finish(manager, monitor, method).await?;
+            let (http, ws) = build_clients(api_url, cli.opts.insecure).await?;
+            let _ = wait_until_idle(&http, &ws).await;
+            finish(http, ws, method).await?;
         }
         Commands::Questions(subcommand) => {
             let client = build_http_client(api_url, cli.opts.insecure, true).await?;
@@ -319,8 +316,8 @@ pub async fn run_command(cli: Cli) -> anyhow::Result<()> {
             run_auth_cmd(client, subcommand).await?;
         }
         Commands::Monitor => {
-            let (_client, monitor) = build_clients(api_url, cli.opts.insecure).await?;
-            show_progress(monitor, false).await;
+            let (http, ws) = build_clients(api_url, cli.opts.insecure).await?;
+            show_progress(http, ws, false).await?;
         }
         Commands::Events { pretty } => {
             let ws_client = build_ws_client(api_url, cli.opts.insecure).await?;

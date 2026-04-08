@@ -49,9 +49,9 @@
 //!
 
 use agama_utils::api::{self, Event};
-use tokio::sync::{broadcast, mpsc, oneshot};
+use tokio::sync::{mpsc, oneshot, Mutex};
 
-use crate::http::{BaseHTTPClient, BaseHTTPClientError, WebSocketClient, WebSocketError};
+use crate::http::{BaseHTTPClientError, WebSocketClient, WebSocketError};
 
 #[derive(thiserror::Error, Debug)]
 pub enum MonitorError {
@@ -63,6 +63,8 @@ pub enum MonitorError {
     Url(#[from] url::ParseError),
     #[error("Error receiving the monitor message: {0}")]
     Recv(#[from] oneshot::error::RecvError),
+    #[error("Error sending the monitor message: {0}")]
+    Send(#[from] tokio::sync::mpsc::error::SendError<MonitorCommand>),
 }
 
 /// It allows connecting to the Agama monitor to get the status or listen for changes.
@@ -71,40 +73,31 @@ pub enum MonitorError {
 #[derive(Clone, Debug)]
 pub struct MonitorClient {
     commands: mpsc::Sender<MonitorCommand>,
-    pub updates: broadcast::Sender<api::Status>,
 }
 
 impl MonitorClient {
-    /// Returns the installer status.
-    pub async fn get_status(&self) -> Result<api::Status, MonitorError> {
+    /// Returns and clear the last event or none if no event was there from previous call.
+    pub async fn pop_last_event(&self) -> Result<Option<Event>, MonitorError> {
         let (tx, rx) = tokio::sync::oneshot::channel();
-        _ = self.commands.send(MonitorCommand::GetStatus(tx)).await;
-        Ok(rx.await?)
-    }
-
-    /// Subscribe to status updates from the monitor.
-    ///
-    /// It uses a regular broadcast channel from the Tokio library.
-    pub fn subscribe(&self) -> broadcast::Receiver<api::Status> {
-        self.updates.subscribe()
+        self.commands.send(MonitorCommand::LastEvent(tx)).await?;
+        Ok(rx.await??)
     }
 }
 
-/// Monitors an Agama service and keeps track of the status, listens for
-/// events, etc.
+/// Monitors an Agama websocket and keeps track of the last event related to monitor.
 pub struct Monitor {
     // Channel to receive commands.
     commands: mpsc::Receiver<MonitorCommand>,
-    // Channel to send updates.
-    updates: broadcast::Sender<api::Status>,
-    status: api::Status,
     ws_client: WebSocketClient,
-    status_reader: MonitorStatusReader,
+    // mutex is needed to avoid race conditions
+    // Result is needed to be able to report problems with socket
+    // and last but not least option is needed as there can be no event between calls
+    last_event: Mutex<Result<Option<Event>, WebSocketError>>,
 }
 
 #[derive(Debug)]
-enum MonitorCommand {
-    GetStatus(tokio::sync::oneshot::Sender<api::Status>),
+pub enum MonitorCommand {
+    LastEvent(tokio::sync::oneshot::Sender<Result<Option<api::Event>, WebSocketError>>),
 }
 
 impl Monitor {
@@ -114,28 +107,17 @@ impl Monitor {
     /// * `websocket_client`: websocket to listen for events.
     ///
     /// The monitor runs on a separate Tokio task.
-    pub async fn connect(
-        http_client: BaseHTTPClient,
-        websocket_client: WebSocketClient,
-    ) -> Result<MonitorClient, MonitorError> {
-        // Channel to send/receive updates from the monitor.
-        let (updates, _rx) = broadcast::channel(16);
+    pub async fn connect(websocket_client: WebSocketClient) -> Result<MonitorClient, MonitorError> {
         // Channel to send/receive commands from the client.
         let (commands_tx, commands_rx) = mpsc::channel(16);
         let client = MonitorClient {
             commands: commands_tx,
-            updates: updates.clone(),
         };
 
-        let status_reader = MonitorStatusReader::with_client(http_client);
-        let status = status_reader.read().await?;
-
         let mut monitor = Monitor {
-            status,
-            updates,
             commands: commands_rx,
             ws_client: websocket_client,
-            status_reader,
+            last_event: Mutex::new(Ok(None)),
         };
 
         tokio::spawn(async move { monitor.run().await });
@@ -147,9 +129,9 @@ impl Monitor {
         loop {
             tokio::select! {
                 Some(cmd) = self.commands.recv() => {
-                    self.handle_command(cmd);
+                    self.handle_command(cmd).await;
                 }
-                Ok(event) = self.ws_client.receive() => {
+                event = self.ws_client.receive() => {
                     self.handle_event(event).await;
                 }
             }
@@ -159,10 +141,12 @@ impl Monitor {
     /// Handle commands from the client.
     ///
     /// * `command`: command to execute.
-    fn handle_command(&mut self, command: MonitorCommand) {
+    async fn handle_command(&mut self, command: MonitorCommand) {
         match command {
-            MonitorCommand::GetStatus(channel) => {
-                let _ = channel.send(self.status.clone());
+            MonitorCommand::LastEvent(channel) => {
+                let mut g = self.last_event.lock().await;
+                let e = std::mem::replace(&mut *g, Ok(None));
+                let _ = channel.send(e);
             }
         }
     }
@@ -173,43 +157,25 @@ impl Monitor {
     /// sends the updated state to its subscribers.
     ///
     /// * `event`: Agama event.
-    async fn handle_event(&mut self, event: Event) {
-        match event {
-            // status related events is used here.
-            Event::ProgressFinished { scope: _ } => {}
-            Event::StageChanged { stage: _ } => {}
-            Event::ProgressChanged { progress: _ } => {}
-            _ => {
-                return;
-            }
-        }
-        self.reread_status().await;
-        let _ = self.updates.send(self.status.clone());
-    }
-
-    async fn reread_status(&mut self) {
-        let status_result = self.status_reader.read().await;
-
-        let Ok(new_status) = status_result else {
-            tracing::warn!("Failed to read status {:?}", status_result);
+    async fn handle_event(&mut self, event: Result<Event, WebSocketError>) {
+        let Ok(event) = event else {
+            let mut g = self.last_event.lock().await;
+            *g = Err(event.unwrap_err());
             return;
         };
-        self.status = new_status;
-    }
-}
 
-/// Ancillary struct to read the status from the API.
-struct MonitorStatusReader {
-    http: BaseHTTPClient,
-}
-
-impl MonitorStatusReader {
-    pub fn with_client(http: BaseHTTPClient) -> Self {
-        Self { http }
-    }
-
-    pub async fn read(&self) -> Result<api::Status, MonitorError> {
-        let status: api::Status = self.http.get("/v2/status").await?;
-        Ok(status)
+        // store only events that are important for monitor
+        if matches!(
+            event,
+            Event::ProgressFinished { .. }
+                | Event::IssuesChanged { .. }
+                | Event::StageChanged { .. }
+                | Event::ProgressChanged { .. }
+                | Event::QuestionAdded { .. }
+                | Event::QuestionAnswered { .. }
+        ) {
+            let mut g = self.last_event.lock().await;
+            *g = Ok(Some(event));
+        }
     }
 }

@@ -47,3 +47,9 @@ pub enum Stage {
     /// Installation failed
     Failed,
 }
+
+impl Stage {
+    pub fn is_end(&self) -> bool {
+        matches!(self, Stage::Finished | Stage::Failed)
+    }
+}

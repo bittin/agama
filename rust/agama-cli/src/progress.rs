@@ -18,98 +18,211 @@
 // To contact SUSE LLC about this file by physical or electronic mail, you may
 // find current contact information at www.suse.com.
 
-use agama_lib::monitor::MonitorClient;
-use agama_utils::api::{self, Scope};
-use indicatif::{ProgressBar, ProgressStyle};
-use std::{collections::HashMap, time::Duration};
+use std::{collections::HashMap, thread::sleep, time::Duration};
+
+use agama_lib::{
+    http::{BaseHTTPClient, WebSocketClient},
+    manager::ManagerHTTPClient,
+    monitor::Monitor,
+    questions,
+};
+use agama_utils::api::{self, IssueWithScope, Scope, question::Question, status::Stage};
+use gettextrs::gettext;
+use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
+use serde_json::json;
 
 /// Displays the progress on the terminal.
 #[derive(Debug)]
 pub struct ProgressMonitor {
-    monitor: MonitorClient,
-    running: bool,
+    http_client: BaseHTTPClient,
     stop_on_idle: bool,
+    progress_bar: Option<MultiProgress>,
+    progresses: HashMap<Scope, ProgressBar>,
 }
 
 impl ProgressMonitor {
-    /// Builds a new instance.
-    ///
-    /// * `MonitorClient`: client to access the Agama monitor.
-    pub fn new(monitor: MonitorClient) -> Self {
-        Self {
-            monitor,
-            running: true,
-            stop_on_idle: true,
-        }
-    }
+    /// Starts the CLI representing the progress.
+    pub async fn run(
+        http_client: BaseHTTPClient,
+        websocket: WebSocketClient,
+        stop_on_idle: bool,
+    ) -> anyhow::Result<()> {
+        let monitor = Monitor::connect(websocket).await?;
+        let mut progress_monitor = Self {
+            http_client,
+            stop_on_idle,
+            progress_bar: None,
+            progresses: HashMap::new(),
+        };
 
-    /// Determines whether the progress should stop when the service becomes idle.
-    pub fn stop_on_idle(mut self, stop_on_idle: bool) -> Self {
-        self.stop_on_idle = stop_on_idle;
-        self
-    }
-
-    /// Starts the UI representing the progress.
-    pub async fn run(&mut self) -> anyhow::Result<()> {
-        let mut updates = self.monitor.subscribe();
-        let status = self.monitor.get_status().await?;
-        self.update(&status).await;
-        if !self.running {
+        if !progress_monitor.initial_state().await? {
             return Ok(());
         }
 
-        let multibar = indicatif::MultiProgress::new();
-        let mut bars: HashMap<Scope, ProgressBar> = HashMap::new();
-        multibar.println("Installation Tasks:")?;
         loop {
-            if let Ok(status) = updates.recv().await {
-                if !self.update(&status).await {
-                    return Ok(());
-                }
+            // avoid to many redraws
+            sleep(Duration::from_millis(100));
 
-                let mut active_scopes = vec![];
-                for progress in status.progresses {
-                    active_scopes.push(progress.scope);
-                    let bar = bars.entry(progress.scope).or_insert_with(|| {
-                        let style = ProgressStyle::with_template("{spinner:.green} {msg}").unwrap();
-                        let new_bar = ProgressBar::new(progress.size as u64).with_style(style);
-                        new_bar.enable_steady_tick(Duration::from_millis(120));
-                        multibar.add(new_bar)
-                    });
-                    bar.set_message(progress.step);
-                    bar.set_position(progress.index as u64);
-                }
-                // and finish all that no longer have progress
-                let mut to_remove = vec![];
-                for (scope, bar) in &bars {
-                    if !active_scopes.contains(scope) {
-                        bar.finish_with_message("done");
-                        to_remove.push(*scope);
+            let event = monitor.pop_last_event().await?;
+            if let Some(event) = event {
+                match event {
+                    api::Event::StageChanged { .. }
+                    | api::Event::IssuesChanged { .. }
+                    | api::Event::QuestionAdded { .. }
+                    | api::Event::ProgressFinished { .. }
+                    | api::Event::QuestionAnswered { .. } => {
+                        if !progress_monitor.initial_state().await? {
+                            break;
+                        }
+                    }
+                    api::Event::ProgressChanged { progress } => {
+                        if let Some(main_bar) = &progress_monitor.progress_bar {
+                            if let Some(bar) = progress_monitor.progresses.get(&progress.scope) {
+                                bar.set_position(progress.index as u64);
+                                bar.set_message(progress.step);
+                            } else {
+                                let bar = ProgressBar::new(progress.size as u64);
+                                bar.set_style(
+                                    ProgressStyle::with_template(
+                                        "{bar:40.green} {pos:>7}/{len:7} {msg}",
+                                    )
+                                    .unwrap(),
+                                );
+                                bar.set_position(progress.index as u64);
+                                bar.set_message(progress.step);
+                                let bar = main_bar.add(bar);
+                                progress_monitor.progresses.insert(progress.scope, bar);
+                            }
+                        // there are not multi progress, so init it from scratch
+                        } else {
+                            if !progress_monitor.initial_state().await? {
+                                break;
+                            }
+                        }
+                    }
+                    // we know that rest of events are not provided by monitor
+                    // TODO: new enum that has only our interested events
+                    _ => {
+                        unreachable!()
                     }
                 }
-                for scope in to_remove {
-                    bars.remove(&scope);
-                }
-            }
-        }
-    }
-
-    /// Updates the progress.
-    ///
-    /// It returns true if the monitor should continue.
-    async fn update(&mut self, status: &api::Status) -> bool {
-        if status.progresses.is_empty() && self.running {
-            self.finish();
-            if self.stop_on_idle {
-                return false;
             }
         }
 
-        true
+        Ok(())
     }
 
-    /// Stops the representation.
-    fn finish(&mut self) {
-        self.running = false;
+    async fn initial_state(&mut self) -> anyhow::Result<bool> {
+        // clear any progresses
+        for p in self.progresses.values() {
+            p.finish_and_clear();
+        }
+        self.progresses.clear();
+        if let Some(main) = &self.progress_bar {
+            // if clearing failed, just ignore it, following terminal clear should handle it
+            let _ = main.clear();
+        }
+        self.progress_bar = None;
+        // and whole terminal
+        Self::clear_terminal();
+        // if there is any unaswered question, it has precedence as it affects everything else
+        let questions = self.get_unanswered_questions().await?;
+        if !questions.is_empty() {
+            self.print_questions(&questions).await?;
+            return Ok(true);
+        }
+        let manager_client = ManagerHTTPClient::new(self.http_client.clone());
+        let status: api::Status = manager_client.status().await?;
+        // if we end installation, then just finish with some nice message
+        if status.stage.is_end() {
+            Self::print_final_status(&status);
+            return Ok(false);
+        }
+        let progresses = status.progresses;
+        // if there are some progress, then it has precedence over issues as it can solve them
+        if !progresses.is_empty() {
+            let multibar = MultiProgress::new();
+            let message = if status.stage == Stage::Configuring {
+                gettext("Calculating proposal:")
+            } else {
+                gettext("Installing target system:")
+            };
+            multibar.println(message)?;
+
+            for progress in progresses {
+                let bar = ProgressBar::new(progress.size as u64);
+                bar.set_style(
+                    ProgressStyle::with_template("{bar:40.green} {pos:>7}/{len:7} {msg}").unwrap(),
+                );
+                bar.set_position(progress.index as u64);
+                bar.set_message(progress.step);
+                let bar = multibar.add(bar);
+                self.progresses.insert(progress.scope, bar);
+            }
+            self.progress_bar = Some(multibar);
+            return Ok(true)
+        }
+
+        // if we configuring and there are some issue, print it and wait for user to fix it
+        if status.stage == Stage::Configuring {
+            let issues = manager_client.issues().await?;
+            if !issues.is_empty() {
+                Self::print_issues(&issues)?;
+                return Ok(true);
+            }
+        }
+
+        
+            Self::print_stage(&status.stage);
+            return Ok(!self.stop_on_idle);
+    }
+
+    async fn get_unanswered_questions(&self) -> anyhow::Result<Vec<Question>> {
+        let questions_client = questions::http_client::HTTPClient::new(self.http_client.clone());
+        let questions = questions_client.get_questions().await?;
+
+        let questions = questions
+            .into_iter()
+            .filter(|q| q.answer.is_none())
+            .collect();
+        Ok(questions)
+    }
+
+    fn print_stage(stage: &Stage) {
+        match stage {
+            Stage::Configuring => println!("{}", gettext("Installation is ready for start.")),
+            // installaling without progress means that it probably do not
+            // start yet, should be almost invisible blink
+            Stage::Installing => println!("{}", gettext("Waiting to start installation")),
+            _ => unreachable!(),
+        }
+    }
+
+    fn print_final_status(status: &api::Status) {
+        match status.stage {
+            Stage::Finished => println!("{}", gettext("Installation successfully finished")),
+            Stage::Failed => println!("{}", gettext("Installation failed")),
+            _ => unreachable!(),
+        }
+    }
+
+    fn clear_terminal() {
+        // do not use print!("\x1B[2J\x1B[1;1H"); as it will kill scrolling of terminal, e.g. in ssh session
+        // it is esc + c which is in VT100 reset terminal - https://web.archive.org/web/20191222201924/http://www.termsys.demon.co.uk/vtansi.htm
+        print!("{esc}c", esc = 27 as char);
+    }
+
+    async fn print_questions(&self, questions: &Vec<Question>) -> anyhow::Result<()> {
+        println!("{}", gettext("There are unanswered questions. Please use `agama questions` command or web interface to answer them:"));
+        // TODO: real question asking and better formatting
+        println!("{}", json!(questions).to_string());
+        Ok(())
+    }
+
+    fn print_issues(issues: &Vec<IssueWithScope>) -> anyhow::Result<()> {
+        println!("{}", gettext("There are issues blocking installation:"));
+        // TODO: better formatting
+        println!("{}", json!(issues).to_string());
+        Ok(())
     }
 }
