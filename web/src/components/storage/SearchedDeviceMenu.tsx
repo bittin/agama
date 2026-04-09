@@ -23,6 +23,7 @@
 import React, { useState } from "react";
 import { sprintf } from "sprintf-js";
 import MenuButton, { MenuButtonItem } from "~/components/core/MenuButton";
+import NewVgMenuOption from "~/components/storage/NewVgMenuOption";
 import DeviceSelectorModal from "~/components/storage/DeviceSelectorModal";
 import configModel from "~/model/storage/config-model";
 import { isDrive, isMd, isVolumeGroup } from "~/model/storage/device";
@@ -366,6 +367,7 @@ export default function SearchedDeviceMenu({
             device={selected}
             onClick={() => openSelector()}
           />,
+          <NewVgMenuOption key="add-vg-option" device={modelDevice} />,
           <RemoveDeviceMenuItem key="delete-disk-option" device={modelDevice} onClick={deleteFn} />,
         ]}
       />
