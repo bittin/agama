@@ -36,7 +36,7 @@ import { fork } from "radashi";
 import { _, TranslatedString } from "~/i18n";
 
 type ButtonWithoutVariantProps = Omit<ButtonProps, "variant">;
-type PredefinedAction = React.PropsWithChildren<ButtonWithoutVariantProps>;
+type PredefinedAction = React.PropsWithChildren<ButtonWithoutVariantProps & { asLink?: boolean }>;
 export type PopupProps = {
   /** The dialog title */
   title?: ModalHeaderProps["title"];
@@ -122,8 +122,8 @@ const Confirm = ({ children = _("Confirm"), ...actionProps }: PredefinedAction) 
  *     <Text>Dismiss</Text>
  *   </SecondaryAction>
  */
-const SecondaryAction = ({ children, ...actionProps }: PredefinedAction) => (
-  <Action {...actionProps} variant="secondary">
+const SecondaryAction = ({ children, asLink, ...actionProps }: PredefinedAction) => (
+  <Action {...actionProps} variant={asLink ? "link" : "secondary"}>
     {children}
   </Action>
 );
