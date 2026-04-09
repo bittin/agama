@@ -22,7 +22,7 @@
 
 import React, { useState } from "react";
 import SelectableDataTable from "~/components/core/SelectableDataTable";
-import { useDevices } from "~/hooks/model/system/storage";
+import { useFlattenDevices } from "~/hooks/model/system/storage";
 import { deviceBaseName, deviceSize } from "~/components/storage/utils";
 import { sortCollection } from "~/utils";
 import { _ } from "~/i18n";
@@ -45,7 +45,12 @@ type MdRaidsTableProps = {
 const level = (device: Storage.Device): string => device.md.level.toUpperCase();
 
 const memberNames = (device: Storage.Device, systemDevices: Storage.Device[]): string =>
-  device.md.devices.map((sid) => systemDevices.find((d) => d.sid === sid)?.name || sid).join(", ");
+  device.md.devices
+    .map((sid) => {
+      const pv = systemDevices.find((d) => d.sid === sid);
+      return pv ? deviceBaseName(pv) : sid;
+    })
+    .join(", ");
 
 /**
  * Table for selecting among available software RAID devices.
@@ -56,7 +61,7 @@ export default function MdRaidsTable({
   onSelectionChange,
   selectionMode = "single",
 }: MdRaidsTableProps) {
-  const systemDevices = useDevices();
+  const systemDevices = useFlattenDevices();
   const [sortedBy, setSortedBy] = useState<SortedBy>({ index: 0, direction: "asc" });
 
   const columns = [

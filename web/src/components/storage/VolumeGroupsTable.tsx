@@ -22,7 +22,7 @@
 
 import React, { useState } from "react";
 import SelectableDataTable from "~/components/core/SelectableDataTable";
-import { useDevices } from "~/hooks/model/system/storage";
+import { useFlattenDevices } from "~/hooks/model/system/storage";
 import { deviceBaseName, deviceSize } from "~/components/storage/utils";
 import { sortCollection } from "~/utils";
 import { _ } from "~/i18n";
@@ -65,7 +65,7 @@ export default function VolumeGroupsTable({
   selectionMode = "single",
 }: VolumeGroupsTableProps) {
   const [sortedBy, setSortedBy] = useState<SortedBy>({ index: 0, direction: "asc" });
-  const systemDevices = useDevices();
+  const systemDevices = useFlattenDevices();
 
   const columns = [
     {
