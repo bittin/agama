@@ -138,7 +138,8 @@ module Y2Storage
       @planned_devices = planner.planned_devices(config)
     end
 
-    # Performs the mandatory space-making actions on the given devicegraph
+    # Performs the mandatory partition actions for making space on the given devicegraph. The
+    # actions for making space in the volume groups are performed later by the devices creator.
     #
     # @param devicegraph [Devicegraph] the graph gets modified
     def clean_graph(devicegraph)

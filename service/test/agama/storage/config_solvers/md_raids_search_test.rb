@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2025] SUSE LLC
+# Copyright (c) [2025-2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -68,7 +68,7 @@ describe Agama::Storage::ConfigSolvers::MdRaidsSearch do
 
       context "and any of the devices is not available" do
         before do
-          allow(storage_system.analyzer).to receive(:available_device?) do |dev|
+          allow(storage_system).to receive(:available?) do |dev|
             dev.name != "/dev/md0"
           end
         end

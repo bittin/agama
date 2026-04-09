@@ -72,9 +72,9 @@ module Agama
 
           # @return [Array<Hash>]
           def convert_logical_volumes
-            config.logical_volumes.map do |logical_volume|
-              ToModelConversions::LogicalVolume.new(logical_volume, volumes).convert
-            end
+            config.logical_volumes
+              .reject(&:skipped?)
+              .map { |l| ToModelConversions::LogicalVolume.new(l, volumes).convert }
           end
         end
       end
