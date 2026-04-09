@@ -21,22 +21,20 @@
  */
 
 import React, { useState } from "react";
-import MenuButton, { CustomToggleProps, MenuButtonItem } from "~/components/core/MenuButton";
+import { sprintf } from "sprintf-js";
+import MenuButton, { MenuButtonItem } from "~/components/core/MenuButton";
+import DeviceSelectorModal from "~/components/storage/DeviceSelectorModal";
+import configModel from "~/model/storage/config-model";
+import { isDrive, isMd, isVolumeGroup } from "~/model/storage/device";
 import { useAvailableDevices } from "~/hooks/model/system/storage";
 import { useConfigModel, useConvertDevice } from "~/hooks/model/storage/config-model";
 import { deviceBaseName, formattedPath } from "~/components/storage/utils";
-import configModel from "~/model/storage/config-model";
-import { sprintf } from "sprintf-js";
 import { _, n_, formatList } from "~/i18n";
-import DeviceSelectorModal from "~/components/storage/DeviceSelectorModal";
-import { MenuItemProps } from "@patternfly/react-core";
-import { isVolumeGroup } from "~/model/storage/device";
-import { isEmpty } from "radashi";
+
+import type { MenuItemProps } from "@patternfly/react-core";
+import type { CustomToggleProps } from "~/components/core/MenuButton";
 import type { Storage } from "~/model/system";
 import type { ConfigModel } from "~/model/storage/config-model";
-import type { DeviceSelectorModalProps } from "~/components/storage/DeviceSelectorModal";
-
-const baseName = (device: Storage.Device): string => deviceBaseName(device, true);
 
 const targetDevices = (
   deviceConfig: ConfigModel.Drive | ConfigModel.MdRaid,
@@ -116,14 +114,21 @@ const ChangeDeviceTitle = ({ modelDevice }: ChangeDeviceTitleProps) => {
   );
 };
 
-type ChangeDeviceDescriptionProps = {
-  modelDevice: ConfigModel.Drive | ConfigModel.MdRaid;
-  device: Storage.Device;
-};
-
-const ChangeDeviceDescription = ({ modelDevice, device }: ChangeDeviceDescriptionProps) => {
-  const config = useConfigModel();
-  const name = baseName(device);
+/**
+ * Returns a string describing the side effects of moving away from
+ * `modelDevice`, or `undefined` when there are no notable side effects.
+ *
+ * A plain function (not a component) because a React element's emptiness cannot
+ * be checked without rendering it, making it difficult for callers to decide
+ * whether to render anything at all (e.g. {@link Annotation} guards against no
+ * children to avoid displaying just an icon with no text)
+ */
+const changeDeviceSideEffect = (
+  modelDevice: ConfigModel.Drive | ConfigModel.MdRaid,
+  device: Storage.Device,
+  config: ConfigModel.Config,
+): string | undefined => {
+  const name = deviceBaseName(device, true);
   const volumeGroups = configModel.partitionable.filterVolumeGroups(config, modelDevice);
   const isExplicitBoot = configModel.boot.hasExplicitDevice(config, modelDevice.name);
   const isBoot = configModel.boot.hasDevice(config, modelDevice.name);
@@ -209,13 +214,17 @@ const ChangeDeviceDescription = ({ modelDevice, device }: ChangeDeviceDescriptio
   }
 };
 
-const ReuseVgTitle = () => _("Change to an existing LVM volume group");
-
-type ReuseVgDescriptionProps = {
-  deviceConfig: ConfigModel.Drive | ConfigModel.MdRaid;
-};
-
-const ReuseVgDescription = ({ deviceConfig }: ReuseVgDescriptionProps) => {
+/**
+ * Returns a string describing what will be created as logical volumes when
+ * reusing a volume group, or `undefined` when no new partitions are being
+ * added.
+ *
+ * A plain function (not a component) for the same reason as {@link
+ * changeDeviceSideEffect}.
+ */
+const reuseVgSideEffect = (
+  deviceConfig: ConfigModel.Drive | ConfigModel.MdRaid,
+): string | undefined => {
   const paths = deviceConfig.partitions
     .filter((p) => !p.name)
     .map((p) => formattedPath(p.mountPath));
@@ -251,47 +260,8 @@ const ChangeDeviceMenuItem = ({
   const onlyOneOption = useOnlyOneOption(config, modelDevice);
 
   return (
-    <MenuButtonItem
-      aria-label={_("Change device menu")}
-      description={<ChangeDeviceDescription modelDevice={modelDevice} device={device} />}
-      isDisabled={onlyOneOption}
-      {...props}
-    >
+    <MenuButtonItem aria-label={_("Change device menu")} isDisabled={onlyOneOption} {...props}>
       <ChangeDeviceTitle modelDevice={modelDevice} />
-    </MenuButtonItem>
-  );
-};
-
-type ReuseVgMenuItemProps = {
-  deviceConfig: ConfigModel.Drive | ConfigModel.MdRaid;
-  device: Storage.Device;
-} & MenuItemProps;
-
-const ReuseVgMenuItem = ({
-  deviceConfig,
-  device,
-  ...props
-}: ReuseVgMenuItemProps): React.ReactNode => {
-  const config = useConfigModel();
-
-  const volumeGroups = targetDevices(deviceConfig, useConfigModel(), useAvailableDevices()).filter(
-    isVolumeGroup,
-  );
-  const onlyOneOption = useOnlyOneOption(config, deviceConfig);
-  const isUsed = configModel.partitionable.isAddingPartitions(deviceConfig);
-
-  // Reusing a volume group is only offered if it makes sense, that is: the device can be changed,
-  // and there is some available volume group that can be selected as target (e.g., the device is
-  // not configured to be directly formatted), and the device is configuring any partition.
-  if (onlyOneOption || isEmpty(volumeGroups) || !isUsed) return;
-
-  return (
-    <MenuButtonItem
-      aria-label={_("Reuse volume group menu")}
-      description={<ReuseVgDescription deviceConfig={deviceConfig} />}
-      {...props}
-    >
-      <ReuseVgTitle />
     </MenuButtonItem>
   );
 };
@@ -344,64 +314,6 @@ const RemoveDeviceMenuItem = ({ device, onClick }: RemoveDeviceMenuItemProps): R
   );
 };
 
-type SearchedDeviceSelectorModalProps = Omit<SearchedDeviceSelectorProps, "reuseVg">;
-
-const SearchedDeviceSelectorModal = ({
-  device,
-  deviceConfig,
-  ...deviceSelectorModalProps
-}: SearchedDeviceSelectorModalProps): React.ReactNode => {
-  const availableTargets = targetDevices(deviceConfig, useConfigModel(), useAvailableDevices());
-  const devices = availableTargets.filter((d) => !isVolumeGroup(d));
-
-  return (
-    <DeviceSelectorModal
-      {...deviceSelectorModalProps}
-      title={<ChangeDeviceTitle modelDevice={deviceConfig} />}
-      description={<ChangeDeviceDescription modelDevice={deviceConfig} device={device} />}
-      selected={device}
-      devices={devices}
-    />
-  );
-};
-
-type SearchedVolumeGroupSelectorModalProps = Omit<SearchedDeviceSelectorProps, "reuseVg">;
-
-const SearchedVolumeGroupSelectorModal = ({
-  device,
-  deviceConfig,
-  ...deviceSelectorModalProps
-}: SearchedVolumeGroupSelectorModalProps): React.ReactNode => {
-  const volumeGroups = targetDevices(deviceConfig, useConfigModel(), useAvailableDevices()).filter(
-    isVolumeGroup,
-  );
-
-  return (
-    <DeviceSelectorModal
-      {...deviceSelectorModalProps}
-      title={<ReuseVgTitle />}
-      description={<ReuseVgDescription deviceConfig={deviceConfig} />}
-      selected={device}
-      devices={volumeGroups}
-    />
-  );
-};
-
-type SearchedDeviceSelectorProps = Omit<DeviceSelectorModalProps, "devices" | "selected"> & {
-  device: Storage.Device;
-  deviceConfig: ConfigModel.Drive | ConfigModel.MdRaid;
-  reuseVg: boolean;
-};
-
-const SearchedDeviceSelector = ({
-  reuseVg,
-  ...modalProps
-}: SearchedDeviceSelectorProps): React.ReactNode => {
-  if (reuseVg) return <SearchedVolumeGroupSelectorModal {...modalProps} />;
-
-  return <SearchedDeviceSelectorModal {...modalProps} />;
-};
-
 export type SearchedDeviceMenuProps = {
   selected: Storage.Device;
   modelDevice: ConfigModel.Drive | ConfigModel.MdRaid;
@@ -420,9 +332,19 @@ export default function SearchedDeviceMenu({
   toggle,
   deleteFn,
 }: SearchedDeviceMenuProps): React.ReactNode {
-  const [isSelectorOpen, setIsSelectorOpen] = useState(false);
-  const [reuseVg, setReuseVg] = useState(false);
+  const config = useConfigModel();
   const convertDevice = useConvertDevice();
+  const [isSelectorOpen, setIsSelectorOpen] = useState(false);
+  const availableTargets = targetDevices(modelDevice, config, useAvailableDevices());
+  const disks = availableTargets.filter(isDrive);
+  const mdRaids = availableTargets.filter(isMd);
+  const volumeGroups = availableTargets.filter(isVolumeGroup);
+  const diskSelectionSideEffect = changeDeviceSideEffect(modelDevice, selected, config);
+  const vgSelectionSideEffect = reuseVgSideEffect(modelDevice);
+
+  const openSelector = () => {
+    setIsSelectorOpen(true);
+  };
 
   const onDeviceChange = ([device]: Storage.Device[]) => {
     setIsSelectorOpen(false);
@@ -442,28 +364,21 @@ export default function SearchedDeviceMenu({
             key="change"
             modelDevice={modelDevice}
             device={selected}
-            onClick={() => {
-              setReuseVg(false);
-              setIsSelectorOpen(true);
-            }}
-          />,
-          <ReuseVgMenuItem
-            key="reuse-vg-option"
-            deviceConfig={modelDevice}
-            device={selected}
-            onClick={() => {
-              setReuseVg(true);
-              setIsSelectorOpen(true);
-            }}
+            onClick={() => openSelector()}
           />,
           <RemoveDeviceMenuItem key="delete-disk-option" device={modelDevice} onClick={deleteFn} />,
         ]}
       />
       {isSelectorOpen && (
-        <SearchedDeviceSelector
-          deviceConfig={modelDevice}
-          device={selected}
-          reuseVg={reuseVg}
+        <DeviceSelectorModal
+          title={<ChangeDeviceTitle modelDevice={modelDevice} />}
+          selected={selected}
+          disks={disks}
+          mdRaids={mdRaids}
+          volumeGroups={volumeGroups}
+          disksSideEffects={diskSelectionSideEffect}
+          mdRaidsSideEffects={diskSelectionSideEffect}
+          volumeGroupsSideEffects={vgSelectionSideEffect}
           onConfirm={onDeviceChange}
           onCancel={() => setIsSelectorOpen(false)}
         />

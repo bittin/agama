@@ -30,7 +30,7 @@ import { STORAGE as PATHS } from "~/routes/paths";
 import { sprintf } from "sprintf-js";
 import { _, n_ } from "~/i18n";
 import DeviceSelectorModal from "./DeviceSelectorModal";
-import { isDrive } from "~/model/storage/device";
+import { isDrive, isMd, isVolumeGroup } from "~/model/storage/device";
 import { Icon } from "../layout";
 import type { Storage } from "~/model/system";
 
@@ -131,7 +131,10 @@ export default function ConfigureDeviceMenu(): React.ReactNode {
 
   const usedDevicesNames = config.drives.concat(config.mdRaids).map((d) => d.name);
   const usedDevicesCount = usedDevicesNames.length;
-  const devices = allDevices.filter((d) => !usedDevicesNames.includes(d.name));
+  const availableDevices = allDevices.filter((d) => !usedDevicesNames.includes(d.name));
+  const disks = availableDevices.filter(isDrive);
+  const mdRaids = availableDevices.filter(isMd);
+  const volumeGroups = availableDevices.filter(isVolumeGroup);
   const withRaids = !!allDevices.filter((d) => !isDrive(d)).length;
 
   const addDevice = (device: Storage.Device) => {
@@ -157,7 +160,7 @@ export default function ConfigureDeviceMenu(): React.ReactNode {
           <AddDeviceMenuItem
             key="select-disk-option"
             usedCount={usedDevicesCount}
-            devices={devices}
+            devices={availableDevices}
             withRaids={withRaids}
             onClick={openDeviceSelector}
           />,
@@ -172,15 +175,17 @@ export default function ConfigureDeviceMenu(): React.ReactNode {
         ]}
       >
         <Flex alignItems={{ default: "alignItemsCenter" }} gap={{ default: "gapSm" }}>
-          {/** TODO: choose one, "add" or "add_circle", and remove the other at Icon.tsx */}
           <Icon name="add_circle" /> {_("More devices")}
         </Flex>
       </MenuButton>
       {deviceSelectorOpen && (
         <DeviceSelectorModal
-          devices={devices}
+          disks={disks}
+          mdRaids={mdRaids}
+          volumeGroups={volumeGroups}
           title={<AddDeviceTitle withRaids={withRaids} usedCount={usedDevicesCount} />}
-          description={<AddDeviceDescription withRaids={withRaids} usedCount={usedDevicesCount} />}
+          intro={<AddDeviceDescription withRaids={withRaids} usedCount={usedDevicesCount} />}
+          newVolumeGroupLinkText={lvmDescription}
           onCancel={closeDeviceSelector}
           onConfirm={([device]) => {
             addDevice(device);

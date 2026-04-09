@@ -21,21 +21,23 @@
  */
 
 import React, { useState } from "react";
-import MenuButton, { CustomToggleProps, MenuButtonItem } from "~/components/core/MenuButton";
-import { useAvailableDevices } from "~/hooks/model/system/storage";
+import { sprintf } from "sprintf-js";
+import { isEmpty, isNullish } from "radashi";
+import { MenuItemProps } from "@patternfly/react-core";
+import MenuButton, { MenuButtonItem } from "~/components/core/MenuButton";
+import DeviceSelectorModal from "~/components/storage/DeviceSelectorModal";
+import configModel from "~/model/storage/config-model";
+import { isDrive, isMd, isVolumeGroup } from "~/model/storage/device";
 import {
   useConfigModel,
   useConvertDevice,
   useDeleteVolumeGroup,
 } from "~/hooks/model/storage/config-model";
+import { useAvailableDevices } from "~/hooks/model/system/storage";
 import { formattedPath } from "~/components/storage/utils";
-import configModel from "~/model/storage/config-model";
-import { sprintf } from "sprintf-js";
 import { _, n_, formatList } from "~/i18n";
-import DeviceSelectorModal from "~/components/storage/DeviceSelectorModal";
-import { MenuItemProps } from "@patternfly/react-core";
-import { isEmpty, isNullish } from "radashi";
-import { isVolumeGroup } from "~/model/storage/device";
+
+import type { CustomToggleProps } from "~/components/core/MenuButton";
 import type { Storage } from "~/model/system";
 import type { ConfigModel } from "~/model/storage/config-model";
 import type { DeviceSelectorModalProps } from "~/components/storage/DeviceSelectorModal";
@@ -96,11 +98,11 @@ const ChangeVolumeGroupTitle = ({ deviceConfig }: ChangeVolumeGroupTitleProps) =
   );
 };
 
-type ChangeVolumeGroupDescriptionProps = {
+type VolumeGroupSelectionSideEffectProps = {
   deviceConfig: ConfigModel.VolumeGroup;
 };
 
-const ChangeVolumeGroupDescription = ({ deviceConfig }: ChangeVolumeGroupDescriptionProps) => {
+const VolumeGroupSelectionSideEffect = ({ deviceConfig }: VolumeGroupSelectionSideEffectProps) => {
   const isReusingLogicalVolumes = configModel.volumeGroup.isReusingLogicalVolumes(deviceConfig);
 
   if (isReusingLogicalVolumes) {
@@ -109,13 +111,11 @@ const ChangeVolumeGroupDescription = ({ deviceConfig }: ChangeVolumeGroupDescrip
   }
 };
 
-const ReuseDriveTitle = () => _("Change to an existing disk");
-
-type ReuseDriveDescriptionProps = {
+type DiskSelectionSideEffectProps = {
   deviceConfig: ConfigModel.VolumeGroup;
 };
 
-const ReuseDriveDescription = ({ deviceConfig }: ReuseDriveDescriptionProps) => {
+const DiskSelectionSideEffect = ({ deviceConfig }: DiskSelectionSideEffectProps) => {
   const paths = deviceConfig.logicalVolumes
     .filter((l) => !l.name)
     .map((l) => formattedPath(l.mountPath));
@@ -149,34 +149,11 @@ const ChangeVolumeGroupMenuItem = ({
   return (
     <MenuButtonItem
       aria-label={_("Change volume group menu")}
-      description={<ChangeVolumeGroupDescription deviceConfig={deviceConfig} />}
+      description={<VolumeGroupSelectionSideEffect deviceConfig={deviceConfig} />}
       isDisabled={unchangeable}
       {...props}
     >
       <ChangeVolumeGroupTitle deviceConfig={deviceConfig} />
-    </MenuButtonItem>
-  );
-};
-
-type ReuseDiskMenuItemProps = {
-  deviceConfig: ConfigModel.VolumeGroup;
-  device: Storage.Device;
-} & MenuItemProps;
-
-const ReuseDriveMenuItem = ({
-  deviceConfig,
-  device,
-  ...props
-}: ReuseDiskMenuItemProps): React.ReactNode => {
-  if (isUnchangeable(deviceConfig)) return;
-
-  return (
-    <MenuButtonItem
-      aria-label={_("Reuse disk menu")}
-      description={<ReuseDriveDescription deviceConfig={deviceConfig} />}
-      {...props}
-    >
-      <ReuseDriveTitle />
     </MenuButtonItem>
   );
 };
@@ -205,61 +182,33 @@ const RemoveVolumeGroupMenuItem = ({
   );
 };
 
-type SearchedVolumeGroupSelectorModalProps = Omit<SearchedDeviceSelectorProps, "reuseDrive">;
-
-const SearchedVolumeGroupSelectorModal = ({
-  device,
-  deviceConfig,
-  ...deviceSelectorModalProps
-}: SearchedVolumeGroupSelectorModalProps): React.ReactNode => {
-  const volumeGroups = targetDevices(useConfigModel(), useAvailableDevices()).filter(isVolumeGroup);
-
-  return (
-    <DeviceSelectorModal
-      {...deviceSelectorModalProps}
-      title={<ChangeVolumeGroupTitle deviceConfig={deviceConfig} />}
-      description={<ChangeVolumeGroupDescription deviceConfig={deviceConfig} />}
-      selected={device}
-      devices={volumeGroups}
-    />
-  );
-};
-
-type SearchedDriveSelectorModalProps = Omit<SearchedDeviceSelectorProps, "reuseDrive">;
-
-const SearchedDriveSelectorModal = ({
-  device,
-  deviceConfig,
-  ...deviceSelectorModalProps
-}: SearchedDriveSelectorModalProps): React.ReactNode => {
-  const devices = targetDevices(useConfigModel(), useAvailableDevices()).filter(
-    (d) => !isVolumeGroup(d),
-  );
-
-  return (
-    <DeviceSelectorModal
-      {...deviceSelectorModalProps}
-      title={<ReuseDriveTitle />}
-      description={<ReuseDriveDescription deviceConfig={deviceConfig} />}
-      selected={device}
-      devices={devices}
-    />
-  );
-};
-
-type SearchedDeviceSelectorProps = Omit<DeviceSelectorModalProps, "devices" | "selected"> & {
+type SearchedDeviceSelectorProps = Omit<
+  DeviceSelectorModalProps,
+  "disks" | "mdRaids" | "volumeGroups" | "selected"
+> & {
   device: Storage.Device;
   deviceConfig: ConfigModel.VolumeGroup;
-  reuseDrive: boolean;
 };
 
 const SearchedDeviceSelector = ({
-  reuseDrive,
-  ...modalProps
+  device,
+  deviceConfig,
+  ...deviceSelectorModalProps
 }: SearchedDeviceSelectorProps): React.ReactNode => {
-  if (reuseDrive) return <SearchedDriveSelectorModal {...modalProps} />;
+  const availableTargets = targetDevices(useConfigModel(), useAvailableDevices());
+  const disks = availableTargets.filter(isDrive);
+  const mdRaids = availableTargets.filter(isMd);
+  const volumeGroups = availableTargets.filter(isVolumeGroup);
 
-  return <SearchedVolumeGroupSelectorModal {...modalProps} />;
+  return (
+    <DeviceSelectorModal
+      {...deviceSelectorModalProps}
+      selected={device}
+      disks={disks}
+      mdRaids={mdRaids}
+      volumeGroups={volumeGroups}
+    />
+  );
 };
 
 export type SearchedVolumeGroupMenuProps = {
@@ -278,8 +227,11 @@ export default function SearchedVolumeGroupMenu({
   toggle,
 }: SearchedVolumeGroupMenuProps): React.ReactNode {
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
-  const [reuseDrive, setReuseDrive] = useState(false);
   const convertDevice = useConvertDevice();
+
+  const openSelector = () => {
+    setIsSelectorOpen(true);
+  };
 
   const onDeviceChange = ([targetDevice]: Storage.Device[]) => {
     setIsSelectorOpen(false);
@@ -291,7 +243,6 @@ export default function SearchedVolumeGroupMenu({
       <MenuButton
         menuProps={{
           "aria-label": sprintf(_("Volume group %s menu"), deviceConfig.name),
-          // popperProps: { position: "end", maxWidth: "fit-content", minWidth: "fit-content" },
         }}
         customToggle={toggle}
         items={[
@@ -299,19 +250,7 @@ export default function SearchedVolumeGroupMenu({
             key="change-device-option"
             deviceConfig={deviceConfig}
             device={device}
-            onClick={() => {
-              setReuseDrive(false);
-              setIsSelectorOpen(true);
-            }}
-          />,
-          <ReuseDriveMenuItem
-            key="reuse-drive-option"
-            deviceConfig={deviceConfig}
-            device={device}
-            onClick={() => {
-              setReuseDrive(true);
-              setIsSelectorOpen(true);
-            }}
+            onClick={() => openSelector()}
           />,
           <RemoveVolumeGroupMenuItem
             key="remove-volume-group-option"
@@ -321,9 +260,12 @@ export default function SearchedVolumeGroupMenu({
       />
       {isSelectorOpen && (
         <SearchedDeviceSelector
-          deviceConfig={deviceConfig}
+          title={<ChangeVolumeGroupTitle deviceConfig={deviceConfig} />}
           device={device}
-          reuseDrive={reuseDrive}
+          deviceConfig={deviceConfig}
+          disksSideEffects={<DiskSelectionSideEffect deviceConfig={deviceConfig} />}
+          mdRaidsSideEffects={<DiskSelectionSideEffect deviceConfig={deviceConfig} />}
+          volumeGroupsSideEffects={<VolumeGroupSelectionSideEffect deviceConfig={deviceConfig} />}
           onConfirm={onDeviceChange}
           onCancel={() => setIsSelectorOpen(false)}
         />
