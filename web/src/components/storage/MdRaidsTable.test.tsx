@@ -127,10 +127,7 @@ describe("MdRaidsTable", () => {
   it("renders the member names", () => {
     plainRender(<MdRaidsTable devices={[md0, md1]} onSelectionChange={onSelectionChangeMock} />);
     const table = screen.getByRole("grid");
-    expect(getColumnValues(table, "Members")).toEqual([
-      "sda, sdb",
-      "sdc, sdd, sde",
-    ]);
+    expect(getColumnValues(table, "Members")).toEqual(["sda, sdb", "sdc, sdd, sde"]);
   });
 
   it("allows sorting by device name", async () => {

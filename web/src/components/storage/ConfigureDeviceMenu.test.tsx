@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2025] SUSE LLC
+ * Copyright (c) [2025-2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -165,7 +165,9 @@ describe("ConfigureDeviceMenu", () => {
         await user.click(screen.getByRole("menuitem", { name: "Add device menu" }));
         const dialog = screen.getByRole("dialog");
         await user.click(within(dialog).getByRole("tab", { name: "LVM" }));
-        within(dialog).getByRole("link", { name: "Define a new LVM on top of one or several disks" });
+        within(dialog).getByRole("link", {
+          name: "Define a new LVM on top of one or several disks",
+        });
       });
     });
 
