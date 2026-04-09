@@ -31,6 +31,7 @@ import { sprintf } from "sprintf-js";
 import { _, n_ } from "~/i18n";
 import DeviceSelectorModal from "./DeviceSelectorModal";
 import { isDrive, isMd, isVolumeGroup } from "~/model/storage/device";
+import configModel from "~/model/storage/config-model";
 import { Icon } from "../layout";
 import type { Storage } from "~/model/system";
 
@@ -129,7 +130,7 @@ export default function ConfigureDeviceMenu(): React.ReactNode {
   const addReusedMdRaid = useAddMdRaid();
   const allDevices = useAvailableDevices();
 
-  const usedDevicesNames = config.drives.concat(config.mdRaids).map((d) => d.name);
+  const usedDevicesNames = configModel.devices(config).map((d) => d.name);
   const usedDevicesCount = usedDevicesNames.length;
   const availableDevices = allDevices.filter((d) => !usedDevicesNames.includes(d.name));
   const disks = availableDevices.filter(isDrive);
