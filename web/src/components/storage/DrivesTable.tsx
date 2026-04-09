@@ -21,20 +21,15 @@
  */
 
 import React, { useState } from "react";
-import { Flex, Label } from "@patternfly/react-core";
 import SelectableDataTable from "~/components/core/SelectableDataTable";
+import DeviceContent from "~/components/storage/DeviceContent";
 import { deviceBaseName, deviceSize } from "~/components/storage/utils";
-import {
-  typeDescription,
-  contentDescription,
-  filesystemLabels,
-} from "~/components/storage/utils/device";
+import { typeDescription } from "~/components/storage/utils/device";
 import { sortCollection } from "~/utils";
-import { deviceSystems } from "~/model/storage/device";
 import { _ } from "~/i18n";
 
-import type { SortedBy, SelectableDataTableProps } from "~/components/core/SelectableDataTable";
 import type { Storage } from "~/model/system";
+import type { SortedBy, SelectableDataTableProps } from "~/components/core/SelectableDataTable";
 
 /** Props for {@link DrivesTable}. */
 type DrivesTableProps = {
@@ -58,24 +53,6 @@ const description = (device: Storage.Device) => {
   if (model && model.length) return model;
 
   return typeDescription(device);
-};
-
-const details = (device: Storage.Device) => {
-  return (
-    <Flex columnGap={{ default: "columnGapXs" }}>
-      {contentDescription(device)}
-      {deviceSystems(device).map((s, i) => (
-        <Label key={`system-${i}`} isCompact>
-          {s}
-        </Label>
-      ))}
-      {filesystemLabels(device).map((s, i) => (
-        <Label key={`label-${i}`} variant="outline" isCompact>
-          {s}
-        </Label>
-      ))}
-    </Flex>
-  );
 };
 
 /**
@@ -103,7 +80,7 @@ export default function DrivesTable({
       pfTdProps: { style: { width: "10ch" } },
     },
     { name: _("Description"), value: description },
-    { name: _("Current content"), value: details },
+    { name: _("Current content"), value: (d: Storage.Device) => <DeviceContent device={d} /> },
   ];
 
   const sortingKey = columns[sortedBy.index].sortingKey;

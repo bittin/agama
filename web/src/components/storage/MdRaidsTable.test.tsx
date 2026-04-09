@@ -57,7 +57,7 @@ const sde: Storage.Device = { ...sda, sid: 5, name: "/dev/sde", description: "SD
 
 jest.mock("~/hooks/model/system/storage", () => ({
   ...jest.requireActual("~/hooks/model/system/storage"),
-  useDevices: () => [sda, sdb, sdc, sdd, sde],
+  useFlattenDevices: () => [sda, sdb, sdc, sdd, sde],
 }));
 
 const md0: Storage.Device = {
@@ -95,13 +95,14 @@ const md1: Storage.Device = {
 const onSelectionChangeMock = jest.fn();
 
 describe("MdRaidsTable", () => {
-  it("renders Device, Size, Level, and Members columns", () => {
+  it("renders Device, Size, Level, Members, and Current content columns", () => {
     plainRender(<MdRaidsTable devices={[md0, md1]} onSelectionChange={onSelectionChangeMock} />);
     const table = screen.getByRole("grid");
     within(table).getByRole("columnheader", { name: "Device" });
     within(table).getByRole("columnheader", { name: "Size" });
     within(table).getByRole("columnheader", { name: "Level" });
     within(table).getByRole("columnheader", { name: "Members" });
+    within(table).getByRole("columnheader", { name: "Current content" });
   });
 
   it("renders a row per RAID device", () => {
@@ -116,12 +117,19 @@ describe("MdRaidsTable", () => {
     expect(getColumnValues(table, "Level")).toEqual(["RAID1", "RAID5"]);
   });
 
+  it("renders the current content of each member device", () => {
+    plainRender(<MdRaidsTable devices={[md0]} onSelectionChange={onSelectionChangeMock} />);
+    const md0Row = screen.getByRole("row", { name: /md0/ });
+    within(md0Row).getByText("SDA");
+    within(md0Row).getByText("SDB");
+  });
+
   it("renders the member names", () => {
     plainRender(<MdRaidsTable devices={[md0, md1]} onSelectionChange={onSelectionChangeMock} />);
     const table = screen.getByRole("grid");
     expect(getColumnValues(table, "Members")).toEqual([
-      "/dev/sda, /dev/sdb",
-      "/dev/sdc, /dev/sdd, /dev/sde",
+      "sda, sdb",
+      "sdc, sdd, sde",
     ]);
   });
 
