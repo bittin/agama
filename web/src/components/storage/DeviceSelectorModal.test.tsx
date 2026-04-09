@@ -29,6 +29,7 @@ import DeviceSelectorModal from "./DeviceSelectorModal";
 jest.mock("~/hooks/model/system/storage", () => ({
   ...jest.requireActual("~/hooks/model/system/storage"),
   useDevices: () => [],
+  useFlattenDevices: () => [],
 }));
 
 const sda: Storage.Device = {
@@ -186,6 +187,18 @@ describe("DeviceSelectorModal", () => {
         />,
       );
       expect(screen.getByRole("tab", { name: "LVM" })).toHaveAttribute("aria-selected", "true");
+    });
+
+    it("opens the tab of the auto-selected device when no device is given", () => {
+      installerRender(
+        <DeviceSelectorModal
+          mdRaids={[md0]}
+          title="Select"
+          onCancel={onCancelMock}
+          onConfirm={onConfirmMock}
+        />,
+      );
+      expect(screen.getByRole("tab", { name: "RAID" })).toHaveAttribute("aria-selected", "true");
     });
   });
 

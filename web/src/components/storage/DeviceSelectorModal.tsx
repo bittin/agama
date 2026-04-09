@@ -213,11 +213,12 @@ export default function DeviceSelectorModal({
   ...popupProps
 }: DeviceSelectorModalProps): React.ReactNode {
   const confirmHintId = useId();
-  const [activeTab, setActiveTab] = useState(() =>
-    getInitialTabIndex(initialTab, previousDevice, [disks, mdRaids, volumeGroups]),
-  );
+  const initialDevice = previousDevice ?? first([...disks, ...mdRaids, ...volumeGroups]);
   const [selectedDevices, setSelectedDevices] = useState<Storage.Device[]>(
-    previousDevice ? [previousDevice] : [...disks, ...mdRaids, ...volumeGroups].slice(0, 1),
+    initialDevice ? [initialDevice] : [],
+  );
+  const [activeTab, setActiveTab] = useState(() =>
+    getInitialTabIndex(initialTab, initialDevice, [disks, mdRaids, volumeGroups]),
   );
   const tabLists = [disks, mdRaids, volumeGroups];
 
