@@ -26,7 +26,7 @@ use agama_lib::{
     monitor::Monitor,
     questions,
 };
-use agama_utils::api::{self, IssueWithScope, Scope, question::Question, status::Stage};
+use agama_utils::api::{self, question::Question, status::Stage, IssueWithScope, Scope};
 use gettextrs::gettext;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 
@@ -83,11 +83,9 @@ impl ProgressMonitor {
                                 let bar = Self::create_progress_bar(main_bar, &progress);
                                 progress_monitor.progresses.insert(progress.scope, bar);
                             }
-                        // there are not multi progress, so init it from scratch
-                        } else {
-                            if !progress_monitor.initial_state().await? {
-                                break;
-                            }
+                        // there are no multi progress, so init it from scratch
+                        } else if !progress_monitor.initial_state().await? {
+                            break;
                         }
                     }
                     // we know that rest of events are not provided by monitor
@@ -103,18 +101,23 @@ impl ProgressMonitor {
     }
 
     async fn initial_state(&mut self) -> anyhow::Result<bool> {
-        // clear any progresses
-        for p in self.progresses.values() {
-            p.finish_and_clear();
-        }
-        self.progresses.clear();
+        // clear progresses to not interfere with new state
         if let Some(main) = &self.progress_bar {
+            for p in self.progresses.values() {
+                p.finish_and_clear();
+                main.remove(p);
+            }
             // if clearing failed, just ignore it, following terminal clear should handle it
             let _ = main.clear();
         }
+
+        // clear also internal references
+        self.progresses.clear();
         self.progress_bar = None;
+
         // and whole terminal
         Self::clear_terminal();
+
         // if there is any unaswered question, it has precedence as it affects everything else
         let questions = self.get_unanswered_questions().await?;
         if !questions.is_empty() {
@@ -144,7 +147,7 @@ impl ProgressMonitor {
                 self.progresses.insert(progress.scope, bar);
             }
             self.progress_bar = Some(multibar);
-            return Ok(true)
+            return Ok(true);
         }
 
         // if we configuring and there are some issue, print it and wait for user to fix it
@@ -156,9 +159,8 @@ impl ProgressMonitor {
             }
         }
 
-        
-            Self::print_stage(&status.stage);
-            return Ok(!self.stop_on_idle);
+        Self::print_stage(&status.stage);
+        Ok(!self.stop_on_idle)
     }
 
     async fn get_unanswered_questions(&self) -> anyhow::Result<Vec<Question>> {
@@ -245,10 +247,12 @@ impl ProgressMonitor {
     fn create_progress_bar(multibar: &MultiProgress, progress: &api::Progress) -> ProgressBar {
         let bar = ProgressBar::new(progress.size as u64);
         let template = if progress.scope == Scope::Manager {
-            format!("{} ({{pos:>2}}/{{len:2}}): {{wide_msg}}", gettext("Current step"))
+            format!(
+                "{} ({{pos:>2}}/{{len:2}}): {{wide_msg}}",
+                gettext("Current step")
+            )
         } else {
-            let scope_str = Self::scope_to_string(&progress.scope);
-            format!("{scope_str:>14} {{wide_bar:40!.green}} {{pos:>5}}/{{len:5}} {{msg}}")
+            "{wide_bar:40.green} {pos:>5}/{len:5} {wide_msg}".to_string()
         };
         // unwrap is safe as we created the style ( hope rust can do compile time check in future )
         bar.set_style(ProgressStyle::with_template(&template).unwrap());
