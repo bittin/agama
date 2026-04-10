@@ -102,34 +102,54 @@ type FormValues = typeof connectionFormOptions.defaultValues;
 type FormFieldErrors = Partial<Record<keyof FormValues, string>>;
 
 /**
- * Derives the form mode string from a stored {@link ConnectionMethod}.
+ * Infers the form IPvX mode string from a stored {@link ConnectionMethod} and addresses.
  *
- * `undefined` means the connection profile has no explicit method set, which
- * corresponds to the "Automatic" (unset) option. An explicit {@link ConnectionMethod.AUTO}
- * corresponds to "Advanced" (DHCP forced), and {@link ConnectionMethod.MANUAL} to "Manual".
+ * The presence of addresses affects the interpretation:
+ * - `undefined` method with addresses -> "auto" (Advanced mode, DHCP forced)
+ * - `undefined` method without addresses -> "unset" (Automatic)
+ * - `AUTO` method with addresses -> "auto" (Advanced mode)
+ * - `AUTO` method without addresses -> "unset" (treat as Automatic)
+ * - `MANUAL` method -> always "manual"
  */
-function ipModeFromMethod(method: ConnectionMethod | undefined): string {
+function inferIpMode(method: ConnectionMethod | undefined, addresses: string[]): string {
   if (method === ConnectionMethod.MANUAL) return "manual";
-  if (method === ConnectionMethod.AUTO) return "auto";
-  return "unset";
+
+  // For both AUTO and undefined, check if there are addresses
+  // Addresses indicate Advanced mode (forced DHCP), no addresses means Automatic (unset)
+  if (method === ConnectionMethod.AUTO) {
+    return addresses.length > 0 ? "auto" : "unset";
+  }
+
+  // method is undefined
+  return addresses.length > 0 ? "auto" : "unset";
 }
 
 /**
  * Maps an existing {@link Connection} to initial form values for editing.
  */
 function connectionToFormValues(connection: Connection): Partial<FormValues> {
-  const addresses4 = connection.addresses.filter((a) => !a.address.includes(":")).map(formatIp);
-  const addresses6 = connection.addresses.filter((a) => a.address.includes(":")).map(formatIp);
+  // Partition and format addresses in a single pass using proper IP validation
+  const addresses4: string[] = [];
+  const addresses6: string[] = [];
+
+  for (const addr of connection.addresses) {
+    const formatted = formatIp(addr);
+    if (isValidIPv4Address(addr.address)) {
+      addresses4.push(formatted);
+    } else {
+      addresses6.push(formatted);
+    }
+  }
 
   return {
     name: connection.id,
     iface: connection.iface ?? "",
     ifaceMac: connection.macAddress ?? "",
     bindingMode: connectionBindingMode(connection),
-    ipv4Mode: ipModeFromMethod(connection.method4),
+    ipv4Mode: inferIpMode(connection.method4, addresses4),
     addresses4,
     gateway4: connection.gateway4 ?? "",
-    ipv6Mode: ipModeFromMethod(connection.method6),
+    ipv6Mode: inferIpMode(connection.method6, addresses6),
     addresses6,
     gateway6: connection.gateway6 ?? "",
     nameservers: connection.nameservers,
@@ -554,17 +574,17 @@ function EditConnectionForm() {
   const { connections: systemConns } = useSystem();
   // Merge config and system connections so the form reflects the user's
   // explicit settings (config) while filling gaps from the live system state.
-  // Config wins: e.g. configConn.method4 === undefined (the user chose
-  // "Automatic", meaning "do not put method in the config") must override
-  // systemConn.method4 === "auto" that Agama backend or NetworkManager might
-  // report.
+  // Config wins for single values: e.g. configConn.method4 === undefined
+  // (the user chose "Automatic", meaning "do not put method in the config")
+  // must override systemConn.method4 === "auto" that Agama backend or
+  // NetworkManager might report.
   //
-  // FIXME: when config has no method (Automatic) but the system connection
-  // already has manually set addresses, the merged result will show Automatic
-  // while the connection is actually behaving as Advanced. Consider deriving
-  // the mode from the system addresses in that case for a more accurate
-  // representation.
-  const { all: connections } = extendCollection(configConns || [], { with: systemConns });
+  // Arrays (addresses, nameservers, etc.) are concatenated so users can see
+  // existing system values even when config has empty arrays.
+  const { all: connections } = extendCollection(configConns || [], {
+    with: systemConns,
+    mergeArrays: true,
+  });
   const connection = connections.find((c) => c.id === id);
 
   if (!connection) return <ConnectionNotFound />;

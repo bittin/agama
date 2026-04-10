@@ -392,7 +392,7 @@ describe("ConnectionForm", () => {
 
     it("shows Advanced IPv4 when config sets method4 to auto, despite system reporting manual", () => {
       mockUseConfig.mockReturnValue({
-        connections: [makeConnection("eth0", { method4: "auto" })],
+        connections: [makeConnection("eth0", { method4: "auto", addresses: ["192.168.1.1/24"] })],
       });
       mockUseSystem.mockReturnValue({
         connections: [makeConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] })],
@@ -403,7 +403,16 @@ describe("ConnectionForm", () => {
       ).toBeInTheDocument();
     });
 
-    it.todo("shows Advanced IPv4 when config has no method but system already has IPv4 addresses");
+    it("shows Advanced IPv4 when config has no method but system already has IPv4 addresses", () => {
+      mockUseConfig.mockReturnValue({ connections: [makeConnection("eth0")] });
+      mockUseSystem.mockReturnValue({
+        connections: [makeConnection("eth0", { addresses: ["192.168.1.1/24"] })],
+      });
+      installerRender(<ConnectionForm />);
+      expect(
+        screen.getByLabelText("IPv4 Gateway (optional, ignored if no addresses provided)"),
+      ).toBeInTheDocument();
+    });
 
     it("shows Automatic IPv6 when config has no method, despite system reporting auto", () => {
       mockUseConfig.mockReturnValue({ connections: [makeConnection("eth0")] });
@@ -427,7 +436,7 @@ describe("ConnectionForm", () => {
 
     it("shows Advanced IPv6 when config sets method6 to auto, despite system reporting manual", () => {
       mockUseConfig.mockReturnValue({
-        connections: [makeConnection("eth0", { method6: "auto" })],
+        connections: [makeConnection("eth0", { method6: "auto", addresses: ["2001:db8::1/64"] })],
       });
       mockUseSystem.mockReturnValue({
         connections: [makeConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] })],
@@ -438,7 +447,16 @@ describe("ConnectionForm", () => {
       ).toBeInTheDocument();
     });
 
-    it.todo("shows Advanced IPv6 when config has no method but system already has IPv6 addresses");
+    it("shows Advanced IPv6 when config has no method but system already has IPv6 addresses", () => {
+      mockUseConfig.mockReturnValue({ connections: [makeConnection("eth0")] });
+      mockUseSystem.mockReturnValue({
+        connections: [makeConnection("eth0", { addresses: ["2001:db8::1/64"] })],
+      });
+      installerRender(<ConnectionForm />);
+      expect(
+        screen.getByLabelText("IPv6 Gateway (optional, ignored if no addresses provided)"),
+      ).toBeInTheDocument();
+    });
   });
 
   describe("Auto-generated name", () => {
