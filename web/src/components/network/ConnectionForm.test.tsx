@@ -321,7 +321,9 @@ describe("ConnectionForm", () => {
 
     it("pre-selects Manual IPv4 when the connection uses manual IPv4 addressing", () => {
       mockUseSystem.mockReturnValue({
-        connections: [buildConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] })],
+        connections: [
+          buildConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] }),
+        ],
       });
       installerRender(<ConnectionForm />);
       expect(screen.getByText("IPv4 Addresses")).toBeInTheDocument();
@@ -329,7 +331,9 @@ describe("ConnectionForm", () => {
 
     it("pre-selects Manual IPv6 when the connection uses manual IPv6 addressing", () => {
       mockUseSystem.mockReturnValue({
-        connections: [buildConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] })],
+        connections: [
+          buildConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] }),
+        ],
       });
       installerRender(<ConnectionForm />);
       expect(screen.getByText("IPv6 Addresses")).toBeInTheDocument();
@@ -381,7 +385,9 @@ describe("ConnectionForm", () => {
 
     it("shows Manual IPv4 when config sets method4 to manual, despite system reporting auto", () => {
       mockUseConfig.mockReturnValue({
-        connections: [buildConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] })],
+        connections: [
+          buildConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] }),
+        ],
       });
       mockUseSystem.mockReturnValue({
         connections: [buildConnection("eth0", { method4: "auto" })],
@@ -395,7 +401,9 @@ describe("ConnectionForm", () => {
         connections: [buildConnection("eth0", { method4: "auto", addresses: ["192.168.1.1/24"] })],
       });
       mockUseSystem.mockReturnValue({
-        connections: [buildConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] })],
+        connections: [
+          buildConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] }),
+        ],
       });
       installerRender(<ConnectionForm />);
       expect(
@@ -425,7 +433,9 @@ describe("ConnectionForm", () => {
 
     it("shows Manual IPv6 when config sets method6 to manual, despite system reporting auto", () => {
       mockUseConfig.mockReturnValue({
-        connections: [buildConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] })],
+        connections: [
+          buildConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] }),
+        ],
       });
       mockUseSystem.mockReturnValue({
         connections: [buildConnection("eth0", { method6: "auto" })],
@@ -439,7 +449,9 @@ describe("ConnectionForm", () => {
         connections: [buildConnection("eth0", { method6: "auto", addresses: ["2001:db8::1/64"] })],
       });
       mockUseSystem.mockReturnValue({
-        connections: [buildConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] })],
+        connections: [
+          buildConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] }),
+        ],
       });
       installerRender(<ConnectionForm />);
       expect(
@@ -460,23 +472,9 @@ describe("ConnectionForm", () => {
   });
 
   describe("Auto-generated name", () => {
-    it("pre-fills with the connection type when binding is Any", async () => {
+    it("pre-fills with the connection type", () => {
       installerRender(<ConnectionForm />);
       expect(screen.getByLabelText("Name")).toHaveValue("Ethernet");
-    });
-
-    it("pre-fills with type_device when binding is changed to Chosen by name", async () => {
-      const { user } = installerRender(<ConnectionForm />);
-      await user.click(screen.getByLabelText("Device"));
-      await user.click(screen.getByRole("option", { name: /^Chosen by name/ }));
-      expect(screen.getByLabelText("Name")).toHaveValue("Ethernet enp1s0");
-    });
-
-    it("pre-fills with type_mac when binding is changed to Chosen by MAC", async () => {
-      const { user } = installerRender(<ConnectionForm />);
-      await user.click(screen.getByLabelText("Device"));
-      await user.click(screen.getByRole("option", { name: /^Chosen by MAC/ }));
-      expect(screen.getByLabelText("Name")).toHaveValue("Ethernet 00:11:22:33:44:55");
     });
 
     it("stops auto-updating once the user manually edits the name", async () => {

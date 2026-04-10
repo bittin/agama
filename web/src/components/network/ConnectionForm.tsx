@@ -363,16 +363,14 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
   // @see https://tanstack.com/form/latest/docs/framework/react/guides/listeners#form-listeners
   const syncName = ({ formApi }) => {
     if (formApi.getFieldMeta("name")?.isDirty) return;
-    const { bindingMode, iface, ifaceMac } = formApi.state.values;
     const existingIds = new Set(systemConns.map((c) => c.id));
-    formApi.setFieldValue(
-      "name",
-      generateConnectionName(ConnectionType.ETHERNET, bindingMode, iface, ifaceMac, existingIds),
-      { dontUpdateMeta: true, dontRunListeners: true },
-    );
+    formApi.setFieldValue("name", generateConnectionName(ConnectionType.ETHERNET, existingIds), {
+      dontUpdateMeta: true,
+      dontRunListeners: true,
+    });
   };
 
-  const syncNameListeners = { onMount: syncName, onChange: syncName };
+  const syncNameListeners = { onMount: syncName };
 
   const form = useAppForm({
     ...mergeFormDefaults(connectionFormOptions, {

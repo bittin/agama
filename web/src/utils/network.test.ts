@@ -124,47 +124,21 @@ describe("connectionBindingMode", () => {
 });
 
 describe("generateConnectionName", () => {
-  describe("when binding mode is 'none'", () => {
-    it("returns only the type as the name", () => {
-      expect(
-        generateConnectionName("ethernet", "none", "enp1s0", "AA:BB:CC:DD:EE:FF", new Set()),
-      ).toBe("Ethernet");
-    });
+  it("returns the connection type as the name", () => {
+    expect(generateConnectionName("ethernet", new Set())).toBe("Ethernet");
   });
 
-  describe("when binding mode is 'iface'", () => {
-    it("returns type and interface name as the name", () => {
-      expect(
-        generateConnectionName("ethernet", "iface", "enp1s0", "AA:BB:CC:DD:EE:FF", new Set()),
-      ).toBe("Ethernet enp1s0");
-    });
+  it("capitalizes the type", () => {
+    expect(generateConnectionName("wifi", new Set())).toBe("Wifi");
   });
 
-  describe("when binding mode is 'mac'", () => {
-    it("returns type and MAC as the name", () => {
-      expect(
-        generateConnectionName("ethernet", "mac", "enp1s0", "AA:BB:CC:DD:EE:FF", new Set()),
-      ).toBe("Ethernet AA:BB:CC:DD:EE:FF");
-    });
+  it("appends 2 as suffix when the base name is already taken", () => {
+    expect(generateConnectionName("ethernet", new Set(["Ethernet"]))).toBe("Ethernet 2");
   });
 
-  describe("when the base name is already taken", () => {
-    it("appends 2 as suffix", () => {
-      expect(generateConnectionName("ethernet", "none", "", "", new Set(["Ethernet"]))).toBe(
-        "Ethernet 2",
-      );
-    });
-
-    it("increments the suffix until a unique name is found", () => {
-      expect(
-        generateConnectionName(
-          "ethernet",
-          "none",
-          "",
-          "",
-          new Set(["Ethernet", "Ethernet 2", "Ethernet 3"]),
-        ),
-      ).toBe("Ethernet 4");
-    });
+  it("increments the suffix until a unique name is found", () => {
+    expect(
+      generateConnectionName("ethernet", new Set(["Ethernet", "Ethernet 2", "Ethernet 3"])),
+    ).toBe("Ethernet 4");
   });
 });
