@@ -62,7 +62,7 @@ jest.mock("~/hooks/model/system/network", () => ({
 }));
 
 /** Builds a Connection instance from minimal API data, with sensible defaults. */
-const makeConnection = (id: string, overrides = {}) =>
+const buildConnection = (id: string, overrides = {}) =>
   Connection.fromApi({
     id,
     status: ConnectionStatus.UP,
@@ -311,7 +311,7 @@ describe("ConnectionForm", () => {
   describe("when editing an existing connection", () => {
     beforeEach(() => {
       mockParams({ id: "eth0" });
-      mockUseSystem.mockReturnValue({ connections: [makeConnection("eth0")] });
+      mockUseSystem.mockReturnValue({ connections: [buildConnection("eth0")] });
     });
 
     it("does not show the name field since it cannot be changed", () => {
@@ -321,7 +321,7 @@ describe("ConnectionForm", () => {
 
     it("pre-selects Manual IPv4 when the connection uses manual IPv4 addressing", () => {
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] })],
+        connections: [buildConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] })],
       });
       installerRender(<ConnectionForm />);
       expect(screen.getByText("IPv4 Addresses")).toBeInTheDocument();
@@ -329,7 +329,7 @@ describe("ConnectionForm", () => {
 
     it("pre-selects Manual IPv6 when the connection uses manual IPv6 addressing", () => {
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] })],
+        connections: [buildConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] })],
       });
       installerRender(<ConnectionForm />);
       expect(screen.getByText("IPv6 Addresses")).toBeInTheDocument();
@@ -337,7 +337,7 @@ describe("ConnectionForm", () => {
 
     it("pre-checks custom DNS when the connection has nameservers", () => {
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { nameservers: ["8.8.8.8"] })],
+        connections: [buildConnection("eth0", { nameservers: ["8.8.8.8"] })],
       });
       installerRender(<ConnectionForm />);
       expect(screen.getByRole("checkbox", { name: "Use custom DNS" })).toBeChecked();
@@ -345,7 +345,7 @@ describe("ConnectionForm", () => {
 
     it("pre-checks custom DNS search domains when the connection has search domains", () => {
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { dnsSearchList: ["example.com"] })],
+        connections: [buildConnection("eth0", { dnsSearchList: ["example.com"] })],
       });
       installerRender(<ConnectionForm />);
       expect(screen.getByRole("checkbox", { name: "Use custom DNS search domains" })).toBeChecked();
@@ -353,7 +353,7 @@ describe("ConnectionForm", () => {
 
     it("submits the updated connection when accepting the form", async () => {
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { nameservers: ["8.8.8.8"] })],
+        connections: [buildConnection("eth0", { nameservers: ["8.8.8.8"] })],
       });
       const { user } = installerRender(<ConnectionForm />);
       await user.click(screen.getByRole("button", { name: "Accept" }));
@@ -371,9 +371,9 @@ describe("ConnectionForm", () => {
     });
 
     it("shows Automatic IPv4 when config has no method, despite system reporting auto", () => {
-      mockUseConfig.mockReturnValue({ connections: [makeConnection("eth0")] });
+      mockUseConfig.mockReturnValue({ connections: [buildConnection("eth0")] });
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { method4: "auto" })],
+        connections: [buildConnection("eth0", { method4: "auto" })],
       });
       installerRender(<ConnectionForm />);
       expect(screen.queryByText("IPv4 Addresses")).not.toBeInTheDocument();
@@ -381,10 +381,10 @@ describe("ConnectionForm", () => {
 
     it("shows Manual IPv4 when config sets method4 to manual, despite system reporting auto", () => {
       mockUseConfig.mockReturnValue({
-        connections: [makeConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] })],
+        connections: [buildConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] })],
       });
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { method4: "auto" })],
+        connections: [buildConnection("eth0", { method4: "auto" })],
       });
       installerRender(<ConnectionForm />);
       expect(screen.getByText("IPv4 Addresses")).toBeInTheDocument();
@@ -392,10 +392,10 @@ describe("ConnectionForm", () => {
 
     it("shows Advanced IPv4 when config sets method4 to auto, despite system reporting manual", () => {
       mockUseConfig.mockReturnValue({
-        connections: [makeConnection("eth0", { method4: "auto", addresses: ["192.168.1.1/24"] })],
+        connections: [buildConnection("eth0", { method4: "auto", addresses: ["192.168.1.1/24"] })],
       });
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] })],
+        connections: [buildConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] })],
       });
       installerRender(<ConnectionForm />);
       expect(
@@ -404,9 +404,9 @@ describe("ConnectionForm", () => {
     });
 
     it("shows Advanced IPv4 when config has no method but system already has IPv4 addresses", () => {
-      mockUseConfig.mockReturnValue({ connections: [makeConnection("eth0")] });
+      mockUseConfig.mockReturnValue({ connections: [buildConnection("eth0")] });
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { addresses: ["192.168.1.1/24"] })],
+        connections: [buildConnection("eth0", { addresses: ["192.168.1.1/24"] })],
       });
       installerRender(<ConnectionForm />);
       expect(
@@ -415,9 +415,9 @@ describe("ConnectionForm", () => {
     });
 
     it("shows Automatic IPv6 when config has no method, despite system reporting auto", () => {
-      mockUseConfig.mockReturnValue({ connections: [makeConnection("eth0")] });
+      mockUseConfig.mockReturnValue({ connections: [buildConnection("eth0")] });
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { method6: "auto" })],
+        connections: [buildConnection("eth0", { method6: "auto" })],
       });
       installerRender(<ConnectionForm />);
       expect(screen.queryByText("IPv6 Addresses")).not.toBeInTheDocument();
@@ -425,10 +425,10 @@ describe("ConnectionForm", () => {
 
     it("shows Manual IPv6 when config sets method6 to manual, despite system reporting auto", () => {
       mockUseConfig.mockReturnValue({
-        connections: [makeConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] })],
+        connections: [buildConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] })],
       });
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { method6: "auto" })],
+        connections: [buildConnection("eth0", { method6: "auto" })],
       });
       installerRender(<ConnectionForm />);
       expect(screen.getByText("IPv6 Addresses")).toBeInTheDocument();
@@ -436,10 +436,10 @@ describe("ConnectionForm", () => {
 
     it("shows Advanced IPv6 when config sets method6 to auto, despite system reporting manual", () => {
       mockUseConfig.mockReturnValue({
-        connections: [makeConnection("eth0", { method6: "auto", addresses: ["2001:db8::1/64"] })],
+        connections: [buildConnection("eth0", { method6: "auto", addresses: ["2001:db8::1/64"] })],
       });
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] })],
+        connections: [buildConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] })],
       });
       installerRender(<ConnectionForm />);
       expect(
@@ -448,9 +448,9 @@ describe("ConnectionForm", () => {
     });
 
     it("shows Advanced IPv6 when config has no method but system already has IPv6 addresses", () => {
-      mockUseConfig.mockReturnValue({ connections: [makeConnection("eth0")] });
+      mockUseConfig.mockReturnValue({ connections: [buildConnection("eth0")] });
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { addresses: ["2001:db8::1/64"] })],
+        connections: [buildConnection("eth0", { addresses: ["2001:db8::1/64"] })],
       });
       installerRender(<ConnectionForm />);
       expect(
