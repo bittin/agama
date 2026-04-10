@@ -284,13 +284,16 @@ const VgMenu = ({ index }: { index: number }) => {
 
 const AddLvButton = ({ index }: { index: number }) => {
   const navigate = useNavigate();
+  const volumeGroupConfig = useVolumeGroup(index);
+
   const newLvPath = generateEncodedPath(PATHS.volumeGroup.logicalVolume.add, { id: index });
 
   return (
     <Button variant="plain" key="add-logical-volume" onClick={() => navigate(newLvPath)}>
       <Flex alignItems={{ default: "alignItemsCenter" }} gap={{ default: "gapXs" }}>
         {/** TODO: choose one, "add" or "add_circle", and remove the other at Icon.tsx */}
-        <Icon name="add_circle" /> {_("Add logical volume")}
+        <Icon name="add_circle" />
+        {volumeGroupConfig.name ? _("Add or use logical volume") : _("Add logical volume")}
       </Flex>
     </Button>
   );
