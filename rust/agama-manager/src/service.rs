@@ -97,6 +97,8 @@ pub enum Error {
     Users(#[from] users::service::Error),
     #[error(transparent)]
     S390(#[from] s390::service::Error),
+    #[error(transparent)]
+    Ipmi(#[from] ipmi::Error),
 }
 
 pub struct Starter {
@@ -814,7 +816,25 @@ impl MessageHandler<message::RunAction> for Service {
                 self.probe_dasd().await?;
             }
             Action::Install => {
-                self.tasks.cast(tasks::message::Install)?;
+                let ipmi = ipmi::Ipmi::new();
+
+                if let Err(e) = ipmi.started() {
+                    tracing::info!("{}", e);
+                }
+
+                match self.tasks.cast(tasks::message::Install) {
+                    Ok(_) => {
+                        if let Err(e) = ipmi.finished() {
+                            tracing::info!("{}", e);
+                        }
+                    }
+                    Err(e) => {
+                        if let Err(e) = ipmi.failed() {
+                            tracing::info!("{}", e);
+                        }
+                        return Err(e);
+                    }
+                }
             }
             Action::Finish(method) => {
                 checks::check_stage(&self.progress, Stage::Finished).await?;
