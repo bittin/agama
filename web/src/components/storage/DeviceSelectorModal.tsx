@@ -320,11 +320,7 @@ export default function DeviceSelectorModal({
                   <>
                     {newVolumeGroupLinkText && (
                       <TabIntro
-                        sentence={sprintf(
-                          // TRANSLATORS: %s is replaced by a link label describing the creation of a new volume group
-                          _("Select an available device or [%s]."),
-                          newVolumeGroupLinkText,
-                        )}
+                        sentence={sprintf("[%s]", newVolumeGroupLinkText)}
                         linkTo={STORAGE.volumeGroup.add}
                       />
                     )}
