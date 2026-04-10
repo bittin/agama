@@ -29,7 +29,6 @@ use agama_lib::{
 use agama_utils::api::{self, IssueWithScope, Scope, question::Question, status::Stage};
 use gettextrs::gettext;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
-use serde_json::json;
 
 /// Displays the progress on the terminal.
 #[derive(Debug)]
@@ -199,16 +198,48 @@ impl ProgressMonitor {
 
     async fn print_questions(&self, questions: &Vec<Question>) -> anyhow::Result<()> {
         println!("{}", gettext("There are unanswered questions. Please use `agama questions` command or web interface to answer them:"));
-        // TODO: real question asking and better formatting
-        println!("{}", json!(questions).to_string());
+        for q in questions {
+            // Should we also print question class?
+            println!("  - {}", q.spec.text);
+        }
         Ok(())
     }
 
     fn print_issues(issues: &Vec<IssueWithScope>) -> anyhow::Result<()> {
         println!("{}", gettext("There are issues blocking installation:"));
-        // TODO: better formatting
-        println!("{}", json!(issues).to_string());
+
+        let mut grouped: HashMap<&Scope, Vec<&api::Issue>> = HashMap::new();
+        for i in issues {
+            grouped.entry(&i.scope).or_default().push(&i.issue);
+        }
+
+        for (scope, issues) in grouped {
+            println!("\n{}:", Self::scope_to_string(scope));
+            for issue in issues {
+                println!("  - {}", issue.description);
+                if let Some(details) = &issue.details {
+                    println!("    {}: {}", gettext("Details"), details);
+                }
+            }
+        }
         Ok(())
+    }
+
+    fn scope_to_string(scope: &Scope) -> String {
+        match scope {
+            Scope::Manager => gettext("Manager"),
+            Scope::Network => gettext("Network"),
+            Scope::Hostname => gettext("Hostname"),
+            Scope::L10n => gettext("Localization"),
+            Scope::Product => gettext("Product"),
+            Scope::Software => gettext("Software"),
+            Scope::Storage => gettext("Storage"),
+            Scope::Files => gettext("Files"),
+            Scope::ISCSI => gettext("iSCSI"),
+            Scope::DASD => gettext("DASD"),
+            Scope::ZFCP => gettext("zFCP"),
+            Scope::Users => gettext("Users"),
+        }
     }
 
     fn create_progress_bar(multibar: &MultiProgress, progress: &api::Progress) -> ProgressBar {
@@ -216,7 +247,8 @@ impl ProgressMonitor {
         let template = if progress.scope == Scope::Manager {
             format!("{} ({{pos:>2}}/{{len:2}}): {{wide_msg}}", gettext("Current step"))
         } else {
-            "{wide_bar:40!.green} {pos:>5}/{len:5} {msg}".to_string()
+            let scope_str = Self::scope_to_string(&progress.scope);
+            format!("{scope_str:>14} {{wide_bar:40!.green}} {{pos:>5}}/{{len:5}} {{msg}}")
         };
         // unwrap is safe as we created the style ( hope rust can do compile time check in future )
         bar.set_style(ProgressStyle::with_template(&template).unwrap());
