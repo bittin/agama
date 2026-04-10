@@ -76,7 +76,7 @@ function add(
   moveContent: boolean,
 ): ConfigModel.Config {
   config = configModel.clone(config);
-  adjustSpacePolicies(config, data.targetDevices);
+  adjustSpacePolicies(config, data.targetDevices || []);
 
   const volumeGroup = create(data);
 

@@ -317,7 +317,11 @@ const LogicalVolumes = ({ index }: { index: number }) => {
   };
 
   if (isEmpty(vg.logicalVolumes)) {
-    return <AddLvButton index={index} />;
+    return (
+      <Flex>
+        <AddLvButton index={index} />
+      </Flex>
+    );
   }
 
   const description = n_(

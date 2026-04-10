@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2025] SUSE LLC
+ * Copyright (c) [2025-2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -25,7 +25,12 @@ import { useNavigate } from "react-router";
 import MenuButton, { MenuButtonItem } from "~/components/core/MenuButton";
 import { Divider, Flex, MenuItemProps } from "@patternfly/react-core";
 import { useAvailableDevices } from "~/hooks/model/system/storage";
-import { useConfigModel, useAddDrive, useAddMdRaid } from "~/hooks/model/storage/config-model";
+import {
+  useConfigModel,
+  useAddDrive,
+  useAddMdRaid,
+  useAddVolumeGroup,
+} from "~/hooks/model/storage/config-model";
 import { STORAGE as PATHS } from "~/routes/paths";
 import { sprintf } from "sprintf-js";
 import { _, n_ } from "~/i18n";
@@ -127,7 +132,8 @@ export default function ConfigureDeviceMenu(): React.ReactNode {
 
   const config = useConfigModel();
   const addDrive = useAddDrive();
-  const addReusedMdRaid = useAddMdRaid();
+  const addMdRaid = useAddMdRaid();
+  const addVolumeGroup = useAddVolumeGroup();
   const allDevices = useAvailableDevices();
 
   const usedDevicesNames = configModel.devices(config).map((d) => d.name);
@@ -139,8 +145,11 @@ export default function ConfigureDeviceMenu(): React.ReactNode {
   const withRaids = !!allDevices.filter((d) => !isDrive(d)).length;
 
   const addDevice = (device: Storage.Device) => {
-    const hook = isDrive(device) ? addDrive : addReusedMdRaid;
-    hook({ name: device.name, spacePolicy: "keep" });
+    if (isDrive(device)) addDrive({ name: device.name, spacePolicy: "keep" });
+
+    if (isMd(device)) addMdRaid({ name: device.name, spacePolicy: "keep" });
+
+    if (isVolumeGroup(device)) addVolumeGroup({ name: device.name, spacePolicy: "keep" }, false);
   };
 
   const lvmDescription = allDevices.length
