@@ -79,11 +79,11 @@ const ChangeVolumeGroupTitle = ({ deviceConfig }: ChangeVolumeGroupTitleProps) =
   const hasMountPaths = !isEmpty(mountPaths.length);
 
   if (!hasMountPaths) {
-    return _("Change the volume group to configure");
+    return _("Change the device to configure");
   }
 
   if (mountPaths.includes("/")) {
-    return _("Change the volume group to install the system");
+    return _("Change the device to install the system");
   }
 
   const newMountPaths = deviceConfig.logicalVolumes
@@ -93,7 +93,7 @@ const ChangeVolumeGroupTitle = ({ deviceConfig }: ChangeVolumeGroupTitleProps) =
   return sprintf(
     // TRANSLATORS: %s is a list of formatted mount points like '"/", "/var" and "swap"' (or a
     // single mount point in the singular case).
-    _("Change the volume group to create %s"),
+    _("Change the device to create %s"),
     formatList(newMountPaths),
   );
 };
