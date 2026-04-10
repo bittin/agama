@@ -85,7 +85,7 @@ impl Ipmi {
         // Write the event string
         let content = format!("0x04 0x1F 0x00 0x6f 0x{:02x} 0x00 0x00\n", code);
 
-        if let Err(_) = file.write_all(content.as_bytes()) {
+        if file.write_all(content.as_bytes()).is_err() {
             return Err(Error::Tool {
                 desc: "ipmitool failed, cannot create event file".to_string(),
             });
@@ -112,5 +112,11 @@ impl Ipmi {
                 desc: format!("ipmitool failed, status: {}", e),
             }),
         }
+    }
+}
+
+impl Default for Ipmi {
+    fn default() -> Self {
+        Self::new()
     }
 }
