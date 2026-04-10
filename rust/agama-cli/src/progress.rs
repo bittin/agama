@@ -193,9 +193,8 @@ impl ProgressMonitor {
     }
 
     fn clear_terminal() {
-        // do not use print!("\x1B[2J\x1B[1;1H"); as it will kill scrolling of terminal, e.g. in ssh session
-        // it is esc + c which is in VT100 reset terminal - https://web.archive.org/web/20191222201924/http://www.termsys.demon.co.uk/vtansi.htm
-        print!("{esc}c", esc = 27 as char);
+        // ignore failure of screen clearing, as it not critical
+        let _ = console::Term::stdout().clear_screen();
     }
 
     async fn print_questions(&self, questions: &Vec<Question>) -> anyhow::Result<()> {
@@ -252,7 +251,7 @@ impl ProgressMonitor {
                 gettext("Current step")
             )
         } else {
-            "{wide_bar:40.green} {pos:>5}/{len:5} {wide_msg}".to_string()
+            "{bar:40.green} {pos:>5}/{len:5} {wide_msg}".to_string()
         };
         // unwrap is safe as we created the style ( hope rust can do compile time check in future )
         bar.set_style(ProgressStyle::with_template(&template).unwrap());
