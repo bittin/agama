@@ -19,8 +19,8 @@
 // find current contact information at www.suse.com.
 
 use crate::{
-    actions::FinishAction, bootloader, checks, files, hardware, hostname, iscsi, l10n, message,
-    network, proxy, s390, security, software, storage, tasks, users,
+    actions::FinishAction, bootloader, checks, files, hardware, hostname, ipmi, iscsi, l10n,
+    message, network, proxy, s390, security, software, storage, tasks, users,
 };
 use agama_users::PasswordCheckResult;
 use agama_utils::{
