@@ -57,7 +57,7 @@ const sde: Storage.Device = { ...sda, sid: 5, name: "/dev/sde", description: "SD
 
 jest.mock("~/hooks/model/system/storage", () => ({
   ...jest.requireActual("~/hooks/model/system/storage"),
-  useDevices: () => [sda, sdb, sdc, sdd, sde],
+  useFlattenDevices: () => [sda, sdb, sdc, sdd, sde],
 }));
 
 const vg0: Storage.Device = {

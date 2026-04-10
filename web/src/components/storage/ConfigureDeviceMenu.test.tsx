@@ -90,6 +90,7 @@ jest.mock("~/hooks/model/system/storage", () => ({
   ...jest.requireActual("~/hooks/model/system/storage"),
   useAvailableDevices: () => mockUseAvailableDevices(),
   useDevices: () => [],
+  useFlattenDevices: () => [],
 }));
 
 jest.mock("~/hooks/model/storage/config-model", () => ({
@@ -97,6 +98,7 @@ jest.mock("~/hooks/model/storage/config-model", () => ({
   useConfigModel: () => mockUseModel(),
   useAddDrive: () => mockAddDrive,
   useAddMdRaid: () => mockAddReusedMdRaid,
+  useAddVolumeGroup: () => jest.fn(),
 }));
 
 describe("ConfigureDeviceMenu", () => {

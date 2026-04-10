@@ -67,7 +67,10 @@ describe("DeviceContent", () => {
   });
 
   it("renders filesystem labels", () => {
-    const device: Storage.Device = { ...disk, filesystem: { sid: 100, type: "ext4", label: "root" } };
+    const device: Storage.Device = {
+      ...disk,
+      filesystem: { sid: 100, type: "ext4", label: "root" },
+    };
     plainRender(<DeviceContent device={device} />);
     screen.getByText("root");
   });

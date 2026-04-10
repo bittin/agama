@@ -257,7 +257,7 @@ export default function DeviceSelectorModal({
     <Popup
       isOpen
       variant="medium"
-      description={_("Use the tabs to browse disks, RAID devices, and LVM volume groups.")}
+      description={_("Use the tabs to browse disks, RAID devices and LVM volume groups.")}
       elementToFocus={deviceInInitialTab ? "input[type=radio]:checked" : undefined}
       {...popupProps}
       className={[sizingStyles.h_100vhOnMd, sizingStyles.h_75vhOnLg, sizingStyles.h_50vhOnXl].join(
