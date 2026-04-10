@@ -120,8 +120,7 @@ describe("MdRaidsTable", () => {
   it("renders the current content of each member device", () => {
     plainRender(<MdRaidsTable devices={[md0]} onSelectionChange={onSelectionChangeMock} />);
     const md0Row = screen.getByRole("row", { name: /md0/ });
-    within(md0Row).getByText("SDA");
-    within(md0Row).getByText("SDB");
+    within(md0Row).getByText("MD RAID 0");
   });
 
   it("renders the member names", () => {

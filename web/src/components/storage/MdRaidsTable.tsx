@@ -21,7 +21,6 @@
  */
 
 import React, { useState } from "react";
-import { Stack } from "@patternfly/react-core";
 import SelectableDataTable from "~/components/core/SelectableDataTable";
 import DeviceContent from "~/components/storage/DeviceContent";
 import { useFlattenDevices } from "~/hooks/model/system/storage";
@@ -54,17 +53,6 @@ const memberNames = (device: Storage.Device, systemDevices: Storage.Device[]): s
     })
     .join(", ");
 
-const content = (device: Storage.Device, systemDevices: Storage.Device[]) => {
-  return (
-    <Stack hasGutter>
-      {device.md.devices.map((sid) => {
-        const pv = systemDevices.find((d) => d.sid === sid);
-        return pv ? <DeviceContent key={sid} device={pv} /> : null;
-      })}
-    </Stack>
-  );
-};
-
 /**
  * Table for selecting among available software RAID devices.
  */
@@ -95,10 +83,7 @@ export default function MdRaidsTable({
       name: _("Members"),
       value: (device: Storage.Device) => memberNames(device, systemDevices),
     },
-    {
-      name: _("Current content"),
-      value: (device: Storage.Device) => content(device, systemDevices),
-    },
+    { name: _("Current content"), value: (d: Storage.Device) => <DeviceContent device={d} /> },
   ];
 
   const sortingKey = columns[sortedBy.index].sortingKey;
