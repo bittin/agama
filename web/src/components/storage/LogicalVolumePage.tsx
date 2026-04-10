@@ -318,7 +318,7 @@ function useMountPointError(value: FormValue): Error | undefined {
 }
 
 function checkLogicalVolumeName(value: FormValue): Error | undefined {
-  if (value.name?.length) return;
+  if (value.target !== NEW_LOGICAL_VOLUME || value.name?.length) return;
 
   return {
     id: "logicalVolumeName",
