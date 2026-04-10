@@ -98,7 +98,7 @@ impl Ipmi {
             .arg(file.path())
             .status();
 
-        return match status {
+        match status {
             Ok(s) => {
                 if !s.success() {
                     Err(Error::Command {
@@ -108,11 +108,9 @@ impl Ipmi {
                     Ok(())
                 }
             }
-            Err(e) => {
-                Err(Error::Command {
-                    desc: format!("ipmitool failed, status: {}", e),
-                })
-            }
-        };
+            Err(e) => Err(Error::Command {
+                desc: format!("ipmitool failed, status: {}", e),
+            }),
+        }
     }
 }
