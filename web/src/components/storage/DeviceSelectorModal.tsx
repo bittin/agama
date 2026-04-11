@@ -52,8 +52,6 @@ import { _ } from "~/i18n";
 import type { PopupProps } from "~/components/core/Popup";
 import type { Storage } from "~/model/system";
 
-import sizingStyles from "@patternfly/react-styles/css/utilities/Sizing/sizing";
-
 /** Identifies which tab is active in {@link DeviceSelectorModal}. */
 export type TabKey = "disks" | "mdRaids" | "volumeGroups";
 
@@ -260,9 +258,7 @@ export default function DeviceSelectorModal({
       description={_("Use the tabs to browse disks, RAID devices and LVM volume groups.")}
       elementToFocus={deviceInInitialTab ? "input[type=radio]:checked" : undefined}
       {...popupProps}
-      className={[sizingStyles.h_100vhOnMd, sizingStyles.h_75vhOnLg, sizingStyles.h_50vhOnXl].join(
-        " ",
-      )}
+      style={{ height: "70dvh" }}
     >
       <Stack hasGutter>
         {intro}
