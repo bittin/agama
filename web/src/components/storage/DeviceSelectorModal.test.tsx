@@ -396,6 +396,172 @@ describe("DeviceSelectorModal", () => {
     });
   });
 
+  describe("tabIntros", () => {
+    it("shows intro text in the Disks tab when devices are present", () => {
+      installerRender(
+        <DeviceSelectorModal
+          disks={[sda]}
+          tabIntros={{ disks: <p>Disk intro text</p> }}
+          title="Select"
+          onCancel={onCancelMock}
+          onConfirm={onConfirmMock}
+        />,
+      );
+      screen.getByText("Disk intro text");
+    });
+
+    it("shows intro text in the RAID tab when devices are present", async () => {
+      const { user } = installerRender(
+        <DeviceSelectorModal
+          mdRaids={[md0]}
+          tabIntros={{ mdRaids: <p>RAID intro text</p> }}
+          title="Select"
+          onCancel={onCancelMock}
+          onConfirm={onConfirmMock}
+        />,
+      );
+      await user.click(screen.getByRole("tab", { name: "RAID" }));
+      screen.getByText("RAID intro text");
+    });
+
+    it("shows intro text in the LVM tab when devices are present", async () => {
+      const { user } = installerRender(
+        <DeviceSelectorModal
+          volumeGroups={[vg0]}
+          tabIntros={{ volumeGroups: <p>LVM intro text</p> }}
+          title="Select"
+          onCancel={onCancelMock}
+          onConfirm={onConfirmMock}
+        />,
+      );
+      await user.click(screen.getByRole("tab", { name: "LVM" }));
+      screen.getByText("LVM intro text");
+    });
+
+    it("does not show intro text when tab is empty", async () => {
+      const { user } = installerRender(
+        <DeviceSelectorModal
+          tabIntros={{ mdRaids: <p>RAID intro text</p> }}
+          title="Select"
+          onCancel={onCancelMock}
+          onConfirm={onConfirmMock}
+        />,
+      );
+      await user.click(screen.getByRole("tab", { name: "RAID" }));
+      expect(screen.queryByText("RAID intro text")).toBeNull();
+    });
+  });
+
+  describe("custom empty states", () => {
+    it("shows custom empty state title for Disks tab", () => {
+      installerRender(
+        <DeviceSelectorModal
+          emptyStateTitles={{ disks: "Custom disk title" }}
+          title="Select"
+          onCancel={onCancelMock}
+          onConfirm={onConfirmMock}
+        />,
+      );
+      screen.getByText("Custom disk title");
+    });
+
+    it("shows custom empty state body for RAID tab", async () => {
+      const { user } = installerRender(
+        <DeviceSelectorModal
+          emptyStateBodies={{ mdRaids: "Custom RAID body text" }}
+          title="Select"
+          onCancel={onCancelMock}
+          onConfirm={onConfirmMock}
+        />,
+      );
+      await user.click(screen.getByRole("tab", { name: "RAID" }));
+      screen.getByText("Custom RAID body text");
+    });
+
+    it("shows custom empty state for LVM tab", async () => {
+      const { user } = installerRender(
+        <DeviceSelectorModal
+          emptyStateTitles={{ volumeGroups: "No VGs available" }}
+          emptyStateBodies={{ volumeGroups: "Cannot format volume groups" }}
+          title="Select"
+          onCancel={onCancelMock}
+          onConfirm={onConfirmMock}
+        />,
+      );
+      await user.click(screen.getByRole("tab", { name: "LVM" }));
+      screen.getByText("No VGs available");
+      screen.getByText("Cannot format volume groups");
+    });
+
+    it("falls back to default empty state when custom not provided", () => {
+      installerRender(
+        <DeviceSelectorModal title="Select" onCancel={onCancelMock} onConfirm={onConfirmMock} />,
+      );
+      screen.getByText("No disks found");
+      screen.getByText("No disks are available for selection.");
+    });
+  });
+
+  describe("newDeviceLinkTexts", () => {
+    // RAID device creation is not yet implemented (no STORAGE.mdRaid.add route exists)
+    it.skip("shows create link for RAID in empty state", async () => {
+      const { user } = installerRender(
+        <DeviceSelectorModal
+          newDeviceLinkTexts={{ mdRaids: "Create new RAID" }}
+          title="Select"
+          onCancel={onCancelMock}
+          onConfirm={onConfirmMock}
+        />,
+      );
+      await user.click(screen.getByRole("tab", { name: "RAID" }));
+      screen.getByRole("link", { name: "Create new RAID" });
+    });
+
+    it("shows create link for LVM in empty state", async () => {
+      const { user } = installerRender(
+        <DeviceSelectorModal
+          newDeviceLinkTexts={{ volumeGroups: "Create new LVM" }}
+          title="Select"
+          onCancel={onCancelMock}
+          onConfirm={onConfirmMock}
+        />,
+      );
+      await user.click(screen.getByRole("tab", { name: "LVM" }));
+      screen.getByRole("link", { name: "Create new LVM" });
+    });
+
+    // RAID device creation is not yet implemented (no STORAGE.mdRaid.add route exists)
+    it.skip("shows create link for RAID when devices exist", async () => {
+      const { user } = installerRender(
+        <DeviceSelectorModal
+          mdRaids={[md0]}
+          newDeviceLinkTexts={{ mdRaids: "Add another RAID" }}
+          title="Select"
+          onCancel={onCancelMock}
+          onConfirm={onConfirmMock}
+        />,
+      );
+      await user.click(screen.getByRole("tab", { name: "RAID" }));
+      screen.getByRole("link", { name: "Add another RAID" });
+    });
+
+    it("shows both tabIntros and newDeviceLinkTexts together", async () => {
+      const { user } = installerRender(
+        <DeviceSelectorModal
+          volumeGroups={[vg0]}
+          tabIntros={{ volumeGroups: <p>Choose a volume group</p> }}
+          newDeviceLinkTexts={{ volumeGroups: "Create new VG" }}
+          title="Select"
+          onCancel={onCancelMock}
+          onConfirm={onConfirmMock}
+        />,
+      );
+      await user.click(screen.getByRole("tab", { name: "LVM" }));
+      screen.getByText("Choose a volume group");
+      screen.getByRole("link", { name: "Create new VG" });
+    });
+  });
+
   describe("actions", () => {
     it("triggers onCancel when user selects Cancel", async () => {
       const { user } = installerRender(
