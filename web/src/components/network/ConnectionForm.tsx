@@ -123,6 +123,18 @@ function inferIpMode(method: ConnectionMethod | undefined, addresses: string[]):
 }
 
 /**
+ * Normalizes an IP address by adding a default prefix if missing.
+ *
+ * Used when loading addresses from the backend to ensure they always have
+ * a prefix in the form, providing consistent UX.
+ */
+const normalizeAddress = (formatted: string): string => {
+  if (formatted.includes("/")) return formatted;
+  if (!isValidIPv4Address(formatted) && !isValidIPv6Address(formatted)) return formatted;
+  return addDefaultIPPrefix(formatted);
+};
+
+/**
  * Maps an existing {@link Connection} to initial form values for editing.
  */
 function connectionToFormValues(connection: Connection): Partial<FormValues> {
@@ -131,7 +143,7 @@ function connectionToFormValues(connection: Connection): Partial<FormValues> {
   const addresses6: string[] = [];
 
   for (const addr of connection.addresses) {
-    const formatted = formatIp(addr);
+    const formatted = normalizeAddress(formatIp(addr));
     if (isValidIPv4Address(addr.address)) {
       addresses4.push(formatted);
     } else {
@@ -222,12 +234,6 @@ function validateGateway(
     return isValid(gateway) ? undefined : invalidMsg;
 }
 
-/** Ensures a CIDR string has a prefix, adding a classful default if missing. */
-const withPrefix = (address: string): string => {
-  if (address.includes("/")) return address;
-  return addDefaultIPPrefix(address);
-};
-
 /**
  * Validates the connection form values.
  *
@@ -301,15 +307,18 @@ function validateConnectionForm(formValues: FormValues): FormFieldErrors | undef
 
 /**
  * Builds a {@link Connection} from the validated form values.
+ *
+ * Addresses in formValues already have prefixes (added by ArrayField's
+ * normalize or when loading from backend), so no prefix addition is needed.
  */
 function buildConnection(formValues: FormValues): Connection {
   const ipv4Addresses =
     formValues.ipv4Mode === "manual" || formValues.ipv4Mode === "auto"
-      ? formValues.addresses4.map(withPrefix).map(buildAddress)
+      ? formValues.addresses4.map(buildAddress)
       : [];
   const ipv6Addresses =
     formValues.ipv6Mode === "manual" || formValues.ipv6Mode === "auto"
-      ? formValues.addresses6.map(withPrefix).map(buildAddress)
+      ? formValues.addresses6.map(buildAddress)
       : [];
 
   return new Connection(formValues.name, {
