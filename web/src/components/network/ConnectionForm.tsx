@@ -43,6 +43,7 @@ import { useSystem, useDevices } from "~/hooks/model/system/network";
 import { extendCollection } from "~/utils";
 import { NETWORK } from "~/routes/paths";
 import {
+  addDefaultIPPrefix,
   buildAddress,
   connectionBindingMode,
   formatIp,
@@ -55,9 +56,6 @@ import {
   isValidDNSSearchDomain,
 } from "~/utils/network";
 import { _ } from "~/i18n";
-
-const IPV4_DEFAULT_PREFIX = 24;
-const IPV6_DEFAULT_PREFIX = 64;
 
 /**
  * Maps form mode values to their corresponding {@link ConnectionMethod}.
@@ -224,12 +222,10 @@ function validateGateway(
     return isValid(gateway) ? undefined : invalidMsg;
 }
 
-/** Ensures a CIDR string has a prefix, adding a protocol-appropriate default if missing. */
+/** Ensures a CIDR string has a prefix, adding a classful default if missing. */
 const withPrefix = (address: string): string => {
   if (address.includes("/")) return address;
-  return address.includes(":")
-    ? `${address}/${IPV6_DEFAULT_PREFIX}`
-    : `${address}/${IPV4_DEFAULT_PREFIX}`;
+  return addDefaultIPPrefix(address);
 };
 
 /**
