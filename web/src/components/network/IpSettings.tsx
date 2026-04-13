@@ -25,21 +25,8 @@ import NestedContent from "~/components/core/NestedContent";
 import LabelText from "~/components/form/LabelText";
 import { connectionFormOptions } from "~/components/network/ConnectionForm";
 import { withForm } from "~/hooks/form";
-import { addDefaultIPPrefix, isValidIPv4Address, isValidIPv6Address } from "~/utils/network";
+import { ensureIPPrefix, isValidIPv4Address, isValidIPv6Address } from "~/utils/network";
 import { _, N_ } from "~/i18n";
-
-/**
- * Normalizes an IP address entry by adding a default prefix if valid and
- * missing.
- *
- * Only adds a prefix if the value is a valid IP address without one. Invalid
- * values are returned unchanged for validation to handle.
- */
-const normalizeIPAddress = (value: string): string => {
-  if (value.includes("/")) return value;
-  if (!isValidIPv4Address(value) && !isValidIPv6Address(value)) return value;
-  return addDefaultIPPrefix(value);
-};
 
 /**
  * Mode options shared by both IPv4 and IPv6 settings.
@@ -154,7 +141,7 @@ const IpSettings = withForm({
                         mode === "auto" ? `${addressesLabel} ${_("(optional)")}` : addressesLabel
                       }
                       skipDuplicates
-                      normalize={normalizeIPAddress}
+                      normalize={ensureIPPrefix}
                       validateOnSubmit={(v) => {
                         if (isIPv4 ? isValidIPv4Address(v) : isValidIPv6Address(v))
                           return undefined;

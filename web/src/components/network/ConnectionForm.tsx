@@ -43,9 +43,9 @@ import { useSystem, useDevices } from "~/hooks/model/system/network";
 import { extendCollection } from "~/utils";
 import { NETWORK } from "~/routes/paths";
 import {
-  addDefaultIPPrefix,
   buildAddress,
   connectionBindingMode,
+  ensureIPPrefix,
   formatIp,
   generateConnectionName,
   isValidIPv4,
@@ -123,18 +123,6 @@ function inferIpMode(method: ConnectionMethod | undefined, addresses: string[]):
 }
 
 /**
- * Normalizes an IP address by adding a default prefix if missing.
- *
- * Used when loading addresses from the backend to ensure they always have
- * a prefix in the form, providing consistent UX.
- */
-const normalizeAddress = (formatted: string): string => {
-  if (formatted.includes("/")) return formatted;
-  if (!isValidIPv4Address(formatted) && !isValidIPv6Address(formatted)) return formatted;
-  return addDefaultIPPrefix(formatted);
-};
-
-/**
  * Maps an existing {@link Connection} to initial form values for editing.
  */
 function connectionToFormValues(connection: Connection): Partial<FormValues> {
@@ -143,7 +131,7 @@ function connectionToFormValues(connection: Connection): Partial<FormValues> {
   const addresses6: string[] = [];
 
   for (const addr of connection.addresses) {
-    const formatted = normalizeAddress(formatIp(addr));
+    const formatted = ensureIPPrefix(formatIp(addr));
     if (isValidIPv4Address(addr.address)) {
       addresses4.push(formatted);
     } else {

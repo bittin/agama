@@ -312,6 +312,17 @@ const addDefaultIPPrefix = (address: string): string => {
   return `${address}/${IPV6_DEFAULT_PREFIX}`;
 };
 
+/**
+ * Ensures a value has a default CIDR prefix if it's a valid IP address.
+ *
+ * Returns the value unchanged if it already has a prefix or is not a valid IP.
+ */
+const ensureIPPrefix = (value: string): string => {
+  if (value.includes("/")) return value;
+  if (!isValidIPv4Address(value) && !isValidIPv6Address(value)) return value;
+  return addDefaultIPPrefix(value);
+};
+
 export {
   addDefaultIPPrefix,
   buildAddress,
@@ -326,6 +337,7 @@ export {
   buildRoutes,
   connectionAddresses,
   connectionBindingMode,
+  ensureIPPrefix,
   formatIp,
   generateConnectionName,
   intToIPString,
