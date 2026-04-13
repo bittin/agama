@@ -18,7 +18,7 @@
 // To contact SUSE LLC about this file by physical or electronic mail, you may
 // find current contact information at www.suse.com.
 
-use std::{collections::HashMap, thread::sleep, time::Duration};
+use std::{collections::HashMap, time::Duration};
 
 use agama_lib::{
     http::{BaseHTTPClient, WebSocketClient},
@@ -29,6 +29,7 @@ use agama_lib::{
 use agama_utils::api::{self, question::Question, status::Stage, IssueWithScope, Scope};
 use gettextrs::gettext;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
+use tokio::time::sleep;
 
 /// Displays the progress on the terminal.
 #[derive(Debug)]
@@ -60,7 +61,7 @@ impl ProgressMonitor {
 
         loop {
             // avoid to many redraws
-            sleep(Duration::from_millis(100));
+            sleep(Duration::from_millis(100)).await;
 
             let event = monitor.pop_last_event().await?;
             if let Some(event) = event {

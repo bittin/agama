@@ -33,7 +33,7 @@ use agama_lib::{
     manager::ManagerHTTPClient,
 };
 use agama_transfer::Transfer;
-use agama_utils::api::{status::Stage, FinishMethod, IssueWithScope};
+use agama_utils::api::{self, status::Stage, FinishMethod, IssueWithScope};
 use anyhow::Context;
 use clap::{Args, Parser};
 use fluent_uri::UriRef;
@@ -110,8 +110,8 @@ async fn probe(http: BaseHTTPClient, ws: WebSocketClient) -> anyhow::Result<()> 
 /// Before starting, it makes sure that the manager is idle.
 ///
 /// * `manager`: the manager client.
-async fn install(http_client: BaseHTTPClient, ws: WebSocketClient) -> anyhow::Result<()> {
-    wait_until_idle(&http_client, &ws).await?;
+async fn install(http_client: BaseHTTPClient, mut ws: WebSocketClient) -> anyhow::Result<()> {
+    wait_until_idle(&http_client, &mut ws).await?;
 
     let manager_client = ManagerHTTPClient::new(http_client.clone());
     let status = manager_client.status().await?;
@@ -128,7 +128,7 @@ async fn install(http_client: BaseHTTPClient, ws: WebSocketClient) -> anyhow::Re
     // wait a bit before start monitoring
     sleep(Duration::from_secs(1)).await;
     let progress = tokio::spawn(async {
-        // just prematurly finish install command if progress monitor failed
+        // just prematurely finish install command if progress monitor failed
         let _ = show_progress(http_client, ws, true).await;
     });
     let _ = progress.await;
@@ -142,10 +142,10 @@ async fn install(http_client: BaseHTTPClient, ws: WebSocketClient) -> anyhow::Re
 /// * `manager`: the manager client.
 async fn finish(
     http: BaseHTTPClient,
-    ws: WebSocketClient,
+    mut ws: WebSocketClient,
     method: Option<FinishMethod>,
 ) -> anyhow::Result<()> {
-    wait_until_idle(&http, &ws).await?;
+    wait_until_idle(&http, &mut ws).await?;
 
     let method = method
         .unwrap_or_else(|| FinishMethod::from_kernel_cmdline().unwrap_or(FinishMethod::Reboot));
@@ -154,8 +154,20 @@ async fn finish(
     Ok(())
 }
 
-async fn wait_until_idle(_http: &BaseHTTPClient, _ws: &WebSocketClient) -> anyhow::Result<()> {
-    // TODO: reimplement using sockets
+async fn wait_until_idle(http: &BaseHTTPClient, ws: &mut WebSocketClient) -> anyhow::Result<()> {
+    let manager = ManagerHTTPClient::new(http.clone());
+    loop {
+        let status = manager.status().await?;
+        if status.progresses.is_empty() {
+            break;
+        }
+        eprintln!("There are already running operations. Waiting for them to finish...");
+        loop {
+            if matches!(ws.receive().await?, api::Event::ProgressFinished { .. }) {
+                break;
+            }
+        }
+    }
     Ok(())
 }
 
@@ -286,18 +298,18 @@ pub async fn run_command(cli: Cli) -> anyhow::Result<()> {
     match cli.command {
         Commands::Config(subcommand) => run_config_cmd(subcommand, cli.opts).await?,
         Commands::Probe => {
-            let (http, ws) = build_clients(api_url, cli.opts.insecure).await?;
-            let _ = wait_until_idle(&http, &ws).await;
+            let (http, mut ws) = build_clients(api_url, cli.opts.insecure).await?;
+            let _ = wait_until_idle(&http, &mut ws).await;
             probe(http, ws).await?
         }
         Commands::Install => {
-            let (http, ws) = build_clients(api_url, cli.opts.insecure).await?;
-            let _ = wait_until_idle(&http, &ws).await;
+            let (http, mut ws) = build_clients(api_url, cli.opts.insecure).await?;
+            let _ = wait_until_idle(&http, &mut ws).await;
             install(http, ws).await?
         }
         Commands::Finish { method } => {
-            let (http, ws) = build_clients(api_url, cli.opts.insecure).await?;
-            let _ = wait_until_idle(&http, &ws).await;
+            let (http, mut ws) = build_clients(api_url, cli.opts.insecure).await?;
+            let _ = wait_until_idle(&http, &mut ws).await;
             finish(http, ws, method).await?;
         }
         Commands::Questions(subcommand) => {

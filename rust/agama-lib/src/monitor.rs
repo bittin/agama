@@ -85,6 +85,9 @@ impl MonitorClient {
 }
 
 /// Monitors an Agama websocket and keeps track of the last event related to monitor.
+/// NOTE: it is highly coupled with monitor CLI and it knows which events cause redraw
+/// and which just update screen. So it returns event that overwrite screen or the
+/// last one which update screen.
 pub struct Monitor {
     // Channel to receive commands.
     commands: mpsc::Receiver<MonitorCommand>,
