@@ -271,8 +271,10 @@ export default function SearchedVolumeGroupMenu({
           intro={<ChangeVolumeGroupDescription deviceConfig={deviceConfig} />}
           device={device}
           deviceConfig={deviceConfig}
-          disksSideEffects={<DiskSelectionSideEffect deviceConfig={deviceConfig} />}
-          mdRaidsSideEffects={<DiskSelectionSideEffect deviceConfig={deviceConfig} />}
+          sideEffects={{
+            disks: <DiskSelectionSideEffect deviceConfig={deviceConfig} />,
+            mdRaids: <DiskSelectionSideEffect deviceConfig={deviceConfig} />,
+          }}
           onConfirm={onDeviceChange}
           onCancel={() => setIsSelectorOpen(false)}
         />

@@ -208,7 +208,7 @@ describe("DeviceSelectorModal", () => {
         <DeviceSelectorModal
           disks={[sda, sdb]}
           selected={sda}
-          disksSideEffects={<p>Disk selection note</p>}
+          sideEffects={{ disks: <p>Disk selection note</p> }}
           title="Select"
           onCancel={onCancelMock}
           onConfirm={onConfirmMock}
@@ -224,7 +224,7 @@ describe("DeviceSelectorModal", () => {
         <DeviceSelectorModal
           mdRaids={[md0]}
           selected={sda}
-          mdRaidsSideEffects={<p>RAID selection note</p>}
+          sideEffects={{ mdRaids: <p>RAID selection note</p> }}
           title="Select"
           onCancel={onCancelMock}
           onConfirm={onConfirmMock}
@@ -241,7 +241,7 @@ describe("DeviceSelectorModal", () => {
         <DeviceSelectorModal
           volumeGroups={[vg0]}
           selected={sda}
-          volumeGroupsSideEffects={<p>LVM selection note</p>}
+          sideEffects={{ volumeGroups: <p>LVM selection note</p> }}
           title="Select"
           onCancel={onCancelMock}
           onConfirm={onConfirmMock}
@@ -258,7 +258,7 @@ describe("DeviceSelectorModal", () => {
         <DeviceSelectorModal
           disks={[sda]}
           selected={sda}
-          disksSideEffects={<p>Disk selection note</p>}
+          sideEffects={{ disks: <p>Disk selection note</p> }}
           title="Select"
           onCancel={onCancelMock}
           onConfirm={onConfirmMock}
@@ -295,7 +295,7 @@ describe("DeviceSelectorModal", () => {
     it("shows the create link in the empty LVM state when newVolumeGroupLinkText is given", async () => {
       const { user } = installerRender(
         <DeviceSelectorModal
-          newVolumeGroupLinkText="Define a new LVM"
+          newDeviceLinkTexts={{ volumeGroups: "Define a new LVM" }}
           title="Select"
           onCancel={onCancelMock}
           onConfirm={onConfirmMock}
@@ -327,7 +327,7 @@ describe("DeviceSelectorModal", () => {
       const { user } = installerRender(
         <DeviceSelectorModal
           volumeGroups={[vg0]}
-          newVolumeGroupLinkText="Define a new LVM"
+          newDeviceLinkTexts={{ volumeGroups: "Define a new LVM" }}
           title="Select"
           onCancel={onCancelMock}
           onConfirm={onConfirmMock}
