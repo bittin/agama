@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Apr 13 15:33:52 UTC 2026 - Martin Vidner <mvidner@suse.com>
+
+- Fix syntax in the enhanced_base change (gh#agama-project/agama#3378)
+
+-------------------------------------------------------------------
 Mon Apr 13 14:47:11 UTC 2026 - Stefan Hundhammer <shundhammer@suse.com>
 
 - Moved sudo-policy-wheel-auth-self from mandatory patterns to
