@@ -20,7 +20,7 @@
 
 use std::fs;
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use tempfile::NamedTempFile;
 
@@ -43,7 +43,7 @@ impl Ipmi {
     const IPMI_ABORTED: u8 = 0x09;
     const IPMI_FAILED: u8 = 0x0A;
 
-    pub fn new(dev: &PathBuf, tool: &PathBuf) -> Self {
+    pub fn new(dev: &Path, tool: &Path) -> Self {
         let instance = Self {
             tool: tool.to_path_buf(),
             device: dev.to_path_buf(),
@@ -124,9 +124,6 @@ impl Ipmi {
 
 impl Default for Ipmi {
     fn default() -> Self {
-        Self::new(
-            &PathBuf::from("/dev/ipmi0"),
-            &PathBuf::from("/usr/bin/ipmitool"),
-        )
+        Self::new(Path::new("/dev/ipmi0"), Path::new("/usr/bin/ipmitool"))
     }
 }
