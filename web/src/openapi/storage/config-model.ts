@@ -89,16 +89,23 @@ export interface MdRaid {
   partitions?: Partition[];
 }
 export interface VolumeGroup {
+  name?: string;
   vgName: string;
   extentSize?: number;
   targetDevices?: string[];
+  spacePolicy?: SpacePolicy;
   logicalVolumes?: LogicalVolume[];
 }
 export interface LogicalVolume {
+  name?: string;
   lvName?: string;
   mountPath?: string;
   filesystem?: Filesystem;
-  size?: Size;
   stripes?: number;
   stripeSize?: number;
+  size?: Size;
+  delete?: boolean;
+  deleteIfNeeded?: boolean;
+  resize?: boolean;
+  resizeIfNeeded?: boolean;
 }

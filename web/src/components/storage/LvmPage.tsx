@@ -41,7 +41,7 @@ import { contentDescription, filesystemLabels, typeDescription } from "./utils/d
 import { STORAGE } from "~/routes/paths";
 import { sprintf } from "sprintf-js";
 import { _ } from "~/i18n";
-import { deviceSystems, isDrive } from "~/model/storage/device";
+import { deviceSystems, isDrive, isMd } from "~/model/storage/device";
 import configModel from "~/model/storage/config-model";
 import {
   useConfigModel,
@@ -50,23 +50,21 @@ import {
   useEditVolumeGroup,
 } from "~/hooks/model/storage/config-model";
 import type { ConfigModel, Data } from "~/model/storage/config-model";
-import type { Storage } from "~/model/system";
+import type { Storage as System } from "~/model/system";
 
 /**
  * Hook that returns the devices that can be selected as target to automatically create LVM PVs.
  *
  * Filters out devices that are going to be directly formatted.
  */
-function useLvmTargetDevices(): Storage.Device[] {
+function useLvmTargetDevices(): System.Device[] {
   const availableDevices = useAvailableDevices();
   const config = useConfigModel();
 
   const targetDevices = useMemo(() => {
-    return availableDevices.filter((candidate) => {
-      const collection = isDrive(candidate) ? config.drives : config.mdRaids;
-      const device = collection.find((d) => d.name === candidate.name);
-      return !device || !device.filesystem;
-    });
+    return availableDevices
+      .filter((d) => isDrive(d) || isMd(d))
+      .filter((d) => !configModel.partitionable.findByName(config, d.name)?.filesystem);
   }, [availableDevices, config]);
 
   return targetDevices;
@@ -84,7 +82,7 @@ function vgNameError(
     return sprintf(_("Volume group '%s' already exists. Enter a different name."), vgName);
 }
 
-function targetDevicesError(targetDevices: Storage.Device[]): string | undefined {
+function targetDevicesError(targetDevices: System.Device[]): string | undefined {
   if (!targetDevices.length) return _("Select at least one disk.");
 }
 
@@ -95,15 +93,15 @@ function targetDevicesError(targetDevices: Storage.Device[]): string | undefined
  * model.VolumeGroup (build data.VolumeGroup from model.VolumeGroup).
  */
 export default function LvmPage() {
-  const { id } = useParams();
+  const { id: index } = useParams();
   const navigate = useNavigate();
   const config = useConfigModel();
-  const volumeGroup = useVolumeGroup(id);
+  const volumeGroup = useVolumeGroup(Number(index));
   const addVolumeGroup = useAddVolumeGroup();
   const editVolumeGroup = useEditVolumeGroup();
   const allDevices = useLvmTargetDevices();
   const [name, setName] = useState("");
-  const [selectedDevices, setSelectedDevices] = useState<Storage.Device[]>([]);
+  const [selectedDevices, setSelectedDevices] = useState<System.Device[]>([]);
   const [moveMountPoints, setMoveMountPoints] = useState(true);
   const [errors, setErrors] = useState<string[]>([]);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2025-2026] SUSE LLC
+ * Copyright (c) [2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -20,23 +20,25 @@
  * find current contact information at www.suse.com.
  */
 
-import configModel from "~/model/storage/config-model";
-import type { ConfigModel, Data } from "~/model/storage/config-model";
+import type { ConfigModel } from "~/model/storage/config-model";
 
-function find(config: ConfigModel.Config, index: number): ConfigModel.Drive | null {
-  return config.drives?.[index] ?? null;
+type Volume = ConfigModel.Partition | ConfigModel.LogicalVolume;
+
+function isNew(volume: Volume): boolean {
+  return !volume.name;
 }
 
-function add(config: ConfigModel.Config, data: Data.Drive): ConfigModel.Config {
-  config = configModel.clone(config);
-  config.drives ||= [];
-  config.drives.push(data);
-
-  return config;
+function isUsed(volume: Volume): boolean {
+  return volume.filesystem !== undefined;
 }
 
-function remove(config: ConfigModel.Config, index: number): ConfigModel.Config {
-  return configModel.partitionable.remove(config, "drives", index);
+function isReused(volume: Volume): boolean {
+  return !isNew(volume) && isUsed(volume);
 }
 
-export default { find, add, remove };
+function isUsedBySpacePolicy(volume: Volume): boolean {
+  return volume.resizeIfNeeded || volume.delete || volume.deleteIfNeeded;
+}
+
+export default { isNew, isUsed, isReused, isUsedBySpacePolicy };
+export type { Volume };

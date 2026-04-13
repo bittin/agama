@@ -131,6 +131,15 @@ export type DeletePartitionSearch = SearchAll | SearchName | DeletePartitionAdva
  * Device base name.
  */
 export type BaseName = string;
+export type VolumeGroupSearch = SearchAll | SearchName | VolumeGroupAdvancedSearch;
+export type VolumeGroupSearchCondition = SearchConditionName | SearchConditionSize;
+export type VolumeGroupSearchSort =
+  | VolumeGroupSearchSortCriterion
+  | VolumeGroupSearchSortCriterion[];
+export type VolumeGroupSearchSortCriterion =
+  | VolumeGroupSearchSortCriterionShort
+  | VolumeGroupSearchSortCriterionFull;
+export type VolumeGroupSearchSortCriterionShort = "name" | "size";
 export type PhysicalVolumeElement =
   | Alias
   | SimplePhysicalVolumesGenerator
@@ -140,11 +149,23 @@ export type LogicalVolumeElement =
   | AdvancedLogicalVolumesGenerator
   | LogicalVolume
   | ThinPoolLogicalVolume
-  | ThinLogicalVolume;
+  | ThinLogicalVolume
+  | LogicalVolumeToDelete
+  | LogicalVolumeToDeleteIfNeeded;
 /**
  * Number of stripes.
  */
 export type LogicalVolumeStripes = number;
+export type LogicalVolumeSearch = SearchAll | SearchName | LogicalVolumeAdvancedSearch;
+export type LogicalVolumeSearchCondition = SearchConditionName | SearchConditionSize;
+export type LogicalVolumeSearchSort =
+  | LogicalVolumeSearchSortCriterion
+  | LogicalVolumeSearchSortCriterion[];
+export type LogicalVolumeSearchSortCriterion =
+  | LogicalVolumeSearchSortCriterionShort
+  | LogicalVolumeSearchSortCriterionFull;
+export type LogicalVolumeSearchSortCriterionShort = "name" | "size" | "number";
+export type DeleteLogicalVolumeSearch = SearchAll | SearchName | DeleteLogicalVolumeAdvancedSearch;
 export type MdRaidElement = NonPartitionedMdRaid | PartitionedMdRaid;
 export type MdRaidSearch = SearchAll | SearchName | MdRaidAdvancedSearch;
 export type MdRaidSearchCondition = SearchConditionName | SearchConditionSize;
@@ -392,12 +413,23 @@ export interface PartitionToDeleteIfNeeded {
  */
 export interface VolumeGroup {
   name: BaseName;
+  search?: VolumeGroupSearch;
   extentSize?: SizeValue;
   /**
    * Devices to use as physical volumes.
    */
   physicalVolumes?: PhysicalVolumeElement[];
   logicalVolumes?: LogicalVolumeElement[];
+}
+export interface VolumeGroupAdvancedSearch {
+  condition?: VolumeGroupSearchCondition;
+  sort?: VolumeGroupSearchSort;
+  max?: SearchMax;
+  ifNotFound?: SearchCreatableActions;
+}
+export interface VolumeGroupSearchSortCriterionFull {
+  name?: SearchSortCriterionOrder;
+  size?: SearchSortCriterionOrder;
 }
 /**
  * Automatically creates the needed physical volumes in the indicated devices.
@@ -427,11 +459,22 @@ export interface AdvancedLogicalVolumesGenerator {
 }
 export interface LogicalVolume {
   name?: BaseName;
+  search?: LogicalVolumeSearch;
   size?: Size;
   stripes?: LogicalVolumeStripes;
   stripeSize?: SizeValue;
   encryption?: Encryption;
   filesystem?: Filesystem;
+}
+export interface LogicalVolumeAdvancedSearch {
+  condition?: LogicalVolumeSearchCondition;
+  sort?: LogicalVolumeSearchSort;
+  max?: SearchMax;
+  ifNotFound?: SearchCreatableActions;
+}
+export interface LogicalVolumeSearchSortCriterionFull {
+  name?: SearchSortCriterionOrder;
+  size?: SearchSortCriterionOrder;
 }
 export interface ThinPoolLogicalVolume {
   /**
@@ -451,6 +494,27 @@ export interface ThinLogicalVolume {
   usedPool: Alias;
   encryption?: Encryption;
   filesystem?: Filesystem;
+}
+export interface LogicalVolumeToDelete {
+  search: DeleteLogicalVolumeSearch;
+  /**
+   * Delete the logical volume.
+   */
+  delete: true;
+}
+export interface DeleteLogicalVolumeAdvancedSearch {
+  condition?: LogicalVolumeSearchCondition;
+  sort?: LogicalVolumeSearchSort;
+  max?: SearchMax;
+  ifNotFound?: SearchActions;
+}
+export interface LogicalVolumeToDeleteIfNeeded {
+  search: DeleteLogicalVolumeSearch;
+  /**
+   * Delete the logical volume if needed to make space.
+   */
+  deleteIfNeeded: true;
+  size?: Size;
 }
 /**
  * MD RAID without a partition table (e.g., directly formatted).
