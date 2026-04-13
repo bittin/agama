@@ -819,21 +819,15 @@ impl MessageHandler<message::RunAction> for Service {
                 let ipmi = ipmi::Ipmi::new();
 
                 if let Err(e) = ipmi.started() {
-                    tracing::info!("{}", e);
+                    tracing::error!("Ipmi coommand failed: {}", e);
                 }
 
-                match self.tasks.cast(tasks::message::Install) {
-                    Ok(_) => {
-                        if let Err(e) = ipmi.finished() {
-                            tracing::info!("{}", e);
-                        }
+                if let Err(error) = self.tasks.cast(tasks::message::Install) {
+                    if let Err(e) = ipmi.failed() {
+                        tracing::error!("Ipmi command failed: {}", e);
                     }
-                    Err(e) => {
-                        if let Err(e) = ipmi.failed() {
-                            tracing::info!("{}", e);
-                        }
-                        return Err(e);
-                    }
+
+                    return Err(error);
                 }
             }
             Action::Finish(method) => {
