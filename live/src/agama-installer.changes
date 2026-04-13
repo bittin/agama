@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Apr 10 13:46:12 UTC 2026 - Ladislav Slezák <lslezak@suse.com>
+
+- The remote access to the Agama web server can be disabled with
+  the "inst.remote=0" boot option (jsc#AGM-153)
+
+-------------------------------------------------------------------
 Wed Apr  1 14:46:08 UTC 2026 - Ladislav Slezák <lslezak@suse.com>
 
 - Run the shell at tty8 as a login shell (to initialize some
