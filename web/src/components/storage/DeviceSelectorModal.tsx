@@ -75,6 +75,12 @@ export type DeviceSelectorModalProps = Omit<PopupProps, "children" | "selected" 
   mdRaidsSideEffects?: React.ReactNode;
   /** Side effects of selecting a volume group. Only shown when the selection differs from {@link selected}. */
   volumeGroupsSideEffects?: React.ReactNode;
+  /** General information at the top of the Disks tab, if there is any disk. */
+  disksIntro?: React.ReactNode;
+  /** General information at the top of the RAID tab, if there is any MD RAID. */
+  mdRaidsIntro?: React.ReactNode;
+  /** General information at the top of the LVM tab, if there is any volume group. */
+  volumeGroupsIntro?: React.ReactNode;
   /** Title of the 'empty state' displayed when there are no LVMs to select from. */
   volumeGroupsEmptyTitle?: string;
   /**
@@ -141,16 +147,25 @@ const TabContent = ({
   emptyTitle,
   emptyBody,
   emptyAction,
+  intro,
   children,
 }: {
   emptyTitle: string;
   emptyBody: string;
   emptyAction?: React.ReactNode;
+  intro?: React.ReactNode;
   children?: React.ReactNode;
 }) => (
   <NestedContent margin="myMd">
     <NestedContent margin="mxSm">
-      {children || <NoDevicesFound title={emptyTitle} body={emptyBody} action={emptyAction} />}
+      {children ? (
+        <>
+          {intro}
+          {children}
+        </>
+      ) : (
+        <NoDevicesFound title={emptyTitle} body={emptyBody} action={emptyAction} />
+      )}
     </NestedContent>
   </NestedContent>
 );
@@ -208,6 +223,9 @@ export default function DeviceSelectorModal({
   disksSideEffects,
   mdRaidsSideEffects,
   volumeGroupsSideEffects,
+  disksIntro,
+  mdRaidsIntro,
+  volumeGroupsIntro,
   volumeGroupsEmptyTitle,
   newVolumeGroupLinkText,
   autoSelectOnTabChange = true,
@@ -281,6 +299,7 @@ export default function DeviceSelectorModal({
               <TabContent
                 emptyTitle={_("No disks found")}
                 emptyBody={_("No disks are available for selection.")}
+                intro={disksIntro}
               >
                 {disks.length > 0 && (
                   <DrivesTable
@@ -295,6 +314,7 @@ export default function DeviceSelectorModal({
               <TabContent
                 emptyTitle={_("No RAID devices found")}
                 emptyBody={_("No software RAID devices are available for selection.")}
+                intro={mdRaidsIntro}
               >
                 {mdRaids.length > 0 && (
                   <MdRaidsTable
@@ -309,6 +329,7 @@ export default function DeviceSelectorModal({
               <TabContent
                 emptyTitle={volumeGroupsEmptyTitle || _("No LVM volume groups found")}
                 emptyBody={_("No LVM volume groups are available for selection.")}
+                intro={volumeGroupsIntro}
                 emptyAction={
                   newVolumeGroupLinkText && (
                     <Link to={STORAGE.volumeGroup.add}>{newVolumeGroupLinkText}</Link>
