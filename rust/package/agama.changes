@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Apr 10 13:46:02 UTC 2026 - Ladislav Slezák <lslezak@suse.com>
+
+- Replace the "inst.listen_on" boot option with "inst.remote=0"
+  to disable remote access to the Agama web server (jsc#AGM-153)
+
+-------------------------------------------------------------------
 Fri Apr 10 08:02:40 UTC 2026 - Lidong Zhong <lidong.zhong@suse.com>
 
 - Run scripts from /var/lib/agama/scripts (bsc#1261787).
