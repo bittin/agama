@@ -28,6 +28,30 @@ import { withForm } from "~/hooks/form";
 import { isValidIPv4Address, isValidIPv6Address } from "~/utils/network";
 import { _, N_ } from "~/i18n";
 
+const IPV4_DEFAULT_PREFIX = 24;
+const IPV6_DEFAULT_PREFIX = 64;
+
+/**
+ * Adds default prefix to IP address if not present and address is valid.
+ *
+ * Detects whether the address is IPv4 or IPv6 and applies the appropriate
+ * default prefix (24 for IPv4, 64 for IPv6). Only normalizes valid addresses;
+ * invalid input is returned unchanged for validation to handle.
+ */
+const normalizeIPAddress = (address: string): string => {
+  if (address.includes("/")) return address;
+
+  if (isValidIPv4Address(address)) {
+    return `${address}/${IPV4_DEFAULT_PREFIX}`;
+  }
+
+  if (isValidIPv6Address(address)) {
+    return `${address}/${IPV6_DEFAULT_PREFIX}`;
+  }
+
+  return address;
+};
+
 /**
  * Mode options shared by both IPv4 and IPv6 settings.
  *
@@ -141,6 +165,7 @@ const IpSettings = withForm({
                         mode === "auto" ? `${addressesLabel} ${_("(optional)")}` : addressesLabel
                       }
                       skipDuplicates
+                      normalize={normalizeIPAddress}
                       validateOnSubmit={(v) => {
                         if (isIPv4 ? isValidIPv4Address(v) : isValidIPv6Address(v))
                           return undefined;

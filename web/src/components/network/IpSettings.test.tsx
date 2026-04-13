@@ -27,7 +27,13 @@ import { useAppForm } from "~/hooks/form";
 import { connectionFormOptions } from "~/components/network/ConnectionForm";
 import IpSettings from "./IpSettings";
 
-function TestForm({ defaultValues = {} }: { defaultValues?: object }) {
+function TestForm({
+  defaultValues = {},
+  protocol = "ipv4",
+}: {
+  defaultValues?: object;
+  protocol?: "ipv4" | "ipv6";
+}) {
   const form = useAppForm({
     ...connectionFormOptions,
     defaultValues: {
@@ -36,7 +42,7 @@ function TestForm({ defaultValues = {} }: { defaultValues?: object }) {
     },
   });
 
-  return <IpSettings form={form} protocol="ipv4" />;
+  return <IpSettings form={form} protocol={protocol} />;
 }
 
 describe("IpSettings", () => {
@@ -85,6 +91,45 @@ describe("IpSettings", () => {
       expect(screen.getByText("IPv4 Gateway").closest("label")).toHaveTextContent(
         "(optional, ignored if no addresses provided)",
       );
+    });
+  });
+
+  describe("address normalization", () => {
+    it("adds default /24 prefix to IPv4 addresses without prefix", async () => {
+      const { user } = installerRender(<TestForm defaultValues={{ ipv4Mode: "manual" }} />);
+      const input = screen.getByRole("textbox", { name: /IPv4 Addresses/i });
+      await user.type(input, "192.168.1.1");
+      await user.keyboard("{Enter}");
+      screen.getByText("192.168.1.1/24");
+    });
+
+    it("does not modify IPv4 addresses that already have a prefix", async () => {
+      const { user } = installerRender(<TestForm defaultValues={{ ipv4Mode: "manual" }} />);
+      const input = screen.getByRole("textbox", { name: /IPv4 Addresses/i });
+      await user.type(input, "192.168.1.1/16");
+      await user.keyboard("{Enter}");
+      screen.getByText("192.168.1.1/16");
+    });
+
+    it("does not add prefix to invalid IPv4 addresses", async () => {
+      const { user } = installerRender(<TestForm defaultValues={{ ipv4Mode: "manual" }} />);
+      const input = screen.getByRole("textbox", { name: /IPv4 Addresses/i });
+      await user.type(input, "not-an-ip");
+      await user.keyboard("{Enter}");
+      screen.getByText("not-an-ip");
+      expect(screen.queryByText("not-an-ip/24")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("IPv6 address normalization", () => {
+    it("adds default /64 prefix to IPv6 addresses without prefix", async () => {
+      const { user } = installerRender(
+        <TestForm defaultValues={{ ipv6Mode: "manual" }} protocol="ipv6" />,
+      );
+      const input = screen.getByRole("textbox", { name: /IPv6 Addresses/i });
+      await user.type(input, "2001:db8::1");
+      await user.keyboard("{Enter}");
+      screen.getByText("2001:db8::1/64");
     });
   });
 });
