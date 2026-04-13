@@ -264,7 +264,56 @@ const generateConnectionName = (type: string, existingIds: Set<string>): string 
   return `${baseName} ${n}`;
 };
 
+/**
+ * IPv4 prefix configuration based on classful networking.
+ *
+ * Maps first octet ranges to their default CIDR prefix lengths.
+ * To change the prefix selection strategy, modify this configuration.
+ */
+const IPV4_PREFIX_BY_RANGE = new Map([
+  [{ min: 1, max: 127 }, 8], // Class A
+  [{ min: 128, max: 191 }, 16], // Class B
+  [{ min: 192, max: 255 }, 24], // Class C
+]);
+
+const IPV6_DEFAULT_PREFIX = 64;
+
+/**
+ * Returns the default CIDR prefix for an IPv4 address based on classful networking.
+ */
+const getDefaultIPv4Prefix = (address: string): number => {
+  const firstOctet = parseInt(address.split(".")[0], 10);
+
+  for (const [range, prefix] of IPV4_PREFIX_BY_RANGE) {
+    if (firstOctet >= range.min && firstOctet <= range.max) {
+      return prefix;
+    }
+  }
+
+  return 24; // Fallback
+};
+
+/**
+ * Adds default CIDR prefix to a valid IP address.
+ *
+ * For IPv4, uses classful networking rules. For IPv6, uses /64.
+ *
+ * @param address - A valid IPv4 or IPv6 address without a prefix
+ * @returns The address with the appropriate default prefix appended
+ *
+ * @note This function assumes the input is a valid IP address. Callers should
+ * validate the address before calling this function.
+ */
+const addDefaultIPPrefix = (address: string): string => {
+  if (isValidIPv4Address(address)) {
+    return `${address}/${getDefaultIPv4Prefix(address)}`;
+  }
+
+  return `${address}/${IPV6_DEFAULT_PREFIX}`;
+};
+
 export {
+  addDefaultIPPrefix,
   buildAddress,
   isValidAddress,
   isValidIPv4,

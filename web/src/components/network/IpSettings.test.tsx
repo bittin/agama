@@ -95,12 +95,28 @@ describe("IpSettings", () => {
   });
 
   describe("address normalization", () => {
-    it("adds default /24 prefix to IPv4 addresses without prefix", async () => {
+    it("adds default /24 prefix to Class C IPv4 addresses without prefix", async () => {
       const { user } = installerRender(<TestForm defaultValues={{ ipv4Mode: "manual" }} />);
       const input = screen.getByRole("textbox", { name: /IPv4 Addresses/i });
       await user.type(input, "192.168.1.1");
       await user.keyboard("{Enter}");
       screen.getByText("192.168.1.1/24");
+    });
+
+    it("adds default /8 prefix to Class A IPv4 addresses without prefix", async () => {
+      const { user } = installerRender(<TestForm defaultValues={{ ipv4Mode: "manual" }} />);
+      const input = screen.getByRole("textbox", { name: /IPv4 Addresses/i });
+      await user.type(input, "10.0.0.1");
+      await user.keyboard("{Enter}");
+      screen.getByText("10.0.0.1/8");
+    });
+
+    it("adds default /16 prefix to Class B IPv4 addresses without prefix", async () => {
+      const { user } = installerRender(<TestForm defaultValues={{ ipv4Mode: "manual" }} />);
+      const input = screen.getByRole("textbox", { name: /IPv4 Addresses/i });
+      await user.type(input, "172.16.0.1");
+      await user.keyboard("{Enter}");
+      screen.getByText("172.16.0.1/16");
     });
 
     it("does not modify IPv4 addresses that already have a prefix", async () => {

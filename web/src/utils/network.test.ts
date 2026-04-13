@@ -22,6 +22,7 @@
 
 import { Connection, SecurityProtocols } from "~/types/network";
 import {
+  addDefaultIPPrefix,
   isValidIp,
   isValidIpPrefix,
   intToIPString,
@@ -140,5 +141,41 @@ describe("generateConnectionName", () => {
     expect(
       generateConnectionName("ethernet", new Set(["Ethernet", "Ethernet 2", "Ethernet 3"])),
     ).toBe("Ethernet 4");
+  });
+});
+
+describe("addDefaultIPPrefix", () => {
+  describe("IPv4 addresses", () => {
+    describe("Class A (first octet 1-127)", () => {
+      it("adds /8 prefix to valid addresses", () => {
+        expect(addDefaultIPPrefix("10.0.0.1")).toBe("10.0.0.1/8");
+        expect(addDefaultIPPrefix("1.2.3.4")).toBe("1.2.3.4/8");
+        expect(addDefaultIPPrefix("127.0.0.1")).toBe("127.0.0.1/8");
+      });
+    });
+
+    describe("Class B (first octet 128-191)", () => {
+      it("adds /16 prefix to valid addresses", () => {
+        expect(addDefaultIPPrefix("172.16.0.1")).toBe("172.16.0.1/16");
+        expect(addDefaultIPPrefix("128.0.0.1")).toBe("128.0.0.1/16");
+        expect(addDefaultIPPrefix("191.255.255.254")).toBe("191.255.255.254/16");
+      });
+    });
+
+    describe("Class C (first octet 192-255)", () => {
+      it("adds /24 prefix to valid addresses", () => {
+        expect(addDefaultIPPrefix("192.168.1.1")).toBe("192.168.1.1/24");
+        expect(addDefaultIPPrefix("192.0.2.1")).toBe("192.0.2.1/24");
+        expect(addDefaultIPPrefix("255.255.255.255")).toBe("255.255.255.255/24");
+      });
+    });
+  });
+
+  describe("IPv6 addresses", () => {
+    it("adds /64 prefix to valid addresses", () => {
+      expect(addDefaultIPPrefix("2001:db8::1")).toBe("2001:db8::1/64");
+      expect(addDefaultIPPrefix("fe80::1")).toBe("fe80::1/64");
+      expect(addDefaultIPPrefix("::1")).toBe("::1/64");
+    });
   });
 });

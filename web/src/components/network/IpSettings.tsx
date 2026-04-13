@@ -25,31 +25,20 @@ import NestedContent from "~/components/core/NestedContent";
 import LabelText from "~/components/form/LabelText";
 import { connectionFormOptions } from "~/components/network/ConnectionForm";
 import { withForm } from "~/hooks/form";
-import { isValidIPv4Address, isValidIPv6Address } from "~/utils/network";
+import { addDefaultIPPrefix, isValidIPv4Address, isValidIPv6Address } from "~/utils/network";
 import { _, N_ } from "~/i18n";
 
-const IPV4_DEFAULT_PREFIX = 24;
-const IPV6_DEFAULT_PREFIX = 64;
-
 /**
- * Adds default prefix to IP address if not present and address is valid.
+ * Normalizes an IP address entry by adding a default prefix if valid and
+ * missing.
  *
- * Detects whether the address is IPv4 or IPv6 and applies the appropriate
- * default prefix (24 for IPv4, 64 for IPv6). Only normalizes valid addresses;
- * invalid input is returned unchanged for validation to handle.
+ * Only adds a prefix if the value is a valid IP address without one. Invalid
+ * values are returned unchanged for validation to handle.
  */
-const normalizeIPAddress = (address: string): string => {
-  if (address.includes("/")) return address;
-
-  if (isValidIPv4Address(address)) {
-    return `${address}/${IPV4_DEFAULT_PREFIX}`;
-  }
-
-  if (isValidIPv6Address(address)) {
-    return `${address}/${IPV6_DEFAULT_PREFIX}`;
-  }
-
-  return address;
+const normalizeIPAddress = (value: string): string => {
+  if (value.includes("/")) return value;
+  if (!isValidIPv4Address(value) && !isValidIPv6Address(value)) return value;
+  return addDefaultIPPrefix(value);
 };
 
 /**
