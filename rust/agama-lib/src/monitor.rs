@@ -18,35 +18,7 @@
 // To contact SUSE LLC about this file by physical or electronic mail, you may
 // find current contact information at www.suse.com.
 
-//! This module implements a monitor that keeps track of Agama service status.
-//!
-//! The monitor tracks:
-//!
-//! * Changes in the installer status (see [api::Status]).
-//!
-//! Each time the installer status changes, it sends the new status using the
-//! [api::Status] struct.
-//!
-//!
-//! ```no_run
-//!   # use agama_lib::{monitor::Monitor, auth::AuthToken, http::{BaseHTTPClient, WebSocketClient}};
-//!
-//!   async fn print_status(http_url: url::Url, ws_url: url::Url, token: AuthToken) -> anyhow::Result<()> {
-//!     let http_client = BaseHTTPClient::new(http_url)?
-//!       .authenticated(&token)?;
-//!     let ws_client = WebSocketClient::connect(&ws_url, &token, false)
-//!       .await?;
-//!     let monitor = Monitor::connect(http_client, ws_client).await.unwrap();
-//!     let mut updates = monitor.subscribe();
-//!
-//!     loop {
-//!       if let Ok(status) = updates.recv().await {
-//!           println!("Status: {:?}", &status.stage);
-//!       }
-//!     }
-//!  }
-//! ```
-//!
+//! This module implements a monitor that keeps last important event for monitor CLI.
 
 use agama_utils::api::{self, Event};
 use tokio::sync::{mpsc, oneshot, Mutex};
