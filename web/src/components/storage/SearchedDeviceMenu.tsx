@@ -379,8 +379,8 @@ export default function SearchedDeviceMenu({
           disks={disks}
           mdRaids={mdRaids}
           volumeGroups={volumeGroups}
-          volumeGroupsSideEffects={vgSelectionSideEffect}
-          volumeGroupsEmptyTitle={_("Volume groups cannot be formatted")}
+          sideEffects={{ volumeGroups: vgSelectionSideEffect }}
+          emptyStateTitles={{ volumeGroups: _("Volume groups cannot be formatted") }}
           onConfirm={onDeviceChange}
           onCancel={() => setIsSelectorOpen(false)}
         />

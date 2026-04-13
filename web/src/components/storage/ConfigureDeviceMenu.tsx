@@ -209,9 +209,11 @@ export default function ConfigureDeviceMenu(): React.ReactNode {
               usedCount={usedDevicesCount}
             />
           }
-          disksIntro={_("Choose a disk to define partitions or to mount")}
-          mdRaidsIntro={_("Choose a RAID device to define partitions or to mount")}
-          volumeGroupsIntro={_("Choose a volume group to define logical volumes")}
+          tabIntros={{
+            disks: _("Choose a disk to define partitions or to mount"),
+            mdRaids: _("Choose a RAID device to define partitions or to mount"),
+            volumeGroups: _("Choose a volume group to define logical volumes"),
+          }}
           onCancel={closeDeviceSelector}
           onConfirm={([device]) => {
             addDevice(device);

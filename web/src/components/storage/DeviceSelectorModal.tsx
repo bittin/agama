@@ -55,6 +55,37 @@ import type { Storage } from "~/model/system";
 /** Identifies which tab is active in {@link DeviceSelectorModal}. */
 export type TabKey = "disks" | "mdRaids" | "volumeGroups";
 
+/** Tab keys for device types that can be created (excludes disks). */
+export type CreatableTabKey = "mdRaids" | "volumeGroups";
+
+/** Side effects shown when selecting a device from a specific tab. */
+export type SideEffects = {
+  [K in TabKey]?: React.ReactNode;
+};
+
+/** Introductory content shown at the top of each tab. */
+export type TabIntros = {
+  [K in TabKey]?: React.ReactNode;
+};
+
+/** Empty state titles for each tab when no devices are available. */
+export type EmptyStateTitles = {
+  [K in TabKey]?: React.ReactNode;
+};
+
+/** Empty state body text for each tab when no devices are available. */
+export type EmptyStateBodies = {
+  [K in TabKey]?: React.ReactNode;
+};
+
+/**
+ * Link text for creating new devices.
+ * Only available for device types that can be created (excludes disks).
+ */
+export type NewDeviceLinkTexts = {
+  [K in CreatableTabKey]?: React.ReactNode;
+};
+
 /** Props for {@link DeviceSelectorModal}. */
 export type DeviceSelectorModalProps = Omit<PopupProps, "children" | "selected" | "description"> & {
   /** General information shown at the top of the modal, above the tabs. */
@@ -69,25 +100,25 @@ export type DeviceSelectorModalProps = Omit<PopupProps, "children" | "selected" 
   mdRaids?: Storage.Device[];
   /** Available LVM volume groups. */
   volumeGroups?: Storage.Device[];
-  /** Side effects of selecting a disk. Only shown when the selection differs from {@link selected}. */
-  disksSideEffects?: React.ReactNode;
-  /** Side effects of selecting a RAID device. Only shown when the selection differs from {@link selected}. */
-  mdRaidsSideEffects?: React.ReactNode;
-  /** Side effects of selecting a volume group. Only shown when the selection differs from {@link selected}. */
-  volumeGroupsSideEffects?: React.ReactNode;
-  /** General information at the top of the Disks tab, if there is any disk. */
-  disksIntro?: React.ReactNode;
-  /** General information at the top of the RAID tab, if there is any MD RAID. */
-  mdRaidsIntro?: React.ReactNode;
-  /** General information at the top of the LVM tab, if there is any volume group. */
-  volumeGroupsIntro?: React.ReactNode;
-  /** Title of the 'empty state' displayed when there are no LVMs to select from. */
-  volumeGroupsEmptyTitle?: string;
   /**
-   * Label for the "create a new volume group" link in the LVM tab.
-   * When set, the link is shown with this text. When not set, no link is shown.
+   * Side effects shown when selecting a device from a specific tab.
+   * Only shown when the selection differs from {@link selected}.
    */
-  newVolumeGroupLinkText?: string;
+  sideEffects?: SideEffects;
+  /**
+   * Introductory content shown at the top of each tab.
+   * Not rendered when the tab is empty (empty state is shown instead).
+   */
+  tabIntros?: TabIntros;
+  /** Custom titles for empty states. Defaults are provided for each tab. */
+  emptyStateTitles?: EmptyStateTitles;
+  /** Custom body text for empty states. Defaults are provided for each tab. */
+  emptyStateBodies?: EmptyStateBodies;
+  /**
+   * Link text for creating new devices in each tab.
+   * When set, a link is shown with this text. Only available for creatable device types.
+   */
+  newDeviceLinkTexts?: NewDeviceLinkTexts;
   /**
    * Whether switching tabs auto-selects the first device of the new tab,
    * or clears the selection when the tab is empty. Defaults to `true`.
@@ -107,8 +138,8 @@ const NoDevicesFound = ({
   body,
   action,
 }: {
-  title: string;
-  body: string;
+  title: React.ReactNode;
+  body: React.ReactNode;
   action?: React.ReactNode;
 }) => (
   <EmptyState headingLevel="h4" titleText={title} variant="sm">
@@ -122,16 +153,15 @@ const NoDevicesFound = ({
 );
 
 /**
- * Subtle contextual sentence with an inline link embedded via bracket notation.
- * The link position and text are extracted from `sentence` using `[text]`
- * markers.
+ * Renders a link to create a new device, styled as subtle content.
+ * The link position and text are extracted from `text` using `[text]` markers.
  */
-const TabIntro = ({ sentence, linkTo }: { sentence: string; linkTo?: string }) => {
-  const [before, linkText, after] = sentence.split(/[[\]]/);
+const CreateDeviceLink = ({ text, to }: { text: string; to: string }) => {
+  const [before, linkText, after] = text.split(/[[\]]/);
   return (
     <SubtleContent>
       {before}
-      <Link to={linkTo} variant="link" isInline>
+      <Link to={to} variant="link" isInline>
         {linkText}
       </Link>
       {after}
@@ -150,8 +180,8 @@ const TabContent = ({
   intro,
   children,
 }: {
-  emptyTitle: string;
-  emptyBody: string;
+  emptyTitle: React.ReactNode;
+  emptyBody: React.ReactNode;
   emptyAction?: React.ReactNode;
   intro?: React.ReactNode;
   children?: React.ReactNode;
@@ -220,14 +250,11 @@ export default function DeviceSelectorModal({
   disks = [],
   mdRaids = [],
   volumeGroups = [],
-  disksSideEffects,
-  mdRaidsSideEffects,
-  volumeGroupsSideEffects,
-  disksIntro,
-  mdRaidsIntro,
-  volumeGroupsIntro,
-  volumeGroupsEmptyTitle,
-  newVolumeGroupLinkText,
+  sideEffects,
+  tabIntros,
+  emptyStateTitles,
+  emptyStateBodies,
+  newDeviceLinkTexts,
   autoSelectOnTabChange = true,
   ...popupProps
 }: DeviceSelectorModalProps): React.ReactNode {
@@ -245,9 +272,9 @@ export default function DeviceSelectorModal({
   const deviceSideEffectsAlert =
     currentDevice &&
     [
-      { list: disks, alert: disksSideEffects },
-      { list: mdRaids, alert: mdRaidsSideEffects },
-      { list: volumeGroups, alert: volumeGroupsSideEffects },
+      { list: disks, alert: sideEffects?.disks },
+      { list: mdRaids, alert: sideEffects?.mdRaids },
+      { list: volumeGroups, alert: sideEffects?.volumeGroups },
     ].find(({ list }) => list.some((d) => d.sid === currentDevice.sid))?.alert;
 
   const deviceInInitialTab =
@@ -297,9 +324,9 @@ export default function DeviceSelectorModal({
           >
             <Tab eventKey={0} title={_("Disks")}>
               <TabContent
-                emptyTitle={_("No disks found")}
-                emptyBody={_("No disks are available for selection.")}
-                intro={disksIntro}
+                emptyTitle={emptyStateTitles?.disks || _("No disks found")}
+                emptyBody={emptyStateBodies?.disks || _("No disks are available for selection.")}
+                intro={tabIntros?.disks}
               >
                 {disks.length > 0 && (
                   <DrivesTable
@@ -312,9 +339,12 @@ export default function DeviceSelectorModal({
             </Tab>
             <Tab eventKey={1} title={_("RAID")}>
               <TabContent
-                emptyTitle={_("No RAID devices found")}
-                emptyBody={_("No software RAID devices are available for selection.")}
-                intro={mdRaidsIntro}
+                emptyTitle={emptyStateTitles?.mdRaids || _("No RAID devices found")}
+                emptyBody={
+                  emptyStateBodies?.mdRaids ||
+                  _("No software RAID devices are available for selection.")
+                }
+                intro={tabIntros?.mdRaids}
               >
                 {mdRaids.length > 0 && (
                   <MdRaidsTable
@@ -327,21 +357,24 @@ export default function DeviceSelectorModal({
             </Tab>
             <Tab eventKey={2} title={_("LVM")}>
               <TabContent
-                emptyTitle={volumeGroupsEmptyTitle || _("No LVM volume groups found")}
-                emptyBody={_("No LVM volume groups are available for selection.")}
-                intro={volumeGroupsIntro}
+                emptyTitle={emptyStateTitles?.volumeGroups || _("No LVM volume groups found")}
+                emptyBody={
+                  emptyStateBodies?.volumeGroups ||
+                  _("No LVM volume groups are available for selection.")
+                }
+                intro={tabIntros?.volumeGroups}
                 emptyAction={
-                  newVolumeGroupLinkText && (
-                    <Link to={STORAGE.volumeGroup.add}>{newVolumeGroupLinkText}</Link>
+                  newDeviceLinkTexts?.volumeGroups && (
+                    <Link to={STORAGE.volumeGroup.add}>{newDeviceLinkTexts.volumeGroups}</Link>
                   )
                 }
               >
                 {volumeGroups.length > 0 && (
                   <>
-                    {newVolumeGroupLinkText && (
-                      <TabIntro
-                        sentence={sprintf("[%s]", newVolumeGroupLinkText)}
-                        linkTo={STORAGE.volumeGroup.add}
+                    {newDeviceLinkTexts?.volumeGroups && (
+                      <CreateDeviceLink
+                        text={sprintf("[%s]", newDeviceLinkTexts.volumeGroups)}
+                        to={STORAGE.volumeGroup.add}
                       />
                     )}
                     <VolumeGroupsTable
