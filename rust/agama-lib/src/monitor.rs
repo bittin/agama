@@ -175,7 +175,15 @@ impl Monitor {
                 | Event::QuestionAnswered { .. }
         ) {
             let mut g = self.last_event.lock().await;
-            *g = Ok(Some(event));
+            // tricky part. With approach of overriding the last event we need to prioritize ones that do
+            // redraw over ones that just update field, otherwise we can loose redraw event cause some issues
+            if g.as_ref().is_ok_and(|e| {
+                e.is_none()
+                    || e.as_ref()
+                        .is_some_and(|f| matches!(f, Event::ProgressChanged { .. }))
+            }) {
+                *g = Ok(Some(event));
+            }
         }
     }
 }

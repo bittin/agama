@@ -244,7 +244,7 @@ impl ProgressMonitor {
     }
 
     fn create_progress_bar(multibar: &MultiProgress, progress: &api::Progress) -> ProgressBar {
-        let bar = ProgressBar::new(progress.size as u64);
+        let bar = multibar.add(ProgressBar::new(progress.size as u64));
         let template = if progress.scope == Scope::Manager {
             format!(
                 "{} ({{pos:>2}}/{{len:2}}): {{wide_msg}}",
@@ -257,6 +257,6 @@ impl ProgressMonitor {
         bar.set_style(ProgressStyle::with_template(&template).unwrap());
         bar.set_position(progress.index as u64);
         bar.set_message(progress.step.clone());
-        multibar.add(bar)
+        bar
     }
 }
