@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Apr 13 15:25:11 UTC 2026 - José Iván López González <jlopez@suse.com>
+
+- Extend storage UI to reuse LVM volume groups
+  (gh#agama-project/agama#3380).
+
+-------------------------------------------------------------------
 Tue Apr  7 14:19:47 UTC 2026 - Imobach Gonzalez Sosa <igonzalezsosa@suse.com>
 
 - Redirect to the overview page after selecting the product during

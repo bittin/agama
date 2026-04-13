@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Apr 13 15:21:17 UTC 2026 - José Iván López González <jlopez@suse.com>
+
+- Update storage schemas (gh#agama-project/agama#3380).
+
+-------------------------------------------------------------------
 Fri Apr 10 08:02:40 UTC 2026 - Lidong Zhong <lidong.zhong@suse.com>
 
 - Run scripts from /var/lib/agama/scripts (bsc#1261787).
