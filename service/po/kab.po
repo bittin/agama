@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-16 17:01+0000\n"
+"POT-Creation-Date: 2026-04-10 10:53+0000\n"
 "PO-Revision-Date: 2026-03-27 22:04+0000\n"
 "Last-Translator: Amger ugurzil <amger_ugurzil@proton.me>\n"
 "Language-Team: Kabyle <https://l10n.opensuse.org/projects/agama/agama-"
@@ -446,7 +446,8 @@ msgstr "Ur izmir ara ad isiḍen asbeddi n usekles ameɣtu s twila tamirant"
 #.
 #. @return [Issue]
 #: service/lib/agama/storage/proposal.rb:315
-msgid "A problem ocurred while calculating the storage setup"
+#, fuzzy
+msgid "A problem occurred while calculating the storage setup"
 msgstr "Yeḍra-d wugur deg usiḍen n twila n usekles"
 
 #. Step to copy the installation logs
@@ -455,7 +456,7 @@ msgid "Copying logs"
 msgstr "Anɣal n yiɣmisen"
 
 #. Step to unmount the target file-systems
-#: service/lib/agama/storage/umounter.rb:146
+#: service/lib/agama/storage/umounter.rb:153
 msgid "Unmounting storage devices"
 msgstr "Tukksa userkeb n yibenkan n usekles"
 
