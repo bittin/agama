@@ -75,6 +75,8 @@ export type DeviceSelectorModalProps = Omit<PopupProps, "children" | "selected" 
   mdRaidsSideEffects?: React.ReactNode;
   /** Side effects of selecting a volume group. Only shown when the selection differs from {@link selected}. */
   volumeGroupsSideEffects?: React.ReactNode;
+  /** Title of the 'empty state' displayed when there are no LVMs to select from. */
+  volumeGroupsEmptyTitle?: string;
   /**
    * Label for the "create a new volume group" link in the LVM tab.
    * When set, the link is shown with this text. When not set, no link is shown.
@@ -206,6 +208,7 @@ export default function DeviceSelectorModal({
   disksSideEffects,
   mdRaidsSideEffects,
   volumeGroupsSideEffects,
+  volumeGroupsEmptyTitle,
   newVolumeGroupLinkText,
   autoSelectOnTabChange = true,
   ...popupProps
@@ -304,7 +307,7 @@ export default function DeviceSelectorModal({
             </Tab>
             <Tab eventKey={2} title={_("LVM")}>
               <TabContent
-                emptyTitle={_("No LVM volume groups found")}
+                emptyTitle={volumeGroupsEmptyTitle || _("No LVM volume groups found")}
                 emptyBody={_("No LVM volume groups are available for selection.")}
                 emptyAction={
                   newVolumeGroupLinkText && (

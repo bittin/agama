@@ -98,16 +98,23 @@ const ChangeVolumeGroupTitle = ({ deviceConfig }: ChangeVolumeGroupTitleProps) =
   );
 };
 
-type VolumeGroupSelectionSideEffectProps = {
+type ChangeVolumeGroupDescriptionProps = {
   deviceConfig: ConfigModel.VolumeGroup;
 };
 
-const VolumeGroupSelectionSideEffect = ({ deviceConfig }: VolumeGroupSelectionSideEffectProps) => {
+const ChangeVolumeGroupDescription = ({ deviceConfig }: ChangeVolumeGroupDescriptionProps) => {
+  const config = useConfigModel();
   const isReusingLogicalVolumes = configModel.volumeGroup.isReusingLogicalVolumes(deviceConfig);
+  const mountPaths = configModel.volumeGroup.usedMountPaths(deviceConfig);
+  const bootFollowsRoot = configModel.boot.isFollowingRoot(config);
 
   if (isReusingLogicalVolumes) {
     // The current volume group will be the only option to choose from
     return _("This uses existing logical volumes at the volume group");
+  }
+
+  if (mountPaths.includes("/") && bootFollowsRoot) {
+    return _("Partitions needed for booting will also be adapted");
   }
 };
 
@@ -149,7 +156,7 @@ const ChangeVolumeGroupMenuItem = ({
   return (
     <MenuButtonItem
       aria-label={_("Change volume group menu")}
-      description={<VolumeGroupSelectionSideEffect deviceConfig={deviceConfig} />}
+      description={<ChangeVolumeGroupDescription deviceConfig={deviceConfig} />}
       isDisabled={unchangeable}
       {...props}
     >
@@ -261,11 +268,11 @@ export default function SearchedVolumeGroupMenu({
       {isSelectorOpen && (
         <SearchedDeviceSelector
           title={<ChangeVolumeGroupTitle deviceConfig={deviceConfig} />}
+          intro={<ChangeVolumeGroupDescription deviceConfig={deviceConfig} />}
           device={device}
           deviceConfig={deviceConfig}
           disksSideEffects={<DiskSelectionSideEffect deviceConfig={deviceConfig} />}
           mdRaidsSideEffects={<DiskSelectionSideEffect deviceConfig={deviceConfig} />}
-          volumeGroupsSideEffects={<VolumeGroupSelectionSideEffect deviceConfig={deviceConfig} />}
           onConfirm={onDeviceChange}
           onCancel={() => setIsSelectorOpen(false)}
         />

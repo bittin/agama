@@ -37,6 +37,8 @@ import type { CustomToggleProps } from "~/components/core/MenuButton";
 import type { Storage } from "~/model/system";
 import type { ConfigModel } from "~/model/storage/config-model";
 
+const baseName = (device: Storage.Device): string => deviceBaseName(device, true);
+
 const targetDevices = (
   deviceConfig: ConfigModel.Drive | ConfigModel.MdRaid,
   config: ConfigModel.Config,
@@ -115,21 +117,14 @@ const ChangeDeviceTitle = ({ modelDevice }: ChangeDeviceTitleProps) => {
   );
 };
 
-/**
- * Returns a string describing the side effects of moving away from
- * `modelDevice`, or `undefined` when there are no notable side effects.
- *
- * A plain function (not a component) because a React element's emptiness cannot
- * be checked without rendering it, making it difficult for callers to decide
- * whether to render anything at all (e.g. {@link Annotation} guards against no
- * children to avoid displaying just an icon with no text)
- */
-const changeDeviceSideEffect = (
-  modelDevice: ConfigModel.Drive | ConfigModel.MdRaid,
-  device: Storage.Device,
-  config: ConfigModel.Config,
-): string | undefined => {
-  const name = deviceBaseName(device, true);
+type ChangeDeviceDescriptionProps = {
+  modelDevice: ConfigModel.Drive | ConfigModel.MdRaid;
+  device: Storage.Device;
+};
+
+const ChangeDeviceDescription = ({ modelDevice, device }: ChangeDeviceDescriptionProps) => {
+  const config = useConfigModel();
+  const name = baseName(device);
   const volumeGroups = configModel.partitionable.filterVolumeGroups(config, modelDevice);
   const isExplicitBoot = configModel.boot.hasExplicitDevice(config, modelDevice.name);
   const isBoot = configModel.boot.hasDevice(config, modelDevice.name);
@@ -220,8 +215,10 @@ const changeDeviceSideEffect = (
  * reusing a volume group, or `undefined` when no new partitions are being
  * added.
  *
- * A plain function (not a component) for the same reason as {@link
- * changeDeviceSideEffect}.
+ * A plain function (not a component) because a React element's emptiness cannot
+ * be checked without rendering it, making it difficult for callers to decide
+ * whether to render anything at all (e.g. {@link Annotation} guards against no
+ * children to avoid displaying just an icon with no text)
  */
 const reuseVgSideEffect = (
   deviceConfig: ConfigModel.Drive | ConfigModel.MdRaid,
@@ -261,7 +258,12 @@ const ChangeDeviceMenuItem = ({
   const onlyOneOption = useOnlyOneOption(config, modelDevice);
 
   return (
-    <MenuButtonItem aria-label={_("Change device menu")} isDisabled={onlyOneOption} {...props}>
+    <MenuButtonItem
+      aria-label={_("Change device menu")}
+      description={<ChangeDeviceDescription modelDevice={modelDevice} device={device} />}
+      isDisabled={onlyOneOption}
+      {...props}
+    >
       <ChangeDeviceTitle modelDevice={modelDevice} />
     </MenuButtonItem>
   );
@@ -340,7 +342,6 @@ export default function SearchedDeviceMenu({
   const disks = availableTargets.filter(isDrive);
   const mdRaids = availableTargets.filter(isMd);
   const volumeGroups = availableTargets.filter(isVolumeGroup);
-  const diskSelectionSideEffect = changeDeviceSideEffect(modelDevice, selected, config);
   const vgSelectionSideEffect = reuseVgSideEffect(modelDevice);
 
   const openSelector = () => {
@@ -373,13 +374,13 @@ export default function SearchedDeviceMenu({
       {isSelectorOpen && (
         <DeviceSelectorModal
           title={<ChangeDeviceTitle modelDevice={modelDevice} />}
+          intro={<ChangeDeviceDescription modelDevice={modelDevice} device={selected} />}
           selected={selected}
           disks={disks}
           mdRaids={mdRaids}
           volumeGroups={volumeGroups}
-          disksSideEffects={diskSelectionSideEffect}
-          mdRaidsSideEffects={diskSelectionSideEffect}
           volumeGroupsSideEffects={vgSelectionSideEffect}
+          volumeGroupsEmptyTitle={_("Volume groups cannot be formatted")}
           onConfirm={onDeviceChange}
           onCancel={() => setIsSelectorOpen(false)}
         />
