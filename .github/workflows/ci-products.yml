@@ -43,15 +43,6 @@ jobs:
       run:
         working-directory: ./products.d
 
-    strategy:
-      fail-fast: false
-      matrix:
-        distro: [ "tumbleweed" ]
-
-    container:
-      # TODO: is this too much?
-      image: registry.opensuse.org/yast/head/containers_${{matrix.distro}}/yast-ruby
-
     steps:
 
     - name: Git Checkout
@@ -59,14 +50,6 @@ jobs:
 
     - name: Configure git
       run:  git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-    - name: Configure and refresh repositories
-      # disable unused repositories to have faster refresh
-      run: zypper modifyrepo -d repo-non-oss repo-openh264 repo-update && zypper ref
-
-    - name: Install Ruby development files
-      run: zypper --non-interactive install
-        make
 
     - name: Check product well-formedness
       run: make check
