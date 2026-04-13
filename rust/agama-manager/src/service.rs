@@ -816,7 +816,7 @@ impl MessageHandler<message::RunAction> for Service {
                 self.probe_dasd().await?;
             }
             Action::Install => {
-                let ipmi = ipmi::Ipmi::new();
+                let ipmi = ipmi::Ipmi::default();
 
                 if let Err(e) = ipmi.started() {
                     tracing::error!("Ipmi coommand failed: {}", e);

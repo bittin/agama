@@ -423,7 +423,7 @@ impl FinishAction {
 
         command.arg("now");
 
-        if let Err(e) = Ipmi::new().finished() {
+        if let Err(e) = Ipmi::default().finished() {
             tracing::error!("Ipmi command failed: {}", e);
         }
 

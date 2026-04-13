@@ -1,4 +1,4 @@
-// Copyright (c) [2025] SUSE LLC
+// Copyright (c) [2026] SUSE LLC
 //
 // All Rights Reserved.
 //
@@ -20,6 +20,7 @@
 
 use std::fs;
 use std::io::Write;
+use std::path::PathBuf;
 use std::process::Command;
 use tempfile::NamedTempFile;
 
@@ -31,7 +32,10 @@ pub enum Error {
     Command { desc: String },
 }
 
-pub struct Ipmi {}
+pub struct Ipmi {
+    tool: PathBuf,
+    device: PathBuf,
+}
 
 impl Ipmi {
     const IPMI_STARTED: u8 = 0x07;
@@ -39,8 +43,11 @@ impl Ipmi {
     const IPMI_ABORTED: u8 = 0x09;
     const IPMI_FAILED: u8 = 0x0A;
 
-    pub fn new() -> Self {
-        let instance = Self {};
+    pub fn new(dev: &PathBuf, tool: &PathBuf) -> Self {
+        let instance = Self {
+            tool: tool.to_path_buf(),
+            device: dev.to_path_buf(),
+        };
 
         tracing::info!("IPMI available: {}", instance.is_available());
 
@@ -64,7 +71,7 @@ impl Ipmi {
     }
 
     fn is_available(&self) -> bool {
-        fs::metadata("/dev/ipmi0").is_ok() && fs::metadata("/usr/bin/ipmitool").is_ok()
+        fs::metadata(&self.device).is_ok() && fs::metadata(&self.tool).is_ok()
     }
 
     fn send_command(&self, code: u8) -> Result<(), Error> {
@@ -75,9 +82,9 @@ impl Ipmi {
         // Create a temporary file that is automatically deleted
         let mut file = match NamedTempFile::new() {
             Ok(f) => f,
-            Err(_) => {
+            Err(e) => {
                 return Err(Error::Tool {
-                    desc: "ipmitool failed, cannot create temporary event file".to_string(),
+                    desc: format!("ipmitool failed, cannot create temporary event file. {}", e),
                 });
             }
         };
@@ -92,7 +99,7 @@ impl Ipmi {
         }
 
         // Execute ipmitool
-        let status = Command::new("ipmitool")
+        let status = Command::new(&self.tool)
             .arg("event")
             .arg("file")
             .arg(file.path())
@@ -117,6 +124,9 @@ impl Ipmi {
 
 impl Default for Ipmi {
     fn default() -> Self {
-        Self::new()
+        Self::new(
+            &PathBuf::from("/dev/ipmi0"),
+            &PathBuf::from("/usr/bin/ipmitool"),
+        )
     }
 }
