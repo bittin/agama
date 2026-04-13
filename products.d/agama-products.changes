@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Apr 13 14:47:11 UTC 2026 - Stefan Hundhammer <shundhammer@suse.com>
+
+- Moved sudo-policy-wheel-auth-self from mandatory patterns to
+  mandatory packages for TW MicroOS (bsc#1261991) 
+
+-------------------------------------------------------------------
 Fri Apr  2 13:11:03 UTC 2026 - Jiri Srain <jsrain@suse.com>
 
 - Install by default the enhanced_base pattern for immutable mode
