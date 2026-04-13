@@ -32,6 +32,7 @@ import {
 } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
 import RebootButton from "~/components/core/RebootButton";
+import InstallerOptionsMenu from "~/components/core/InstallerOptionsMenu";
 import SplitInfoLayout from "~/components/layout/SplitInfoLayout";
 import { useExtendedConfig } from "~/hooks/model/config";
 import { _ } from "~/i18n";
@@ -92,7 +93,7 @@ function InstallationFinished() {
   const mountTpmAlert = usingTpm(storageConfig);
 
   return (
-    <Page variant="minimal">
+    <Page noDefaultStartSlot endSlot={<InstallerOptionsMenu hideLabel />}>
       <Page.Content>
         <SplitInfoLayout
           icon="done_all"

@@ -9,6 +9,9 @@ export default {
   "\"%s\" does not exist or is no longer available.": [
     "\"%s\" neexistuje nebo už není dostupná."
   ],
+  "%1$d of %2$d connections match filters": [
+    "Filtrům odpovídá %1$d z %2$d připojení"
+  ],
   "%1$s (%2$s)": [
     "%1$s (%2$s)"
   ],
@@ -31,13 +34,13 @@ export default {
     "%1$s, %2$s a [%3$d další]",
     "%1$s, %2$s a [%3$d dalších]"
   ],
+  "%d connections available": [
+    "%d dostupných připojení"
+  ],
   "%d mode available": [
     "dostupný %d mód",
     "dostupné %d módy",
     "dostupných %d módů"
-  ],
-  "%d of %d": [
-    "%d z %d"
   ],
   "%d other mode available": [
     "dostupný %d další mód",
@@ -48,7 +51,7 @@ export default {
     "%s - %s"
   ],
   "%s and %d others": [
-    ""
+    "%s a %d další"
   ],
   "%s and %s": [
     "%s a %s"
@@ -68,15 +71,24 @@ export default {
     "%s aktivních úkolů"
   ],
   "%s will be created as a logical volume": [
-    "",
-    "",
-    ""
+    "%s bude vytvořen jako logický svazek",
+    "%s budou vytvořeny jako logické svazky",
+    "%s budou vytvořeny jako logické svazky"
   ],
   "%s will still contain the configured LVM groups and any partition needed to boot": [
     "%s bude obsahovat nakonfigurované skupiny LVM a oddíl potřebný pro spuštění systému"
   ],
   "%s with %d partitions": [
     "%s s %d oddíly"
+  ],
+  "(bind by name)": [
+    ""
+  ],
+  "(bound by MAC)": [
+    "(vázáno na MAC)"
+  ],
+  "(bound by name)": [
+    "(vázáno na název)"
   ],
   "(step %s of %s)": [
     "(krok %s z %s)"
@@ -116,11 +128,11 @@ export default {
   "Activate": [
     "Aktivace"
   ],
-  "Activate new disk": [
-    "Aktivace nového disku"
+  "Activate and format DASD devices": [
+    "Aktivovat a formátovat DASD zařízení"
   ],
-  "Activate zFCP disk": [
-    "Aktivovat disk zFCP"
+  "Activate zFCP disks": [
+    "Aktivovat disky zFCP"
   ],
   "Activated": [
     "Aktivováno"
@@ -131,6 +143,9 @@ export default {
   "Add DNS": [
     "Přidat DNS"
   ],
+  "Add LVM volume group": [
+    "Přidat novou skupinu LVM svazků"
+  ],
   "Add an address": [
     "Přidat adresu"
   ],
@@ -140,6 +155,9 @@ export default {
   "Add another address": [
     "Přidat další adresu"
   ],
+  "Add another search domain": [
+    "Přidat další vyhledávací doménu"
+  ],
   "Add device menu": [
     "Nabídka přidat zařízení"
   ],
@@ -148,6 +166,9 @@ export default {
   ],
   "Add or use partition": [
     "Přidat nebo použít oddíl"
+  ],
+  "Add search domain": [
+    "Přidat vyhledávací doménu"
   ],
   "Address": [
     "Adresa"
@@ -161,14 +182,17 @@ export default {
   "Adjust the settings below to make the new system fit into the available space.": [
     "Upravte nastavení níže, aby bylo možné nový systém nasadit na dostupné volné místo."
   ],
-  "All conflicts have been resolved, or none were detected. You can safely continue with your setup.": [
-    "Nebyly zjištěny žádné konflikty nebo byly všechny vyřešeny. Nyní můžete bezpečně pokračovat s vaším nastavením."
+  "All": [
+    "Vše"
   ],
   "All fields are required": [
     "Všechna pole jsou povinná"
   ],
   "All network connections managed through this interface are currently set to be used only during installation and will not be copied to the installed system": [
     "Všechna síťová připojení spravovaná pomocí tohoto rozhraní jsou v současnosti nastavena tak, aby se použila pouze během instalace a nebudou zkopírována do instalovaného systému"
+  ],
+  "All the available zFCP controllers are already activated.": [
+    ""
   ],
   "Allow growing": [
     "Povolit růst"
@@ -182,11 +206,8 @@ export default {
   "Any partition needed to boot will be configured.": [
     "Kterýkoliv oddíl bude nakonfigurován pro potřeby spuštění systému."
   ],
-  "Apply selected solution": [
-    "Aplikovat vybrané řešení"
-  ],
-  "Applying changes": [
-    "Aplikování změn"
+  "As a new partition on %s": [
+    "Jako nový oddíl na %s"
   ],
   "At least one address must be provided for selected mode": [
     "Pro zvolený režim musí být uvedena alespoň jedna adresa"
@@ -200,9 +221,6 @@ export default {
   "Auto": [
     "Auto"
   ],
-  "Auto LUNs Scan": [
-    "Automatické skenování jednotek LUN"
-  ],
   "Auto and manual": [
     "Automatické a manuální"
   ],
@@ -212,11 +230,11 @@ export default {
   "Automatic (DHCP)": [
     "Automatická (DHCP)"
   ],
-  "Automatic LUN scan is [disabled]. LUNs have to be manually configured after activating a controller.": [
-    "Automatické skenování LUN je [zakázáno]. Po aktivaci řadiče je třeba LUNy konfigurovat ručně."
+  "Automatic LUN scan is disabled": [
+    ""
   ],
-  "Automatic LUN scan is [enabled]. Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
-    "Automatické skenování LUN je [povoleno]. Aktivací řadiče, běžícího v režimu NPIV, se automaticky zkonfigurují všechny jeho LUN."
+  "Automatic LUN scan is enabled": [
+    ""
   ],
   "Back": [
     "Zpět"
@@ -251,6 +269,12 @@ export default {
   "Bind to device name": [
     "Navázat na název zařízení"
   ],
+  "Binding": [
+    "Vazba"
+  ],
+  "Binding settings": [
+    "Nastavení vazeb"
+  ],
   "BitLocker": [
     "BitLocker"
   ],
@@ -258,7 +282,7 @@ export default {
     "Možnosti pro spouštění systému"
   ],
   "Breadcrumbs": [
-    ""
+    "Drobečková navigace"
   ],
   "Btrfs": [
     "Btrfs"
@@ -267,7 +291,7 @@ export default {
     "Btrfs se snímky"
   ],
   "By proceeding, the installation will begin with defined settings.": [
-    ""
+    "Pokračováním se spustí instalace s definovaným nastavením."
   ],
   "CPU": [
     "Procesor"
@@ -326,12 +350,6 @@ export default {
   "Changes in these settings will immediately update the 'Result' section below.": [
     ""
   ],
-  "Channel ID": [
-    "ID kanálu"
-  ],
-  "Check the authentication parameters.": [
-    "Zkontrolujte přihlašovací údaje"
-  ],
   "Check the following before continuing": [
     "Před pokračování zkontrolujte následující"
   ],
@@ -364,17 +382,41 @@ export default {
   "Clear all filters": [
     "Vymazat všechny filtry"
   ],
+  "Clear selected mount point": [
+    "Vymazat vybraný přípojný bod"
+  ],
   "Close": [
     "Zavřít"
   ],
   "Configuration unreachable or invalid": [
     "Konfigurace není dostupná nebo je neplatná"
   ],
+  "Configure": [
+    "Konfigurovat"
+  ],
   "Configure DASD": [
     "Konfigurovat DASD"
   ],
   "Configure device %s": [
     "Konfigurovat zařízení %s"
+  ],
+  "Configure device menu": [
+    "Konfigurovat nabídku zařízení"
+  ],
+  "Configure iSCSI": [
+    "Konfigurovat iSCSI"
+  ],
+  "Configure logical volume": [
+    "Konfigurovat logický svazek"
+  ],
+  "Configure partition": [
+    "Konfigurovat oddíl"
+  ],
+  "Configure partition at %s": [
+    "Konfigurovat oddíl na %s"
+  ],
+  "Configure zFCP": [
+    "Konfigurovat zFCP"
   ],
   "Configured for installation only": [
     "Konfigurováno pouze pro instalaci"
@@ -420,20 +462,20 @@ export default {
   "Connected devices": [
     "Připojená zařízení"
   ],
+  "Connected devices tabs": [
+    "Karty připojených zařízení"
+  ],
   "Connecting to %s": [
     "Připojování k %s"
-  ],
-  "Connection details": [
-    "Detaily připojení"
   ],
   "Connection is available to all devices.": [
     "Spojení je dostupné pro všechna zařízení."
   ],
   "Connection is bound to MAC address %s.": [
-    "Spojení je svázáno s MAC adresou %s"
+    "Spojení je vázáno s MAC adresou %s."
   ],
   "Connection is bound to device %s.": [
-    "Spojení je svázáno se zařízením %s"
+    "Spojení je vázáno se zařízením %s."
   ],
   "Connection not found or lost": [
     "Spojení nenalezeno nebo ztraceno"
@@ -444,17 +486,17 @@ export default {
   "Continuing without installing the package can result in a broken system. In some cases the system might not even boot.": [
     "Pokračování bez instalace tohoto balíčku může vést k poškození systému. V některých případech systém nebude dokonce ani schopný se spustit."
   ],
-  "Controllers": [
-    "Řadiče"
-  ],
   "Could not authenticate against the server.": [
     "Nezdařilo se ověření vůči serveru."
   ],
-  "Could not connect to %s": [
-    "Připojení k %s se nezdařilo"
-  ],
   "Could not log in": [
     "Přihlášení se nezdařilo"
+  ],
+  "Create LVM volume group on %s": [
+    "Vytvořit skupinu svazků LVM na %s"
+  ],
+  "Create another LVM volume group on %s": [
+    "Vytvořit další skupinu svazků LVM na %s"
   ],
   "Create user": [
     "Vytvořit uživatele"
@@ -489,11 +531,26 @@ export default {
   "DNS": [
     "DNS"
   ],
+  "DNS Search List": [
+    "Seznam vyhledávání DNS"
+  ],
   "Deactivate": [
     "Deaktivace"
   ],
   "Deactivated": [
     "Deaktivováno"
+  ],
+  "Default file system for %s": [
+    "Výchozí souborový systém pro %s"
+  ],
+  "Default file system for generic logical volumes": [
+    "Výchozí souborový systém pro obecně připojené svazky"
+  ],
+  "Default file system for generic mount paths": [
+    "Výchozí souborový systém pro obecně připojené cesty"
+  ],
+  "Default file system for generic partitions": [
+    "Výchozí souborový systém pro obecné oddíly"
   ],
   "Define a new LVM on the disk": [
     "Definovat nové LVM na disku"
@@ -522,14 +579,14 @@ export default {
   "Description": [
     "Popis"
   ],
+  "Destroy current data and format device as": [
+    "Odstranit stávající data a formátovat jako"
+  ],
   "Destroy current data and format partition as": [
     "Zahodit současná data a naformátovat oddíl jako"
   ],
   "Details": [
     "Podrobnosti"
-  ],
-  "Details will appear after the connection is successfully established.": [
-    "Podrobnosti se zobrazí poté, co bude spojení úspěšně sestaveno."
   ],
   "Device": [
     "Zařízení"
@@ -549,6 +606,9 @@ export default {
   "Disconnected": [
     "Odpojeno"
   ],
+  "Discover and connect to iSCSI targets": [
+    "Vyhledat a připojit se k cílům iSCSI"
+  ],
   "Disk": [
     "Disk"
   ],
@@ -561,6 +621,18 @@ export default {
   "Do not format %s and keep the data": [
     "NEformátovat %s a ponechat data"
   ],
+  "Do not register": [
+    "Neregistrujte"
+  ],
+  "Domain": [
+    "Doména"
+  ],
+  "Down": [
+    "Dolů"
+  ],
+  "Download config": [
+    "Stáhnout konfiguraci"
+  ],
   "Download logs": [
     "Stáhnout protokoly"
   ],
@@ -569,6 +641,12 @@ export default {
   ],
   "Edit": [
     "Upravit"
+  ],
+  "Edit binding settings": [
+    "Upravit nastavení vazby"
+  ],
+  "Edit connection": [
+    "Upravit připojení"
   ],
   "Edit connection settings": [
     "Upravit nastavení připojení"
@@ -609,6 +687,12 @@ export default {
   "Enter a name": [
     "Zadejte jméno"
   ],
+  "Enter a name for the volume group.": [
+    "Zadejte název pro skupinu svazků."
+  ],
+  "Ethernet": [
+    "Ethernet"
+  ],
   "ExFAT": [
     ""
   ],
@@ -631,14 +715,14 @@ export default {
     ""
   ],
   "Extend the installation beyond the currently selected device": [
-    "",
-    "",
-    ""
+    "Rozšířit instalaci nad rámec aktuálně vybraného zařízení",
+    "Rozšířit instalaci nad rámec aktuálních %d zařízení",
+    "Rozšířit instalaci nad rámec aktuálních %d zařízení"
   ],
   "Extend the installation beyond the currently selected disk": [
-    "",
-    "",
-    ""
+    "Rozšířit instalaci nad rámec aktuálně vybraného disku",
+    "Rozšířit instalaci nad rámec aktuálních %d disků",
+    "Rozšířit instalaci nad rámec aktuálních %d disků"
   ],
   "Extensions": [
     "Rozšíření"
@@ -654,6 +738,9 @@ export default {
   ],
   "File system": [
     "Typ systému souborů"
+  ],
+  "File system label": [
+    "Jmenovka souborového systému"
   ],
   "Filesystems": [
     "Souborové systémy"
@@ -676,9 +763,6 @@ export default {
   "Find space in %s": [
     "Najít místo na %s"
   ],
-  "Finished": [
-    "Dokončeno"
-  ],
   "First user": [
     "První uživatel"
   ],
@@ -696,6 +780,9 @@ export default {
   ],
   "Format disk %s": [
     "Formátovat disk %s"
+  ],
+  "Format logical volume as": [
+    "Formátovat logický svazek jako"
   ],
   "Format partition as": [
     "Formátovat oddíl jako"
@@ -741,6 +828,9 @@ export default {
     "Skrýt %d akce podsvazku",
     "Skrýt %d akcí podsvazku"
   ],
+  "Hostname": [
+    "Název hostitele"
+  ],
   "Hostname could not be updated": [
     ""
   ],
@@ -758,9 +848,6 @@ export default {
   ],
   "IP addresses": [
     "IP adresy"
-  ],
-  "IP settings": [
-    "Nastavení IP adresy"
   ],
   "IPs": [
     "IP adresy"
@@ -817,7 +904,7 @@ export default {
     "Instalační nastavení"
   ],
   "Installation settings will automatically update to match the new product's defaults.": [
-    ""
+    "Nastavení instalace se automaticky aktualizuje podle výchozích hodnot nového produktu."
   ],
   "Installation will take %s.": [
     "Instalace bude trvat %s."
@@ -879,9 +966,6 @@ export default {
   "It is offline and must be activated before formatting it.": [
     "Je offline a musí být před formátováním aktivován."
   ],
-  "It may take some time.": [
-    "Chvíli to potrvá."
-  ],
   "JFS": [
     ""
   ],
@@ -898,7 +982,7 @@ export default {
     "LUN"
   ],
   "LVM": [
-    ""
+    "LVM"
   ],
   "Label": [
     "Štítek"
@@ -922,7 +1006,7 @@ export default {
     "Vyžadován souhlas s licencí"
   ],
   "Loading": [
-    "Načítání..."
+    "Načítání"
   ],
   "Loading data...": [
     "Načítání dat ..."
@@ -956,6 +1040,9 @@ export default {
   ],
   "Make sure that the passsword is correct and try again.": [
     "Zkontrolujte správnost hesla a zkuste to znovu."
+  ],
+  "Manage available connections, connect to Wi-Fi, or add a new connection.": [
+    ""
   ],
   "Manual": [
     "Ruční"
@@ -999,6 +1086,22 @@ export default {
   "More languages might be available for the selected product at [Localization] page": [
     "Více jazyků pro vybraný produkt může být dostupných na stránce [Lokalizace]"
   ],
+  "More storage options": [
+    "Další možnosti úložiště"
+  ],
+  "Moreover, the following partition will be created.": [
+    "Navíc bude vytvořen následující oddíl.",
+    "Navíc budou vytvořeny následující oddíly.",
+    "Navíc budou vytvořeny následující oddíly."
+  ],
+  "Moreover, the following partition will be mounted.": [
+    "Navíc bude připojen následující oddíl.",
+    "Navíc budou připojeny následující oddíly.",
+    "Navíc budou připojeny následující oddíly."
+  ],
+  "Moreover, the following partitions will be created or mounted": [
+    "Navíc budou vytvořeny nebo připojeny následující oddíly"
+  ],
   "Mount Point": [
     "Přípojný bod"
   ],
@@ -1011,6 +1114,12 @@ export default {
   "Mount point": [
     "Přípojný bod"
   ],
+  "Mount point mode": [
+    "Mód přípojného bodu"
+  ],
+  "Mount point options": [
+    "Možnosti přípojného bodu"
+  ],
   "Move mount points": [
     "Přesunout přípojné body"
   ],
@@ -1019,9 +1128,6 @@ export default {
   ],
   "Multipath": [
     "Vícecestný"
-  ],
-  "Multiple conflicts found. You can address them in any order, and resolving one may resolve others.": [
-    "Bylo nalezeno několik konfliktů. Můžete je vyřešit v jakémkoliv pořadí a vyřešení jednoho může vyřešit i ostatní."
   ],
   "NILFS2": [
     ""
@@ -1041,8 +1147,8 @@ export default {
   "Network details": [
     "Detaily síťě"
   ],
-  "Network not found or lost": [
-    "Síť nebyla nalezena nebo se ztratila"
+  "Network not available": [
+    "Síť není dostupná"
   ],
   "New": [
     "Nový"
@@ -1056,8 +1162,8 @@ export default {
   "No additional software was selected.": [
     "Nebyl vybrán žádný další software."
   ],
-  "No conflicts to address": [
-    "Žádné konflikty k vyřešení"
+  "No connections match filters": [
+    "Žádné připojení neodpovídá filtru."
   ],
   "No content found": [
     "Nebyl nalezen žádný obsah"
@@ -1073,6 +1179,9 @@ export default {
   ],
   "No devices configured yet": [
     "Zatím nebylo nakonfigurováno žádné zařízení"
+  ],
+  "No information available yet": [
+    "Zatím nejsou dostupné žádné informace"
   ],
   "No partitions will be automatically configured for booting.": [
     "Žádné oddíly nebudou automaticky konfigurovány pro zavádění systému."
@@ -1092,17 +1201,11 @@ export default {
   "No valid port.": [
     ""
   ],
-  "No wired connections were found": [
-    "Nebyla nalezena žádná kabelová připojení"
-  ],
-  "No zFCP controllers found.": [
-    "Nebyly nalezeny žádné řadiče zFCP."
-  ],
-  "No zFCP disks found.": [
-    "Nebyly nalezeny žádné disky zFCP."
-  ],
   "None": [
     "Žádné"
+  ],
+  "None (unbound)": [
+    "Žádné (nepřiřazeno)"
   ],
   "None of the keymaps match the filter.": [
     "Žádná z map kláves neodpovídá filtru."
@@ -1143,6 +1246,9 @@ export default {
   "On boot": [
     "Při spuštění systému"
   ],
+  "Options for partition %s": [
+    "Možnosti pro oddíl %s"
+  ],
   "Package installation failed": [
     "Instalace balíčku selhala"
   ],
@@ -1164,8 +1270,14 @@ export default {
   "Partitions to boot will be set up if needed at the following device.": [
     "Oddíly pro zavádění budou přiděleny na následujícím zařízení pokud to bude potřeba."
   ],
+  "Partitions to boot will be set up if needed at the installation disk, based on the location of the %s file system.": [
+    "Oddíly pro zavádění budou v případě potřeby vytvořeny na instalačním disku na základě umístění souborového systému %s."
+  ],
   "Partitions to boot will be set up if needed at the installation disk. Currently %1$s, based on the location of the %2$s file system.": [
-    ""
+    "Oddíly pro zavádění budou v případě potřeby vytvořeny na instalačním disku. Aktuálně %1$s, na základě umístění souborového systému %2$s."
+  ],
+  "Partitions to host \"system\" will be created if needed.": [
+    "V případě potřeby budou vytvořeny oddíly pro systém."
   ],
   "Partitions will be used and created for %s": [
     ""
@@ -1191,17 +1303,8 @@ export default {
   "Passwords do not match": [
     "Hesla se neshodují"
   ],
-  "Pending": [
-    "Čeká se na"
-  ],
   "PiB": [
     "PiB"
-  ],
-  "Please, try to activate a zFCP controller.": [
-    "Zkuste aktivovat řadič zFCP."
-  ],
-  "Please, try to activate a zFCP disk.": [
-    "Zkuste aktivovat disk zFCP."
   ],
   "Port": [
     "Port"
@@ -1227,6 +1330,12 @@ export default {
   "Product is already registered": [
     ""
   ],
+  "Product not found": [
+    "Produkt nenalezen"
+  ],
+  "Protection for the information stored at the new file systems, including data, programs, and system files.": [
+    "Ochrana informací uložených na nových souborových systémech, včetně dat, programů a systémových souborů."
+  ],
   "Provide email address": [
     "Zadejte emailovou adresu"
   ],
@@ -1244,9 +1353,6 @@ export default {
   ],
   "Question": [
     "Dotaz"
-  ],
-  "Read zFCP devices": [
-    "Načtení zařízení zFCP"
   ],
   "Reboot": [
     "Restartovat systém"
@@ -1271,6 +1377,9 @@ export default {
   ],
   "Registered": [
     "Registrováno"
+  ],
+  "Registered without a code": [
+    "Registrováno bez kódu"
   ],
   "Registration": [
     "Registrace"
@@ -1315,6 +1424,9 @@ export default {
   ],
   "Result of applying the configuration described at the 'Settings' section above.": [
     ""
+  ],
+  "Retrieving error details": [
+    "Načítání podrobností o chybě"
   ],
   "Review and fix": [
     "Zkontrolovat a opravit"
@@ -1402,9 +1514,6 @@ export default {
   "Select a product to continue.": [
     "Pro pokračování vyberte produkt."
   ],
-  "Select a solution to continue": [
-    "Pro pokračování vyberte řešení"
-  ],
   "Select another device to define partitions or to mount": [
     "Vyberte další zařízení pro definování oddílů nebo pro připojení"
   ],
@@ -1414,6 +1523,9 @@ export default {
   "Select at least one disk.": [
     "Vyberte alespoň jeden disk."
   ],
+  "Select device": [
+    "Vybrat zařízení"
+  ],
   "Select or enter a mount point": [
     "Vyberte nebo zadejte přípojný bod"
   ],
@@ -1422,6 +1534,9 @@ export default {
   ],
   "Select or enter a valid mount point": [
     "Vyber nebo zadej platný bod připojení"
+  ],
+  "Select the zFCP controllers to activate:": [
+    ""
   ],
   "Select what to do with each partition in order to find space for allocating the new system.": [
     "Vybrat pro každý oddíl co dělat, aby se podařilo najít místo pro vyhrazení novému systému."
@@ -1444,9 +1559,6 @@ export default {
   "Set a permanent hostname that won’t change with network updates.": [
     ""
   ],
-  "Setting up connection": [
-    "Nastavuji připojení"
-  ],
   "Settings": [
     "Nastavení"
   ],
@@ -1464,14 +1576,8 @@ export default {
   "Show less": [
     "Zobrazit méně"
   ],
-  "Show less actions": [
-    "Zobrazit méně akcí"
-  ],
   "Show more": [
     "Zobrazit více"
-  ],
-  "Show more actions": [
-    "Zobrazit více akcí"
   ],
   "Shrink existing partitions": [
     "Zmenšit stávající oddíly"
@@ -1488,23 +1594,17 @@ export default {
   "Size limits must be numbers optionally followed by a unit like GiB or GB": [
     "Limity velikosti musí být nějaká čísla, která mohou být následována jednotkou jako GiB nebo GB"
   ],
+  "Size mode": [
+    "Režim velikosti"
+  ],
   "Skip to content": [
     "Přeskočit na obsah"
-  ],
-  "Skip to next": [
-    "Přeskočit na další"
-  ],
-  "Skip to previous": [
-    "Přeskočit na předchozí"
   ],
   "Software": [
     "Software"
   ],
   "Software %s": [
     "Software %s"
-  ],
-  "Software conflicts resolution": [
-    "Řešení softwarových konfliktů"
   ],
   "Some installation repositories could not be loaded. The system cannot be installed without them.": [
     "Některé instalační repozitáře nemohly být načteny. Systém bez nich nemůže být nainstalován."
@@ -1568,7 +1668,7 @@ export default {
     "Zapečetění čipem TPM vyžaduje přímé spuštění nového systému."
   ],
   "Take a moment to review the installation settings below and adjust them as needed.": [
-    ""
+    "Věnujte prosím chvíli kontrole níže uvedených nastavení instalace a podle potřeby je upravte."
   ],
   "Target not found": [
     ""
@@ -1652,6 +1752,16 @@ export default {
   "The final step to configure the Trusted Platform Module (TPM) to automatically open encrypted devices will take place during the first boot of the new system. For that to work, the machine needs to boot directly to the new boot loader.": [
     "Poslední krok konfigurace modulu TPM (Trusted Platform Module) pro automatické otevírání šifrovaných zařízení se provede při prvním spuštění nového systému. Aby to fungovalo, musí se počítač spustit přímo novým zavaděčem."
   ],
+  "The following partition will be created.": [
+    "Následující oddíl bude vytvořen.",
+    "Následující oddíly budou vytvořeny.",
+    "Následující oddíly budou vytvořeny."
+  ],
+  "The following partition will be mounted.": [
+    "Následující oddíl bude připojen.",
+    "Následující oddíly budou připojeny.",
+    "Následující oddíly budou připojeny."
+  ],
   "The following partitions will be created or mounted": [
     "Následující oddíly budou vytvořeny nebo připojeny"
   ],
@@ -1689,7 +1799,7 @@ export default {
     "Dokáže-li čip TPM ověřit integritu systému, nebude heslo pro spuštění systému a přístup k datům potřebné. Zapečetění TPM vyžaduje, aby byl nový systém spuštěn hned při prvním použití."
   ],
   "The product was not found in the repositories so it is not possible to proceed with the installation.": [
-    ""
+    "Produkt nebyl nalezen v repozitářích, a proto není možné pokračovat v instalaci."
   ],
   "The product will be registered with \"%s\" hostname": [
     "Produkt bude zaregistrován se jménem hostitele \"%s\""
@@ -1736,20 +1846,20 @@ export default {
   "The storage configuration uses elements not supported by this interface.": [
     "Konfigurace úložiště používá prvky, které nejsou tímto rozhraním podporovány."
   ],
-  "The system does not support Wi-Fi connections, probably because of missing or disabled hardware.": [
-    "Systém nepodporuje připojení Wi-Fi, pravděpodobně chybí hardware nebo je zakázán."
-  ],
   "The system is rebooting": [
     "Váš systém se restartuje"
-  ],
-  "The zFCP disk was not activated.": [
-    "Disk zFCP nebyl aktivován."
   ],
   "There are no disks available for the installation": [
     "Pro instalaci nejsou k dispozici žádné disky"
   ],
   "There are not disks available for the installation. You may need to configure some device.": [
     "Pro instalaci nesou dostupné žádné disky. Možná bude potřeba nakonfigurovat nějaká zařízení."
+  ],
+  "There are not usable partitions": [
+    "K dispozici nejsou žádné použitelné oddíly"
+  ],
+  "There are not zFCP controllers pending of activation.": [
+    ""
   ],
   "There is %d destructive action planned affecting %s": [
     "",
@@ -1770,12 +1880,6 @@ export default {
   ],
   "This license is not available in %s.": [
     "V %s není tato licence dostupná."
-  ],
-  "This may take a moment while updates complete.": [
-    "Než budou aktualizace dokončeny, může to chvilku zabrat."
-  ],
-  "This message will close automatically when everything is done.": [
-    "Tato zpráva bude automaticky uzavřena jakmile bude vše hotovo."
   ],
   "This pattern strikes a balance between clarity and efficiency: the modal keeps things lightweight for simple selections, while the full view supports deeper exploration and more complex actions, specially for users with tons of devices.": [
     "Tento vzor balancuje mezi jasností a efektivitou: modál ponechává věci odlehčené pro jednoduché volby, zatímco plné zobrazení umožňuje hlubší průzkum a mnohem komplexnější akce. To zvláště ocení uživatelé s velkým množstvím zařízení."
@@ -1804,6 +1908,9 @@ export default {
   "Try again": [
     "Zkusit znovu"
   ],
+  "Try to deactivate again": [
+    ""
+  ],
   "Type": [
     "Typ"
   ],
@@ -1812,6 +1919,12 @@ export default {
   ],
   "Unbound": [
     "Nenavázané"
+  ],
+  "Unexpected error": [
+    "Neočekávaná chyba"
+  ],
+  "Unknown error": [
+    "Neznámá chyba"
   ],
   "Unselect": [
     "Zrušit výběr"
@@ -1824,6 +1937,9 @@ export default {
   ],
   "Unused space": [
     "Nevyužitý prostor"
+  ],
+  "Up": [
+    "Nahoru"
   ],
   "Up to %s can be recovered by shrinking the device.": [
     "Zmenšením zařízení lze obnovit až %s."
@@ -1840,8 +1956,26 @@ export default {
   "Upload, paste, or drop an SSH public key": [
     "Nahrání, vložení nebo přetažení veřejného klíče SSH"
   ],
+  "Use": [
+    "Použít"
+  ],
   "Use RAID %s": [
     "Použít RAID %s"
+  ],
+  "Use RAID %s for LVM and additional partitions": [
+    "Použít RAID %s pro LVM a další oddíly"
+  ],
+  "Use RAID %s for LVM, additional partitions and booting": [
+    "Použít RAID %s pro LVM, další oddíly a zavádění systému"
+  ],
+  "Use RAID %s for additional partitions": [
+    "Použít RAID %s pro další oddíly"
+  ],
+  "Use RAID %s for additional partitions and booting": [
+    "Použít RAID %s pro další oddíly a zavádění systému"
+  ],
+  "Use RAID %s to configure boot partitions": [
+    "Použít RAID %s ke konfiguraci oddílů pro zavádění"
   ],
   "Use RAID %s to host LVM": [
     "Použít RAID %s pro zavedení LVM"
@@ -1873,6 +2007,21 @@ export default {
   "Use disk %s": [
     "Použít disk %s"
   ],
+  "Use disk %s for LVM and additional partitions": [
+    "Použít disk %s pro LVM a další oddíly"
+  ],
+  "Use disk %s for LVM, additional partitions and booting": [
+    "Použít disk %s pro LVM, další oddíly a zavádění systému"
+  ],
+  "Use disk %s for additional partitions": [
+    "Použít disk %s pro další oddíly"
+  ],
+  "Use disk %s for additional partitions and booting": [
+    "Použít disk %s pro další oddíly a zavádění systému"
+  ],
+  "Use disk %s to configure boot partitions": [
+    "Použít disk %s pro konfiguraci zaváděcích oddílů"
+  ],
   "Use disk %s to host LVM": [
     "Použij disk %s pro zavedení LVM"
   ],
@@ -1881,6 +2030,12 @@ export default {
   ],
   "Use disk %s to install": [
     "Použij disk %s k instalaci"
+  ],
+  "Use disk %s to install and boot": [
+    "Použít disk %s k instalaci a zavádění systému"
+  ],
+  "Use disk %s to install and host LVM": [
+    "Použít disk %s k instalaci a pro LVM"
   ],
   "Use disk %s to install, host LVM and boot": [
     "Použij disk %s pro instalaci, zavedení LVM a spuštění"
@@ -1918,14 +2073,26 @@ export default {
   "Username suggestion dropdown": [
     "Rozbalovací nabídka uživatelských jmen"
   ],
+  "Using %d connections with %s": [
+    "Používá se %d připojení s %s"
+  ],
   "Using [%s] keyboard": [
     "Používá se klávesnice [%s]"
   ],
   "Using a hashed password.": [
     ""
   ],
+  "Using an advanced storage configuration": [
+    "Nainstalovat pomocí pokročilé konfigurace"
+  ],
+  "Using an existing partition": [
+    "Použít stávající oddíl"
+  ],
   "Using code ending in %s": [
     "Použít kód končící na %s"
+  ],
+  "Using partition %s": [
+    "Používá se oddíl %s"
   ],
   "View license": [
     "Zobrazit licenci"
@@ -1958,7 +2125,7 @@ export default {
     "Slabý signál"
   ],
   "When ready, click on the [install] button at the end of the page.": [
-    ""
+    "Až budete připraveni, klikněte na tlačítko [instalovat] na konci stránky."
   ],
   "Wi-Fi": [
     "Wi-Fi"
@@ -1966,17 +2133,8 @@ export default {
   "Wi-Fi connection form": [
     "Formulář pro připojení WiFi"
   ],
-  "Wi-Fi networks": [
-    "Wi-Fi sítě"
-  ],
-  "Wi-Fi not supported": [
-    "Wi-Fi není podporováno"
-  ],
   "Will be supported in a future version.": [
     "Bude podporováno v budoucí verzi."
-  ],
-  "Wired connections": [
-    "Drátová připojení"
   ],
   "Wrong selection": [
     "Neplatný výběr"
@@ -2052,8 +2210,5 @@ export default {
   ],
   "zFCP": [
     "zFCP"
-  ],
-  "zFCP Disk activation form": [
-    "Aktivační formulář zFCP disku"
   ]
 };

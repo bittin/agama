@@ -43,9 +43,6 @@ export default {
     "%d διαθέσιμη λειτουργία",
     "%d διαθέσιμες λειτουργίες"
   ],
-  "%d of %d": [
-    "%d από %d"
-  ],
   "%d other mode available": [
     "%d άλλη διαθέσιμη λειτουργία",
     "%d άλλες διαθέσιμες λειτουργίες"
@@ -84,6 +81,15 @@ export default {
   ],
   "%s with %d partitions": [
     "%s με %d κατατμήσεις"
+  ],
+  "(bind by name)": [
+    ""
+  ],
+  "(bound by MAC)": [
+    ""
+  ],
+  "(bound by name)": [
+    ""
   ],
   "(step %s of %s)": [
     "(βήμα %s από %s)"
@@ -148,12 +154,6 @@ export default {
   "Activate and format DASD devices": [
     "Ενεργοποίηση και διαμόρφωση συσκευών DASD"
   ],
-  "Activate new disk": [
-    "Ενεργοποίηση νέου δίσκου"
-  ],
-  "Activate zFCP disk": [
-    "Ενεργοποίηση δίσκου zFCP"
-  ],
   "Activate zFCP disks": [
     "Ενεργοποίηση δίσκων zFCP"
   ],
@@ -190,6 +190,9 @@ export default {
   "Add or use partition": [
     "Προσθήκη ή χρήση κατάτμησης"
   ],
+  "Add search domain": [
+    ""
+  ],
   "Additional CHAP authentication performed by the initiator": [
     "Πρόσθετη πιστοποίηση CHAP που εκτελείται από τον initiator"
   ],
@@ -208,9 +211,6 @@ export default {
   "All": [
     "Όλα"
   ],
-  "All conflicts have been resolved, or none were detected. You can safely continue with your setup.": [
-    "Όλες οι συγκρούσεις έχουν επιλυθεί ή δεν εντοπίστηκε καμία. Μπορείτε να συνεχίσετε με ασφάλεια τη ρύθμισή σας."
-  ],
   "All content not configured to be mounted will be deleted": [
     "Όλο το περιεχόμενο που δεν έχει ρυθμιστεί για προσάρτηση θα διαγραφεί"
   ],
@@ -225,6 +225,9 @@ export default {
   ],
   "All network connections managed through this interface are currently set to be used only during installation and will not be copied to the installed system": [
     "Όλες οι συνδέσεις δικτύου που διαχειρίζονται μέσω αυτής της διεπαφής είναι επί του παρόντος ρυθμισμένες να χρησιμοποιούνται μόνο κατά την εγκατάσταση και δεν θα αντιγραφούν στο εγκατεστημένο σύστημα"
+  ],
+  "All the available zFCP controllers are already activated.": [
+    ""
   ],
   "Allow growing": [
     "Να επιτρέπεται η επέκταση"
@@ -248,12 +251,6 @@ export default {
   "Any partition needed to boot will be configured.": [
     "Κάθε κατάτμηση που απαιτείται για την εκκίνηση θα ρυθμιστεί."
   ],
-  "Apply selected solution": [
-    "Εφαρμογή επιλεγμένης λύσης"
-  ],
-  "Applying changes": [
-    "Εφαρμογή αλλαγών"
-  ],
   "As a new partition on %s": [
     "Ως νέα κατάτμηση στο %s"
   ],
@@ -269,9 +266,6 @@ export default {
   "Auto": [
     "Αυτόματη"
   ],
-  "Auto LUNs Scan": [
-    "Αυτόματη σάρωση LUN"
-  ],
   "Auto and manual": [
     "Αυτόματη και χειροκίνητη"
   ],
@@ -281,11 +275,11 @@ export default {
   "Automatic (DHCP)": [
     "Αυτόματη (DHCP)"
   ],
-  "Automatic LUN scan is [disabled]. LUNs have to be manually configured after activating a controller.": [
-    "Η αυτόματη σάρωση LUN είναι [απενεργοποιημένη]. Τα LUN πρέπει να ρυθμιστούν χειροκίνητα μετά την ενεργοποίηση ενός ελεγκτή."
+  "Automatic LUN scan is disabled": [
+    ""
   ],
-  "Automatic LUN scan is [enabled]. Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
-    "Η αυτόματη σάρωση LUN είναι [ενεργοποιημένη]. Η ενεργοποίηση ενός ελεγκτή που λειτουργεί σε κατάσταση NPIV θα ρυθμίσει αυτόματα όλα τα LUN του."
+  "Automatic LUN scan is enabled": [
+    ""
   ],
   "Back": [
     "Πίσω"
@@ -425,12 +419,6 @@ export default {
   "Changes in these settings will immediately update the 'Result' section below.": [
     "Οι αλλαγές σε αυτές τις ρυθμίσεις θα ενημερώσουν αμέσως την ενότητα «Αποτέλεσμα» παρακάτω."
   ],
-  "Channel ID": [
-    "ID καναλιού"
-  ],
-  "Check the authentication parameters.": [
-    "Ελέγξτε τις παραμέτρους πιστοποίησης."
-  ],
   "Check the following before continuing": [
     "Ελέγξτε τα παρακάτω πριν συνεχίσετε"
   ],
@@ -559,9 +547,6 @@ export default {
   "Connecting to %s": [
     "Σύνδεση στο %s"
   ],
-  "Connection details": [
-    "Λεπτομέρειες σύνδεσης"
-  ],
   "Connection failed": [
     "Η σύνδεση απέτυχε"
   ],
@@ -583,14 +568,8 @@ export default {
   "Continuing without installing the package can result in a broken system. In some cases the system might not even boot.": [
     "Η συνέχιση χωρίς την εγκατάσταση του πακέτου μπορεί να οδηγήσει σε κατεστραμμένο σύστημα. Σε ορισμένες περιπτώσεις, το σύστημα ενδέχεται να μην εκκινεί καν."
   ],
-  "Controllers": [
-    "Ελεγκτές"
-  ],
   "Could not authenticate against the server.": [
     "Αδυναμία πιστοποίησης στον διακομιστή."
-  ],
-  "Could not connect to %s": [
-    "Αδυναμία σύνδεσης στο %s"
   ],
   "Could not log in": [
     "Αδυναμία σύνδεσης"
@@ -642,6 +621,9 @@ export default {
   ],
   "DNS": [
     "DNS"
+  ],
+  "DNS Search List": [
+    ""
   ],
   "Deactivate": [
     "Απενεργοποίηση"
@@ -703,9 +685,6 @@ export default {
   "Details": [
     "Λεπτομέρειες"
   ],
-  "Details will appear after the connection is successfully established.": [
-    "Οι λεπτομέρειες θα εμφανιστούν αφού εδραιωθεί επιτυχώς η σύνδεση."
-  ],
   "Device": [
     "Συσκευή"
   ],
@@ -742,9 +721,6 @@ export default {
   "Disk": [
     "Δίσκος"
   ],
-  "Disk Activation": [
-    "Ενεργοποίηση δίσκου"
-  ],
   "Disks": [
     "Δίσκοι"
   ],
@@ -756,6 +732,12 @@ export default {
   ],
   "Do not use": [
     "Να μη χρησιμοποιηθεί"
+  ],
+  "Domain": [
+    ""
+  ],
+  "Down": [
+    ""
   ],
   "Download logs": [
     "Λήψη καταγραφών (logs)"
@@ -822,6 +804,9 @@ export default {
   ],
   "Enter a name for the volume group.": [
     "Εισαγάγετε ένα όνομα για την ομάδα τόμων (volume group)."
+  ],
+  "Ethernet": [
+    ""
   ],
   "ExFAT": [
     "ExFAT"
@@ -893,9 +878,6 @@ export default {
   ],
   "Find space in %s": [
     "Εύρεση χώρου στο %s"
-  ],
-  "Finished": [
-    "Ολοκληρώθηκε"
   ],
   "First user": [
     "Πρώτος χρήστης"
@@ -990,9 +972,6 @@ export default {
   ],
   "IP addresses": [
     "Διευθύνσεις IP"
-  ],
-  "IP settings": [
-    "Ρυθμίσεις IP"
   ],
   "IPs": [
     "Διευθύνσεις IP"
@@ -1120,9 +1099,6 @@ export default {
   "It is offline and must be activated before formatting it.": [
     "Είναι εκτός σύνδεσης και πρέπει να ενεργοποιηθεί πριν από τη διαμόρφωσή του."
   ],
-  "It may take some time.": [
-    "Ενδέχεται να πάρει κάποιο χρόνο."
-  ],
   "JFS": [
     "JFS"
   ],
@@ -1168,9 +1144,6 @@ export default {
   "Loading data...": [
     "Φόρτωση δεδομένων..."
   ],
-  "Loading storage": [
-    "Φόρτωση αποθηκευτικού χώρου"
-  ],
   "Loading the installation repositories...": [
     "Φόρτωση των αποθετηρίων εγκατάστασης..."
   ],
@@ -1206,6 +1179,9 @@ export default {
   ],
   "Manage DASD devices": [
     "Διαχείριση συσκευών DASD"
+  ],
+  "Manage available connections, connect to Wi-Fi, or add a new connection.": [
+    ""
   ],
   "Manual": [
     "Χειροκίνητη"
@@ -1299,9 +1275,6 @@ export default {
   "Multipath": [
     "Multipath"
   ],
-  "Multiple conflicts found. You can address them in any order, and resolving one may resolve others.": [
-    "Βρέθηκαν πολλαπλές συγκρούσεις. Μπορείτε να τις αντιμετωπίσετε με οποιαδήποτε σειρά· η επίλυση μιας μπορεί να επιλύσει και άλλες."
-  ],
   "NFS": [
     "NFS"
   ],
@@ -1323,9 +1296,6 @@ export default {
   "Network details": [
     "Λεπτομέρειες δικτύου"
   ],
-  "Network not found or lost": [
-    "Το δίκτυο δεν βρέθηκε ή χάθηκε"
-  ],
   "New": [
     "Νέο"
   ],
@@ -1340,9 +1310,6 @@ export default {
   ],
   "No additional software was selected.": [
     "Δεν επιλέχθηκε πρόσθετο λογισμικό."
-  ],
-  "No conflicts to address": [
-    "Δεν υπάρχουν συγκρούσεις προς αντιμετώπιση"
   ],
   "No content found": [
     "Δεν βρέθηκε περιεχόμενο"
@@ -1397,15 +1364,6 @@ export default {
   ],
   "No valid port.": [
     "Μη έγκυρη θύρα."
-  ],
-  "No wired connections were found": [
-    "Δεν βρέθηκαν ενσύρματες συνδέσεις"
-  ],
-  "No zFCP controllers found.": [
-    "Δεν βρέθηκαν ελεγκτές zFCP."
-  ],
-  "No zFCP disks found.": [
-    "Δεν βρέθηκαν δίσκοι zFCP."
   ],
   "None": [
     "Καμία"
@@ -1527,20 +1485,11 @@ export default {
   "Passwords do not match": [
     "Τα συνθηματικά δεν ταιριάζουν"
   ],
-  "Pending": [
-    "Εκκρεμεί"
-  ],
   "Perform a discovery to find available iSCSI targets.": [
     "Εκτελέστε έναν εντοπισμό για να βρείτε διαθέσιμους στόχους iSCSI."
   ],
   "PiB": [
     "PiB"
-  ],
-  "Please, try to activate a zFCP controller.": [
-    "Παρακαλώ, δοκιμάστε να ενεργοποιήσετε έναν ελεγκτή zFCP."
-  ],
-  "Please, try to activate a zFCP disk.": [
-    "Παρακαλώ, δοκιμάστε να ενεργοποιήσετε έναν δίσκο zFCP."
   ],
   "Port": [
     "Θύρα"
@@ -1592,9 +1541,6 @@ export default {
   ],
   "Question": [
     "Ερώτηση"
-  ],
-  "Read zFCP devices": [
-    "Ανάγνωση συσκευών zFCP"
   ],
   "Reboot": [
     "Επανεκκίνηση"
@@ -1766,9 +1712,6 @@ export default {
   "Select a product to continue.": [
     "Επιλέξτε ένα προϊόν για να συνεχίσετε."
   ],
-  "Select a solution to continue": [
-    "Επιλέξτε μια λύση για να συνεχίσετε"
-  ],
   "Select another device to define partitions or to mount": [
     "Επιλέξτε άλλη συσκευή για ορισμό κατατμήσεων ή για προσάρτηση"
   ],
@@ -1789,6 +1732,9 @@ export default {
   ],
   "Select or enter a valid mount point": [
     "Επιλέξτε ή εισαγάγετε ένα έγκυρο σημείο προσάρτησης"
+  ],
+  "Select the zFCP controllers to activate:": [
+    ""
   ],
   "Select what to do with each partition in order to find space for allocating the new system.": [
     "Επιλέξτε τι θα γίνει με κάθε κατάτμηση προκειμένου να βρεθεί χώρος για την εκχώρηση του νέου συστήματος."
@@ -1820,9 +1766,6 @@ export default {
   "Set a permanent hostname that won’t change with network updates.": [
     "Ορίστε ένα μόνιμο όνομα συστήματος που δεν θα αλλάζει με τις ενημερώσεις δικτύου."
   ],
-  "Setting up connection": [
-    "Ρύθμιση σύνδεσης"
-  ],
   "Settings": [
     "Ρυθμίσεις"
   ],
@@ -1842,14 +1785,8 @@ export default {
   "Show less": [
     "Εμφάνιση λιγότερων"
   ],
-  "Show less actions": [
-    "Εμφάνιση λιγότερων ενεργειών"
-  ],
   "Show more": [
     "Εμφάνιση περισσότερων"
-  ],
-  "Show more actions": [
-    "Εμφάνιση περισσότερων ενεργειών"
   ],
   "Shrink existing partitions": [
     "Συρρίκνωση υπαρχουσών κατατμήσεων"
@@ -1875,20 +1812,11 @@ export default {
   "Skip to content": [
     "Μετάβαση στο περιεχόμενο"
   ],
-  "Skip to next": [
-    "Μετάβαση στο επόμενο"
-  ],
-  "Skip to previous": [
-    "Μετάβαση στο προηγούμενο"
-  ],
   "Software": [
     "Λογισμικό"
   ],
   "Software %s": [
     "Λογισμικό %s"
-  ],
-  "Software conflicts resolution": [
-    "Επίλυση συγκρούσεων λογισμικού"
   ],
   "Some existing partitions may be shrunk": [
     "Ορισμένες υπάρχουσες κατατμήσεις ενδέχεται να συρρικνωθούν"
@@ -2162,17 +2090,11 @@ export default {
   "The storage configuration uses elements not supported by this interface.": [
     "Η διαμόρφωση αποθήκευσης χρησιμοποιεί στοιχεία που δεν υποστηρίζονται από αυτή τη διεπαφή."
   ],
-  "The system does not support Wi-Fi connections, probably because of missing or disabled hardware.": [
-    "Το σύστημα δεν υποστηρίζει συνδέσεις Wi-Fi, πιθανώς λόγω έλλειψης ή απενεργοποιημένου υλικού."
-  ],
   "The system is rebooting": [
     "Το σύστημα κάνει επανεκκίνηση"
   ],
   "The whole device will be used for %s": [
     "Ολόκληρη η συσκευή θα χρησιμοποιηθεί για %s"
-  ],
-  "The zFCP disk was not activated.": [
-    "Ο δίσκος zFCP δεν ενεργοποιήθηκε."
   ],
   "There are no disks available for the installation": [
     "Δεν υπάρχουν διαθέσιμοι δίσκοι για την εγκατάσταση"
@@ -2182,6 +2104,9 @@ export default {
   ],
   "There are not usable partitions": [
     "Δεν υπάρχουν χρησιμοποιήσιμες κατατμήσεις"
+  ],
+  "There are not zFCP controllers pending of activation.": [
+    ""
   ],
   "There is %d destructive action planned": [
     "Υπάρχει %d προγραμματισμένη καταστροφική ενέργεια",
@@ -2205,12 +2130,6 @@ export default {
   ],
   "This license is not available in %s.": [
     "Αυτή η άδεια χρήσης δεν είναι διαθέσιμη στο %s."
-  ],
-  "This may take a moment while updates complete.": [
-    "Αυτό μπορεί να πάρει λίγο χρόνο μέχρι να ολοκληρωθούν οι ενημερώσεις."
-  ],
-  "This message will close automatically when everything is done.": [
-    "Αυτό το μήνυμα θα κλείσει αυτόματα όταν όλα ολοκληρωθούν."
   ],
   "This pattern strikes a balance between clarity and efficiency: the modal keeps things lightweight for simple selections, while the full view supports deeper exploration and more complex actions, specially for users with tons of devices.": [
     "Αυτό το πρότυπο επιτυγχάνει μια ισορροπία μεταξύ σαφήνειας και αποτελεσματικότητας: το αναδυόμενο παράθυρο διατηρεί τα πράγματα ελαφριά για απλές επιλογές, ενώ η πλήρης προβολή υποστηρίζει βαθύτερη εξερεύνηση και πιο σύνθετες ενέργειες, ειδικά για χρήστες με πάρα πολλές συσκευές."
@@ -2245,6 +2164,9 @@ export default {
   "Try again": [
     "Δοκιμάστε ξανά"
   ],
+  "Try to deactivate again": [
+    ""
+  ],
   "Type": [
     "Τύπος"
   ],
@@ -2253,6 +2175,15 @@ export default {
   ],
   "Unbound": [
     "Χωρίς συσχέτιση (unbound)"
+  ],
+  "Unexpected error": [
+    ""
+  ],
+  "Unknown": [
+    ""
+  ],
+  "Unknown error": [
+    ""
   ],
   "Unselect": [
     "Αποεπιλογή"
@@ -2265,6 +2196,9 @@ export default {
   ],
   "Unused space": [
     "Μη χρησιμοποιούμενος χώρος"
+  ],
+  "Up": [
+    ""
   ],
   "Up to %s can be recovered by shrinking the device.": [
     "Μπορεί να ανακτηθεί έως και %s μέσω της συρρίκνωσης της συσκευής."
@@ -2476,17 +2410,8 @@ export default {
   "Wi-Fi connection form": [
     "Φόρμα σύνδεσης Wi-Fi"
   ],
-  "Wi-Fi networks": [
-    "Δίκτυα Wi-Fi"
-  ],
-  "Wi-Fi not supported": [
-    "Το Wi-Fi δεν υποστηρίζεται"
-  ],
   "Will be supported in a future version.": [
     "Θα υποστηρίζεται σε μελλοντική έκδοση."
-  ],
-  "Wired connections": [
-    "Ενσύρματες συνδέσεις"
   ],
   "Wrong selection": [
     "Εσφαλμένη επιλογή"
@@ -2565,8 +2490,5 @@ export default {
   ],
   "zFCP": [
     "zFCP"
-  ],
-  "zFCP Disk activation form": [
-    "Φόρμα ενεργοποίησης δίσκου zFCP"
   ]
 };

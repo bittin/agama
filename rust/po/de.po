@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-13 11:58+0000\n"
-"PO-Revision-Date: 2026-03-15 07:04+0000\n"
+"POT-Creation-Date: 2026-03-23 06:09+0000\n"
+"PO-Revision-Date: 2026-03-21 13:04+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language-Team: German <https://l10n.opensuse.org/projects/agama/agama-rust-"
 "master/de/>\n"
@@ -28,6 +28,20 @@ msgstr "Nein"
 #: agama-utils/src/question/start.rs:54
 msgid "Yes"
 msgstr "Ja"
+
+#. TRANSLATORS: %s is replaced by the script name.
+#: agama-files/src/service.rs:198
+msgid "Failed to retrieve the script %s. Do you want to try again?"
+msgstr ""
+"Das Abrufen des Skripts %s ist fehlgeschlagen. Möchten Sie es erneut "
+"versuchen?"
+
+#. TRANSLATORS: %s is replaced by the script name.
+#: agama-files/src/service.rs:222
+msgid "Failed to write the file %s. Do you want to try again?"
+msgstr ""
+"Das Schreiben der Datei %s ist fehlgeschlagen. Möchten Sie es erneut "
+"versuchen?"
 
 #: agama-manager/src/actions.rs:86
 msgid "Prepare the system"
@@ -97,13 +111,13 @@ msgstr "Speicherungsvorschlag vorbereiten"
 msgid "Storing bootloader settings"
 msgstr "Bootloader-Einstellungen speichern"
 
-#: agama-network/src/service.rs:526
-msgid "Writing configuration"
-msgstr "Konfiguration schreiben"
+#: agama-network/src/service.rs:512
+msgid "Writing network configuration"
+msgstr "Netzwerkkonfiguration schreiben"
 
-#: agama-network/src/service.rs:527
-msgid "Reading configuration"
-msgstr "Konfiguration lesen"
+#: agama-network/src/service.rs:513
+msgid "Syncing the network service state"
+msgstr "Netzwerkdienststatus synchronisieren"
 
 #: agama-security/src/service.rs:226
 msgid "Reject"
@@ -166,7 +180,7 @@ msgstr "Muster"
 msgid "product"
 msgstr "Produkt"
 
-#: agama-software/src/service.rs:308
+#: agama-software/src/service.rs:279
 msgid ""
 "Due to an internal error, it was not possible to create a software proposal."
 msgstr ""
@@ -233,6 +247,9 @@ msgstr ""
 #: agama-users/src/service.rs:153
 msgid "First user information is incomplete"
 msgstr "Die Informationen zum ersten Benutzer sind unvollständig"
+
+#~ msgid "Reading configuration"
+#~ msgstr "Konfiguration lesen"
 
 #~ msgid "The product must be registered"
 #~ msgstr "Das Produkt muss registriert werden"

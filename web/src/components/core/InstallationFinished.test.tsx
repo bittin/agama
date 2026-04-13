@@ -102,6 +102,25 @@ describe("InstallationFinished", () => {
     screen.getByRole("button", { name: /Reboot/i });
   });
 
+  it("shows the installer options menu", async () => {
+    installerRender(<InstallationFinished />);
+    screen.getByRole("button", { name: /More installer options/i });
+  });
+
+  it("includes an option for downloading the logs", async () => {
+    const { user } = installerRender(<InstallationFinished />);
+    await user.click(screen.getByRole("button", { name: /More installer options/i }));
+    const menuitem = screen.getByRole("menuitem", { name: /Download logs/i });
+    expect(menuitem).toHaveAttribute("download");
+  });
+
+  it("includes an option for downloading the config", async () => {
+    const { user } = installerRender(<InstallationFinished />);
+    await user.click(screen.getByRole("button", { name: /More installer options/i }));
+    const menuitem = screen.getByRole("menuitem", { name: /Download config/i });
+    expect(menuitem).toHaveAttribute("download");
+  });
+
   describe("when running storage config in raw mode", () => {
     beforeEach(() => {
       mockUseExtendedConfigFn.mockReturnValue(mockStorageConfig("raw", null));

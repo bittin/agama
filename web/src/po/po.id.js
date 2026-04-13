@@ -9,6 +9,12 @@ export default {
   "\"%s\" does not exist or is no longer available.": [
     "\"%s\" tidak ditemukan atau tidak lagi tersedia."
   ],
+  "%1$d of %2$d connections match filters": [
+    "%1$d dari %2$d koneksi cocok dengan filter"
+  ],
+  "%1$d of %2$d devices match filters": [
+    "%1$d dari %2$d perangkat cocok dengan filter"
+  ],
   "%1$s (%2$s)": [
     "%1$s (%2$s)"
   ],
@@ -36,11 +42,14 @@ export default {
   "%1$s, %2$s and [%3$d more]": [
     "%1$s, %2$s dan [%3$d lainnya]"
   ],
+  "%d connections available": [
+    "%d koneksi tersedia"
+  ],
+  "%d devices available": [
+    "%d perangkat tersedia"
+  ],
   "%d mode available": [
     "%d mode tersedia"
-  ],
-  "%d of %d": [
-    "%d dari %d"
   ],
   "%d other mode available": [
     "%d mode lain tersedia"
@@ -78,11 +87,20 @@ export default {
   "%s with %d partitions": [
     "%s dengan partisi %d"
   ],
+  "(bind by name)": [
+    "(ikat berdasarkan nama)"
+  ],
+  "(bound by MAC)": [
+    "(terikat berdasarkan MAC)"
+  ],
+  "(bound by name)": [
+    "(terikat berdasarkan nama)"
+  ],
   "(step %s of %s)": [
     "(langkah %s dari %s)"
   ],
   "1 device selected. Use the actions toolbar to apply changes.": [
-    ""
+    "%s perangkat dipilih. Gunakan bilah alat tindakan untuk menerapkan perubahan."
   ],
   "A %1$s of %2$s will be created for %3$s if possible": [
     "%1$s dari %2$s akan dibuat untuk %3$s jika memungkinkan"
@@ -132,23 +150,29 @@ export default {
   "Actions for %s at portal %s": [
     "Tindakan untuk %s pada portal %s"
   ],
+  "Actions for the selected device:": [
+    "Tindakan untuk %s perangkat yang dipilih:"
+  ],
   "Activate": [
     "Mengaktifkan"
   ],
   "Activate and format DASD devices": [
     "Aktifkan dan format perangkat DASD"
   ],
-  "Activate new disk": [
-    "Aktifkan disk baru"
-  ],
-  "Activate zFCP disk": [
-    "Mengaktifkan disk zFCP"
+  "Activate controllers": [
+    "Aktifkan pengontrol"
   ],
   "Activate zFCP disks": [
     "Aktifkan disk zFCP"
   ],
   "Activated": [
     "Diaktifkan"
+  ],
+  "Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
+    "Mengaktifkan pengontrol yang berjalan dalam mode NPIV akan secara otomatis mengonfigurasi semua LUN-nya."
+  ],
+  "Active": [
+    "Aktif"
   ],
   "Add": [
     "Tambahkan"
@@ -171,6 +195,12 @@ export default {
   "Add another address": [
     "Tambahkan alamat lain"
   ],
+  "Add another search domain": [
+    "Tambahkan domain pencarian lain"
+  ],
+  "Add connection": [
+    "Tambahkan koneksi"
+  ],
   "Add device menu": [
     "Tambahkan menu perangkat"
   ],
@@ -179,6 +209,9 @@ export default {
   ],
   "Add or use partition": [
     "Tambahkan atau gunakan partisi"
+  ],
+  "Add search domain": [
+    "Tambahkan domain pencarian"
   ],
   "Additional CHAP authentication performed by the initiator": [
     "Autentikasi CHAP tambahan dilakukan oleh initiator"
@@ -198,9 +231,6 @@ export default {
   "All": [
     "Semua"
   ],
-  "All conflicts have been resolved, or none were detected. You can safely continue with your setup.": [
-    "Semua konflik telah diselesaikan, atau tidak ada yang terdeteksi. Anda dapat melanjutkan pengaturan Anda dengan aman."
-  ],
   "All content not configured to be mounted will be deleted": [
     "Semua konten yang tidak dikonfigurasi untuk di-mount akan dihapus"
   ],
@@ -215,6 +245,9 @@ export default {
   ],
   "All network connections managed through this interface are currently set to be used only during installation and will not be copied to the installed system": [
     "Semua koneksi jaringan yang dikelola melalui antarmuka ini saat ini diatur untuk hanya digunakan selama pemasangan dan tidak akan disalin ke sistem yang dipasang"
+  ],
+  "All the available zFCP controllers are already activated.": [
+    "Semua pengontrol zFCP yang tersedia sudah diaktifkan."
   ],
   "Allow growing": [
     "Izinkan pertumbuhan"
@@ -237,12 +270,6 @@ export default {
   "Any partition needed to boot will be configured.": [
     "Partisi apa pun yang diperlukan untuk booting akan dikonfigurasi."
   ],
-  "Apply selected solution": [
-    "Pilih solusi untuk melanjutkan"
-  ],
-  "Applying changes": [
-    "Menerapkan perubahan"
-  ],
   "As a new partition on %s": [
     "Sebagai partisi baru di %s"
   ],
@@ -258,8 +285,8 @@ export default {
   "Auto": [
     "Otomatis"
   ],
-  "Auto LUNs Scan": [
-    "Pemindaian LUN Otomatis"
+  "Auto Scanned": [
+    "Dipindai Otomatis"
   ],
   "Auto and manual": [
     "Otomatis dan manual"
@@ -270,11 +297,11 @@ export default {
   "Automatic (DHCP)": [
     "Otomatis (DHCP)"
   ],
-  "Automatic LUN scan is [disabled]. LUNs have to be manually configured after activating a controller.": [
-    "Pemindaian LUN otomatis [dinonaktifkan]. LUN harus dikonfigurasi secara manual setelah mengaktifkan pengontrol."
+  "Automatic LUN scan is disabled": [
+    "Pemindaian LUN otomatis dinonaktifkan"
   ],
-  "Automatic LUN scan is [enabled]. Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
-    "Pemindaian LUN otomatis [diaktifkan]. Mengaktifkan pengontrol yang berjalan dalam mode NPIV akan secara otomatis mengonfigurasi semua LUN."
+  "Automatic LUN scan is enabled": [
+    "Pemindaian LUN otomatis diaktifkan"
   ],
   "Back": [
     "Kembali"
@@ -414,11 +441,8 @@ export default {
   "Changes in these settings will immediately update the 'Result' section below.": [
     "Perubahan pada pengaturan ini akan segera memperbarui bagian 'Hasil' di bawah ini."
   ],
-  "Channel ID": [
-    "ID saluran"
-  ],
-  "Check the authentication parameters.": [
-    "Periksa parameter otentikasi."
+  "Channel": [
+    "Saluran"
   ],
   "Check the following before continuing": [
     "Periksa hal-hal berikut sebelum melanjutkan"
@@ -525,6 +549,9 @@ export default {
   "Connect": [
     "Sambungkan"
   ],
+  "Connect to Wi-Fi network": [
+    "Sambungkan ke jaringan Wi-Fi"
+  ],
   "Connect to iSCSI targets": [
     "Menyambungkan ke target iSCSI"
   ],
@@ -545,9 +572,6 @@ export default {
   ],
   "Connecting to %s": [
     "Menghubungkan ke %s"
-  ],
-  "Connection details": [
-    "Rincian koneksi"
   ],
   "Connection failed": [
     "Koneksi gagal"
@@ -570,14 +594,8 @@ export default {
   "Continuing without installing the package can result in a broken system. In some cases the system might not even boot.": [
     "Melanjutkan tanpa memasang paket dapat mengakibatkan sistem rusak. Dalam beberapa kasus, sistem bahkan mungkin tidak dapat melakukan booting."
   ],
-  "Controllers": [
-    "Kontroler"
-  ],
   "Could not authenticate against the server.": [
     "Tidak dapat mengautentikasi terhadap server."
-  ],
-  "Could not connect to %s": [
-    "Tidak dapat terhubung ke %s"
   ],
   "Could not log in": [
     "Tidak dapat masuk"
@@ -629,6 +647,9 @@ export default {
   ],
   "DNS": [
     "DNS"
+  ],
+  "DNS Search List": [
+    "Daftar Domain Pencarian DNS"
   ],
   "Deactivate": [
     "Nonaktifkan"
@@ -690,9 +711,6 @@ export default {
   "Details": [
     "Detail"
   ],
-  "Details will appear after the connection is successfully established.": [
-    "Rincian akan ditampilkan setelah koneksi berhasil terhubung."
-  ],
   "Device": [
     "Perangkat"
   ],
@@ -729,20 +747,35 @@ export default {
   "Disk": [
     "Disk"
   ],
-  "Disk Activation": [
-    "Aktivasi disk"
-  ],
   "Disks": [
     "Disk"
+  ],
+  "Do not activate": [
+    "Jangan aktifkan"
   ],
   "Do not configure": [
     "Jangan konfigurasikan"
   ],
+  "Do not deactivate": [
+    "Jangan nonaktifkan"
+  ],
   "Do not format %s and keep the data": [
     "Jangan memformat %s dan pertahankan data"
   ],
+  "Do not register": [
+    "Jangan daftarkan"
+  ],
   "Do not use": [
     "Jangan gunakan"
+  ],
+  "Domain": [
+    "Domain"
+  ],
+  "Down": [
+    "Nonaktif"
+  ],
+  "Download config": [
+    "Unduh konfigurasi"
   ],
   "Download logs": [
     "Unduh log"
@@ -752,6 +785,9 @@ export default {
   ],
   "Edit": [
     "Edit"
+  ],
+  "Edit binding": [
+    "Edit pengikatan"
   ],
   "Edit binding settings": [
     "Edit pengaturan ikatan"
@@ -809,6 +845,9 @@ export default {
   ],
   "Enter a name for the volume group.": [
     "Masukkan nama untuk grup volume."
+  ],
+  "Ethernet": [
+    "Ethernet"
   ],
   "ExFAT": [
     "ExFAT"
@@ -879,9 +918,6 @@ export default {
   "Find space in %s": [
     "Temukan ruang di %s"
   ],
-  "Finished": [
-    "Selesai"
-  ],
   "First user": [
     "Pengguna pertama"
   ],
@@ -920,6 +956,9 @@ export default {
   ],
   "Formatted": [
     "Diformat"
+  ],
+  "Formatting devices": [
+    "Memformat perangkat"
   ],
   "Full Disk Encryption (FDE) allows to protect the information stored at the new file systems, including data, programs, and system files.": [
     "Enkripsi Disk Penuh (FDE) memungkinkan untuk melindungi informasi yang disimpan di sistem berkas baru, termasuk data, program, dan berkas sistem."
@@ -974,9 +1013,6 @@ export default {
   ],
   "IP addresses": [
     "Alamat IP"
-  ],
-  "IP settings": [
-    "Pengaturan IP"
   ],
   "IPs": [
     "IP"
@@ -1056,6 +1092,9 @@ export default {
   "Interface": [
     "Antarmuka"
   ],
+  "Invalid [zFCP] settings": [
+    "Pengaturan [zFCP] tidak valid"
+  ],
   "Invalid settings": [
     "Pengaturan tidak valid"
   ],
@@ -1104,9 +1143,6 @@ export default {
   "It is offline and must be activated before formatting it.": [
     "Perangkat ini dalam keadaan luring dan harus diaktifkan terlebih dahulu sebelum diformat."
   ],
-  "It may take some time.": [
-    "Mungkin membutuhkan waktu."
-  ],
   "JFS": [
     "JFS"
   ],
@@ -1121,6 +1157,9 @@ export default {
   ],
   "LUN": [
     "LUN"
+  ],
+  "LUNs have to be manually configured after activating a controller.": [
+    "LUN harus dikonfigurasi secara manual setelah mengaktifkan pengontrol."
   ],
   "LVM": [
     "LVM"
@@ -1151,9 +1190,6 @@ export default {
   ],
   "Loading data...": [
     "Memuat data..."
-  ],
-  "Loading storage": [
-    "Memuat penyimpanan"
   ],
   "Loading the installation repositories...": [
     "Memuat repositori instalasi..."
@@ -1190,6 +1226,9 @@ export default {
   ],
   "Manage DASD devices": [
     "Kelola perangkat DASD"
+  ],
+  "Manage available connections, connect to Wi-Fi, or add a new connection.": [
+    "Kelola koneksi yang tersedia, sambungkan ke Wi-Fi, atau tambahkan koneksi baru."
   ],
   "Manual": [
     "Manual"
@@ -1281,9 +1320,6 @@ export default {
   "Multipath": [
     "Multipath"
   ],
-  "Multiple conflicts found. You can address them in any order, and resolving one may resolve others.": [
-    "Terdapat beberapa konflik yang ditemukan. Anda dapat menangani konflik-konflik tersebut dengan urutan apa pun, dan menyelesaikan salah satunya mungkin juga akan menyelesaikan konflik lainnya."
-  ],
   "NFS": [
     "NFS"
   ],
@@ -1305,14 +1341,17 @@ export default {
   "Network details": [
     "Rincian jaringan"
   ],
-  "Network not found or lost": [
-    "Jaringan tidak ditemukan atau terputus"
-  ],
   "New": [
     "Baru"
   ],
+  "New Wi-Fi connection": [
+    "Koneksi Wi-Fi baru"
+  ],
   "No": [
     "Tidak"
+  ],
+  "No DASD devices found in this machine.": [
+    "Tidak ada perangkat DASD yang ditemukan di mesin ini."
   ],
   "No Wi-Fi networks were found": [
     "Tidak ditemukan jaringan Wi-Fi"
@@ -1323,11 +1362,14 @@ export default {
   "No additional software was selected.": [
     "Tidak ada perangkat lunak tambahan yang dipilih."
   ],
-  "No conflicts to address": [
-    "Terapkan solusi yang dipilih"
+  "No connections match filters": [
+    "Tidak ada koneksi yang cocok dengan filter"
   ],
   "No content found": [
     "Tidak ada konten yang ditemukan"
+  ],
+  "No controllers available": [
+    "Tidak ada pengontrol yang tersedia"
   ],
   "No data loss is expected": [
     "Tidak diharapkan ada kehilangan data"
@@ -1347,8 +1389,17 @@ export default {
   "No devices found": [
     "Tidak ditemukan perangkat"
   ],
+  "No devices match filters": [
+    "Tidak ada perangkat yang cocok dengan filter"
+  ],
+  "No devices selected. Select one or more devices to perform bulk actions.": [
+    "Tidak ada perangkat yang dipilih. Pilih satu atau lebih perangkat untuk melakukan tindakan massal."
+  ],
   "No iSCSI Boot Firmware Table (iBFT) found. The initiator can be [configured manually.]": [
     "Tidak ada iSCSI Boot Firmware Table (iBFT) yang ditemukan. Initiator dapat [dikonfigurasi secara manual.]"
+  ],
+  "No information available yet": [
+    "Belum ada informasi yang tersedia"
   ],
   "No logical volumes are defined yet": [
     "Belum ada volume logis yang didefinisikan"
@@ -1380,17 +1431,17 @@ export default {
   "No valid port.": [
     "Tidak ada port yang valid."
   ],
-  "No wired connections were found": [
-    "Tidak ditemukan koneksi kabel"
+  "No zFCP controllers found in this machine.": [
+    "Tidak ada pengontrol zFCP yang ditemukan di mesin ini."
   ],
-  "No zFCP controllers found.": [
-    "Tidak ditemukan pengontrol zFCP."
-  ],
-  "No zFCP disks found.": [
-    "Tidak ditemukan disk zFCP."
+  "No zFCP devices found in this machine.": [
+    "Tidak ada perangkat zFCP yang ditemukan di mesin ini."
   ],
   "None": [
     "Tidak ada"
+  ],
+  "None (unbound)": [
+    "Tidak ada (tidak terikat)"
   ],
   "None of the keymaps match the filter.": [
     "Tidak ada keymap yang cocok dengan filter."
@@ -1430,6 +1481,9 @@ export default {
   ],
   "Not supported (%s)": [
     "Tidak didukung (%s)"
+  ],
+  "Offline": [
+    "Luring"
   ],
   "On boot": [
     "Saat boot"
@@ -1509,20 +1563,14 @@ export default {
   "Passwords do not match": [
     "Kata sandi tidak cocok"
   ],
-  "Pending": [
-    "Tertunda"
-  ],
   "Perform a discovery to find available iSCSI targets.": [
     "Lakukan penemuan untuk menemukan target iSCSI yang tersedia."
   ],
+  "Performs auto LUN scan": [
+    "Melakukan pemindaian LUN otomatis"
+  ],
   "PiB": [
     "PiB"
-  ],
-  "Please, try to activate a zFCP controller.": [
-    "Silakan coba aktifkan pengontrol zFCP."
-  ],
-  "Please, try to activate a zFCP disk.": [
-    "Silakan coba aktifkan disk zFCP."
   ],
   "Port": [
     "Port"
@@ -1547,6 +1595,9 @@ export default {
   ],
   "Product is already registered": [
     "Produk sudah terdaftar"
+  ],
+  "Product not found": [
+    "Produk tidak ditemukan"
   ],
   "Protection for the information stored at the new file systems, including data, programs, and system files.": [
     "Perlindungan untuk informasi yang tersimpan pada sistem berkas baru, termasuk data, program, dan berkas sistem."
@@ -1575,8 +1626,8 @@ export default {
   "Question": [
     "Pertanyaan"
   ],
-  "Read zFCP devices": [
-    "Baca perangkat zFCP"
+  "Read only": [
+    "Hanya baca"
   ],
   "Reboot": [
     "Mulai ulang"
@@ -1655,6 +1706,9 @@ export default {
   ],
   "Result of applying the configuration described at the 'Settings' section above.": [
     "Hasil penerapan konfigurasi yang dijelaskan pada bagian 'Pengaturan' di atas."
+  ],
+  "Retrieving error details": [
+    "Mengambil detail kesalahan"
   ],
   "Reused partitions will not be shrunk": [
     "Partisi yang digunakan kembali tidak akan diperkecil"
@@ -1746,9 +1800,6 @@ export default {
   "Select a product to continue.": [
     "Pilih produk untuk melanjutkan."
   ],
-  "Select a solution to continue": [
-    "Pilih solusi untuk melanjutkan"
-  ],
   "Select another device to define partitions or to mount": [
     "Pilih perangkat lain untuk mendefinisikan partisi atau untuk mount"
   ],
@@ -1761,6 +1812,9 @@ export default {
   "Select device": [
     "Pilih perangkat"
   ],
+  "Select devices to perform bulk actions": [
+    "Pilih perangkat untuk melakukan tindakan massal"
+  ],
   "Select or enter a mount point": [
     "Pilih atau masukkan titik mount"
   ],
@@ -1769,6 +1823,12 @@ export default {
   ],
   "Select or enter a valid mount point": [
     "Pilih atau masukkan titik mount yang valid"
+  ],
+  "Select the controllers to activate": [
+    "Pilih pengontrol yang akan diaktifkan"
+  ],
+  "Select the zFCP controllers to activate:": [
+    "Pilih pengontrol zFCP yang akan diaktifkan:"
   ],
   "Select what to do with each partition in order to find space for allocating the new system.": [
     "Pilih tindakan yang akan dilakukan pada setiap partisi untuk menemukan ruang yang cukup untuk mengalokasikan sistem baru."
@@ -1800,9 +1860,6 @@ export default {
   "Set a permanent hostname that won’t change with network updates.": [
     "Tetapkan nama host permanen yang tidak akan berubah saat pembaruan jaringan."
   ],
-  "Setting up connection": [
-    "Mengatur koneksi"
-  ],
   "Settings": [
     "Pengaturan"
   ],
@@ -1821,14 +1878,8 @@ export default {
   "Show less": [
     "Tampilkan lebih sedikit"
   ],
-  "Show less actions": [
-    "Tampilkan lebih sedikit tindakan"
-  ],
   "Show more": [
     "Tampilkan lebih banyak"
-  ],
-  "Show more actions": [
-    "Tampilkan lebih banyak tindakan"
   ],
   "Shrink existing partitions": [
     "Perkecil partisi yang ada"
@@ -1854,20 +1905,11 @@ export default {
   "Skip to content": [
     "Lewati ke konten"
   ],
-  "Skip to next": [
-    "Lewati ke berikutnya"
-  ],
-  "Skip to previous": [
-    "Lewati ke sebelumnya"
-  ],
   "Software": [
     "Perangkat lunak"
   ],
   "Software %s": [
     "Perangkat Lunak %s"
-  ],
-  "Software conflicts resolution": [
-    "Penyelesaian konflik perangkat lunak"
   ],
   "Some existing partitions may be shrunk": [
     "Beberapa partisi yang sudah ada mungkin akan diperkecil"
@@ -2086,7 +2128,7 @@ export default {
     "Kata sandi tidak akan diperlukan untuk mem-boot dan mengakses data jika TPM dapat memverifikasi integritas sistem. Penyegelan TPM mengharuskan sistem baru untuk di-boot secara langsung saat pertama kali dijalankan."
   ],
   "The product was not found in the repositories so it is not possible to proceed with the installation.": [
-    ""
+    "Produk tidak ditemukan di repositori sehingga tidak memungkinkan untuk melanjutkan instalasi."
   ],
   "The product will be registered with \"%s\" hostname": [
     "Produk akan di-registrasi dengan hostname \"%s\""
@@ -2133,17 +2175,14 @@ export default {
   "The storage configuration uses elements not supported by this interface.": [
     "Konfigurasi penyimpanan menggunakan elemen yang tidak didukung oleh antarmuka ini."
   ],
-  "The system does not support Wi-Fi connections, probably because of missing or disabled hardware.": [
-    "Sistem tidak mendukung koneksi Wi-Fi, mungkin karena perangkat keras yang tidak ada atau dinonaktifkan."
-  ],
   "The system is rebooting": [
     "Sistem sedang dimulai ulang"
   ],
   "The whole device will be used for %s": [
     "Seluruh perangkat akan digunakan untuk %s"
   ],
-  "The zFCP disk was not activated.": [
-    "Disk zFCP tidak diaktifkan."
+  "There are %s deactivated zFCP controllers.": [
+    "Terdapat %s pengontrol zFCP yang dinonaktifkan."
   ],
   "There are no disks available for the installation": [
     "Tidak ada disk yang tersedia untuk instalasi"
@@ -2154,17 +2193,29 @@ export default {
   "There are not usable partitions": [
     "Tidak ada partisi yang dapat digunakan"
   ],
+  "There are not zFCP controllers pending of activation.": [
+    "Tidak ada pengontrol zFCP yang menunggu aktivasi."
+  ],
   "There is %d destructive action planned": [
     "Ada %d tindakan destruktif yang direncanakan"
   ],
   "There is %d destructive action planned affecting %s": [
     "Ada %d tindakan destruktif yang direncanakan yang akan mempengaruhi %s"
   ],
+  "There is a deactivated zFCP controller.": [
+    "Terdapat pengontrol zFCP yang dinonaktifkan."
+  ],
   "These are the settings for the product to install. The installer language and keyboard layout can be adjusted via the [settings panel] accessible from the top bar.": [
     "Pengaturan untuk menginstal produk. Bahasa penginstal dan tata letak keyboard dapat disesuaikan melalui [panel pengaturan] yang dapat diakses dari bilah atas."
   ],
   "These are the settings for the product to install. The installer language can be adjusted via the [settings panel] accessible from the top bar.": [
     "Pengaturan untuk menginstal produk. Bahasa penginstal dan tata letak keyboard dapat disesuaikan melalui [panel pengaturan] yang dapat diakses dari bilah atas."
+  ],
+  "This action will destroy any data stored on the device.": [
+    "Tindakan ini akan menghapus semua data yang tersimpan di perangkat."
+  ],
+  "This action will destroy any data stored on the devices listed below.": [
+    "Tindakan ini akan menghapus semua data yang tersimpan di perangkat yang tercantum di bawah."
   ],
   "This extension is not available on the server. Ask the server administrator to mirror the extension.": [
     "Ekstensi ini tidak tersedia di server. Mintalah administrator server untuk menyalin ekstensi tersebut."
@@ -2174,12 +2225,6 @@ export default {
   ],
   "This license is not available in %s.": [
     "Lisensi ini tidak tersedia di %s."
-  ],
-  "This may take a moment while updates complete.": [
-    "Mungkin diperlukan beberapa saat hingga pembaruan selesai."
-  ],
-  "This message will close automatically when everything is done.": [
-    "Pesan ini akan ditutup secara otomatis setelah semuanya selesai."
   ],
   "This pattern strikes a balance between clarity and efficiency: the modal keeps things lightweight for simple selections, while the full view supports deeper exploration and more complex actions, specially for users with tons of devices.": [
     "Polanya ini menyeimbangkan antara kejelasan dan efisiensi: mode ini menjaga kesederhanaan untuk pemilihan yang sederhana, sementara tampilan penuh mendukung eksplorasi yang lebih mendalam dan tindakan yang lebih kompleks, terutama untuk pengguna yang memiliki banyak perangkat."
@@ -2214,6 +2259,12 @@ export default {
   "Try again": [
     "Coba lagi"
   ],
+  "Try to activate again": [
+    "Coba aktifkan lagi"
+  ],
+  "Try to deactivate again": [
+    "Coba nonaktifkan lagi"
+  ],
   "Type": [
     "Jenis"
   ],
@@ -2222,6 +2273,15 @@ export default {
   ],
   "Unbound": [
     "Tidak terikat"
+  ],
+  "Unexpected error": [
+    "Kesalahan tak terduga"
+  ],
+  "Unknown": [
+    "Tidak diketahui"
+  ],
+  "Unknown error": [
+    "Kesalahan tidak diketahui"
   ],
   "Unselect": [
     "Batalkan pilihan"
@@ -2234,6 +2294,9 @@ export default {
   ],
   "Unused space": [
     "Ruang tidak terpakai"
+  ],
+  "Up": [
+    "Aktif"
   ],
   "Up to %s can be recovered by shrinking the device.": [
     "Hingga %s dapat dipulihkan dengan mengecilkan perangkat."
@@ -2445,17 +2508,8 @@ export default {
   "Wi-Fi connection form": [
     "Formulir Koneksi Wi-Fi"
   ],
-  "Wi-Fi networks": [
-    "Jaringan Wi-Fi"
-  ],
-  "Wi-Fi not supported": [
-    "Wi-Fi tidak didukung"
-  ],
   "Will be supported in a future version.": [
     "Akan didukung pada versi mendatang."
-  ],
-  "Wired connections": [
-    "Koneksi kabel"
   ],
   "Wrong selection": [
     "Pilihan salah"
@@ -2535,7 +2589,10 @@ export default {
   "zFCP": [
     "zFCP"
   ],
-  "zFCP Disk activation form": [
-    "Formulir aktivasi Disk zFCP"
+  "zFCP controllers": [
+    "Pengontrol zFCP"
+  ],
+  "zFCP is not available": [
+    "zFCP tidak tersedia"
   ]
 };

@@ -9,6 +9,9 @@ export default {
   "\"%s\" does not exist or is no longer available.": [
     "La xarxa %s no existeix o ja no està disponible."
   ],
+  "%1$d of %2$d connections match filters": [
+    "%1$d de %2$d connexions coincideixen amb els filtres"
+  ],
   "%1$d of %2$d devices match filters": [
     "%1$d de %2$d dispositius coincideixen amb els filtres"
   ],
@@ -42,15 +45,15 @@ export default {
     "%1$s, %2$s i [%3$d més]",
     "%1$s, %2$s i [%3$d més]"
   ],
+  "%d connections available": [
+    "%d connexions disponibles"
+  ],
   "%d devices available": [
     "%d dispositius disponibles"
   ],
   "%d mode available": [
     "%d mode disponible",
     "%d modes disponibles"
-  ],
-  "%d of %d": [
-    "%d de %d"
   ],
   "%d other mode available": [
     "%d altre mode disponible",
@@ -90,6 +93,15 @@ export default {
   ],
   "%s with %d partitions": [
     "%s amb %d particions"
+  ],
+  "(bind by name)": [
+    "(vincle per nom)"
+  ],
+  "(bound by MAC)": [
+    "(vinculació per MAC)"
+  ],
+  "(bound by name)": [
+    "(vinculació per nom)"
   ],
   "(step %s of %s)": [
     "(pas %s de %s)"
@@ -158,17 +170,17 @@ export default {
   "Activate and format DASD devices": [
     "Activa i formata dispositius DASD"
   ],
-  "Activate new disk": [
-    "Activa el disc nou"
-  ],
-  "Activate zFCP disk": [
-    "Activa el disc zFCP"
+  "Activate controllers": [
+    "Activa els controladors"
   ],
   "Activate zFCP disks": [
     "Activa els discs zFCP"
   ],
   "Activated": [
     "Activat"
+  ],
+  "Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
+    "L'activació d'un controlador que s'executa en mode NPIV configurarà automàticament tots els seus LUN."
   ],
   "Active": [
     "Actiu"
@@ -194,6 +206,12 @@ export default {
   "Add another address": [
     "Afegeix-hi una altra adreça"
   ],
+  "Add another search domain": [
+    "Afegiu un altre domini de cerca"
+  ],
+  "Add connection": [
+    "Afegeix-hi una connexió"
+  ],
   "Add device menu": [
     "Afegeix el menú del dispositiu"
   ],
@@ -202,6 +220,9 @@ export default {
   ],
   "Add or use partition": [
     "Afegiu o useu una partició"
+  ],
+  "Add search domain": [
+    "Afegeix un domini de cerca"
   ],
   "Additional CHAP authentication performed by the initiator": [
     "Autenticació de CHAP addicional feta per l'iniciador"
@@ -221,9 +242,6 @@ export default {
   "All": [
     "Tot"
   ],
-  "All conflicts have been resolved, or none were detected. You can safely continue with your setup.": [
-    "S'han resolt tots els conflictes o no se n'ha detectat cap. Podeu continuar la configuració de manera segura."
-  ],
   "All content not configured to be mounted will be deleted": [
     "Se suprimirà tot el contingut que no estigui configurat per ser muntat"
   ],
@@ -238,6 +256,9 @@ export default {
   ],
   "All network connections managed through this interface are currently set to be used only during installation and will not be copied to the installed system": [
     "Totes les connexions de xarxa gestionades a través d'aquesta interfície estan actualment configurades per usar-les només durant la instal·lació i no es copiaran al sistema instal·lat."
+  ],
+  "All the available zFCP controllers are already activated.": [
+    "Tots els controladors de zFCP disponibles ja estan activats."
   ],
   "Allow growing": [
     "Permet-ne l'eixamplament"
@@ -261,12 +282,6 @@ export default {
   "Any partition needed to boot will be configured.": [
     "Es configurarà qualsevol partició necessària per a arrencar."
   ],
-  "Apply selected solution": [
-    "Aplica la solució seleccionada"
-  ],
-  "Applying changes": [
-    "S'apliquen els canvis"
-  ],
   "As a new partition on %s": [
     "Com a partició nova a %s"
   ],
@@ -282,8 +297,8 @@ export default {
   "Auto": [
     "Automàtica"
   ],
-  "Auto LUNs Scan": [
-    "Escaneig automàtic de LUN"
+  "Auto Scanned": [
+    "Escanejat automàticament"
   ],
   "Auto and manual": [
     "Automàtica i manual"
@@ -294,11 +309,11 @@ export default {
   "Automatic (DHCP)": [
     "Automàtic (DHCP)"
   ],
-  "Automatic LUN scan is [disabled]. LUNs have to be manually configured after activating a controller.": [
-    "L'exploració automàtica de LUN està [desactivada]. Els LUN s'han de configurar manualment després d'activar un controlador."
+  "Automatic LUN scan is disabled": [
+    "L'exploració automàtica de LUN està desactivada."
   ],
-  "Automatic LUN scan is [enabled]. Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
-    "L'exploració automàtica de LUN està [activada]. L'activació d'un controlador que s'executa en mode NPIV configurarà automàticament tots els seus LUN."
+  "Automatic LUN scan is enabled": [
+    "L'exploració automàtica de LUN està activada."
   ],
   "Back": [
     "Ves enrere"
@@ -441,12 +456,6 @@ export default {
   "Channel": [
     "Canal"
   ],
-  "Channel ID": [
-    "Identificador del canal"
-  ],
-  "Check the authentication parameters.": [
-    "Comproveu els paràmetres d'autenticació."
-  ],
   "Check the following before continuing": [
     "Comproveu el següent abans de continuar:"
   ],
@@ -554,6 +563,9 @@ export default {
   "Connect": [
     "Connecta't"
   ],
+  "Connect to Wi-Fi network": [
+    "Connecta amb una xarxa sense fil"
+  ],
   "Connect to iSCSI targets": [
     "Connecta amb destinacions iSCSI"
   ],
@@ -574,9 +586,6 @@ export default {
   ],
   "Connecting to %s": [
     "Es connecta amb %s"
-  ],
-  "Connection details": [
-    "Detalls de la connexió"
   ],
   "Connection failed": [
     "Ha fallat la connexió"
@@ -599,14 +608,8 @@ export default {
   "Continuing without installing the package can result in a broken system. In some cases the system might not even boot.": [
     "Continuar sense instal·lar el paquet pot resultar en un sistema trencat. En alguns casos, és possible que el sistema ni tan sols arrenqui."
   ],
-  "Controllers": [
-    "Controladors"
-  ],
   "Could not authenticate against the server.": [
     "No s'ha pogut autenticar amb el servidor."
-  ],
-  "Could not connect to %s": [
-    "No s'ha pogut connectar amb %s"
   ],
   "Could not log in": [
     "No s'ha pogut iniciar la sessió."
@@ -658,6 +661,9 @@ export default {
   ],
   "DNS": [
     "DNS"
+  ],
+  "DNS Search List": [
+    "Llista de cerca de DNS"
   ],
   "Deactivate": [
     "Desactiva"
@@ -719,9 +725,6 @@ export default {
   "Details": [
     "Detalls"
   ],
-  "Details will appear after the connection is successfully established.": [
-    "Els detalls apareixeran quan la connexió s'hagi establert correctament."
-  ],
   "Device": [
     "Dispositiu"
   ],
@@ -758,20 +761,35 @@ export default {
   "Disk": [
     "Disc"
   ],
-  "Disk Activation": [
-    "Activació del disc"
-  ],
   "Disks": [
     "Discs"
+  ],
+  "Do not activate": [
+    "No l'activis"
   ],
   "Do not configure": [
     "No ho configuris"
   ],
+  "Do not deactivate": [
+    "No el desactivis"
+  ],
   "Do not format %s and keep the data": [
     "No formatis %s i conserva'n les dades"
   ],
+  "Do not register": [
+    "Omet el registre"
+  ],
   "Do not use": [
     "No l'usis"
+  ],
+  "Domain": [
+    "Domini"
+  ],
+  "Down": [
+    "Avall"
+  ],
+  "Download config": [
+    "Baixa la configuració"
   ],
   "Download logs": [
     "Baixa els registres"
@@ -781,6 +799,9 @@ export default {
   ],
   "Edit": [
     "Edita"
+  ],
+  "Edit binding": [
+    "Edita la vinculació"
   ],
   "Edit binding settings": [
     "Edita la configuració de la vinculació"
@@ -838,6 +859,9 @@ export default {
   ],
   "Enter a name for the volume group.": [
     "Introduïu un nom per al grup de volums."
+  ],
+  "Ethernet": [
+    "Xarxa amb fil"
   ],
   "ExFAT": [
     "ExFAT"
@@ -909,9 +933,6 @@ export default {
   ],
   "Find space in %s": [
     "Cerca espai a %s"
-  ],
-  "Finished": [
-    "Acabada"
   ],
   "First user": [
     "Usuari primer"
@@ -1010,9 +1031,6 @@ export default {
   "IP addresses": [
     "Adreces IP"
   ],
-  "IP settings": [
-    "Paràmetres d'IP"
-  ],
   "IPs": [
     "IPs"
   ],
@@ -1091,6 +1109,9 @@ export default {
   "Interface": [
     "Interfície"
   ],
+  "Invalid [zFCP] settings": [
+    "Configuració de [zFCP] no vàlida"
+  ],
   "Invalid settings": [
     "Configuració no vàlida"
   ],
@@ -1139,9 +1160,6 @@ export default {
   "It is offline and must be activated before formatting it.": [
     "És fora de línia i s'ha d'activar abans de formatar-lo."
   ],
-  "It may take some time.": [
-    "Pot trigar una mica."
-  ],
   "JFS": [
     "JFS"
   ],
@@ -1156,6 +1174,9 @@ export default {
   ],
   "LUN": [
     "LUN"
+  ],
+  "LUNs have to be manually configured after activating a controller.": [
+    "Els LUN s'han de configurar manualment després d'activar un controlador."
   ],
   "LVM": [
     "LVM"
@@ -1186,9 +1207,6 @@ export default {
   ],
   "Loading data...": [
     "Carregant dades..."
-  ],
-  "Loading storage": [
-    "Carregant l'emmagatzematge"
   ],
   "Loading the installation repositories...": [
     "Carregant els repositoris d'instal·lació..."
@@ -1225,6 +1243,9 @@ export default {
   ],
   "Manage DASD devices": [
     "Gestioneu els dispositius DASD"
+  ],
+  "Manage available connections, connect to Wi-Fi, or add a new connection.": [
+    "Gestioneu les connexions disponibles, connecteu amb la xarxa Wi-Fi o afegiu-hi una connexió nova."
   ],
   "Manual": [
     "Manual"
@@ -1318,9 +1339,6 @@ export default {
   "Multipath": [
     "Multicamí"
   ],
-  "Multiple conflicts found. You can address them in any order, and resolving one may resolve others.": [
-    "S'han trobat diversos conflictes. Podeu abordar-los en qualsevol ordre i, si se'n resol un, potser se'n resolen d'altres."
-  ],
   "NFS": [
     "NFS"
   ],
@@ -1342,11 +1360,14 @@ export default {
   "Network details": [
     "Detalls de la xarxa"
   ],
-  "Network not found or lost": [
-    "Xarxa no trobada o perduda"
+  "Network not available": [
+    "Xarxa no disponible"
   ],
   "New": [
     "Nova"
+  ],
+  "New Wi-Fi connection": [
+    "Connexió sense fil nova"
   ],
   "No": [
     "No"
@@ -1363,11 +1384,14 @@ export default {
   "No additional software was selected.": [
     "No s'ha seleccionat cap programari addicional."
   ],
-  "No conflicts to address": [
-    "No hi ha conflictes per abordar"
+  "No connections match filters": [
+    "Cap connexió coincideix amb els filtres"
   ],
   "No content found": [
     "No s'ha trobat contingut."
+  ],
+  "No controllers available": [
+    "No hi ha controladors disponibles"
   ],
   "No data loss is expected": [
     "No s'espera cap pèrdua de dades."
@@ -1429,17 +1453,17 @@ export default {
   "No valid port.": [
     "Port no vàlid."
   ],
-  "No wired connections were found": [
-    "No s'ha trobat cap connexió amb fil"
+  "No zFCP controllers found in this machine.": [
+    "No s'ha trobat cap controlador de zFCP en aquesta màquina."
   ],
-  "No zFCP controllers found.": [
-    "No s'ha trobat cap controlador de zFCP."
-  ],
-  "No zFCP disks found.": [
-    "No s'ha trobat cap disc zFCP."
+  "No zFCP devices found in this machine.": [
+    "No s'han trobat dispositius zFCP en aquesta màquina."
   ],
   "None": [
     "Cap"
+  ],
+  "None (unbound)": [
+    "Cap (sense vinculació)"
   ],
   "None of the keymaps match the filter.": [
     "Cap dels mapes de tecles coincideix amb el filtre."
@@ -1561,20 +1585,14 @@ export default {
   "Passwords do not match": [
     "Les contrasenyes no coincideixen."
   ],
-  "Pending": [
-    "Pendent"
-  ],
   "Perform a discovery to find available iSCSI targets.": [
     "Fa una descoberta per trobar destinacions d'iSCSI disponibles."
   ],
+  "Performs auto LUN scan": [
+    "Fa una exploració automàtica de LUN"
+  ],
   "PiB": [
     "PiB"
-  ],
-  "Please, try to activate a zFCP controller.": [
-    "Si us plau, proveu d'activar un controlador de zFCP."
-  ],
-  "Please, try to activate a zFCP disk.": [
-    "Si us plau, proveu d'activar un disc zFCP."
   ],
   "Port": [
     "Port"
@@ -1599,6 +1617,9 @@ export default {
   ],
   "Product is already registered": [
     "El producte ja està registrat."
+  ],
+  "Product not found": [
+    "Producte no trobat"
   ],
   "Protection for the information stored at the new file systems, including data, programs, and system files.": [
     "Protecció de la informació desada als sistemes de fitxers nous, incloses dades, programes i fitxers del sistema."
@@ -1629,9 +1650,6 @@ export default {
   ],
   "Read only": [
     "Només de lectura"
-  ],
-  "Read zFCP devices": [
-    "Llegeix els dispositius zFCP"
   ],
   "Reboot": [
     "Reinicia"
@@ -1711,6 +1729,9 @@ export default {
   ],
   "Result of applying the configuration described at the 'Settings' section above.": [
     "Resultat d'aplicar la configuració descrita a la secció de Configuració anterior."
+  ],
+  "Retrieving error details": [
+    "Obtenció dels detalls de l'error"
   ],
   "Reused partitions will not be shrunk": [
     "Les particions reutilitzades no s'encongiran"
@@ -1803,9 +1824,6 @@ export default {
   "Select a product to continue.": [
     "Seleccioneu un producte per continuar."
   ],
-  "Select a solution to continue": [
-    "Seleccioneu una solució per continuar"
-  ],
   "Select another device to define partitions or to mount": [
     "Seleccioneu un altre dispositiu per definir-ne les particions o per muntar-lo"
   ],
@@ -1829,6 +1847,12 @@ export default {
   ],
   "Select or enter a valid mount point": [
     "Seleccioneu o introduïu un punt de muntatge vàlid"
+  ],
+  "Select the controllers to activate": [
+    "Seleccioneu els controladors per activar"
+  ],
+  "Select the zFCP controllers to activate:": [
+    "Seleccioneu els controladors de zFCP que voleu activar:"
   ],
   "Select what to do with each partition in order to find space for allocating the new system.": [
     "Seleccioneu què fer de cada partició per trobar espai per assignar-hi el sistema nou."
@@ -1860,9 +1884,6 @@ export default {
   "Set a permanent hostname that won’t change with network updates.": [
     "Estableix un nom d'amfitrió permanent que no canviarà amb les actualitzacions per xarxa."
   ],
-  "Setting up connection": [
-    "Establiment de la connexió"
-  ],
   "Settings": [
     "Configuració"
   ],
@@ -1882,14 +1903,8 @@ export default {
   "Show less": [
     "Mostra'n menys"
   ],
-  "Show less actions": [
-    "Mostra menys accions"
-  ],
   "Show more": [
     "Mostra'n més"
-  ],
-  "Show more actions": [
-    "Mostra més accions"
   ],
   "Shrink existing partitions": [
     "Encongeix les particions existents"
@@ -1915,20 +1930,11 @@ export default {
   "Skip to content": [
     "Omet i ves al contingut"
   ],
-  "Skip to next": [
-    "Salta al següent"
-  ],
-  "Skip to previous": [
-    "Salta a l'anterior"
-  ],
   "Software": [
     "Programari"
   ],
   "Software %s": [
     "Programari %s"
-  ],
-  "Software conflicts resolution": [
-    "Resolució de conflictes de programari"
   ],
   "Some existing partitions may be shrunk": [
     "Algunes particions existents es poden encongir"
@@ -2155,7 +2161,7 @@ export default {
     "La contrasenya no caldrà per arrencar i accedir a les dades si el TPM pot verificar la integritat del sistema. El segellat de TPM requereix que el nou sistema s'iniciï directament a la primera execució."
   ],
   "The product was not found in the repositories so it is not possible to proceed with the installation.": [
-    ""
+    "No s'ha trobat el producte als repositoris, per la qual cosa no és possible continuar la instal·lació."
   ],
   "The product will be registered with \"%s\" hostname": [
     "El producte es registrarà amb el nom d'amfitrió %s."
@@ -2202,17 +2208,14 @@ export default {
   "The storage configuration uses elements not supported by this interface.": [
     "La configuració d'emmagatzematge usa elements no compatibles amb aquesta interfície."
   ],
-  "The system does not support Wi-Fi connections, probably because of missing or disabled hardware.": [
-    "El sistema no admet connexions de wifi, probablement a causa de maquinari que manca o que està inhabilitat."
-  ],
   "The system is rebooting": [
     "El sistema es reinicia"
   ],
   "The whole device will be used for %s": [
     "S'usarà el dispositiu sencer per a %s"
   ],
-  "The zFCP disk was not activated.": [
-    "El disc zFCP no s'ha activat."
+  "There are %s deactivated zFCP controllers.": [
+    "Hi ha %s controladors de zFCP desactivats."
   ],
   "There are no disks available for the installation": [
     "No hi ha discs disponibles per a la instal·lació."
@@ -2223,6 +2226,9 @@ export default {
   "There are not usable partitions": [
     "No hi ha particions usables"
   ],
+  "There are not zFCP controllers pending of activation.": [
+    "No hi ha controladors de zFCP pendents d'activació."
+  ],
   "There is %d destructive action planned": [
     "Hi ha %d acció destructiva planificada.",
     "Hi ha %d accions destructives planificades."
@@ -2230,6 +2236,9 @@ export default {
   "There is %d destructive action planned affecting %s": [
     "Hi ha %d acció destructiva planificada que afecta %s",
     "Hi ha %d accions destructives planificades que afecten %s"
+  ],
+  "There is a deactivated zFCP controller.": [
+    "Hi ha un controlador de zFCP desactivat."
   ],
   "These are the settings for the product to install. The installer language and keyboard layout can be adjusted via the [settings panel] accessible from the top bar.": [
     "Aquests són els paràmetres per instal·lar el producte. La llengua de l'instal·lador i la disposició del teclat es poden ajustar a [settings panel] accessible des de la barra superior."
@@ -2251,12 +2260,6 @@ export default {
   ],
   "This license is not available in %s.": [
     "Aquesta llicència no està disponible en %s."
-  ],
-  "This may take a moment while updates complete.": [
-    "Això pot trigar una estona mentre es completen les actualitzacions."
-  ],
-  "This message will close automatically when everything is done.": [
-    "Aquest missatge es tancarà automàticament quan tot estigui fet."
   ],
   "This pattern strikes a balance between clarity and efficiency: the modal keeps things lightweight for simple selections, while the full view supports deeper exploration and more complex actions, specially for users with tons of devices.": [
     "Aquest patró aconsegueix un equilibri entre claredat i eficiència: el modal manté les coses lleugeres per a seleccions senzilles, mentre que la vista completa permet una exploració més profunda i accions més complexes, especialment per a usuaris amb molts dispositius."
@@ -2291,6 +2294,12 @@ export default {
   "Try again": [
     "Torna-ho a provar"
   ],
+  "Try to activate again": [
+    "Torna a provar l'activació"
+  ],
+  "Try to deactivate again": [
+    "Torna a provar la desactivació"
+  ],
   "Type": [
     "Tipus"
   ],
@@ -2299,6 +2308,15 @@ export default {
   ],
   "Unbound": [
     "Desvincula"
+  ],
+  "Unexpected error": [
+    "Error inesperat"
+  ],
+  "Unknown": [
+    "Desconegut"
+  ],
+  "Unknown error": [
+    "Error desconegut"
   ],
   "Unselect": [
     "Desmarca"
@@ -2311,6 +2329,9 @@ export default {
   ],
   "Unused space": [
     "Espai sense ús"
+  ],
+  "Up": [
+    "Amunt"
   ],
   "Up to %s can be recovered by shrinking the device.": [
     "Es poden recuperar fins a %s encongint el dispositiu."
@@ -2517,22 +2538,13 @@ export default {
     "Quan estigueu a punt, feu clic al botó [Instal·la] al final de la pàgina."
   ],
   "Wi-Fi": [
-    "Wifi"
+    "Sense fil"
   ],
   "Wi-Fi connection form": [
-    "Formulari de connexió per WiFi"
-  ],
-  "Wi-Fi networks": [
-    "Connexions sense fil"
-  ],
-  "Wi-Fi not supported": [
-    "Wi-Fi no compatible"
+    "Formulari de connexió sense fil"
   ],
   "Will be supported in a future version.": [
     "Serà compatible en una versió futura."
-  ],
-  "Wired connections": [
-    "Connexions amb fil"
   ],
   "Wrong selection": [
     "Selecció incorrecta"
@@ -2612,7 +2624,10 @@ export default {
   "zFCP": [
     "zFCP"
   ],
-  "zFCP Disk activation form": [
-    "Formulari d'activació del disc zFCP"
+  "zFCP controllers": [
+    "Controladors de zFCP"
+  ],
+  "zFCP is not available": [
+    "El zFCP no està disponible"
   ]
 };

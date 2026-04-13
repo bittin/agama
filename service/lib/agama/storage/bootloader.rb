@@ -76,6 +76,7 @@ module Agama
           @timeout = 10 # just some reasonable timeout, we do not send it anywhere
           @update_nvram = nil
           @extra_kernel_params = ""
+          @scoped_kernel_params = {}
         end
 
         # Serializes the config to JSON.
@@ -205,13 +206,19 @@ module Agama
       end
 
       def write_extra_kernel_params(bootloader, kernel_params)
-        # no systemd boot support for now
-        return unless bootloader.respond_to?(:grub_default)
-
-        new_bl = bootloader.class.new
-        new_bl.grub_default.kernel_params.replace(kernel_params)
-        # and now just merge extra kernel params with all merge logic
-        bootloader.merge(new_bl)
+        if bootloader.respond_to?(:grub_default)
+          new_bl = bootloader.class.new
+          new_bl.grub_default.kernel_params.replace(kernel_params)
+          # and now just merge extra kernel params with all merge logic
+          bootloader.merge(new_bl)
+        elsif bootloader.respond_to?(:kernel_params)
+          # I know it can be done more DRY, but explicit behavior is preferred
+          new_bl = bootloader.class.new
+          new_bl.kernel_params.replace(kernel_params)
+          bootloader.merge(new_bl)
+        else
+          @logger.info "bootloader #{bootloader.name} does not support extra kernel params"
+        end
       end
 
       def write_timeout(bootloader)

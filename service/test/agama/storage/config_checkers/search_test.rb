@@ -59,7 +59,15 @@ describe Agama::Storage::ConfigCheckers::Search do
         end
       end
 
-      context "and the device cannot be skipped" do
+      context "and the device should be created instead" do
+        let(:if_not_found) { "create" }
+
+        it "does not include any issue" do
+          expect(subject.issues).to be_empty
+        end
+      end
+
+      context "and the device cannot be skipped or created" do
         let(:if_not_found) { "error" }
 
         it "includes the expected issue" do

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-13 11:58+0000\n"
+"POT-Creation-Date: 2026-03-23 06:09+0000\n"
 "PO-Revision-Date: 2026-02-26 19:04+0000\n"
 "Last-Translator: Topalski <fujinami_goops@slmail.me>\n"
 "Language-Team: Bulgarian <https://l10n.opensuse.org/projects/agama/agama-"
@@ -28,6 +28,16 @@ msgstr "Не"
 #: agama-utils/src/question/start.rs:54
 msgid "Yes"
 msgstr "Да"
+
+#. TRANSLATORS: %s is replaced by the script name.
+#: agama-files/src/service.rs:198
+msgid "Failed to retrieve the script %s. Do you want to try again?"
+msgstr ""
+
+#. TRANSLATORS: %s is replaced by the script name.
+#: agama-files/src/service.rs:222
+msgid "Failed to write the file %s. Do you want to try again?"
+msgstr ""
 
 #: agama-manager/src/actions.rs:86
 msgid "Prepare the system"
@@ -97,12 +107,12 @@ msgstr ""
 msgid "Storing bootloader settings"
 msgstr ""
 
-#: agama-network/src/service.rs:526
-msgid "Writing configuration"
+#: agama-network/src/service.rs:512
+msgid "Writing network configuration"
 msgstr ""
 
-#: agama-network/src/service.rs:527
-msgid "Reading configuration"
+#: agama-network/src/service.rs:513
+msgid "Syncing the network service state"
 msgstr ""
 
 #: agama-security/src/service.rs:226
@@ -162,7 +172,7 @@ msgstr ""
 msgid "product"
 msgstr ""
 
-#: agama-software/src/service.rs:308
+#: agama-software/src/service.rs:279
 msgid ""
 "Due to an internal error, it was not possible to create a software proposal."
 msgstr ""

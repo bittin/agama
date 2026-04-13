@@ -28,9 +28,6 @@ export default {
   "%1$s will still contain the LVM group '%2$s' and any partition needed to boot": [
     "%1$s hala '%2$s' LVM grubunu ve önyükleme için gereken herhangi bir bölümü içerecektir"
   ],
-  "%d of %d": [
-    "%d'den %d"
-  ],
   "%s - %s": [
     "%s - %s"
   ],
@@ -55,6 +52,15 @@ export default {
   ],
   "%s with %d partitions": [
     "%s ile %d bölümler"
+  ],
+  "(bind by name)": [
+    ""
+  ],
+  "(bound by MAC)": [
+    ""
+  ],
+  "(bound by name)": [
+    ""
   ],
   "1 device selected. Use the actions toolbar to apply changes.": [
     "",
@@ -113,12 +119,6 @@ export default {
   "Activate and format DASD devices": [
     "DASD aygıtlarını etkinleştir ve biçimlendir"
   ],
-  "Activate new disk": [
-    "Yeni diski etkinleştir"
-  ],
-  "Activate zFCP disk": [
-    "zFCP diskini etkinleştir"
-  ],
   "Activate zFCP disks": [
     "zFCP disklerini etkinleştirin"
   ],
@@ -155,6 +155,9 @@ export default {
   "Add or use partition": [
     "Bölüm ekle veya kullan"
   ],
+  "Add search domain": [
+    ""
+  ],
   "Address": [
     "Adres"
   ],
@@ -167,9 +170,6 @@ export default {
   "Adjust the settings below to make the new system fit into the available space.": [
     "Yeni sistemin mevcut alana sığması için aşağıdaki ayarları düzenleyin."
   ],
-  "All conflicts have been resolved, or none were detected. You can safely continue with your setup.": [
-    "Tüm çakışmalar çözüldü veya hiçbiri tespit edilmedi. Kurulumunuza güvenle devam edebilirsiniz."
-  ],
   "All content not configured to be mounted will be deleted": [
     "Bağlanmak üzere yapılandırılmayan tüm içerikler silinecektir"
   ],
@@ -181,6 +181,9 @@ export default {
   ],
   "All network connections managed through this interface are currently set to be used only during installation and will not be copied to the installed system": [
     "Bu arayüz üzerinden yönetilen tüm ağ bağlantıları şu anda yalnızca kurulum sırasında kullanılacak şekilde ayarlanmıştır ve kurulu sisteme kopyalanmayacaktır"
+  ],
+  "All the available zFCP controllers are already activated.": [
+    ""
   ],
   "Allow growing": [
     "Büyümeye izin ver"
@@ -204,12 +207,6 @@ export default {
   "Any partition needed to boot will be configured.": [
     "Önyükleme için gereken herhangi bir bölüm yapılandırılacaktır."
   ],
-  "Apply selected solution": [
-    "Seçilen çözümü uygula"
-  ],
-  "Applying changes": [
-    "Değişiklikleri uygula"
-  ],
   "As a new partition on %s": [
     "%s üzerinde yeni bir bölüm olarak"
   ],
@@ -225,9 +222,6 @@ export default {
   "Auto": [
     "Otomatik"
   ],
-  "Auto LUNs Scan": [
-    "Kendiliğinden LUN Taraması"
-  ],
   "Auto and manual": [
     "Otomatik ve Manuel"
   ],
@@ -237,11 +231,11 @@ export default {
   "Automatic (DHCP)": [
     "Kendiliğinden (DHCP)"
   ],
-  "Automatic LUN scan is [disabled]. LUNs have to be manually configured after activating a controller.": [
-    "Otomatik LUN taraması [devre dışı]. LUN'ların manuel olarak taranması gerekir Bir kontrol cihazı etkinleştirildikten sonra yapılandırılır."
+  "Automatic LUN scan is disabled": [
+    ""
   ],
-  "Automatic LUN scan is [enabled]. Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
-    "Otomatik LUN taraması [etkin]. Bir denetleyiciyi etkinleştirme NPIV modunda çalıştırıldığında tüm LUN'lar otomatik olarak yapılandırılır."
+  "Automatic LUN scan is enabled": [
+    ""
   ],
   "Back": [
     "Geri"
@@ -348,12 +342,6 @@ export default {
   "Changes in these settings will immediately update the 'Result' section below.": [
     ""
   ],
-  "Channel ID": [
-    "Kanal Kimliği"
-  ],
-  "Check the authentication parameters.": [
-    "Kimlik doğrulama parametrelerini kontrol edin."
-  ],
   "Check the following before continuing": [
     "Devam etmeden önce aşağıdakileri kontrol edin"
   ],
@@ -442,9 +430,6 @@ export default {
   "Connecting to %s": [
     "%s'ye bağlanılıyor"
   ],
-  "Connection details": [
-    "Bağlantı ayrıntıları"
-  ],
   "Connection is available to all devices.": [
     "Tüm cihazlara bağlantı mevcuttur."
   ],
@@ -462,12 +447,6 @@ export default {
   ],
   "Continuing without installing the package can result in a broken system. In some cases the system might not even boot.": [
     "Paketi yüklemeden devam etmek bozuk bir sisteme neden olabilir. Bazı durumlarda sistem önyükleme bile yapmayabilir."
-  ],
-  "Controllers": [
-    "Kontrolörler"
-  ],
-  "Could not connect to %s": [
-    "%s'ye bağlanılamadı"
   ],
   "Create LVM volume group %s": [
     "LVM birim grubu %s'yi oluştur"
@@ -513,6 +492,9 @@ export default {
   ],
   "DNS": [
     "DNS"
+  ],
+  "DNS Search List": [
+    ""
   ],
   "Deactivate": [
     "Devre dışı bırak"
@@ -574,9 +556,6 @@ export default {
   "Details": [
     "Ayrıntılar"
   ],
-  "Details will appear after the connection is successfully established.": [
-    "Bağlantı başarıyla kurulduktan sonra ayrıntılar görünecektir."
-  ],
   "Device": [
     "Cihaz"
   ],
@@ -615,6 +594,12 @@ export default {
   ],
   "Do not use": [
     "Kullanma"
+  ],
+  "Domain": [
+    ""
+  ],
+  "Down": [
+    ""
   ],
   "Download logs": [
     "Günlükleri indir"
@@ -747,9 +732,6 @@ export default {
   "Find space in %s": [
     "%s'de boşluk bul"
   ],
-  "Finished": [
-    "Bitti"
-  ],
   "First user": [
     "İlk kullanıcı"
   ],
@@ -840,9 +822,6 @@ export default {
   ],
   "IP addresses": [
     "IP adresleri"
-  ],
-  "IP settings": [
-    "IP ayarları"
   ],
   "IPs": [
     ""
@@ -940,9 +919,6 @@ export default {
   "It is offline and must be activated before formatting it.": [
     "Çevrimdışıdır ve biçimlendirmeden önce etkinleştirilmesi gerekir."
   ],
-  "It may take some time.": [
-    "Biraz zaman alabilir."
-  ],
   "JFS": [
     "JFS"
   ],
@@ -982,9 +958,6 @@ export default {
   "Loading data...": [
     "Veri yükleniyor..."
   ],
-  "Loading storage": [
-    "Depolama yükleniyor"
-  ],
   "Loading the installation repositories...": [
     "Kurulum depoları yükleniyor..."
   ],
@@ -1017,6 +990,9 @@ export default {
   ],
   "Manage DASD devices": [
     "DASD aygıtlarını yönet"
+  ],
+  "Manage available connections, connect to Wi-Fi, or add a new connection.": [
+    ""
   ],
   "Manual": [
     "Manuel"
@@ -1101,9 +1077,6 @@ export default {
   "Multipath": [
     "Çoklu yol"
   ],
-  "Multiple conflicts found. You can address them in any order, and resolving one may resolve others.": [
-    "Birden fazla çakışma bulundu. Bunları herhangi bir sırayla ele alabilirsiniz ve birini çözmek diğerlerini de çözebilir."
-  ],
   "NFS": [
     "NFS"
   ],
@@ -1125,9 +1098,6 @@ export default {
   "Network details": [
     "Ağ ayrıntıları"
   ],
-  "Network not found or lost": [
-    "Ağ bulunamadı veya kaybedildi"
-  ],
   "New": [
     "Yeni"
   ],
@@ -1142,9 +1112,6 @@ export default {
   ],
   "No additional software was selected.": [
     "Hiçbir ek yazılım seçilmedi."
-  ],
-  "No conflicts to address": [
-    "Ele alınacak bir çatışma yok"
   ],
   "No content found": [
     "İçerik bulunamadı"
@@ -1184,15 +1151,6 @@ export default {
   ],
   "No valid port.": [
     ""
-  ],
-  "No wired connections were found": [
-    "Kablolu bağlantı bulunamadı"
-  ],
-  "No zFCP controllers found.": [
-    "Hiçbir zFCP denetleyicisi bulunamadı."
-  ],
-  "No zFCP disks found.": [
-    "zFCP diski bulunamadı."
   ],
   "None": [
     "Yok"
@@ -1290,17 +1248,8 @@ export default {
   "Passwords do not match": [
     "Parolalar uyuşmuyor"
   ],
-  "Pending": [
-    "Bekliyor"
-  ],
   "PiB": [
     "PB"
-  ],
-  "Please, try to activate a zFCP controller.": [
-    "Lütfen bir zFCP denetleyicisi etkinleştirmeyi deneyin."
-  ],
-  "Please, try to activate a zFCP disk.": [
-    "Lütfen bir zFCP diski etkinleştirmeyi deneyin."
   ],
   "Port": [
     "Port"
@@ -1343,9 +1292,6 @@ export default {
   ],
   "Question": [
     "Soru"
-  ],
-  "Read zFCP devices": [
-    "zFCP aygıtlarını oku"
   ],
   "Reboot": [
     "Yeniden Başlat"
@@ -1483,9 +1429,6 @@ export default {
   "Select a product": [
     "Bir ürün seçin"
   ],
-  "Select a solution to continue": [
-    "Devam etmek için bir çözüm seçin"
-  ],
   "Select another device to define partitions or to mount": [
     "Bölümleri tanımlamak veya bağlamak için başka bir cihaz seçin"
   ],
@@ -1503,6 +1446,9 @@ export default {
   ],
   "Select or enter a valid mount point": [
     "Geçerli bir bağlama noktası seçin veya girin"
+  ],
+  "Select the zFCP controllers to activate:": [
+    ""
   ],
   "Select what to do with each partition in order to find space for allocating the new system.": [
     "Yeni sisteme yer açmak için her bölümle ne yapılacağını seçin."
@@ -1534,9 +1480,6 @@ export default {
   "Set a permanent hostname that won’t change with network updates.": [
     "Ağ güncellemeleriyle değişmeyecek kalıcı bir ana bilgisayar adı ayarlayın."
   ],
-  "Setting up connection": [
-    "Bağlantı kuruluyor"
-  ],
   "Settings": [
     "Ayarlar"
   ],
@@ -1552,12 +1495,6 @@ export default {
   ],
   "Show information about %s": [
     "%s hakkında bilgi göster"
-  ],
-  "Show less actions": [
-    "Daha az eylem göster"
-  ],
-  "Show more actions": [
-    "Daha çok eylem göster"
   ],
   "Shrink existing partitions": [
     "Mevcut bölümleri küçült"
@@ -1583,20 +1520,11 @@ export default {
   "Skip to content": [
     "İçeriğe geç"
   ],
-  "Skip to next": [
-    "Sonrakine atla"
-  ],
-  "Skip to previous": [
-    "Öncekine atla"
-  ],
   "Software": [
     "Yazılım"
   ],
   "Software %s": [
     "Yazılım %s"
-  ],
-  "Software conflicts resolution": [
-    "Yazılım çatışmalarının çözümü"
   ],
   "Some existing partitions may be shrunk": [
     "Mevcut bazı bölümler küçültülebilir"
@@ -1844,20 +1772,17 @@ export default {
   "The storage configuration uses elements not supported by this interface.": [
     "Depolama yapılandırması bu arayüz tarafından desteklenmeyen öğeler kullanıyor."
   ],
-  "The system does not support Wi-Fi connections, probably because of missing or disabled hardware.": [
-    "Sistem muhtemelen eksik veya devre dışı donanım nedeniyle Wi-Fi bağlantılarını desteklemiyor."
-  ],
   "The whole device will be used for %s": [
     "Tüm cihaz %s için kullanılacak"
-  ],
-  "The zFCP disk was not activated.": [
-    "zFCP diski etkinleştirilmedi."
   ],
   "There are not disks available for the installation. You may need to configure some device.": [
     "Kurulum için kullanılabilir disk yok. Bazı aygıtları yapılandırmanız gerekebilir."
   ],
   "There are not usable partitions": [
     "Kullanılabilir bölüm yok"
+  ],
+  "There are not zFCP controllers pending of activation.": [
+    ""
   ],
   "There is %d destructive action planned": [
     "yıkıcı %d eylemi planlandı",
@@ -1881,12 +1806,6 @@ export default {
   ],
   "This license is not available in %s.": [
     "Bu lisans %s'de mevcut değil."
-  ],
-  "This may take a moment while updates complete.": [
-    "Güncellemeler tamamlanana kadar bu işlem biraz zaman alabilir."
-  ],
-  "This message will close automatically when everything is done.": [
-    "Her şey tamamlandığında bu ileti kendiliğinden kapanacaktır."
   ],
   "This pattern strikes a balance between clarity and efficiency: the modal keeps things lightweight for simple selections, while the full view supports deeper exploration and more complex actions, specially for users with tons of devices.": [
     "Bu desen, netlik ve verimlilik arasında bir denge kurar: modal, basit seçimler için her şeyi hafif tutarken, tam görünüm daha derin keşifleri ve özellikle çok sayıda cihaza sahip kullanıcılar için daha karmaşık eylemleri destekler."
@@ -1921,6 +1840,9 @@ export default {
   "Try again": [
     "Tekrar deneyin"
   ],
+  "Try to deactivate again": [
+    ""
+  ],
   "Type": [
     "Tip"
   ],
@@ -1929,6 +1851,15 @@ export default {
   ],
   "Unbound": [
     "Bağlanmamış"
+  ],
+  "Unexpected error": [
+    ""
+  ],
+  "Unknown": [
+    ""
+  ],
+  "Unknown error": [
+    ""
   ],
   "Unselect": [
     "Seçimi kaldır"
@@ -1941,6 +1872,9 @@ export default {
   ],
   "Unused space": [
     "Kullanılmayan alan"
+  ],
+  "Up": [
+    ""
   ],
   "Up to %s can be recovered by shrinking the device.": [
     "Cihazın küçültülmesiyle %s'ye kadar geri kazanılabilir."
@@ -2131,17 +2065,8 @@ export default {
   "Wi-Fi connection form": [
     "Wi-Fi bağlantı formu"
   ],
-  "Wi-Fi networks": [
-    "Wi-Fi ağları"
-  ],
-  "Wi-Fi not supported": [
-    "Wi-Fi desteklenmiyor"
-  ],
   "Will be supported in a future version.": [
     "Gelecekteki bir sürümde desteklenecektir."
-  ],
-  "Wired connections": [
-    "Kablolu bağlantılar"
   ],
   "XFS": [
     "XFS"
@@ -2211,8 +2136,5 @@ export default {
   ],
   "zFCP": [
     "zFCP"
-  ],
-  "zFCP Disk activation form": [
-    "zFCP Disk aktivasyon formu"
   ]
 };

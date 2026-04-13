@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-03 15:34+0000\n"
+"POT-Creation-Date: 2026-04-10 10:53+0000\n"
 "PO-Revision-Date: 2026-02-23 12:04+0000\n"
 "Last-Translator: Arif Budiman <arifpedia@gmail.com>\n"
 "Language-Team: Indonesian <https://l10n.opensuse.org/projects/agama/agama-"
@@ -28,19 +28,13 @@ msgid "Found unsupported elements in the AutoYaST profile: %{keys}."
 msgstr "Menemukan elemen yang tidak didukung dalam profil AutoYaST: %{keys}."
 
 #. Implementation for the API method #Probe.
-#: service/lib/agama/dbus/storage/dasd.rb:66
+#: service/lib/agama/dbus/storage/dasd.rb:68
 msgid "Probing DASD devices"
 msgstr "Memeriksa perangkat DASD"
 
-#. Performs the configuration process in a separate thread.
-#.
-#. The configuration could take long time  (e.g., formatting devices). It is important to not
-#. block the service in order to make possible to attend other requests.
-#.
-#. @raise if there is an unfinished configuration.
-#.
-#. @param config_json [Hash]
-#: service/lib/agama/dbus/storage/dasd.rb:119
+#. The configuration could take long time  (e.g., formatting devices). It is important to
+#. not block the service in order to make possible to attend other requests.
+#: service/lib/agama/dbus/storage/dasd.rb:94
 msgid "Configuring DASD"
 msgstr "Mengonfigurasi DASD"
 
@@ -58,39 +52,39 @@ msgid "Performing iSCSI discovery"
 msgstr "Melakukan penemuan iSCSI"
 
 #. Implementation for the API method #Install.
-#: service/lib/agama/dbus/storage/manager.rb:186
+#: service/lib/agama/dbus/storage/manager.rb:187
 msgid "Preparing bootloader proposal"
 msgstr "Mempersiapkan proposal bootloader"
 
-#: service/lib/agama/dbus/storage/manager.rb:189
+#: service/lib/agama/dbus/storage/manager.rb:190
 msgid "Preparing the storage devices"
 msgstr "Mempersiapkan perangkat penyimpanan"
 
-#: service/lib/agama/dbus/storage/manager.rb:192
+#: service/lib/agama/dbus/storage/manager.rb:193
 msgid "Writing bootloader sysconfig"
 msgstr "Menulis sysconfig bootloader"
 
 #. Implementation for the API method #Finish.
-#: service/lib/agama/dbus/storage/manager.rb:200
+#: service/lib/agama/dbus/storage/manager.rb:201
 msgid "Finishing installation"
 msgstr "Menyelesaikan instalasi"
 
 #. Implementation for the API method #Umount.
-#: service/lib/agama/dbus/storage/manager.rb:207
+#: service/lib/agama/dbus/storage/manager.rb:208
 msgid "Unmounting devices"
 msgstr "Melepas perangkat"
 
 #. after loading config try to apply it, so proper packages can be requested
 #. TODO: generate also new issue from configuration
-#: service/lib/agama/dbus/storage/manager.rb:236
+#: service/lib/agama/dbus/storage/manager.rb:237
 msgid "Activating storage devices"
 msgstr "Mengaktifkan perangkat penyimpanan"
 
-#: service/lib/agama/dbus/storage/manager.rb:239
+#: service/lib/agama/dbus/storage/manager.rb:240
 msgid "Probing storage devices"
 msgstr "Memeriksa perangkat penyimpanan"
 
-#: service/lib/agama/dbus/storage/manager.rb:242
+#: service/lib/agama/dbus/storage/manager.rb:243
 msgid "Applying storage configuration"
 msgstr "Menerapkan konfigurasi penyimpanan"
 
@@ -449,7 +443,7 @@ msgstr "Konfigurasi snapshot sistem berkas"
 #. Returns an issue if there is no candidate device for installation
 #.
 #. @return [Issue, nil]
-#: service/lib/agama/storage/manager.rb:252
+#: service/lib/agama/storage/manager.rb:251
 #, fuzzy
 msgid "There is no suitable device for installation"
 msgstr "Tidak ada perangkat yang dipilih untuk pemasangan"
@@ -467,7 +461,8 @@ msgstr ""
 #.
 #. @return [Issue]
 #: service/lib/agama/storage/proposal.rb:315
-msgid "A problem ocurred while calculating the storage setup"
+#, fuzzy
+msgid "A problem occurred while calculating the storage setup"
 msgstr "Terjadi masalah saat menghitung pengaturan penyimpanan"
 
 #. Step to copy the installation logs
@@ -476,7 +471,7 @@ msgid "Copying logs"
 msgstr "Menyalin log"
 
 #. Step to unmount the target file-systems
-#: service/lib/agama/storage/umounter.rb:146
+#: service/lib/agama/storage/umounter.rb:153
 msgid "Unmounting storage devices"
 msgstr "Melepas perangkat penyimpanan"
 

@@ -31,9 +31,6 @@ export default {
   "%1$s will still contain the LVM group '%2$s' and any partition needed to boot": [
     "%1$s sisältää edelleen LVM-ryhmän ”%2$s” sekä käynnistämiseen tarvittavat osiot"
   ],
-  "%d of %d": [
-    "%d / %d"
-  ],
   "%s - %s": [
     "%s - %s"
   ],
@@ -65,6 +62,15 @@ export default {
   ],
   "%s with %d partitions": [
     "%s-osiotaulu, %d osiota"
+  ],
+  "(bind by name)": [
+    ""
+  ],
+  "(bound by MAC)": [
+    ""
+  ],
+  "(bound by name)": [
+    ""
   ],
   "(step %s of %s)": [
     "(vaihe %s/%s)"
@@ -126,12 +132,6 @@ export default {
   "Activate and format DASD devices": [
     "Aktivoi ja alusta DASD-laitteita"
   ],
-  "Activate new disk": [
-    "Aktivoi uusi levy"
-  ],
-  "Activate zFCP disk": [
-    "Aktivoi zFCP-levy"
-  ],
   "Activate zFCP disks": [
     "Aktivoi zFCP-levyt"
   ],
@@ -168,6 +168,9 @@ export default {
   "Add or use partition": [
     "Lisää tai käytä osiota"
   ],
+  "Add search domain": [
+    ""
+  ],
   "Address": [
     "Osoite"
   ],
@@ -180,9 +183,6 @@ export default {
   "Adjust the settings below to make the new system fit into the available space.": [
     "Muuta alla olevia asetuksia mahdollistaaksesi riittävän tilan löytymisen uudelle järjestelmälle."
   ],
-  "All conflicts have been resolved, or none were detected. You can safely continue with your setup.": [
-    "Kaikki konfliktit on ratkaistu, tai yhtään ei havaittu. Asennusta voidaan jatkaa turvallisesti."
-  ],
   "All content not configured to be mounted will be deleted": [
     "Kaikki sisältö, joita ei ole asetettu liitettäväksi, tullaan poistamaan"
   ],
@@ -194,6 +194,9 @@ export default {
   ],
   "All network connections managed through this interface are currently set to be used only during installation and will not be copied to the installed system": [
     "Kaikki tämän liittymän kautta hallitut verkkoyhteydet on asetettu käytettäväksi vain asennuksen aikana, eikä niitä kopioida asennettuun järjestelmään"
+  ],
+  "All the available zFCP controllers are already activated.": [
+    ""
   ],
   "Allow growing": [
     "Salli suureneminen"
@@ -217,12 +220,6 @@ export default {
   "Any partition needed to boot will be configured.": [
     "Kaikkien käynnistämiseen käytettävien osioiden asetukset tehdään."
   ],
-  "Apply selected solution": [
-    "Toteuta valittu ratkaisu"
-  ],
-  "Applying changes": [
-    "Toteutetaan muutoksia"
-  ],
   "As a new partition on %s": [
     "Uutena osiona kohteelle %s"
   ],
@@ -238,9 +235,6 @@ export default {
   "Auto": [
     "Automaattinen"
   ],
-  "Auto LUNs Scan": [
-    "Automaattinen LUN-skannaus"
-  ],
   "Auto and manual": [
     "Automaattinen ja käyttäjän määrittämä"
   ],
@@ -250,11 +244,11 @@ export default {
   "Automatic (DHCP)": [
     "Automaattinen (DHCP)"
   ],
-  "Automatic LUN scan is [disabled]. LUNs have to be manually configured after activating a controller.": [
-    "Automaattinen LUN-skannaus on [pois käytöstä]. LUNien asetukset tulee määrittää käsin ohjaimen aktivoinnin jälkeen."
+  "Automatic LUN scan is disabled": [
+    ""
   ],
-  "Automatic LUN scan is [enabled]. Activating a controller which is running in NPIV mode will automatically configures all its LUNs.": [
-    "Automaattinen LUN-skannaus on [käytössä]. NPIV-tilassa toimivan ohjaimen aktivoiminen määrittää automaattisesti kaikkien LUNien asetukset."
+  "Automatic LUN scan is enabled": [
+    ""
   ],
   "Back": [
     "Takaisin"
@@ -373,12 +367,6 @@ export default {
   "Changes in these settings will immediately update the 'Result' section below.": [
     "Muutokset näissä asetuksissa näkyvät välittömästi alla olevassa ”Tulos”-osiossa."
   ],
-  "Channel ID": [
-    "Kanavatunniste"
-  ],
-  "Check the authentication parameters.": [
-    "Tarkista tunnistautumisasetukset."
-  ],
   "Check the following before continuing": [
     "Tarkista seuraavat ennen jatkamista"
   ],
@@ -464,9 +452,6 @@ export default {
   "Connecting to %s": [
     "Yhdistetään verkkoon %s"
   ],
-  "Connection details": [
-    "Yhteyden tiedot"
-  ],
   "Connection is available to all devices.": [
     "Yhteys on saatavilla kaikille laitteille."
   ],
@@ -484,12 +469,6 @@ export default {
   ],
   "Continuing without installing the package can result in a broken system. In some cases the system might not even boot.": [
     "Jatkaminen asentamatta pakettia voi johtaa rikkinäiseen järjestelmään. Joissain tapauksissa järjestelmä ei välttämättä edes käynnisty."
-  ],
-  "Controllers": [
-    "Ohjaimet"
-  ],
-  "Could not connect to %s": [
-    "Kohteeseen %s ei voi yhdistää"
   ],
   "Create LVM volume group %s": [
     "Luo LVM-taltioryhmä %s"
@@ -535,6 +514,9 @@ export default {
   ],
   "DNS": [
     "DNS"
+  ],
+  "DNS Search List": [
+    ""
   ],
   "Deactivate": [
     "Deaktivoi"
@@ -596,9 +578,6 @@ export default {
   "Details": [
     "Tiedot"
   ],
-  "Details will appear after the connection is successfully established.": [
-    "Kun yhteys on muodostettu, näet lisätietoja."
-  ],
   "Device": [
     "Laite"
   ],
@@ -634,6 +613,12 @@ export default {
   ],
   "Do not use": [
     "Älä käytä"
+  ],
+  "Domain": [
+    ""
+  ],
+  "Down": [
+    ""
   ],
   "Download logs": [
     "Lataa lokit"
@@ -697,6 +682,9 @@ export default {
   ],
   "Enter a name for the volume group.": [
     "Syötä taltioryhmän nimi."
+  ],
+  "Ethernet": [
+    ""
   ],
   "ExFAT": [
     "ExFAT"
@@ -768,9 +756,6 @@ export default {
   ],
   "Find space in %s": [
     "Vapauta tilaa kohteessa %s"
-  ],
-  "Finished": [
-    "Valmistunut"
   ],
   "First user": [
     "Ensimmäinen käyttäjä"
@@ -862,9 +847,6 @@ export default {
   ],
   "IP addresses": [
     "IP-osoitteet"
-  ],
-  "IP settings": [
-    "IP-asetukset"
   ],
   "IPs": [
     "IP-osoitteet"
@@ -965,9 +947,6 @@ export default {
   "It is offline and must be activated before formatting it.": [
     "Se ei ole kytketty ja tulee aktivoida ennen alustusta."
   ],
-  "It may take some time.": [
-    "Odota hetki."
-  ],
   "JFS": [
     "JFS"
   ],
@@ -1010,9 +989,6 @@ export default {
   "Loading data...": [
     "Ladataan tietoja..."
   ],
-  "Loading storage": [
-    "Ladataan tallennustilaa"
-  ],
   "Loading the installation repositories...": [
     "Ladataan asennuslähteitä..."
   ],
@@ -1045,6 +1021,9 @@ export default {
   ],
   "Manage DASD devices": [
     "Hallitse DASD-laitteita"
+  ],
+  "Manage available connections, connect to Wi-Fi, or add a new connection.": [
+    ""
   ],
   "Manual": [
     "Manuaalinen"
@@ -1135,9 +1114,6 @@ export default {
   "Multipath": [
     "Multipath"
   ],
-  "Multiple conflicts found. You can address them in any order, and resolving one may resolve others.": [
-    "Useita konflikteja. Voit käsitellä ne missä tahansa järjestyksess, ja yhden ratkaiseminen saattaa ratkaista myös muita."
-  ],
   "NFS": [
     "NFS"
   ],
@@ -1159,9 +1135,6 @@ export default {
   "Network details": [
     "Verkon tiedot"
   ],
-  "Network not found or lost": [
-    "Verkkoa ei ole tai se on hävinnyt"
-  ],
   "New": [
     "Uusi"
   ],
@@ -1176,9 +1149,6 @@ export default {
   ],
   "No additional software was selected.": [
     "Lisäohjelmistoja ei ole valittu."
-  ],
-  "No conflicts to address": [
-    "Ei selvitettäviä konflikteja"
   ],
   "No content found": [
     "Sisältöä ei löytynyt"
@@ -1221,15 +1191,6 @@ export default {
   ],
   "No valid port.": [
     ""
-  ],
-  "No wired connections were found": [
-    "Kiinteitä yhteyksiä ei löydy"
-  ],
-  "No zFCP controllers found.": [
-    "zFCP-ohjaimia ei löydy."
-  ],
-  "No zFCP disks found.": [
-    "zFCP-levyjä ei löydy."
   ],
   "None": [
     "Ei mitään"
@@ -1348,17 +1309,8 @@ export default {
   "Passwords do not match": [
     "Salasanat eivät täsmää"
   ],
-  "Pending": [
-    "Odottaa"
-  ],
   "PiB": [
     "PiB"
-  ],
-  "Please, try to activate a zFCP controller.": [
-    "Yritä aktivoida zFCP-ohjain."
-  ],
-  "Please, try to activate a zFCP disk.": [
-    "Yritä aktivoida zFCP-levy."
   ],
   "Port": [
     "Portti"
@@ -1401,9 +1353,6 @@ export default {
   ],
   "Question": [
     "Kysmys"
-  ],
-  "Read zFCP devices": [
-    "Lue zFCP-laitteita"
   ],
   "Reboot": [
     "Käynnistä uudelleen"
@@ -1547,9 +1496,6 @@ export default {
   "Select a product": [
     "Valitse tuote"
   ],
-  "Select a solution to continue": [
-    "Valitse ratkaisu jatkaaksesi"
-  ],
   "Select another device to define partitions or to mount": [
     "Valitse toinen laite osioiden määrittämiseen tai liittämiseen"
   ],
@@ -1567,6 +1513,9 @@ export default {
   ],
   "Select or enter a valid mount point": [
     "Valitse tai syötä kelvollinen liitoskohtaa"
+  ],
+  "Select the zFCP controllers to activate:": [
+    ""
   ],
   "Select what to do with each partition in order to find space for allocating the new system.": [
     "Valitse mitä jokaiselle osiolle tehdään, jotta uuden järjestelmän käyttöön vapautuisi tilaa."
@@ -1598,9 +1547,6 @@ export default {
   "Set a permanent hostname that won’t change with network updates.": [
     "Aseta pysyvä isäntänimi joka ei muuta verkkopäivityksissä."
   ],
-  "Setting up connection": [
-    "Muodostetaan yhteyttä"
-  ],
   "Settings": [
     "Asetukset"
   ],
@@ -1616,12 +1562,6 @@ export default {
   ],
   "Show information about %s": [
     "Näytä tietoja kohteesta %s"
-  ],
-  "Show less actions": [
-    "Näytä vähemmän toimintoja"
-  ],
-  "Show more actions": [
-    "Näytä enemmän toimintoja"
   ],
   "Shrink existing partitions": [
     "Pienennä olevmassa olevia osioita"
@@ -1647,20 +1587,11 @@ export default {
   "Skip to content": [
     "Siirry sisältöön"
   ],
-  "Skip to next": [
-    "Siirry seuraavaan"
-  ],
-  "Skip to previous": [
-    "Siirry edelliseen"
-  ],
   "Software": [
     "Ohjelmistot"
   ],
   "Software %s": [
     "Ohjelmisto-%s"
-  ],
-  "Software conflicts resolution": [
-    "Ohjelmistojen konfliktien ratkaiseminen"
   ],
   "Some existing partitions may be shrunk": [
     "Joitain olemassa olevia osioita tullaan pienentämään"
@@ -1914,14 +1845,8 @@ export default {
   "The storage configuration uses elements not supported by this interface.": [
     "Tämä liitäntä ei tue tallennustilan käyttämäiä elementtejä."
   ],
-  "The system does not support Wi-Fi connections, probably because of missing or disabled hardware.": [
-    "Järjestelmä ei tue Wi-Fi-yhteyksiä, luultavasti puuttuvan tai käytöstä poistetun laitteiston takia."
-  ],
   "The whole device will be used for %s": [
     "Koko laitetta tullaan käyttämään kohteelle %s"
-  ],
-  "The zFCP disk was not activated.": [
-    "zFCP-levyä ei aktivoitu."
   ],
   "There are no disks available for the installation": [
     "Asennukseen käytettävissä olevia levyjä ei ole"
@@ -1931,6 +1856,9 @@ export default {
   ],
   "There are not usable partitions": [
     "Käytettävissä olevia osioita ei ole"
+  ],
+  "There are not zFCP controllers pending of activation.": [
+    ""
   ],
   "There is %d destructive action planned": [
     "%d tietoja tuhoava toiminto suunniteltu",
@@ -1954,12 +1882,6 @@ export default {
   ],
   "This license is not available in %s.": [
     "Lisenssiä ei ole saatavilla tuotteelle %s."
-  ],
-  "This may take a moment while updates complete.": [
-    "Päivitysten valmistuminen vie jonkin verran aikaa."
-  ],
-  "This message will close automatically when everything is done.": [
-    "Tämä viesti sulkeutuu automaattisesti kun kaikki on valmista."
   ],
   "This pattern strikes a balance between clarity and efficiency: the modal keeps things lightweight for simple selections, while the full view supports deeper exploration and more complex actions, specially for users with tons of devices.": [
     "Tämä valinta on selkeyden ja tehokkuuden väliltä: yksinkertaiset valinnat on helppo tehdä, kun taas täysi näkymä tukee syvempää paneutumista valintoihin ja monimutkaisempia toimintoja erityisesti runsaiden laitemäärien käyttäjille."
@@ -1994,6 +1916,9 @@ export default {
   "Try again": [
     "Yritä uudelleen"
   ],
+  "Try to deactivate again": [
+    ""
+  ],
   "Type": [
     "Tyyppi"
   ],
@@ -2002,6 +1927,15 @@ export default {
   ],
   "Unbound": [
     "Irrota sidos"
+  ],
+  "Unexpected error": [
+    ""
+  ],
+  "Unknown": [
+    ""
+  ],
+  "Unknown error": [
+    ""
   ],
   "Unselect": [
     "Poista valinta"
@@ -2014,6 +1948,9 @@ export default {
   ],
   "Unused space": [
     "Käyttämätöntä tilaa"
+  ],
+  "Up": [
+    ""
   ],
   "Up to %s can be recovered by shrinking the device.": [
     "Enimmillään %s voidaan vapauttaa pienentämällä laitetta."
@@ -2222,17 +2159,8 @@ export default {
   "Wi-Fi connection form": [
     "Wi-Fi-yhteyden lomake"
   ],
-  "Wi-Fi networks": [
-    "Wi-Fi-verkot"
-  ],
-  "Wi-Fi not supported": [
-    "Wi-Fi ei ole tuettu"
-  ],
   "Will be supported in a future version.": [
     "Tullaan tukemaan tulevassa versiossa."
-  ],
-  "Wired connections": [
-    "Kiinteät yhteydet"
   ],
   "Wrong selection": [
     "Väärä valinta"
@@ -2308,8 +2236,5 @@ export default {
   ],
   "zFCP": [
     "zFCP"
-  ],
-  "zFCP Disk activation form": [
-    "zFCP-levyaktivoinnin lomake"
   ]
 };

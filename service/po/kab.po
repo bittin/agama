@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-03 15:34+0000\n"
-"PO-Revision-Date: 2026-02-16 23:04+0000\n"
-"Last-Translator: Agurzil usaka <massi90.anzar@gmail.com>\n"
+"POT-Creation-Date: 2026-04-10 10:53+0000\n"
+"PO-Revision-Date: 2026-03-27 22:04+0000\n"
+"Last-Translator: Amger ugurzil <amger_ugurzil@proton.me>\n"
 "Language-Team: Kabyle <https://l10n.opensuse.org/projects/agama/agama-"
 "service-master/kab/>\n"
 "Language: kab\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.16\n"
+"X-Generator: Weblate 5.16.2\n"
 
 #. Reports the problems and decide whether to continue or not.
 #.
@@ -28,19 +28,13 @@ msgid "Found unsupported elements in the AutoYaST profile: %{keys}."
 msgstr "Nufa-d iferdisen ur nettwasefrak ara deg umaɣnu AutoYaST: %{keys}."
 
 #. Implementation for the API method #Probe.
-#: service/lib/agama/dbus/storage/dasd.rb:66
+#: service/lib/agama/dbus/storage/dasd.rb:68
 msgid "Probing DASD devices"
 msgstr ""
 
-#. Performs the configuration process in a separate thread.
-#.
-#. The configuration could take long time  (e.g., formatting devices). It is important to not
-#. block the service in order to make possible to attend other requests.
-#.
-#. @raise if there is an unfinished configuration.
-#.
-#. @param config_json [Hash]
-#: service/lib/agama/dbus/storage/dasd.rb:119
+#. The configuration could take long time  (e.g., formatting devices). It is important to
+#. not block the service in order to make possible to attend other requests.
+#: service/lib/agama/dbus/storage/dasd.rb:94
 msgid "Configuring DASD"
 msgstr "Aswel n DASD"
 
@@ -58,39 +52,39 @@ msgid "Performing iSCSI discovery"
 msgstr "Aseqdec n tifin n iSCSI"
 
 #. Implementation for the API method #Install.
-#: service/lib/agama/dbus/storage/manager.rb:186
+#: service/lib/agama/dbus/storage/manager.rb:187
 msgid "Preparing bootloader proposal"
 msgstr ""
 
-#: service/lib/agama/dbus/storage/manager.rb:189
+#: service/lib/agama/dbus/storage/manager.rb:190
 msgid "Preparing the storage devices"
 msgstr "Aheggi n yibenkan n usekles"
 
-#: service/lib/agama/dbus/storage/manager.rb:192
+#: service/lib/agama/dbus/storage/manager.rb:193
 msgid "Writing bootloader sysconfig"
 msgstr ""
 
 #. Implementation for the API method #Finish.
-#: service/lib/agama/dbus/storage/manager.rb:200
+#: service/lib/agama/dbus/storage/manager.rb:201
 msgid "Finishing installation"
 msgstr "Fak asbeddi"
 
 #. Implementation for the API method #Umount.
-#: service/lib/agama/dbus/storage/manager.rb:207
+#: service/lib/agama/dbus/storage/manager.rb:208
 msgid "Unmounting devices"
 msgstr ""
 
 #. after loading config try to apply it, so proper packages can be requested
 #. TODO: generate also new issue from configuration
-#: service/lib/agama/dbus/storage/manager.rb:236
+#: service/lib/agama/dbus/storage/manager.rb:237
 msgid "Activating storage devices"
 msgstr "Armad n yibenkan n uḥraz"
 
-#: service/lib/agama/dbus/storage/manager.rb:239
+#: service/lib/agama/dbus/storage/manager.rb:240
 msgid "Probing storage devices"
 msgstr ""
 
-#: service/lib/agama/dbus/storage/manager.rb:242
+#: service/lib/agama/dbus/storage/manager.rb:243
 msgid "Applying storage configuration"
 msgstr "Asnas n twila n uḥraz"
 
@@ -113,12 +107,12 @@ msgstr "Adsil SHA1: "
 
 #: service/lib/agama/ssl/certificate_details.rb:34
 msgid "SHA256 Fingerprint: "
-msgstr ""
+msgstr "Adsil umḍin SHA256: "
 
 #. label followed by the SSL certificate identification
 #: service/lib/agama/ssl/certificate_details.rb:46
 msgid "Common Name (CN): "
-msgstr ""
+msgstr "Isem amezdi (CN): "
 
 #. label followed by the SSL certificate identification
 #: service/lib/agama/ssl/certificate_details.rb:48
@@ -170,13 +164,13 @@ msgstr ""
 #. @return [Issue, nil]
 #: service/lib/agama/storage/config_checkers/boot.rb:75
 msgid "The boot device cannot be automatically selected"
-msgstr ""
+msgstr "Ibenk n usenker ulamek ara yettwafren s wudem awurman"
 
 #. TRANSLATORS: %s is replaced by a device alias (e.g., "boot").
 #: service/lib/agama/storage/config_checkers/boot.rb:86
 #, c-format
 msgid "There is no boot device with alias '%s'"
-msgstr ""
+msgstr "Ulac ibenk n usenker s tzaẓlut n '%s'"
 
 #. TRANSLATORS: 'crypt_method' is the identifier of the method to encrypt the device
 #. (e.g., 'luks1', 'random_swap').
@@ -360,13 +354,13 @@ msgstr "ibenk"
 #. @return [Issue, nil]
 #: service/lib/agama/storage/config_checkers/volume_group.rb:77
 msgid "There is a volume group without name"
-msgstr ""
+msgstr "Yella ugraw n yiblaɣen war isem"
 
 #. TRANSLATORS: %s is the replaced by a device alias (e.g., "pv1").
 #: service/lib/agama/storage/config_checkers/volume_group.rb:109
 #, c-format
 msgid "There is no LVM physical volume with alias '%s'"
-msgstr ""
+msgstr "Ulac ableɣ LVM afekkan s tzaẓlut n '%s'"
 
 #. TRANSLATORS: %s is the replaced by a device alias (e.g., "pv1").
 #: service/lib/agama/storage/config_checkers/volume_group.rb:136
@@ -375,12 +369,14 @@ msgid ""
 "The list of target devices for the volume group '%s' is mixing reused "
 "devices and new devices"
 msgstr ""
+"Tabdart n yibenkan anican i wegraw n ubleɣ '%s' texleḍ ibenkan yettwasqedcen "
+"tikkelt nniḍen akked ibenkan imaynuten"
 
 #. TRANSLATORS: %s is the replaced by a device alias (e.g., "disk1").
 #: service/lib/agama/storage/config_checkers/volume_group.rb:156
 #, c-format
 msgid "There is no target device for LVM physical volumes with alias '%s'"
-msgstr ""
+msgstr "Ulac ibenk anican i yiblaɣen ifekkanen LVM s tzaẓlut n '%s'"
 
 #. TRANSLATORS: %s is the replaced by a device alias (e.g., "disk1").
 #: service/lib/agama/storage/config_checkers/volume_groups.rb:66
@@ -435,9 +431,9 @@ msgstr "Aswel n tuṭṭfiwin n unagraw n yifuyla"
 #. Returns an issue if there is no candidate device for installation
 #.
 #. @return [Issue, nil]
-#: service/lib/agama/storage/manager.rb:252
+#: service/lib/agama/storage/manager.rb:251
 msgid "There is no suitable device for installation"
-msgstr ""
+msgstr "Ulac ibenk iwatan i usebded"
 
 #. Issue representing the proposal is not valid.
 #.
@@ -450,18 +446,19 @@ msgstr "Ur izmir ara ad isiḍen asbeddi n usekles ameɣtu s twila tamirant"
 #.
 #. @return [Issue]
 #: service/lib/agama/storage/proposal.rb:315
-msgid "A problem ocurred while calculating the storage setup"
-msgstr ""
+#, fuzzy
+msgid "A problem occurred while calculating the storage setup"
+msgstr "Yeḍra-d wugur deg usiḍen n twila n usekles"
 
 #. Step to copy the installation logs
 #: service/lib/agama/storage/umounter.rb:112
 msgid "Copying logs"
-msgstr ""
+msgstr "Anɣal n yiɣmisen"
 
 #. Step to unmount the target file-systems
-#: service/lib/agama/storage/umounter.rb:146
+#: service/lib/agama/storage/umounter.rb:153
 msgid "Unmounting storage devices"
-msgstr ""
+msgstr "Tukksa userkeb n yibenkan n usekles"
 
 #. Activates the controller if it is not active yet.
 #.

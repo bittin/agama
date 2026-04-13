@@ -68,7 +68,7 @@ module Agama
         # @return [Issue, nil]
         def not_found_issue
           search = config.search
-          return if search.device || search.skip_device?
+          return if search.device || search.create_device? || search.skip_device?
 
           if search.name
             error(

@@ -90,7 +90,9 @@ translations:
         el: Τυπικό
         es: Estándar
         fi: Tavalinen
+        fr: Standard
         id: Standar
+        it: Standard
         ja: 標準
         ka: სტანდარტული
         kab: Tizeɣt
@@ -105,7 +107,9 @@ translations:
         el: Τυπικό σύστημα
         es: Sistema estándar
         fi: Tavallinen järjestelmä
+        fr: Système standard
         id: Sistem standar
+        it: Sistema standard
         ja: 標準システム
         ka: სტანდარტული სისტემა
         kab: Anagraw n tizeɣt
@@ -121,7 +125,9 @@ translations:
         el: Αμετάβλητο
         es: Inmutable
         fi: Muuttumaton
+        fr: Immuable
         id: Immutable
+        it: Immutabile
         ja: 不変型
         ka: უცვლადი
         ru: Неизменяемый
@@ -135,7 +141,9 @@ translations:
         el: Αμετάβλητο σύστημα με ατομικές ενημερώσεις
         es: Sistema inmutable con actualizaciones atómicas
         fi: Muuttumaton järjestelmä atomisilla päivityksillä
+        fr: Système immuable avec mises à jour atomiques
         id: Sistem immutable dengan pembaruan atomik
+        it: Sistema immutabile con aggiornamenti atomici
         ja: 不可分な更新機能を持つ不変型システム
         ka: უცვლელი სისტემა ატომური განახლებებით
         ru: Неизменяемая система с атомарными обновлениями
@@ -326,6 +334,9 @@ modes:
         - immutable_base
       mandatory_packages:
         - SLES_SAP_immutable-release
+      user_patterns:
+        - enhanced_base
+          selected: true
 
     storage:
       space_policy: delete
