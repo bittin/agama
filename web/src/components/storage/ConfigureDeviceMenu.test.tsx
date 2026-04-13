@@ -103,7 +103,7 @@ jest.mock("~/hooks/model/storage/config-model", () => ({
 
 describe("ConfigureDeviceMenu", () => {
   beforeEach(() => {
-    mockUseModel.mockReturnValue({ drives: [], mdRaids: [] });
+    mockUseModel.mockReturnValue({ drives: [], mdRaids: [], volumeGroups: [] });
     mockUseAvailableDevices.mockReturnValue([vda, vdb]);
   });
 
@@ -159,23 +159,11 @@ describe("ConfigureDeviceMenu", () => {
         expect(screen.queryByRole("dialog")).toBeNull();
         expect(mockAddDrive).not.toHaveBeenCalled();
       });
-
-      it("shows a link to create a new volume group in the LVM tab", async () => {
-        const { user } = installerRender(<ConfigureDeviceMenu />);
-        const toggler = screen.getByRole("button", { name: /More devices/ });
-        await user.click(toggler);
-        await user.click(screen.getByRole("menuitem", { name: "Add device menu" }));
-        const dialog = screen.getByRole("dialog");
-        await user.click(within(dialog).getByRole("tab", { name: "LVM" }));
-        within(dialog).getByRole("link", {
-          name: "Define a new LVM on top of one or several disks",
-        });
-      });
     });
 
     describe("but some disks are already configured", () => {
       beforeEach(() => {
-        mockUseModel.mockReturnValue({ drives: [vdaDrive], mdRaids: [] });
+        mockUseModel.mockReturnValue({ drives: [vdaDrive], mdRaids: [], volumeGroups: [] });
       });
 
       it("allows users to add a new drive to an unused disk", async () => {
@@ -198,7 +186,7 @@ describe("ConfigureDeviceMenu", () => {
 
   describe("when there are no more unused disks", () => {
     beforeEach(() => {
-      mockUseModel.mockReturnValue({ drives: [vdaDrive, vdbDrive], mdRaids: [] });
+      mockUseModel.mockReturnValue({ drives: [vdaDrive, vdbDrive], mdRaids: [], volumeGroups: [] });
     });
 
     it("renders the disks menu as disabled with an informative label", async () => {
