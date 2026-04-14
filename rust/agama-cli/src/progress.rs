@@ -179,7 +179,7 @@ impl ProgressMonitor {
 
     fn print_stage(stage: &Stage) {
         match stage {
-            Stage::Configuring => println!("{}", gettext("Installation is ready for start.")),
+            Stage::Configuring => println!("{}", gettext("Installation is ready to start.")),
             // installaling without progress means that it probably do not
             // start yet, should be almost invisible blink
             Stage::Installing => println!("{}", gettext("Waiting to start installation")),

@@ -111,7 +111,9 @@ async fn probe(http: BaseHTTPClient, ws: WebSocketClient) -> anyhow::Result<()> 
 ///
 /// * `manager`: the manager client.
 async fn install(http_client: BaseHTTPClient, mut ws: WebSocketClient) -> anyhow::Result<()> {
-    wait_until_idle(&http_client, &mut ws).await?;
+    wait_until_idle(&http_client, &mut ws)
+        .await
+        .context("failed to check if service is busy")?;
 
     let manager_client = ManagerHTTPClient::new(http_client.clone());
     let status = manager_client.status().await?;
@@ -127,7 +129,7 @@ async fn install(http_client: BaseHTTPClient, mut ws: WebSocketClient) -> anyhow
 
     // wait a bit before start monitoring
     sleep(Duration::from_secs(1)).await;
-        
+
     let res = show_progress(http_client, ws, true).await;
     if let Err(e) = res {
         eprintln!("failed to show progress: {:?}", e);
@@ -145,7 +147,9 @@ async fn finish(
     mut ws: WebSocketClient,
     method: Option<FinishMethod>,
 ) -> anyhow::Result<()> {
-    wait_until_idle(&http, &mut ws).await?;
+    wait_until_idle(&http, &mut ws)
+        .await
+        .context("failed to check if service is busy")?;
 
     let method = method
         .unwrap_or_else(|| FinishMethod::from_kernel_cmdline().unwrap_or(FinishMethod::Reboot));
@@ -299,17 +303,23 @@ pub async fn run_command(cli: Cli) -> anyhow::Result<()> {
         Commands::Config(subcommand) => run_config_cmd(subcommand, cli.opts).await?,
         Commands::Probe => {
             let (http, mut ws) = build_clients(api_url, cli.opts.insecure).await?;
-            let _ = wait_until_idle(&http, &mut ws).await;
+            wait_until_idle(&http, &mut ws)
+                .await
+                .context("failed to check if service is busy")?;
             probe(http, ws).await?
         }
         Commands::Install => {
             let (http, mut ws) = build_clients(api_url, cli.opts.insecure).await?;
-            let _ = wait_until_idle(&http, &mut ws).await;
+            wait_until_idle(&http, &mut ws)
+                .await
+                .context("failed to check if service is busy")?;
             install(http, ws).await?
         }
         Commands::Finish { method } => {
             let (http, mut ws) = build_clients(api_url, cli.opts.insecure).await?;
-            let _ = wait_until_idle(&http, &mut ws).await;
+            wait_until_idle(&http, &mut ws)
+                .await
+                .context("failed to check if service is busy")?;
             finish(http, ws, method).await?;
         }
         Commands::Questions(subcommand) => {
