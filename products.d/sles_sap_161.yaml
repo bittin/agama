@@ -335,7 +335,7 @@ modes:
       mandatory_packages:
         - SLES_SAP_immutable-release
       user_patterns:
-        - enhanced_base
+        - name: enhanced_base
           selected: true
 
     storage:
