@@ -461,6 +461,43 @@ describe("ConnectionForm", () => {
       installerRender(<ConnectionForm />);
       screen.getByLabelText("IPv6 Gateway (optional)");
     });
+
+    it("deduplicates addresses when config and system have the same address", () => {
+      const address = "192.168.1.100/24";
+      mockUseConfig.mockReturnValue({
+        connections: [buildConnection("eth0", { method4: "auto", addresses: [address] })],
+      });
+      mockUseSystem.mockReturnValue({
+        connections: [buildConnection("eth0", { method4: "auto", addresses: [address] })],
+      });
+      installerRender(<ConnectionForm />);
+      const addressElements = screen.getAllByText(address);
+      expect(addressElements).toHaveLength(1);
+    });
+
+    it("deduplicates DNS servers when config and system have the same servers", () => {
+      mockUseConfig.mockReturnValue({
+        connections: [buildConnection("eth0", { nameservers: ["8.8.8.8", "1.1.1.1"] })],
+      });
+      mockUseSystem.mockReturnValue({
+        connections: [buildConnection("eth0", { nameservers: ["8.8.8.8", "1.1.1.1"] })],
+      });
+      installerRender(<ConnectionForm />);
+      const dnsElements = screen.getAllByText("8.8.8.8");
+      expect(dnsElements).toHaveLength(1);
+    });
+
+    it("deduplicates DNS search domains when config and system have the same domains", () => {
+      mockUseConfig.mockReturnValue({
+        connections: [buildConnection("eth0", { dnsSearchList: ["example.com", "local.lan"] })],
+      });
+      mockUseSystem.mockReturnValue({
+        connections: [buildConnection("eth0", { dnsSearchList: ["example.com", "local.lan"] })],
+      });
+      installerRender(<ConnectionForm />);
+      const domainElements = screen.getAllByText("example.com");
+      expect(domainElements).toHaveLength(1);
+    });
   });
 
   describe("Auto-generated name", () => {

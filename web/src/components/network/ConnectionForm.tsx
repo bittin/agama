@@ -23,7 +23,7 @@
 import React from "react";
 import { formOptions } from "@tanstack/react-form";
 import { useNavigate, useParams } from "react-router";
-import { isEmpty, shake } from "radashi";
+import { isEmpty, shake, unique } from "radashi";
 import { Alert, ActionGroup, Flex, Form } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
 import NestedContent from "~/components/core/NestedContent";
@@ -142,11 +142,14 @@ function inferIpMode(method: ConnectionMethod | undefined, addresses: string[]):
  * Maps an existing {@link Connection} to initial form values for editing.
  */
 function connectionToFormValues(connection: Connection): Partial<FormValues> {
+  // Deduplicate addresses (config + system merge can create duplicates)
+  const uniqueAddresses = unique(connection.addresses, (addr) => `${addr.address}/${addr.prefix}`);
+
   // Partition and format addresses in a single pass using proper IP validation
   const addresses4: string[] = [];
   const addresses6: string[] = [];
 
-  for (const addr of connection.addresses) {
+  for (const addr of uniqueAddresses) {
     const formatted = ensureIPPrefix(formatIp(addr));
     if (isValidIPv4Address(addr.address)) {
       addresses4.push(formatted);
@@ -166,8 +169,8 @@ function connectionToFormValues(connection: Connection): Partial<FormValues> {
     ipv6Mode: inferIpMode(connection.method6, addresses6),
     addresses6,
     gateway6: connection.gateway6 ?? "",
-    nameservers: connection.nameservers,
-    dnsSearchList: connection.dnsSearchList,
+    nameservers: unique(connection.nameservers),
+    dnsSearchList: unique(connection.dnsSearchList),
     customDns: connection.nameservers.length > 0,
     customDnsSearch: connection.dnsSearchList.length > 0,
   };
