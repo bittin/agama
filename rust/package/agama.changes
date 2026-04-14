@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Apr 14 10:20:25 UTC 2026 - Michal Filka <mfilka@suse.com>
+
+- jsc#PED-12285
+  - re-introduced initial implementation for installer state status
+    report via IPMI. Original implementation lost due to transition
+    from ruby to rust.
+
+-------------------------------------------------------------------
 Fri Apr 10 13:46:02 UTC 2026 - Ladislav Slezák <lslezak@suse.com>
 
 - Replace the "inst.listen_on" boot option with "inst.remote=0"

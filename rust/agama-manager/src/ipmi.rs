@@ -76,6 +76,7 @@ impl Ipmi {
 
     fn send_command(&self, code: u8) -> Result<(), Error> {
         if !self.is_available() {
+            tracing::info!("IPMI not available");
             return Ok(());
         }
 
