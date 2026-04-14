@@ -74,6 +74,14 @@ export const FormIpMode = {
 export type FormIpMode = (typeof FormIpMode)[keyof typeof FormIpMode];
 
 /**
+ * Modes that require at least one address to be provided.
+ */
+export const ADDRESS_REQUIRED_MODES: readonly FormIpMode[] = [
+  FormIpMode.MANUAL,
+  FormIpMode.ADVANCED_AUTO,
+];
+
+/**
  * Maps form mode values to their corresponding {@link ConnectionMethod}.
  *
  * Both AUTO and ADVANCED_AUTO map to ConnectionMethod.AUTO; they differ
@@ -199,7 +207,7 @@ function validateIpAddresses(
   emptyMsg: string,
   invalidMsg: string,
 ): string | undefined {
-  const required = mode === FormIpMode.MANUAL || mode === FormIpMode.ADVANCED_AUTO;
+  const required = ADDRESS_REQUIRED_MODES.includes(mode);
   const active = required || addresses.length > 0;
   return validateActiveList(
     active,
@@ -316,14 +324,12 @@ function validateConnectionForm(formValues: FormValues): FormFieldErrors | undef
  * normalize or when loading from backend), so no prefix addition is needed.
  */
 function buildConnection(formValues: FormValues): Connection {
-  const ipv4Addresses =
-    formValues.ipv4Mode === FormIpMode.MANUAL || formValues.ipv4Mode === FormIpMode.ADVANCED_AUTO
-      ? formValues.addresses4.map(buildAddress)
-      : [];
-  const ipv6Addresses =
-    formValues.ipv6Mode === FormIpMode.MANUAL || formValues.ipv6Mode === FormIpMode.ADVANCED_AUTO
-      ? formValues.addresses6.map(buildAddress)
-      : [];
+  const ipv4Addresses = ADDRESS_REQUIRED_MODES.includes(formValues.ipv4Mode)
+    ? formValues.addresses4.map(buildAddress)
+    : [];
+  const ipv6Addresses = ADDRESS_REQUIRED_MODES.includes(formValues.ipv6Mode)
+    ? formValues.addresses6.map(buildAddress)
+    : [];
 
   return new Connection(formValues.name, {
     iface: formValues.bindingMode === "iface" ? formValues.iface : "",

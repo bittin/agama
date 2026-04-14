@@ -23,7 +23,11 @@
 import React from "react";
 import NestedContent from "~/components/core/NestedContent";
 import LabelText from "~/components/form/LabelText";
-import { connectionFormOptions, FormIpMode } from "~/components/network/ConnectionForm";
+import {
+  connectionFormOptions,
+  FormIpMode,
+  ADDRESS_REQUIRED_MODES,
+} from "~/components/network/ConnectionForm";
 import { withForm } from "~/hooks/form";
 import { ensureIPPrefix, isValidIPv4Address, isValidIPv6Address } from "~/utils/network";
 import { _, N_ } from "~/i18n";
@@ -118,7 +122,7 @@ const IpSettings = withForm({
 
         <form.Subscribe selector={(s) => s.values[modeField]}>
           {(mode) =>
-            (mode === FormIpMode.MANUAL || mode === FormIpMode.ADVANCED_AUTO) && (
+            ADDRESS_REQUIRED_MODES.includes(mode) && (
               <NestedContent margin="mxLg">
                 <form.AppField name={addressesField}>
                   {(field) => (
