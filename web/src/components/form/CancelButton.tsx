@@ -42,7 +42,10 @@ export default function CancelButton() {
   const navigate = useNavigate();
   return (
     <Button variant="link" onClick={() => navigate(-1)}>
-      {_("Cancel")}
+      {
+        // TRANSLATORS: label for the form cancel button.
+        _("Cancel")
+      }
     </Button>
   );
 }

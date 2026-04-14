@@ -28,10 +28,12 @@ import {
   HelperTextItem,
   TextInput,
 } from "@patternfly/react-core";
+import Text from "~/components/core/Text";
 import { useFieldContext } from "~/hooks/form-contexts";
 
 type TextFieldProps = {
   label: React.ReactNode;
+  helperText?: React.ReactNode;
 };
 
 /**
@@ -40,9 +42,9 @@ type TextFieldProps = {
  *
  * @see useFieldContext for field component conventions.
  */
-export default function TextField({ label }: TextFieldProps) {
+export default function TextField({ label, helperText }: TextFieldProps) {
   const field = useFieldContext<string>();
-  const error = field.state.meta.errors[0] as string | undefined;
+  const error = field.state.meta.errors[0];
 
   return (
     <FormGroup fieldId={field.name} label={label}>
@@ -53,10 +55,15 @@ export default function TextField({ label }: TextFieldProps) {
         validated={error ? "error" : "default"}
         onChange={(_, value) => field.handleChange(value)}
       />
-      {error && (
+      {(error || helperText) && (
         <FormHelperText>
           <HelperText>
-            <HelperTextItem variant="error">{error}</HelperTextItem>
+            {helperText && (
+              <HelperTextItem>
+                <Text textStyle={["fontSizeSm", "textColorSubtle"]}>{helperText}</Text>
+              </HelperTextItem>
+            )}
+            {error && <HelperTextItem variant="error">{error}</HelperTextItem>}
           </HelperText>
         </FormHelperText>
       )}

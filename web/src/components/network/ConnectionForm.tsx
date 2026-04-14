@@ -23,7 +23,7 @@
 import React from "react";
 import { formOptions } from "@tanstack/react-form";
 import { useNavigate, useParams } from "react-router";
-import { isEmpty, shake } from "radashi";
+import { isEmpty, shake, unique } from "radashi";
 import { Alert, ActionGroup, Flex, Form } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
 import NestedContent from "~/components/core/NestedContent";
@@ -45,6 +45,7 @@ import { NETWORK } from "~/routes/paths";
 import {
   buildAddress,
   connectionBindingMode,
+  ensureIPPrefix,
   formatIp,
   generateConnectionName,
   isValidIPv4,
@@ -56,20 +57,40 @@ import {
 } from "~/utils/network";
 import { _ } from "~/i18n";
 
-const IPV4_DEFAULT_PREFIX = 24;
-const IPV6_DEFAULT_PREFIX = 64;
+/**
+ * Form IP mode values.
+ *
+ * These control UI behavior (which fields are shown) and map to ConnectionMethod:
+ * - AUTO: no address/gateway fields shown → ConnectionMethod.AUTO
+ * - ADVANCED_AUTO: addresses required, gateway optional → ConnectionMethod.AUTO
+ * - MANUAL: addresses and gateway required → ConnectionMethod.MANUAL
+ */
+export const FormIpMode = {
+  AUTO: "auto",
+  ADVANCED_AUTO: "advanced-auto",
+  MANUAL: "manual",
+} as const;
+
+export type FormIpMode = (typeof FormIpMode)[keyof typeof FormIpMode];
+
+/**
+ * Modes that require at least one address to be provided.
+ */
+export const ADDRESS_REQUIRED_MODES: readonly FormIpMode[] = [
+  FormIpMode.MANUAL,
+  FormIpMode.ADVANCED_AUTO,
+];
 
 /**
  * Maps form mode values to their corresponding {@link ConnectionMethod}.
  *
- * "unset" is intentionally absent: omitting it causes the Connection
- * constructor to write no method, delegating the decision to NetworkManager.
- * This map can be dropped once the form mode values align with
- * {@link ConnectionMethod} enum values.
+ * Both AUTO and ADVANCED_AUTO map to ConnectionMethod.AUTO; they differ
+ * only in UI behavior (whether address/gateway fields are shown).
  */
-const MODE_TO_METHOD: Record<string, ConnectionMethod> = {
-  auto: ConnectionMethod.AUTO,
-  manual: ConnectionMethod.MANUAL,
+const MODE_TO_METHOD: Record<FormIpMode, ConnectionMethod> = {
+  [FormIpMode.AUTO]: ConnectionMethod.AUTO,
+  [FormIpMode.ADVANCED_AUTO]: ConnectionMethod.AUTO,
+  [FormIpMode.MANUAL]: ConnectionMethod.MANUAL,
 };
 
 /**
@@ -84,10 +105,10 @@ export const connectionFormOptions = formOptions({
     name: "",
     iface: "",
     ifaceMac: "",
-    ipv4Mode: "unset",
+    ipv4Mode: FormIpMode.AUTO as FormIpMode,
     addresses4: [] as string[],
     gateway4: "",
-    ipv6Mode: "unset",
+    ipv6Mode: FormIpMode.AUTO as FormIpMode,
     addresses6: [] as string[],
     gateway6: "",
     nameservers: [] as string[],
@@ -102,38 +123,54 @@ type FormValues = typeof connectionFormOptions.defaultValues;
 type FormFieldErrors = Partial<Record<keyof FormValues, string>>;
 
 /**
- * Derives the form mode string from a stored {@link ConnectionMethod}.
+ * Infers the form IPvX mode from a stored {@link ConnectionMethod} and addresses.
  *
- * `undefined` means the connection profile has no explicit method set, which
- * corresponds to the "Automatic" (unset) option. An explicit {@link ConnectionMethod.AUTO}
- * corresponds to "Advanced" (DHCP forced), and {@link ConnectionMethod.MANUAL} to "Manual".
+ * The presence of addresses affects the interpretation:
+ * - `MANUAL` method → MANUAL
+ * - `AUTO` method with addresses → ADVANCED_AUTO
+ * - `AUTO` method without addresses → AUTO
+ * - `undefined` method with addresses → ADVANCED_AUTO (from system)
+ * - `undefined` method without addresses → AUTO
  */
-function ipModeFromMethod(method: ConnectionMethod | undefined): string {
-  if (method === ConnectionMethod.MANUAL) return "manual";
-  if (method === ConnectionMethod.AUTO) return "auto";
-  return "unset";
+function inferIpMode(method: ConnectionMethod | undefined, addresses: string[]): FormIpMode {
+  if (method === ConnectionMethod.MANUAL) return FormIpMode.MANUAL;
+
+  return addresses.length > 0 ? FormIpMode.ADVANCED_AUTO : FormIpMode.AUTO;
 }
 
 /**
  * Maps an existing {@link Connection} to initial form values for editing.
  */
 function connectionToFormValues(connection: Connection): Partial<FormValues> {
-  const addresses4 = connection.addresses.filter((a) => !a.address.includes(":")).map(formatIp);
-  const addresses6 = connection.addresses.filter((a) => a.address.includes(":")).map(formatIp);
+  // Deduplicate addresses (config + system merge can create duplicates)
+  const uniqueAddresses = unique(connection.addresses, (addr) => `${addr.address}/${addr.prefix}`);
+
+  // Partition and format addresses in a single pass using proper IP validation
+  const addresses4: string[] = [];
+  const addresses6: string[] = [];
+
+  for (const addr of uniqueAddresses) {
+    const formatted = ensureIPPrefix(formatIp(addr));
+    if (isValidIPv4Address(addr.address)) {
+      addresses4.push(formatted);
+    } else {
+      addresses6.push(formatted);
+    }
+  }
 
   return {
     name: connection.id,
     iface: connection.iface ?? "",
     ifaceMac: connection.macAddress ?? "",
     bindingMode: connectionBindingMode(connection),
-    ipv4Mode: ipModeFromMethod(connection.method4),
+    ipv4Mode: inferIpMode(connection.method4, addresses4),
     addresses4,
     gateway4: connection.gateway4 ?? "",
-    ipv6Mode: ipModeFromMethod(connection.method6),
+    ipv6Mode: inferIpMode(connection.method6, addresses6),
     addresses6,
     gateway6: connection.gateway6 ?? "",
-    nameservers: connection.nameservers,
-    dnsSearchList: connection.dnsSearchList,
+    nameservers: unique(connection.nameservers),
+    dnsSearchList: unique(connection.dnsSearchList),
     customDns: connection.nameservers.length > 0,
     customDnsSearch: connection.dnsSearchList.length > 0,
   };
@@ -162,19 +199,19 @@ function validateActiveList(
 /**
  * Returns an error for an IP addresses list based on the current IP mode.
  *
- * - `manual`: addresses are required and must be valid.
- * - `auto`: addresses are optional but must be valid when provided.
- * - `unset`: no validation.
+ * - MANUAL: addresses are required and must be valid.
+ * - ADVANCED_AUTO: addresses are required and must be valid.
+ * - AUTO: no validation.
  */
 function validateIpAddresses(
-  mode: string,
+  mode: FormIpMode,
   addresses: string[],
   isValid: (v: string) => boolean,
   emptyMsg: string,
   invalidMsg: string,
 ): string | undefined {
-  const required = mode === "manual";
-  const active = required || (mode === "auto" && addresses.length > 0);
+  const required = ADDRESS_REQUIRED_MODES.includes(mode);
+  const active = required || addresses.length > 0;
   return validateActiveList(
     active,
     addresses,
@@ -187,30 +224,26 @@ function validateIpAddresses(
 /**
  * Returns an error for a gateway value under its protocol mode.
  *
- * - `manual`: validates if the gateway is present.
- * - `auto`: validates only when there are already valid addresses; an empty
- *   address list means the gateway will be ignored on submission anyway.
+ * - MANUAL: gateway is required and must be valid.
+ * - ADVANCED_AUTO: gateway is optional but must be valid when provided.
+ * - AUTO: no validation.
  */
 function validateGateway(
-  mode: string,
+  mode: FormIpMode,
   gateway: string,
   validAddresses: string[],
   isValid: (v: string) => boolean,
+  emptyMsg: string,
   invalidMsg: string,
 ): string | undefined {
-  if (!gateway) return undefined;
-  if (mode === "manual") return isValid(gateway) ? undefined : invalidMsg;
-  if (mode === "auto" && validAddresses.length > 0)
+  if (mode === FormIpMode.MANUAL) {
+    if (!gateway) return emptyMsg;
     return isValid(gateway) ? undefined : invalidMsg;
+  }
+  if (mode === FormIpMode.ADVANCED_AUTO && gateway) {
+    return isValid(gateway) ? undefined : invalidMsg;
+  }
 }
-
-/** Ensures a CIDR string has a prefix, adding a protocol-appropriate default if missing. */
-const withPrefix = (address: string): string => {
-  if (address.includes("/")) return address;
-  return address.includes(":")
-    ? `${address}/${IPV6_DEFAULT_PREFIX}`
-    : `${address}/${IPV4_DEFAULT_PREFIX}`;
-};
 
 /**
  * Validates the connection form values.
@@ -224,19 +257,24 @@ function validateConnectionForm(formValues: FormValues): FormFieldErrors | undef
   const validAddresses6 = formValues.addresses6.filter(isValidIPv6Address);
 
   const fieldErrors = shake({
+    // TRANSLATORS: validation error for the connection name field.
     name: !formValues.name.trim() ? _("Name is required") : undefined,
     addresses4: validateIpAddresses(
       formValues.ipv4Mode,
       formValues.addresses4,
       isValidIPv4Address,
+      // TRANSLATORS: validation error for the IPv4 addresses field.
       _("At least one IPv4 address is required"),
+      // TRANSLATORS: validation error for the IPv4 addresses field.
       _("Some IPv4 addresses are invalid"),
     ),
     addresses6: validateIpAddresses(
       formValues.ipv6Mode,
       formValues.addresses6,
       isValidIPv6Address,
+      // TRANSLATORS: validation error for the IPv6 addresses field.
       _("At least one IPv6 address is required"),
+      // TRANSLATORS: validation error for the IPv6 addresses field.
       _("Some IPv6 addresses are invalid"),
     ),
     gateway4: validateGateway(
@@ -244,6 +282,9 @@ function validateConnectionForm(formValues: FormValues): FormFieldErrors | undef
       formValues.gateway4,
       validAddresses4,
       isValidIPv4,
+      // TRANSLATORS: validation error for the IPv4 gateway field.
+      _("IPv4 gateway is required"),
+      // TRANSLATORS: validation error for the IPv4 gateway field.
       _("Invalid IPv4 gateway"),
     ),
     gateway6: validateGateway(
@@ -251,20 +292,27 @@ function validateConnectionForm(formValues: FormValues): FormFieldErrors | undef
       formValues.gateway6,
       validAddresses6,
       isValidIPv6,
+      // TRANSLATORS: validation error for the IPv6 gateway field.
+      _("IPv6 gateway is required"),
+      // TRANSLATORS: validation error for the IPv6 gateway field.
       _("Invalid IPv6 gateway"),
     ),
     nameservers: validateActiveList(
       formValues.customDns,
       formValues.nameservers,
       isValidNameserver,
+      // TRANSLATORS: validation error for the DNS servers field.
       _("At least one DNS server is required"),
+      // TRANSLATORS: validation error for the DNS servers field.
       _("Some DNS server addresses are invalid"),
     ),
     dnsSearchList: validateActiveList(
       formValues.customDnsSearch,
       formValues.dnsSearchList,
       isValidDNSSearchDomain,
+      // TRANSLATORS: validation error for the DNS search domains field.
       _("At least one DNS search domain is required"),
+      // TRANSLATORS: validation error for the DNS search domains field.
       _("Some DNS search domains are invalid"),
     ),
   });
@@ -274,16 +322,17 @@ function validateConnectionForm(formValues: FormValues): FormFieldErrors | undef
 
 /**
  * Builds a {@link Connection} from the validated form values.
+ *
+ * Addresses in formValues already have prefixes (added by ArrayField's
+ * normalize or when loading from backend), so no prefix addition is needed.
  */
 function buildConnection(formValues: FormValues): Connection {
-  const ipv4Addresses =
-    formValues.ipv4Mode === "manual" || formValues.ipv4Mode === "auto"
-      ? formValues.addresses4.map(withPrefix).map(buildAddress)
-      : [];
-  const ipv6Addresses =
-    formValues.ipv6Mode === "manual" || formValues.ipv6Mode === "auto"
-      ? formValues.addresses6.map(withPrefix).map(buildAddress)
-      : [];
+  const ipv4Addresses = ADDRESS_REQUIRED_MODES.includes(formValues.ipv4Mode)
+    ? formValues.addresses4.map(buildAddress)
+    : [];
+  const ipv6Addresses = ADDRESS_REQUIRED_MODES.includes(formValues.ipv6Mode)
+    ? formValues.addresses6.map(buildAddress)
+    : [];
 
   return new Connection(formValues.name, {
     iface: formValues.bindingMode === "iface" ? formValues.iface : "",
@@ -332,16 +381,14 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
   // @see https://tanstack.com/form/latest/docs/framework/react/guides/listeners#form-listeners
   const syncName = ({ formApi }) => {
     if (formApi.getFieldMeta("name")?.isDirty) return;
-    const { bindingMode, iface, ifaceMac } = formApi.state.values;
     const existingIds = new Set(systemConns.map((c) => c.id));
-    formApi.setFieldValue(
-      "name",
-      generateConnectionName(ConnectionType.ETHERNET, bindingMode, iface, ifaceMac, existingIds),
-      { dontUpdateMeta: true, dontRunListeners: true },
-    );
+    formApi.setFieldValue("name", generateConnectionName(ConnectionType.ETHERNET, existingIds), {
+      dontUpdateMeta: true,
+      dontRunListeners: true,
+    });
   };
 
-  const syncNameListeners = { onMount: syncName, onChange: syncName };
+  const syncNameListeners = { onMount: syncName };
 
   const form = useAppForm({
     ...mergeFormDefaults(connectionFormOptions, {
@@ -388,7 +435,15 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
         <form.Subscribe selector={(s) => s.errorMap.onSubmit?.form}>
           {(serverError) =>
             serverError && (
-              <Alert variant="danger" isInline title={_("The connection could not be saved")}>
+              <Alert
+                isInline
+                title={
+                  // TRANSLATORS: title of an error for a failed network connection save.
+                  // Do not end with a period.
+                  _("The connection could not be saved")
+                }
+                variant="danger"
+              >
                 {serverError}
               </Alert>
             )
@@ -422,7 +477,14 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
 
         {!isEditing && (
           <form.AppField name="name">
-            {(field) => <field.TextField label={_("Name")} />}
+            {(field) => (
+              <field.TextField
+                label={
+                  // TRANSLATORS: label for the network connection profile name field.
+                  _("Name")
+                }
+              />
+            )}
           </form.AppField>
         )}
 
@@ -431,7 +493,14 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
         <IpSettings form={form} protocol="ipv6" />
 
         <form.AppField name="customDns">
-          {(field) => <field.CheckboxField label={_("Use custom DNS")} />}
+          {(field) => (
+            <field.CheckboxField
+              label={
+                // TRANSLATORS: checkbox label for custom DNS server configuration.
+                _("Use custom DNS servers")
+              }
+            />
+          )}
         </form.AppField>
         <form.Subscribe selector={(s) => s.values.customDns}>
           {(customDns) =>
@@ -440,9 +509,15 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
                 <form.AppField name="nameservers">
                   {(field) => (
                     <field.ArrayField
+                      // TRANSLATORS: label for the DNS servers field.
                       label={_("DNS servers")}
                       skipDuplicates
+                      helperText={
+                        // TRANSLATORS: helper text for DNS servers field explaining the format.
+                        _("E.g., 8.8.8.8 or 2001:4860:4860::8888")
+                      }
                       validateOnSubmit={(v) =>
+                        // TRANSLATORS: validation error for an invalid DNS server address entry.
                         isValidNameserver(v) ? undefined : _("Invalid DNS server address")
                       }
                     />
@@ -454,7 +529,14 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
         </form.Subscribe>
 
         <form.AppField name="customDnsSearch">
-          {(field) => <field.CheckboxField label={_("Use custom DNS search domains")} />}
+          {(field) => (
+            <field.CheckboxField
+              label={
+                // TRANSLATORS: checkbox label for custom DNS search domain configuration.
+                _("Use custom DNS search domains")
+              }
+            />
+          )}
         </form.AppField>
         <form.Subscribe selector={(s) => s.values.customDnsSearch}>
           {(customDnsSearch) =>
@@ -463,9 +545,15 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
                 <form.AppField name="dnsSearchList">
                   {(field) => (
                     <field.ArrayField
+                      // TRANSLATORS: label for the DNS search domains field.
                       label={_("DNS search domains")}
                       skipDuplicates
+                      helperText={
+                        // TRANSLATORS: helper text for DNS search domains field explaining the format.
+                        _("E.g., example.com")
+                      }
                       validateOnSubmit={(v) =>
+                        // TRANSLATORS: validation error for an invalid DNS search domain entry.
                         isValidDNSSearchDomain(v) ? undefined : _("Invalid DNS search domain")
                       }
                     />
@@ -492,8 +580,12 @@ function NewConnectionForm() {
 function ConnectionNotFound() {
   return (
     <ResourceNotFound
+      // TRANSLATORS: title of the page shown when the requested connection
+      // profile does not exist. Do not end with a period.
       title={_("Connection not found")}
+      // TRANSLATORS: body text on the connection not found page.
       body={_("The connection does not exist or is no longer available.")}
+      // TRANSLATORS: link text on the connection not found page.
       linkText={_("Go to network page")}
       linkPath={NETWORK.root}
     />
@@ -506,17 +598,17 @@ function EditConnectionForm() {
   const { connections: systemConns } = useSystem();
   // Merge config and system connections so the form reflects the user's
   // explicit settings (config) while filling gaps from the live system state.
-  // Config wins: e.g. configConn.method4 === undefined (the user chose
-  // "Automatic", meaning "do not put method in the config") must override
-  // systemConn.method4 === "auto" that Agama backend or NetworkManager might
-  // report.
+  // Config wins for single values: e.g. configConn.method4 === undefined
+  // (the user chose "Automatic", meaning "do not put method in the config")
+  // must override systemConn.method4 === "auto" that Agama backend or
+  // NetworkManager might report.
   //
-  // FIXME: when config has no method (Automatic) but the system connection
-  // already has manually set addresses, the merged result will show Automatic
-  // while the connection is actually behaving as Advanced. Consider deriving
-  // the mode from the system addresses in that case for a more accurate
-  // representation.
-  const { all: connections } = extendCollection(configConns || [], { with: systemConns });
+  // Arrays (addresses, nameservers, etc.) are concatenated so users can see
+  // existing system values even when config has empty arrays.
+  const { all: connections } = extendCollection(configConns || [], {
+    with: systemConns,
+    mergeArrays: true,
+  });
   const connection = connections.find((c) => c.id === id);
 
   if (!connection) return <ConnectionNotFound />;
@@ -544,7 +636,9 @@ function EditConnectionForm() {
  */
 export default function ConnectionForm() {
   const { id } = useParams();
+  // TRANSLATORS: page title and breadcrumb label for creating a new connection.
   const title = id ?? _("New connection");
+  // TRANSLATORS: breadcrumb label for the network configuration section.
   const breadcrumbs = [{ label: _("Network"), path: NETWORK.root }, { label: title }];
 
   return (

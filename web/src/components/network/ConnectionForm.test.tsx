@@ -62,7 +62,7 @@ jest.mock("~/hooks/model/system/network", () => ({
 }));
 
 /** Builds a Connection instance from minimal API data, with sensible defaults. */
-const makeConnection = (id: string, overrides = {}) =>
+const buildConnection = (id: string, overrides = {}) =>
   Connection.fromApi({
     id,
     status: ConnectionStatus.UP,
@@ -86,7 +86,7 @@ describe("ConnectionForm", () => {
     screen.getByLabelText("Device");
     screen.getByText("IPv4 Settings");
     screen.getByText("IPv6 Settings");
-    screen.getByText("Use custom DNS");
+    screen.getByText("Use custom DNS servers");
     screen.getByText("Use custom DNS search domains");
   });
 
@@ -178,28 +178,28 @@ describe("ConnectionForm", () => {
     await user.click(screen.getByLabelText("IPv4 Settings"));
     await user.click(screen.getByRole("option", { name: /^Manual/ }));
     screen.getByText("IPv4 Addresses");
-    screen.getByLabelText("IPv4 Gateway (optional)");
-    expect(screen.queryByLabelText("IPv6 Gateway (optional)")).not.toBeInTheDocument();
+    screen.getByLabelText("IPv4 Gateway");
+    expect(screen.queryByLabelText("IPv6 Gateway")).not.toBeInTheDocument();
     expect(screen.queryByText("IPv6 Addresses")).not.toBeInTheDocument();
   });
 
-  it("shows the IPv4 addresses and gateway when IPv4 mode is advanced", async () => {
+  it("shows the IPv4 addresses and gateway when IPv4 mode is automatic + manual", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.click(screen.getByLabelText("IPv4 Settings"));
-    await user.click(screen.getByRole("option", { name: /^Advanced/ }));
+    await user.click(screen.getByRole("option", { name: /^Automatic \+ manual/ }));
     screen.getByText("IPv4 Addresses");
-    screen.getByLabelText("IPv4 Gateway (optional, ignored if no addresses provided)");
+    screen.getByLabelText("IPv4 Gateway (optional)");
     expect(screen.queryByText("IPv6 Addresses")).not.toBeInTheDocument();
   });
 
-  it("shows an error when addresses are invalid in advanced mode", async () => {
+  it("shows an error when addresses are invalid in automatic + manual mode", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.type(screen.getByLabelText("Name"), "Test");
     await user.click(screen.getByLabelText("IPv4 Settings"));
-    await user.click(screen.getByRole("option", { name: /^Advanced/ }));
-    await user.type(screen.getByLabelText("IPv4 Addresses (optional)"), "not-an-ip{Enter}");
+    await user.click(screen.getByRole("option", { name: /^Automatic \+ manual/ }));
+    await user.type(screen.getByLabelText("IPv4 Addresses"), "not-an-ip{Enter}");
     await user.click(screen.getByRole("button", { name: "Accept" }));
-    await screen.findByText("Invalid IPv4 address");
+    await screen.findByText(/Invalid IPv4 address/);
     expect(mockMutateAsync).not.toHaveBeenCalled();
   });
 
@@ -222,7 +222,7 @@ describe("ConnectionForm", () => {
       screen.getByLabelText("IPv4 Addresses"),
       "192.168.1.100{Enter}192.168.1.200/12{Enter}",
     );
-    await user.type(screen.getByLabelText("IPv4 Gateway (optional)"), "192.168.1.1");
+    await user.type(screen.getByLabelText("IPv4 Gateway"), "192.168.1.1");
 
     await user.click(screen.getByLabelText("IPv6 Settings"));
     await user.click(screen.getByRole("option", { name: /^Manual/ }));
@@ -230,7 +230,7 @@ describe("ConnectionForm", () => {
       screen.getByLabelText("IPv6 Addresses"),
       "2001:db8::1{Enter}2001:db8::2/24{Enter}",
     );
-    await user.type(screen.getByLabelText("IPv6 Gateway (optional)"), "::1");
+    await user.type(screen.getByLabelText("IPv6 Gateway"), "::1");
 
     await user.click(screen.getByRole("button", { name: "Accept" }));
     await waitFor(() =>
@@ -261,14 +261,14 @@ describe("ConnectionForm", () => {
 
     it("shows the DNS servers field when the checkbox is checked", async () => {
       const { user } = installerRender(<ConnectionForm />);
-      await user.click(screen.getByLabelText("Use custom DNS"));
+      await user.click(screen.getByLabelText("Use custom DNS servers"));
       screen.getByLabelText("DNS servers");
     });
 
     it("submits with parsed nameservers when checkbox is checked", async () => {
       const { user } = installerRender(<ConnectionForm />);
       await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
-      await user.click(screen.getByLabelText("Use custom DNS"));
+      await user.click(screen.getByLabelText("Use custom DNS servers"));
       await user.type(
         screen.getByLabelText("DNS servers"),
         "8.8.8.8{Enter}1.1.1.1{Enter}2001:db8::1{Enter}",
@@ -284,7 +284,7 @@ describe("ConnectionForm", () => {
     it("submits empty nameservers when checkbox is unchecked", async () => {
       const { user } = installerRender(<ConnectionForm />);
       await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
-      const checkbox = screen.getByRole("checkbox", { name: "Use custom DNS" });
+      const checkbox = screen.getByRole("checkbox", { name: "Use custom DNS servers" });
       await user.click(checkbox);
       await user.type(screen.getByLabelText("DNS servers"), "8.8.8.8{Enter}");
       await user.click(checkbox);
@@ -311,7 +311,7 @@ describe("ConnectionForm", () => {
   describe("when editing an existing connection", () => {
     beforeEach(() => {
       mockParams({ id: "eth0" });
-      mockUseSystem.mockReturnValue({ connections: [makeConnection("eth0")] });
+      mockUseSystem.mockReturnValue({ connections: [buildConnection("eth0")] });
     });
 
     it("does not show the name field since it cannot be changed", () => {
@@ -321,31 +321,35 @@ describe("ConnectionForm", () => {
 
     it("pre-selects Manual IPv4 when the connection uses manual IPv4 addressing", () => {
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] })],
+        connections: [
+          buildConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] }),
+        ],
       });
       installerRender(<ConnectionForm />);
-      expect(screen.getByText("IPv4 Addresses")).toBeInTheDocument();
+      screen.getByText("IPv4 Addresses");
     });
 
     it("pre-selects Manual IPv6 when the connection uses manual IPv6 addressing", () => {
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] })],
+        connections: [
+          buildConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] }),
+        ],
       });
       installerRender(<ConnectionForm />);
-      expect(screen.getByText("IPv6 Addresses")).toBeInTheDocument();
+      screen.getByText("IPv6 Addresses");
     });
 
     it("pre-checks custom DNS when the connection has nameservers", () => {
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { nameservers: ["8.8.8.8"] })],
+        connections: [buildConnection("eth0", { nameservers: ["8.8.8.8"] })],
       });
       installerRender(<ConnectionForm />);
-      expect(screen.getByRole("checkbox", { name: "Use custom DNS" })).toBeChecked();
+      expect(screen.getByRole("checkbox", { name: "Use custom DNS servers" })).toBeChecked();
     });
 
     it("pre-checks custom DNS search domains when the connection has search domains", () => {
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { dnsSearchList: ["example.com"] })],
+        connections: [buildConnection("eth0", { dnsSearchList: ["example.com"] })],
       });
       installerRender(<ConnectionForm />);
       expect(screen.getByRole("checkbox", { name: "Use custom DNS search domains" })).toBeChecked();
@@ -353,7 +357,7 @@ describe("ConnectionForm", () => {
 
     it("submits the updated connection when accepting the form", async () => {
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { nameservers: ["8.8.8.8"] })],
+        connections: [buildConnection("eth0", { nameservers: ["8.8.8.8"] })],
       });
       const { user } = installerRender(<ConnectionForm />);
       await user.click(screen.getByRole("button", { name: "Accept" }));
@@ -371,9 +375,9 @@ describe("ConnectionForm", () => {
     });
 
     it("shows Automatic IPv4 when config has no method, despite system reporting auto", () => {
-      mockUseConfig.mockReturnValue({ connections: [makeConnection("eth0")] });
+      mockUseConfig.mockReturnValue({ connections: [buildConnection("eth0")] });
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { method4: "auto" })],
+        connections: [buildConnection("eth0", { method4: "auto" })],
       });
       installerRender(<ConnectionForm />);
       expect(screen.queryByText("IPv4 Addresses")).not.toBeInTheDocument();
@@ -381,34 +385,43 @@ describe("ConnectionForm", () => {
 
     it("shows Manual IPv4 when config sets method4 to manual, despite system reporting auto", () => {
       mockUseConfig.mockReturnValue({
-        connections: [makeConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] })],
+        connections: [
+          buildConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] }),
+        ],
       });
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { method4: "auto" })],
+        connections: [buildConnection("eth0", { method4: "auto" })],
       });
       installerRender(<ConnectionForm />);
-      expect(screen.getByText("IPv4 Addresses")).toBeInTheDocument();
+      screen.getByText("IPv4 Addresses");
     });
 
     it("shows Advanced IPv4 when config sets method4 to auto, despite system reporting manual", () => {
       mockUseConfig.mockReturnValue({
-        connections: [makeConnection("eth0", { method4: "auto" })],
+        connections: [buildConnection("eth0", { method4: "auto", addresses: ["192.168.1.1/24"] })],
       });
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] })],
+        connections: [
+          buildConnection("eth0", { method4: "manual", addresses: ["192.168.1.1/24"] }),
+        ],
       });
       installerRender(<ConnectionForm />);
-      expect(
-        screen.getByLabelText("IPv4 Gateway (optional, ignored if no addresses provided)"),
-      ).toBeInTheDocument();
+      screen.getByLabelText("IPv4 Gateway (optional)");
     });
 
-    it.todo("shows Advanced IPv4 when config has no method but system already has IPv4 addresses");
+    it("shows Advanced IPv4 when config has no method but system already has IPv4 addresses", () => {
+      mockUseConfig.mockReturnValue({ connections: [buildConnection("eth0")] });
+      mockUseSystem.mockReturnValue({
+        connections: [buildConnection("eth0", { addresses: ["192.168.1.1/24"] })],
+      });
+      installerRender(<ConnectionForm />);
+      screen.getByLabelText("IPv4 Gateway (optional)");
+    });
 
     it("shows Automatic IPv6 when config has no method, despite system reporting auto", () => {
-      mockUseConfig.mockReturnValue({ connections: [makeConnection("eth0")] });
+      mockUseConfig.mockReturnValue({ connections: [buildConnection("eth0")] });
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { method6: "auto" })],
+        connections: [buildConnection("eth0", { method6: "auto" })],
       });
       installerRender(<ConnectionForm />);
       expect(screen.queryByText("IPv6 Addresses")).not.toBeInTheDocument();
@@ -416,49 +429,81 @@ describe("ConnectionForm", () => {
 
     it("shows Manual IPv6 when config sets method6 to manual, despite system reporting auto", () => {
       mockUseConfig.mockReturnValue({
-        connections: [makeConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] })],
+        connections: [
+          buildConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] }),
+        ],
       });
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { method6: "auto" })],
+        connections: [buildConnection("eth0", { method6: "auto" })],
       });
       installerRender(<ConnectionForm />);
-      expect(screen.getByText("IPv6 Addresses")).toBeInTheDocument();
+      screen.getByText("IPv6 Addresses");
     });
 
     it("shows Advanced IPv6 when config sets method6 to auto, despite system reporting manual", () => {
       mockUseConfig.mockReturnValue({
-        connections: [makeConnection("eth0", { method6: "auto" })],
+        connections: [buildConnection("eth0", { method6: "auto", addresses: ["2001:db8::1/64"] })],
       });
       mockUseSystem.mockReturnValue({
-        connections: [makeConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] })],
+        connections: [
+          buildConnection("eth0", { method6: "manual", addresses: ["2001:db8::1/64"] }),
+        ],
       });
       installerRender(<ConnectionForm />);
-      expect(
-        screen.getByLabelText("IPv6 Gateway (optional, ignored if no addresses provided)"),
-      ).toBeInTheDocument();
+      screen.getByLabelText("IPv6 Gateway (optional)");
     });
 
-    it.todo("shows Advanced IPv6 when config has no method but system already has IPv6 addresses");
+    it("shows Advanced IPv6 when config has no method but system already has IPv6 addresses", () => {
+      mockUseConfig.mockReturnValue({ connections: [buildConnection("eth0")] });
+      mockUseSystem.mockReturnValue({
+        connections: [buildConnection("eth0", { addresses: ["2001:db8::1/64"] })],
+      });
+      installerRender(<ConnectionForm />);
+      screen.getByLabelText("IPv6 Gateway (optional)");
+    });
+
+    it("deduplicates addresses when config and system have the same address", () => {
+      const address = "192.168.1.100/24";
+      mockUseConfig.mockReturnValue({
+        connections: [buildConnection("eth0", { method4: "auto", addresses: [address] })],
+      });
+      mockUseSystem.mockReturnValue({
+        connections: [buildConnection("eth0", { method4: "auto", addresses: [address] })],
+      });
+      installerRender(<ConnectionForm />);
+      const addressElements = screen.getAllByText(address);
+      expect(addressElements).toHaveLength(1);
+    });
+
+    it("deduplicates DNS servers when config and system have the same servers", () => {
+      mockUseConfig.mockReturnValue({
+        connections: [buildConnection("eth0", { nameservers: ["8.8.8.8", "1.1.1.1"] })],
+      });
+      mockUseSystem.mockReturnValue({
+        connections: [buildConnection("eth0", { nameservers: ["8.8.8.8", "1.1.1.1"] })],
+      });
+      installerRender(<ConnectionForm />);
+      const dnsElements = screen.getAllByText("8.8.8.8");
+      expect(dnsElements).toHaveLength(1);
+    });
+
+    it("deduplicates DNS search domains when config and system have the same domains", () => {
+      mockUseConfig.mockReturnValue({
+        connections: [buildConnection("eth0", { dnsSearchList: ["example.com", "local.lan"] })],
+      });
+      mockUseSystem.mockReturnValue({
+        connections: [buildConnection("eth0", { dnsSearchList: ["example.com", "local.lan"] })],
+      });
+      installerRender(<ConnectionForm />);
+      const domainElements = screen.getAllByText("example.com");
+      expect(domainElements).toHaveLength(1);
+    });
   });
 
   describe("Auto-generated name", () => {
-    it("pre-fills with the connection type when binding is Any", async () => {
+    it("pre-fills with the connection type", () => {
       installerRender(<ConnectionForm />);
       expect(screen.getByLabelText("Name")).toHaveValue("Ethernet");
-    });
-
-    it("pre-fills with type_device when binding is changed to Chosen by name", async () => {
-      const { user } = installerRender(<ConnectionForm />);
-      await user.click(screen.getByLabelText("Device"));
-      await user.click(screen.getByRole("option", { name: /^Chosen by name/ }));
-      expect(screen.getByLabelText("Name")).toHaveValue("Ethernet enp1s0");
-    });
-
-    it("pre-fills with type_mac when binding is changed to Chosen by MAC", async () => {
-      const { user } = installerRender(<ConnectionForm />);
-      await user.click(screen.getByLabelText("Device"));
-      await user.click(screen.getByRole("option", { name: /^Chosen by MAC/ }));
-      expect(screen.getByLabelText("Name")).toHaveValue("Ethernet 00:11:22:33:44:55");
     });
 
     it("stops auto-updating once the user manually edits the name", async () => {

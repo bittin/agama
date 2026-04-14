@@ -24,10 +24,16 @@ import React from "react";
 import { screen } from "@testing-library/react";
 import { installerRender } from "~/test-utils";
 import { useAppForm } from "~/hooks/form";
-import { connectionFormOptions } from "~/components/network/ConnectionForm";
+import { connectionFormOptions, FormIpMode } from "~/components/network/ConnectionForm";
 import IpSettings from "./IpSettings";
 
-function TestForm({ defaultValues = {} }: { defaultValues?: object }) {
+function TestForm({
+  defaultValues = {},
+  protocol = "ipv4",
+}: {
+  defaultValues?: object;
+  protocol?: "ipv4" | "ipv6";
+}) {
   const form = useAppForm({
     ...connectionFormOptions,
     defaultValues: {
@@ -36,7 +42,7 @@ function TestForm({ defaultValues = {} }: { defaultValues?: object }) {
     },
   });
 
-  return <IpSettings form={form} protocol="ipv4" />;
+  return <IpSettings form={form} protocol={protocol} />;
 }
 
 describe("IpSettings", () => {
@@ -52,7 +58,28 @@ describe("IpSettings", () => {
   });
 
   describe("when mode is manual", () => {
-    const defaultValues = { ipv4Mode: "manual" };
+    const defaultValues = { ipv4Mode: FormIpMode.MANUAL };
+
+    it("shows IPv4 Addresses as required", () => {
+      installerRender(<TestForm defaultValues={defaultValues} />);
+      expect(screen.getByText("IPv4 Addresses").closest("label")).not.toHaveTextContent(
+        "(optional)",
+      );
+    });
+
+    it("shows IPv4 Gateway as required", () => {
+      installerRender(<TestForm defaultValues={defaultValues} />);
+      expect(screen.getByText("IPv4 Gateway").closest("label")).not.toHaveTextContent("(optional)");
+    });
+
+    it("does not note that the gateway is ignored without a static IP", () => {
+      installerRender(<TestForm defaultValues={defaultValues} />);
+      expect(screen.getByText("IPv4 Gateway").closest("label")).not.toHaveTextContent("ignored");
+    });
+  });
+
+  describe("when mode is advanced auto", () => {
+    const defaultValues = { ipv4Mode: FormIpMode.ADVANCED_AUTO };
 
     it("shows IPv4 Addresses as required", () => {
       installerRender(<TestForm defaultValues={defaultValues} />);
@@ -65,26 +92,70 @@ describe("IpSettings", () => {
       installerRender(<TestForm defaultValues={defaultValues} />);
       expect(screen.getByText("IPv4 Gateway").closest("label")).toHaveTextContent("(optional)");
     });
+  });
 
-    it("does not note that the gateway is ignored without a static IP", () => {
-      installerRender(<TestForm defaultValues={defaultValues} />);
-      expect(screen.getByText("IPv4 Gateway").closest("label")).not.toHaveTextContent("ignored");
+  describe("address normalization", () => {
+    it("adds default /24 prefix to Class C IPv4 addresses without prefix", async () => {
+      const { user } = installerRender(
+        <TestForm defaultValues={{ ipv4Mode: FormIpMode.MANUAL }} />,
+      );
+      const input = screen.getByRole("textbox", { name: /IPv4 Addresses/i });
+      await user.type(input, "192.168.1.1");
+      await user.keyboard("{Enter}");
+      screen.getByText("192.168.1.1/24");
+    });
+
+    it("adds default /8 prefix to Class A IPv4 addresses without prefix", async () => {
+      const { user } = installerRender(
+        <TestForm defaultValues={{ ipv4Mode: FormIpMode.MANUAL }} />,
+      );
+      const input = screen.getByRole("textbox", { name: /IPv4 Addresses/i });
+      await user.type(input, "10.0.0.1");
+      await user.keyboard("{Enter}");
+      screen.getByText("10.0.0.1/8");
+    });
+
+    it("adds default /16 prefix to Class B IPv4 addresses without prefix", async () => {
+      const { user } = installerRender(
+        <TestForm defaultValues={{ ipv4Mode: FormIpMode.MANUAL }} />,
+      );
+      const input = screen.getByRole("textbox", { name: /IPv4 Addresses/i });
+      await user.type(input, "172.16.0.1");
+      await user.keyboard("{Enter}");
+      screen.getByText("172.16.0.1/16");
+    });
+
+    it("does not modify IPv4 addresses that already have a prefix", async () => {
+      const { user } = installerRender(
+        <TestForm defaultValues={{ ipv4Mode: FormIpMode.MANUAL }} />,
+      );
+      const input = screen.getByRole("textbox", { name: /IPv4 Addresses/i });
+      await user.type(input, "192.168.1.1/16");
+      await user.keyboard("{Enter}");
+      screen.getByText("192.168.1.1/16");
+    });
+
+    it("does not add prefix to invalid IPv4 addresses", async () => {
+      const { user } = installerRender(
+        <TestForm defaultValues={{ ipv4Mode: FormIpMode.MANUAL }} />,
+      );
+      const input = screen.getByRole("textbox", { name: /IPv4 Addresses/i });
+      await user.type(input, "not-an-ip");
+      await user.keyboard("{Enter}");
+      screen.getByText("not-an-ip");
+      expect(screen.queryByText("not-an-ip/24")).not.toBeInTheDocument();
     });
   });
 
-  describe("when mode is advanced", () => {
-    const defaultValues = { ipv4Mode: "auto" };
-
-    it("shows IPv4 Addresses as optional", () => {
-      installerRender(<TestForm defaultValues={defaultValues} />);
-      expect(screen.getByText("IPv4 Addresses").closest("label")).toHaveTextContent("(optional)");
-    });
-
-    it("notes on the gateway label that it is ignored if no addresses provided", () => {
-      installerRender(<TestForm defaultValues={defaultValues} />);
-      expect(screen.getByText("IPv4 Gateway").closest("label")).toHaveTextContent(
-        "(optional, ignored if no addresses provided)",
+  describe("IPv6 address normalization", () => {
+    it("adds default /64 prefix to IPv6 addresses without prefix", async () => {
+      const { user } = installerRender(
+        <TestForm defaultValues={{ ipv6Mode: FormIpMode.MANUAL }} protocol="ipv6" />,
       );
+      const input = screen.getByRole("textbox", { name: /IPv6 Addresses/i });
+      await user.type(input, "2001:db8::1");
+      await user.keyboard("{Enter}");
+      screen.getByText("2001:db8::1/64");
     });
   });
 });

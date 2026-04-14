@@ -25,7 +25,13 @@ import { screen } from "@testing-library/react";
 import { installerRender } from "~/test-utils";
 import { useAppForm } from "~/hooks/form";
 
-function TextFieldForm({ defaultValue = "" }: { defaultValue?: string }) {
+function TextFieldForm({
+  defaultValue = "",
+  helperText,
+}: {
+  defaultValue?: string;
+  helperText?: string;
+}) {
   const form = useAppForm({ defaultValues: { text: defaultValue } });
 
   return (
@@ -41,7 +47,7 @@ function TextFieldForm({ defaultValue = "" }: { defaultValue?: string }) {
           name="text"
           validators={{ onSubmit: ({ value }) => (!value ? "Text is required" : undefined) }}
         >
-          {(field) => <field.TextField label="My label" />}
+          {(field) => <field.TextField label="My label" helperText={helperText} />}
         </form.AppField>
         <button type="submit">Submit</button>
       </form>
@@ -70,5 +76,24 @@ describe("TextField", () => {
     const { user } = installerRender(<TextFieldForm />);
     await user.click(screen.getByRole("button", { name: "Submit" }));
     expect(await screen.findByText("Text is required")).toBeInTheDocument();
+  });
+
+  describe("helperText", () => {
+    it("shows helper text when provided", () => {
+      installerRender(<TextFieldForm helperText="E.g., example@example.com" />);
+      screen.getByText("E.g., example@example.com");
+    });
+
+    it("does not show helper text when not provided", () => {
+      installerRender(<TextFieldForm />);
+      expect(screen.queryByText("E.g.,")).not.toBeInTheDocument();
+    });
+
+    it("shows both helper text and error when there is an error", async () => {
+      const { user } = installerRender(<TextFieldForm helperText="E.g., example@example.com" />);
+      await user.click(screen.getByRole("button", { name: "Submit" }));
+      await screen.findByText("Text is required");
+      screen.getByText("E.g., example@example.com");
+    });
   });
 });
