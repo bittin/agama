@@ -58,6 +58,8 @@ const NoDevicesConfiguredAlert = () => {
 
 export default function ConfigEditor() {
   const config = useConfigModel();
+  if (!config) return;
+
   const drives = config.drives;
   const mdRaids = config.mdRaids;
   const volumeGroups = config.volumeGroups;
