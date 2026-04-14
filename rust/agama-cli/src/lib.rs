@@ -127,11 +127,11 @@ async fn install(http_client: BaseHTTPClient, mut ws: WebSocketClient) -> anyhow
 
     // wait a bit before start monitoring
     sleep(Duration::from_secs(1)).await;
-    let progress = tokio::spawn(async {
-        // just prematurely finish install command if progress monitor failed
-        let _ = show_progress(http_client, ws, true).await;
-    });
-    let _ = progress.await;
+        
+    let res = show_progress(http_client, ws, true).await;
+    if let Err(e) = res {
+        eprintln!("failed to show progress: {:?}", e);
+    }
     Ok(())
 }
 

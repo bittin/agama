@@ -18,26 +18,24 @@
 // To contact SUSE LLC about this file by physical or electronic mail, you may
 // find current contact information at www.suse.com.
 
-use std::{collections::HashMap, time::Duration};
+use std::collections::HashMap;
 
 use agama_lib::{
     http::{BaseHTTPClient, WebSocketClient},
-    manager::ManagerHTTPClient,
-    monitor::Monitor,
-    questions,
+    monitor::{InstallationStatus, Monitor, MonitorClient},
 };
 use agama_utils::api::{self, question::Question, status::Stage, IssueWithScope, Scope};
 use gettextrs::gettext;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
-use tokio::time::sleep;
 
 /// Displays the progress on the terminal.
 #[derive(Debug)]
 pub struct ProgressMonitor {
-    http_client: BaseHTTPClient,
+    state: InstallationStatus,
     stop_on_idle: bool,
     progress_bar: Option<MultiProgress>,
     progresses: HashMap<Scope, ProgressBar>,
+    monitor: MonitorClient,
 }
 
 impl ProgressMonitor {
@@ -47,61 +45,26 @@ impl ProgressMonitor {
         websocket: WebSocketClient,
         stop_on_idle: bool,
     ) -> anyhow::Result<()> {
-        let monitor = Monitor::connect(websocket).await?;
+        let monitor = Monitor::connect(websocket, &http_client).await?;
+        let state = monitor.get_installation_status().await?;
         let mut progress_monitor = Self {
-            http_client,
+            state,
             stop_on_idle,
             progress_bar: None,
             progresses: HashMap::new(),
+            monitor,
         };
 
-        if !progress_monitor.initial_state().await? {
+        if !progress_monitor.render_state().await? {
             return Ok(());
         }
 
-        loop {
-            // avoid to many redraws
-            sleep(Duration::from_millis(100)).await;
-
-            let event = monitor.pop_last_event().await?;
-            if let Some(event) = event {
-                match event {
-                    api::Event::StageChanged { .. }
-                    | api::Event::IssuesChanged { .. }
-                    | api::Event::QuestionAdded { .. }
-                    | api::Event::ProgressFinished { .. }
-                    | api::Event::QuestionAnswered { .. } => {
-                        if !progress_monitor.initial_state().await? {
-                            break;
-                        }
-                    }
-                    api::Event::ProgressChanged { progress } => {
-                        if let Some(main_bar) = &progress_monitor.progress_bar {
-                            if let Some(bar) = progress_monitor.progresses.get(&progress.scope) {
-                                bar.set_position(progress.index as u64);
-                                bar.set_message(progress.step);
-                            } else {
-                                let bar = Self::create_progress_bar(main_bar, &progress);
-                                progress_monitor.progresses.insert(progress.scope, bar);
-                            }
-                        // there are no multi progress, so init it from scratch
-                        } else if !progress_monitor.initial_state().await? {
-                            break;
-                        }
-                    }
-                    // we know that rest of events are not provided by monitor
-                    // TODO: new enum that has only our interested events
-                    _ => {
-                        unreachable!()
-                    }
-                }
-            }
-        }
+        progress_monitor.loop_monitor().await?;
 
         Ok(())
     }
 
-    async fn initial_state(&mut self) -> anyhow::Result<bool> {
+    async fn render_state(&mut self) -> anyhow::Result<bool> {
         // clear progresses to not interfere with new state
         if let Some(main) = &self.progress_bar {
             for p in self.progresses.values() {
@@ -120,19 +83,19 @@ impl ProgressMonitor {
         Self::clear_terminal();
 
         // if there is any unaswered question, it has precedence as it affects everything else
-        let questions = self.get_unanswered_questions().await?;
+        let questions = &self.state.questions;
         if !questions.is_empty() {
-            self.print_questions(&questions).await?;
+            self.print_questions(questions).await?;
             return Ok(true);
         }
-        let manager_client = ManagerHTTPClient::new(self.http_client.clone());
-        let status: api::Status = manager_client.status().await?;
+
+        let status = &self.state.status;
         // if we end installation, then just finish with some nice message
         if status.stage.is_end() {
-            Self::print_final_status(&status);
+            Self::print_final_status(status);
             return Ok(false);
         }
-        let progresses = status.progresses;
+        let progresses = &status.progresses;
         // if there are some progress, then it has precedence over issues as it can solve them
         if !progresses.is_empty() {
             let multibar = MultiProgress::new();
@@ -144,7 +107,7 @@ impl ProgressMonitor {
             multibar.println(message)?;
 
             for progress in progresses {
-                let bar = Self::create_progress_bar(&multibar, &progress);
+                let bar = Self::create_progress_bar(&multibar, progress);
                 self.progresses.insert(progress.scope, bar);
             }
             self.progress_bar = Some(multibar);
@@ -153,9 +116,9 @@ impl ProgressMonitor {
 
         // if we configuring and there are some issue, print it and wait for user to fix it
         if status.stage == Stage::Configuring {
-            let issues = manager_client.issues().await?;
+            let issues = &self.state.issues;
             if !issues.is_empty() {
-                Self::print_issues(&issues)?;
+                Self::print_issues(issues)?;
                 return Ok(true);
             }
         }
@@ -164,15 +127,54 @@ impl ProgressMonitor {
         Ok(!self.stop_on_idle)
     }
 
-    async fn get_unanswered_questions(&self) -> anyhow::Result<Vec<Question>> {
-        let questions_client = questions::http_client::HTTPClient::new(self.http_client.clone());
-        let questions = questions_client.get_questions().await?;
+    async fn loop_monitor(&mut self) -> anyhow::Result<()> {
+        let mut receiver = self.monitor.subscribe();
+        loop {
+            let new_state = receiver.recv().await;
+            let Ok(Ok(new_state)) = new_state else {
+                return Err(anyhow::Error::msg("Communication with backend failed"));
+            };
 
-        let questions = questions
-            .into_iter()
-            .filter(|q| q.answer.is_none())
-            .collect();
-        Ok(questions)
+            // lets first check if there is update in questions
+            // if so, we need to redraw screen
+            if self.state.questions != new_state.questions {
+                self.state = new_state;
+                if !self.render_state().await? {
+                    break;
+                }
+                continue;
+            }
+
+            // then check update of progresses
+            if self.state.status.progresses != new_state.status.progresses {
+                self.state = new_state;
+                if let Some(main_bar) = &self.progress_bar {
+                    for progress in &self.state.status.progresses {
+                        if let Some(bar) = self.progresses.get(&progress.scope) {
+                            bar.set_position(progress.index as u64);
+                            bar.set_message(progress.step.clone());
+                        } else {
+                            let bar = Self::create_progress_bar(main_bar, progress);
+                            self.progresses.insert(progress.scope, bar);
+                        }
+                    }
+                // there are no multi progress, so no progress before and we should redraw
+                } else if !self.render_state().await? {
+                    break;
+                }
+                continue;
+            }
+
+            // remaining cases like change of issues or stage will all result in redrawing
+            if self.state != new_state {
+                self.state = new_state;
+                if !self.render_state().await? {
+                    break;
+                }
+            }
+        }
+
+        Ok(())
     }
 
     fn print_stage(stage: &Stage) {
@@ -208,7 +210,7 @@ impl ProgressMonitor {
     }
 
     fn print_issues(issues: &Vec<IssueWithScope>) -> anyhow::Result<()> {
-        println!("{}", gettext("There are issues blocking installation:"));
+        println!("{}", gettext("Installer is preparing target configuration. But there are issues blocking installation:"));
 
         let mut grouped: HashMap<&Scope, Vec<&api::Issue>> = HashMap::new();
         for i in issues {
