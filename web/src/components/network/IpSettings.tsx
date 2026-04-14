@@ -23,7 +23,7 @@
 import React from "react";
 import NestedContent from "~/components/core/NestedContent";
 import LabelText from "~/components/form/LabelText";
-import { connectionFormOptions } from "~/components/network/ConnectionForm";
+import { connectionFormOptions, FormIpMode } from "~/components/network/ConnectionForm";
 import { withForm } from "~/hooks/form";
 import { ensureIPPrefix, isValidIPv4Address, isValidIPv6Address } from "~/utils/network";
 import { _, N_ } from "~/i18n";
@@ -31,40 +31,35 @@ import { _, N_ } from "~/i18n";
 /**
  * Mode options shared by both IPv4 and IPv6 settings.
  *
- * - `unset`: no method written to the profile; the network handles IP
- *   configuration automatically. Labeled "Automatic" to avoid exposing
- *   the underlying "no method set" detail to users.
- * - `manual`: method set to manual, with required addresses and optional gateway.
- * - `auto`: method set to auto with optional static addresses and gateway,
- *   for the uncommon case of combining automatic and manual addressing.
- *   Labeled "Advanced".
+ * - AUTO: method set to auto; the network handles IP configuration
+ *   automatically. No address/gateway fields shown.
+ * - ADVANCED_AUTO: method set to auto with required static addresses and
+ *   optional gateway, combining automatic and manual addressing.
+ * - MANUAL: method set to manual, with required addresses and required gateway.
  *
  * Labels and descriptions use `N_()` for extraction and `_()` at render time.
  */
 const modeOptions = () => [
   {
-    value: "unset",
+    value: FormIpMode.AUTO,
     // TRANSLATORS: option label for automatic IP configuration.
-    label: N_("Default (automatic)"),
-    // TRANSLATORS: description for the "Automatic" IP mode. Address and gateway
-    // come from the network.
-    description: N_("Omitted configuration with address and gateway assigned from the network"),
+    label: N_("Auto"),
+    // TRANSLATORS: description for automatic IP configuration mode.
+    description: N_("Automatic configuration"),
   },
   {
-    value: "auto",
-    // TRANSLATORS: option label for advanced IP configuration combining automatic and optional static settings.
-    label: N_("Explicit (automatic)"),
-    // TRANSLATORS: description for the "Advanced" IP mode. Uses automatic
-    // addressing with optional static addresses and gateway.
-    description: N_("Configuration from the network plus optional addresses and gateway"),
+    value: FormIpMode.ADVANCED_AUTO,
+    // TRANSLATORS: option label for advanced automatic IP configuration with static addresses.
+    label: N_("Advanced auto"),
+    // TRANSLATORS: description for advanced automatic mode with static addresses.
+    description: N_("Automatic with static addresses"),
   },
   {
-    value: "manual",
+    value: FormIpMode.MANUAL,
     // TRANSLATORS: option label for manual IP configuration
     label: N_("Manual"),
-    // TRANSLATORS: description for the "Manual" IP mode. Requires static
-    // addresses with an optional gateway.
-    description: N_("Fixed addresses and gateway"),
+    // TRANSLATORS: description for manual IP configuration mode.
+    description: N_("Static configuration"),
   },
 ];
 
@@ -123,23 +118,13 @@ const IpSettings = withForm({
 
         <form.Subscribe selector={(s) => s.values[modeField]}>
           {(mode) =>
-            (mode === "manual" || mode === "auto") && (
+            (mode === FormIpMode.MANUAL || mode === FormIpMode.ADVANCED_AUTO) && (
               <NestedContent margin="mxLg">
                 <form.AppField name={addressesField}>
                   {(field) => (
                     <field.ArrayField
-                      label={
-                        mode === "auto" ? (
-                          // TRANSLATORS: label suffix indicating an optional field.
-                          <LabelText suffix={_("(optional)")}>{addressesLabel}</LabelText>
-                        ) : (
-                          addressesLabel
-                        )
-                      }
-                      inputAriaLabel={
-                        // TRANSLATORS: label suffix indicating an optional field.
-                        mode === "auto" ? `${addressesLabel} ${_("(optional)")}` : addressesLabel
-                      }
+                      label={addressesLabel}
+                      inputAriaLabel={addressesLabel}
                       skipDuplicates
                       normalize={ensureIPPrefix}
                       helperText={
@@ -163,17 +148,12 @@ const IpSettings = withForm({
                   {(field) => (
                     <field.TextField
                       label={
-                        <LabelText
-                          suffix={
-                            mode === "auto"
-                              ? // TRANSLATORS: label suffix for the optional gateway field in advanced mode.
-                                _("(optional, ignored if no addresses provided)")
-                              : // TRANSLATORS: label suffix indicating an optional field.
-                                _("(optional)")
-                          }
-                        >
-                          {gatewayLabel}
-                        </LabelText>
+                        mode === FormIpMode.ADVANCED_AUTO ? (
+                          // TRANSLATORS: label suffix indicating an optional field.
+                          <LabelText suffix={_("(optional)")}>{gatewayLabel}</LabelText>
+                        ) : (
+                          gatewayLabel
+                        )
                       }
                       helperText={
                         isIPv4

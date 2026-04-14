@@ -58,16 +58,31 @@ import {
 import { _ } from "~/i18n";
 
 /**
+ * Form IP mode values.
+ *
+ * These control UI behavior (which fields are shown) and map to ConnectionMethod:
+ * - AUTO: no address/gateway fields shown → ConnectionMethod.AUTO
+ * - ADVANCED_AUTO: addresses required, gateway optional → ConnectionMethod.AUTO
+ * - MANUAL: addresses and gateway required → ConnectionMethod.MANUAL
+ */
+export const FormIpMode = {
+  AUTO: "auto",
+  ADVANCED_AUTO: "advanced-auto",
+  MANUAL: "manual",
+} as const;
+
+export type FormIpMode = (typeof FormIpMode)[keyof typeof FormIpMode];
+
+/**
  * Maps form mode values to their corresponding {@link ConnectionMethod}.
  *
- * "unset" is intentionally absent: omitting it causes the Connection
- * constructor to write no method, delegating the decision to NetworkManager.
- * This map can be dropped once the form mode values align with
- * {@link ConnectionMethod} enum values.
+ * Both AUTO and ADVANCED_AUTO map to ConnectionMethod.AUTO; they differ
+ * only in UI behavior (whether address/gateway fields are shown).
  */
-const MODE_TO_METHOD: Record<string, ConnectionMethod> = {
-  auto: ConnectionMethod.AUTO,
-  manual: ConnectionMethod.MANUAL,
+const MODE_TO_METHOD: Record<FormIpMode, ConnectionMethod> = {
+  [FormIpMode.AUTO]: ConnectionMethod.AUTO,
+  [FormIpMode.ADVANCED_AUTO]: ConnectionMethod.AUTO,
+  [FormIpMode.MANUAL]: ConnectionMethod.MANUAL,
 };
 
 /**
@@ -82,10 +97,10 @@ export const connectionFormOptions = formOptions({
     name: "",
     iface: "",
     ifaceMac: "",
-    ipv4Mode: "unset",
+    ipv4Mode: FormIpMode.AUTO as FormIpMode,
     addresses4: [] as string[],
     gateway4: "",
-    ipv6Mode: "unset",
+    ipv6Mode: FormIpMode.AUTO as FormIpMode,
     addresses6: [] as string[],
     gateway6: "",
     nameservers: [] as string[],
@@ -100,26 +115,19 @@ type FormValues = typeof connectionFormOptions.defaultValues;
 type FormFieldErrors = Partial<Record<keyof FormValues, string>>;
 
 /**
- * Infers the form IPvX mode string from a stored {@link ConnectionMethod} and addresses.
+ * Infers the form IPvX mode from a stored {@link ConnectionMethod} and addresses.
  *
  * The presence of addresses affects the interpretation:
- * - `undefined` method with addresses -> "auto" (Advanced mode, DHCP forced)
- * - `undefined` method without addresses -> "unset" (Automatic)
- * - `AUTO` method with addresses -> "auto" (Advanced mode)
- * - `AUTO` method without addresses -> "unset" (treat as Automatic)
- * - `MANUAL` method -> always "manual"
+ * - `MANUAL` method → MANUAL
+ * - `AUTO` method with addresses → ADVANCED_AUTO
+ * - `AUTO` method without addresses → AUTO
+ * - `undefined` method with addresses → ADVANCED_AUTO (from system)
+ * - `undefined` method without addresses → AUTO
  */
-function inferIpMode(method: ConnectionMethod | undefined, addresses: string[]): string {
-  if (method === ConnectionMethod.MANUAL) return "manual";
+function inferIpMode(method: ConnectionMethod | undefined, addresses: string[]): FormIpMode {
+  if (method === ConnectionMethod.MANUAL) return FormIpMode.MANUAL;
 
-  // For both AUTO and undefined, check if there are addresses
-  // Addresses indicate Advanced mode (forced DHCP), no addresses means Automatic (unset)
-  if (method === ConnectionMethod.AUTO) {
-    return addresses.length > 0 ? "auto" : "unset";
-  }
-
-  // method is undefined
-  return addresses.length > 0 ? "auto" : "unset";
+  return addresses.length > 0 ? FormIpMode.ADVANCED_AUTO : FormIpMode.AUTO;
 }
 
 /**
@@ -180,19 +188,19 @@ function validateActiveList(
 /**
  * Returns an error for an IP addresses list based on the current IP mode.
  *
- * - `manual`: addresses are required and must be valid.
- * - `auto`: addresses are optional but must be valid when provided.
- * - `unset`: no validation.
+ * - MANUAL: addresses are required and must be valid.
+ * - ADVANCED_AUTO: addresses are required and must be valid.
+ * - AUTO: no validation.
  */
 function validateIpAddresses(
-  mode: string,
+  mode: FormIpMode,
   addresses: string[],
   isValid: (v: string) => boolean,
   emptyMsg: string,
   invalidMsg: string,
 ): string | undefined {
-  const required = mode === "manual";
-  const active = required || (mode === "auto" && addresses.length > 0);
+  const required = mode === FormIpMode.MANUAL || mode === FormIpMode.ADVANCED_AUTO;
+  const active = required || addresses.length > 0;
   return validateActiveList(
     active,
     addresses,
@@ -205,21 +213,25 @@ function validateIpAddresses(
 /**
  * Returns an error for a gateway value under its protocol mode.
  *
- * - `manual`: validates if the gateway is present.
- * - `auto`: validates only when there are already valid addresses; an empty
- *   address list means the gateway will be ignored on submission anyway.
+ * - MANUAL: gateway is required and must be valid.
+ * - ADVANCED_AUTO: gateway is optional but must be valid when provided.
+ * - AUTO: no validation.
  */
 function validateGateway(
-  mode: string,
+  mode: FormIpMode,
   gateway: string,
   validAddresses: string[],
   isValid: (v: string) => boolean,
+  emptyMsg: string,
   invalidMsg: string,
 ): string | undefined {
-  if (!gateway) return undefined;
-  if (mode === "manual") return isValid(gateway) ? undefined : invalidMsg;
-  if (mode === "auto" && validAddresses.length > 0)
+  if (mode === FormIpMode.MANUAL) {
+    if (!gateway) return emptyMsg;
     return isValid(gateway) ? undefined : invalidMsg;
+  }
+  if (mode === FormIpMode.ADVANCED_AUTO && gateway) {
+    return isValid(gateway) ? undefined : invalidMsg;
+  }
 }
 
 /**
@@ -260,6 +272,8 @@ function validateConnectionForm(formValues: FormValues): FormFieldErrors | undef
       validAddresses4,
       isValidIPv4,
       // TRANSLATORS: validation error for the IPv4 gateway field.
+      _("IPv4 gateway is required"),
+      // TRANSLATORS: validation error for the IPv4 gateway field.
       _("Invalid IPv4 gateway"),
     ),
     gateway6: validateGateway(
@@ -267,6 +281,8 @@ function validateConnectionForm(formValues: FormValues): FormFieldErrors | undef
       formValues.gateway6,
       validAddresses6,
       isValidIPv6,
+      // TRANSLATORS: validation error for the IPv6 gateway field.
+      _("IPv6 gateway is required"),
       // TRANSLATORS: validation error for the IPv6 gateway field.
       _("Invalid IPv6 gateway"),
     ),
@@ -301,11 +317,11 @@ function validateConnectionForm(formValues: FormValues): FormFieldErrors | undef
  */
 function buildConnection(formValues: FormValues): Connection {
   const ipv4Addresses =
-    formValues.ipv4Mode === "manual" || formValues.ipv4Mode === "auto"
+    formValues.ipv4Mode === FormIpMode.MANUAL || formValues.ipv4Mode === FormIpMode.ADVANCED_AUTO
       ? formValues.addresses4.map(buildAddress)
       : [];
   const ipv6Addresses =
-    formValues.ipv6Mode === "manual" || formValues.ipv6Mode === "auto"
+    formValues.ipv6Mode === FormIpMode.MANUAL || formValues.ipv6Mode === FormIpMode.ADVANCED_AUTO
       ? formValues.addresses6.map(buildAddress)
       : [];
 
