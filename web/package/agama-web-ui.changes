@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Apr 14 15:40:28 UTC 2026 - David Diaz <dgonzalez@suse.com>
+
+- Redesign network connection form with improved user experience
+  (related to gh#agama-project/agama#3386 and bsc#1259067).
+
+-------------------------------------------------------------------
 Mon Apr 13 15:25:11 UTC 2026 - José Iván López González <jlopez@suse.com>
 
 - Extend storage UI to reuse LVM volume groups

@@ -77,7 +77,7 @@ const selectConnections = (data: Network.Proposal): Connection[] =>
 const useConfig = (): NetworkConfig => {
   const { data } = useSuspenseQuery({
     ...configQuery,
-    select: (d: Config) => NetworkConfig.fromApi(d.network),
+    select: (d: Config) => (d.network ? NetworkConfig.fromApi(d.network) : new NetworkConfig()),
   });
 
   return data;

@@ -59,6 +59,12 @@ const ConnectionNotFound = ({ id }) => {
   );
 };
 
+// TODO: evaluate whether this page and WiredConnectionDetails should merge config
+// and system connections (like EditConnectionForm does) so that displayed values
+// reflect what the user actually configured. Currently useConnections reads from
+// the proposal source, which always reports e.g. method4: "auto" even when the
+// config has no method set. If merging is not adopted here, ConnectionForm should
+// be made consistent and drop its own merge too.
 export default function WiredConnectionPage() {
   const { id } = useParams();
   const connections = useConnections();

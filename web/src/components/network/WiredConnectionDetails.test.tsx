@@ -75,6 +75,8 @@ const mockAnotherDevice: Device = {
 const mockConnection: Connection = new Connection("Network #1", {
   state: ConnectionState.activated,
   iface: "enp1s0",
+  method4: ConnectionMethod.AUTO,
+  method6: ConnectionMethod.AUTO,
 });
 
 let mockNetworkDevices = [mockDevice];
@@ -95,6 +97,18 @@ describe("WiredConnectionDetails", () => {
       within(section).getByText("IPv6 auto");
       // None other settings set
       within(section).queryAllByText("None set");
+    });
+
+    it("renders 'None set' for IPv4 and IPv6 when no method is set", () => {
+      const connection = new Connection("Network #1", {
+        state: ConnectionState.activated,
+        iface: "enp1s0",
+      });
+      installerRender(<WiredConnectionDetails connection={connection} />);
+      const section = screen.getByRole("region", { name: "Settings" });
+
+      within(section).getByText("IPv4 None set");
+      within(section).getByText("IPv6 None set");
     });
 
     it("renders the connection settings (static)", () => {

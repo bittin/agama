@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2022-2024] SUSE LLC
+ * Copyright (c) [2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -20,5 +20,32 @@
  * find current contact information at www.suse.com.
  */
 
-export { default as NetworkPage } from "./NetworkPage";
-export { default as WiredConnectionPage } from "./WiredConnectionPage";
+import React from "react";
+import { Button } from "@patternfly/react-core";
+import { useNavigate } from "react-router";
+import { _ } from "~/i18n";
+
+/**
+ * A Cancel button for use inside a form's action group.
+ *
+ * Navigates back to the previous page when clicked. Registered as a form
+ * component so it is available as `form.CancelButton`, keeping navigation
+ * logic out of form components.
+ *
+ * @example
+ * <ActionGroup>
+ *   <form.SubmitButton />
+ *   <form.CancelButton />
+ * </ActionGroup>
+ */
+export default function CancelButton() {
+  const navigate = useNavigate();
+  return (
+    <Button variant="link" onClick={() => navigate(-1)}>
+      {
+        // TRANSLATORS: label for the form cancel button.
+        _("Cancel")
+      }
+    </Button>
+  );
+}

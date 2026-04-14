@@ -21,7 +21,7 @@
  */
 
 import ipaddr from "ipaddr.js";
-import { isUndefined } from "radashi";
+import { isUndefined, title } from "radashi";
 import {
   APIRoute,
   ApFlags,
@@ -52,6 +52,46 @@ const isValidIp = (value: IPAddress["address"]) => ipaddr.IPv4.isValidFourPartDe
  * @param value - An netmask or a network prefix
  * @return true if given IP is valid; false otherwise.
  */
+/** Returns true if the value is a valid IP address, with or without a CIDR prefix. */
+const isValidAddress = (value: string): boolean =>
+  ipaddr.isValidCIDR(value) || ipaddr.isValid(value);
+
+/** Returns true if the value is a valid IPv4 address, with or without a CIDR prefix. */
+const isValidIPv4Address = (value: string): boolean =>
+  isValidAddress(value) && ipaddr.IPv4.isValidFourPartDecimal(value.split("/")[0]);
+
+/** Returns true if the value is a valid IPv6 address, with or without a CIDR prefix. */
+const isValidIPv6Address = (value: string): boolean =>
+  isValidAddress(value) && ipaddr.IPv6.isValid(value.split("/")[0]);
+
+/** Returns true if the value is a valid bare IPv4 address (no CIDR prefix). */
+const isValidIPv4 = (value: string): boolean => ipaddr.IPv4.isValidFourPartDecimal(value);
+
+/** Returns true if the value is a valid bare IPv6 address (no CIDR prefix). */
+const isValidIPv6 = (value: string): boolean => ipaddr.IPv6.isValid(value);
+
+/** Returns true if the value is a valid nameserver address (bare IPv4 or IPv6, no CIDR). */
+const isValidNameserver = (value: string): boolean =>
+  ipaddr.IPv4.isValidFourPartDecimal(value) || ipaddr.IPv6.isValid(value);
+
+/**
+ * Matches a valid DNS search domain or hostname per RFC 952 / RFC 1123.
+ *
+ * Rules:
+ * - Each label starts and ends with an alphanumeric character.
+ * - Labels may contain hyphens but not as the first or last character.
+ * - Labels are 1–63 characters long.
+ * - Labels are separated by dots.
+ * - No trailing dot (NetworkManager does not require one).
+ *
+ * Examples: `local`, `example.com`, `sub.example.com`.
+ */
+const DNS_SEARCH_DOMAIN_RE =
+  /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/;
+
+/** Returns true if the value is a valid DNS search domain or hostname. */
+const isValidDNSSearchDomain = (value: string): boolean => DNS_SEARCH_DOMAIN_RE.test(value);
+
 const isValidIpPrefix = (value: IPAddress["prefix"]) => {
   const prefix = String(value);
 
@@ -205,13 +245,101 @@ const connectionBindingMode = (connection: Connection): ConnectionBindingMode =>
   }
 };
 
+/**
+ * Generates a unique connection name based on type.
+ *
+ * Returns the connection type (e.g. "Ethernet"). If the name is already
+ * taken, a numeric suffix is appended starting at 2 (e.g. "Ethernet 2").
+ *
+ * @param type - Connection type string (e.g. "ethernet").
+ * @param existingIds - Set of already taken connection IDs.
+ */
+const generateConnectionName = (type: string, existingIds: Set<string>): string => {
+  const baseName = title(type);
+
+  if (!existingIds.has(baseName)) return baseName;
+
+  let n = 2;
+  while (existingIds.has(`${baseName} ${n}`)) n++;
+  return `${baseName} ${n}`;
+};
+
+/**
+ * IPv4 prefix configuration based on classful networking.
+ *
+ * Maps first octet ranges to their default CIDR prefix lengths.
+ * To change the prefix selection strategy, modify this configuration.
+ */
+const IPV4_PREFIX_BY_RANGE = new Map([
+  [{ min: 1, max: 127 }, 8], // Class A
+  [{ min: 128, max: 191 }, 16], // Class B
+  [{ min: 192, max: 255 }, 24], // Class C
+]);
+
+const IPV6_DEFAULT_PREFIX = 64;
+
+/**
+ * Returns the default CIDR prefix for an IPv4 address based on classful networking.
+ */
+const getDefaultIPv4Prefix = (address: string): number => {
+  const firstOctet = parseInt(address.split(".")[0], 10);
+
+  for (const [range, prefix] of IPV4_PREFIX_BY_RANGE) {
+    if (firstOctet >= range.min && firstOctet <= range.max) {
+      return prefix;
+    }
+  }
+
+  return 24; // Fallback
+};
+
+/**
+ * Adds default CIDR prefix to a valid IP address.
+ *
+ * For IPv4, uses classful networking rules. For IPv6, uses /64.
+ *
+ * @param address - A valid IPv4 or IPv6 address without a prefix
+ * @returns The address with the appropriate default prefix appended
+ *
+ * @note This function assumes the input is a valid IP address. Callers should
+ * validate the address before calling this function.
+ */
+const addDefaultIPPrefix = (address: string): string => {
+  if (isValidIPv4Address(address)) {
+    return `${address}/${getDefaultIPv4Prefix(address)}`;
+  }
+
+  return `${address}/${IPV6_DEFAULT_PREFIX}`;
+};
+
+/**
+ * Ensures a value has a default CIDR prefix if it's a valid IP address.
+ *
+ * Returns the value unchanged if it already has a prefix or is not a valid IP.
+ */
+const ensureIPPrefix = (value: string): string => {
+  if (value.includes("/")) return value;
+  if (!isValidIPv4Address(value) && !isValidIPv6Address(value)) return value;
+  return addDefaultIPPrefix(value);
+};
+
 export {
+  addDefaultIPPrefix,
   buildAddress,
+  isValidAddress,
+  isValidIPv4,
+  isValidIPv6,
+  isValidIPv4Address,
+  isValidIPv6Address,
+  isValidNameserver,
+  isValidDNSSearchDomain,
   buildAddresses,
   buildRoutes,
   connectionAddresses,
   connectionBindingMode,
+  ensureIPPrefix,
   formatIp,
+  generateConnectionName,
   intToIPString,
   ipPrefixFor,
   isValidIp,

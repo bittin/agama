@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2022-2024] SUSE LLC
+ * Copyright (c) [2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -20,5 +20,31 @@
  * find current contact information at www.suse.com.
  */
 
-export { default as NetworkPage } from "./NetworkPage";
-export { default as WiredConnectionPage } from "./WiredConnectionPage";
+import React from "react";
+import { Checkbox } from "@patternfly/react-core";
+import { useFieldContext } from "~/hooks/form-contexts";
+
+type CheckboxFieldProps = {
+  label: string;
+  description?: string;
+};
+
+/**
+ * A checkbox tied to a TanStack Form field via `useFieldContext`.
+ * Must be used inside a `form.AppField` render prop.
+ *
+ * @see useFieldContext for field component conventions.
+ */
+export default function CheckboxField({ label, description }: CheckboxFieldProps) {
+  const field = useFieldContext<boolean>();
+
+  return (
+    <Checkbox
+      id={field.name}
+      label={label}
+      description={description}
+      isChecked={field.state.value}
+      onChange={(_, checked) => field.handleChange(checked)}
+    />
+  );
+}
