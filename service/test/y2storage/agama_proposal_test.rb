@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2024-2025] SUSE LLC
+# Copyright (c) [2024-2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -403,6 +403,37 @@ describe Y2Storage::AgamaProposal do
             # libstorage-ng uses bytes instead of bits to represent the key size, contrary to
             # all LUKS documentation and to cryptsetup
             key_size: 64
+          )
+        end
+      end
+
+      context "if the encryption settings contains pervasive method" do
+        before do
+          allow(Y2Storage::EncryptionProcesses::SecureKey).to receive(:all).and_return([])
+        end
+
+        let(:home_encryption) do
+          Agama::Storage::Configs::Encryption.new.tap do |enc|
+            enc.method = Y2Storage::EncryptionMethod::PERVASIVE_LUKS2
+            enc.password = "notSecreT"
+            enc.apqns = ["01.0001", "01.0002"]
+            enc.pervasive_key_type = "CCA-AESCIPHER"
+          end
+        end
+
+        it "proposes the right encryption layer" do
+          proposal.propose
+          partition = proposal.devices.partitions.find do |part|
+            part.blk_filesystem&.mount_path == "/home"
+          end
+          expect(partition.encrypted?).to eq true
+          expect(partition.encryption).to have_attributes(
+            method:   Y2Storage::EncryptionMethod::PERVASIVE_LUKS2,
+            password: "notSecreT"
+          )
+          expect(partition.encryption.encryption_process).to have_attributes(
+            apqns:    ["01.0001", "01.0002"],
+            key_type: "CCA-AESCIPHER"
           )
         end
       end

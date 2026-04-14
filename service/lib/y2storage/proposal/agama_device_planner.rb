@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2024-2025] SUSE LLC
+# Copyright (c) [2024-2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -142,6 +142,8 @@ module Y2Storage
         planned.encryption_label = config.label
         planned.encryption_cipher = config.cipher
         planned.encryption_key_size = config.key_size
+        planned.encryption_pervasive_apqns = config.apqns || []
+        planned.encryption_pervasive_key_type = config.pervasive_key_type
       end
 
       # @param planned [Planned::Partition, Planned::LvmLv]
