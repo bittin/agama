@@ -20,32 +20,18 @@
 
 use utoipa::openapi::{Components, ComponentsBuilder, Paths, PathsBuilder};
 
-use super::ApiDocBuilder;
+/// Returns the paths for the profile API endpoints.
+pub fn paths() -> Paths {
+    PathsBuilder::new()
+        .path_from::<crate::profile::web::__path_autoyast>()
+        .path_from::<crate::profile::web::__path_evaluate>()
+        .path_from::<crate::profile::web::__path_validate>()
+        .build()
+}
 
-pub struct ProfileApiDocBuilder;
-
-impl ApiDocBuilder for ProfileApiDocBuilder {
-    fn title(&self) -> String {
-        "Agama Profile API".to_string()
-    }
-
-    fn description(&self) -> String {
-        "API for managing Agama installation profiles. \
-        Profiles define the complete installation configuration and can be imported, \
-        validated, and converted from AutoYaST format.".to_string()
-    }
-
-    fn paths(&self) -> Paths {
-        PathsBuilder::new()
-            .path_from::<crate::profile::web::__path_autoyast>()
-            .path_from::<crate::profile::web::__path_evaluate>()
-            .path_from::<crate::profile::web::__path_validate>()
-            .build()
-    }
-
-    fn components(&self) -> Components {
-        ComponentsBuilder::new()
-            .schema_from::<agama_lib::profile::ValidationOutcome>()
-            .build()
-    }
+/// Returns the components (schemas) for the profile API.
+pub fn components() -> Components {
+    ComponentsBuilder::new()
+        .schema_from::<agama_lib::profile::ValidationOutcome>()
+        .build()
 }
