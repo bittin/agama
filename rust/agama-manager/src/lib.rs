@@ -25,6 +25,7 @@ pub use service::Service;
 pub mod message;
 
 pub mod hardware;
+pub mod ipmi;
 
 pub use agama_bootloader as bootloader;
 pub use agama_files as files;

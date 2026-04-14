@@ -32,8 +32,8 @@ use gettextrs::gettext;
 use tokio::sync::RwLock;
 
 use crate::{
-    bootloader, checks, files, hostname, iscsi, l10n, proxy, s390, security, service, software,
-    storage, users,
+    bootloader, checks, files, hostname, ipmi::Ipmi, iscsi, l10n, proxy, s390, security, service,
+    software, storage, users,
 };
 
 /// Implements the installation process.
@@ -422,6 +422,11 @@ impl FinishAction {
         }
 
         command.arg("now");
+
+        if let Err(e) = Ipmi::default().finished() {
+            tracing::error!("IPMI failed: {}", e);
+        }
+
         match command.output() {
             Ok(output) => {
                 if !output.status.success() {
