@@ -44,7 +44,7 @@ export type SizeObject = {
 };
 
 export type SpacePolicy = {
-  id: string;
+  id: ConfigModel.SpacePolicy;
   label: string;
 };
 
@@ -88,7 +88,7 @@ const FILESYSTEM_NAMES = Object.freeze({
 
 const DEFAULT_SIZE_UNIT = "GiB";
 
-const SPACE_POLICIES: SpacePolicy[] = [
+const PARTITIONABLE_SPACE_POLICIES: SpacePolicy[] = [
   {
     id: "delete",
     label: N_("Delete current content"),
@@ -96,6 +96,25 @@ const SPACE_POLICIES: SpacePolicy[] = [
   {
     id: "resize",
     label: N_("Shrink existing partitions"),
+  },
+  {
+    id: "keep",
+    label: N_("Use available space"),
+  },
+  {
+    id: "custom",
+    label: N_("Custom"),
+  },
+];
+
+const VOLUME_GROUP_SPACE_POLICIES: SpacePolicy[] = [
+  {
+    id: "delete",
+    label: N_("Delete current content"),
+  },
+  {
+    id: "resize",
+    label: N_("Shrink existing logical volumes"),
   },
   {
     id: "keep",
@@ -240,7 +259,7 @@ const deviceBaseName = (device: DeviceWithName, truncate?: boolean): string => {
  */
 const deviceLabel = (device: System.Device, truncate?: boolean): string => {
   const name = deviceBaseName(device, truncate);
-  const size = device.block?.size;
+  const size = device.block?.size || device.volumeGroup?.size;
 
   return size ? `${name} (${deviceSize(size)})` : name;
 };
@@ -374,7 +393,8 @@ export {
   DEFAULT_SIZE_UNIT,
   SIZE_METHODS,
   SIZE_UNITS,
-  SPACE_POLICIES,
+  PARTITIONABLE_SPACE_POLICIES,
+  VOLUME_GROUP_SPACE_POLICIES,
   baseName,
   deviceBaseName,
   deviceLabel,

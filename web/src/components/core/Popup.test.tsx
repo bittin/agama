@@ -172,6 +172,13 @@ describe("Popup.SecondaryAction", () => {
     const button = screen.queryByRole("button", { name: "Do something" });
     expect(button.classList.contains("pf-m-secondary")).toBe(true);
   });
+
+  it("renders a 'link' button when asLink is set", async () => {
+    installerRender(<Popup.SecondaryAction asLink>Do something</Popup.SecondaryAction>);
+
+    const button = screen.queryByRole("button", { name: "Do something" });
+    expect(button.classList.contains("pf-m-link")).toBe(true);
+  });
 });
 
 describe("Popup.AncillaryAction", () => {
@@ -232,6 +239,16 @@ describe("Popup.Cancel", () => {
       const button = screen.queryByRole("button", { name: "Discard" });
       expect(button).not.toBeNull();
       expect(button.classList.contains("pf-m-secondary")).toBe(true);
+    });
+  });
+
+  describe("when asLink is set", () => {
+    it("renders a 'link' button", async () => {
+      installerRender(<Popup.Cancel asLink />);
+
+      const button = screen.queryByRole("button", { name: "Cancel" });
+      expect(button).not.toBeNull();
+      expect(button.classList.contains("pf-m-link")).toBe(true);
     });
   });
 });

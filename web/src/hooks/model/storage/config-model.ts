@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2025] SUSE LLC
+ * Copyright (c) [2025-2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -25,7 +25,14 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useSystem } from "~/hooks/model/system/storage";
 import { solveStorageModel, getStorageModel, putStorageModel } from "~/api";
 import configModel from "~/model/storage/config-model";
-import type { ConfigModel, Data, Partitionable } from "~/model/storage/config-model";
+import { findDeviceByName } from "~/model/system/storage";
+import type {
+  ConfigModel,
+  Data,
+  Partitionable,
+  Device,
+  DeviceCollection,
+} from "~/model/storage/config-model";
 
 const STORAGE_MODEL_KEY = "storageModel" as const;
 
@@ -84,6 +91,18 @@ function useDisableBoot(): DisableBootConfigFn {
   return () => putStorageModel(configModel.boot.disable(config));
 }
 
+function useDevice(collection: DeviceCollection, index: number): Device | null {
+  const { data } = useSuspenseQuery({
+    ...configModelQuery,
+    select: useCallback(
+      (data: ConfigModel.Config | null): Device | null =>
+        data ? configModel.findDevice(data, collection, index) : null,
+      [collection, index],
+    ),
+  });
+  return data;
+}
+
 function usePartitionable(
   collection: Partitionable.CollectionName,
   index: number,
@@ -129,15 +148,6 @@ function useDeleteDrive(): DeleteDriveFn {
   };
 }
 
-type AddDriveFromMdRaidFn = (oldName: string, drive: Data.Drive) => void;
-
-function useAddDriveFromMdRaid(): AddDriveFromMdRaidFn {
-  const config = useConfigModel();
-  return (oldName: string, drive: Data.Drive) => {
-    putStorageModel(configModel.drive.addFromMdRaid(config, oldName, drive));
-  };
-}
-
 function useMdRaid(index: number): ConfigModel.MdRaid | null {
   const { data } = useSuspenseQuery({
     ...configModelQuery,
@@ -168,19 +178,25 @@ function useDeleteMdRaid(): DeleteMdRaidFn {
   };
 }
 
-type AddMdRaidFromDriveFn = (oldName: string, raid: Data.MdRaid) => void;
+type ConvertPartitionableToVolumeGroupFn = (name: string, volumeGroupName?: string) => void;
 
-function useAddMdRaidFromDrive(): AddMdRaidFromDriveFn {
+function useConvertPartitionableToVolumeGroup(): ConvertPartitionableToVolumeGroupFn {
   const config = useConfigModel();
-  return (oldName: string, raid: Data.MdRaid) => {
-    putStorageModel(configModel.mdRaid.addFromDrive(config, oldName, raid));
+  return (name: string, volumeGroupName?: string) => {
+    putStorageModel(configModel.partitionable.convertToVolumeGroup(config, name, volumeGroupName));
   };
 }
 
-function useVolumeGroup(vgName: string): ConfigModel.VolumeGroup | null {
-  const config = useConfigModel();
-  const volumeGroup = config?.volumeGroups?.find((v) => v.vgName === vgName);
-  return volumeGroup || null;
+function useVolumeGroup(index: number): ConfigModel.VolumeGroup | null {
+  const { data } = useSuspenseQuery({
+    ...configModelQuery,
+    select: useCallback(
+      (data: ConfigModel.Config | null): ConfigModel.VolumeGroup | null =>
+        data ? configModel.volumeGroup.find(data, index) : null,
+      [index],
+    ),
+  });
+  return data;
 }
 
 type AddVolumeGroupFn = (data: Data.VolumeGroup, moveContent: boolean) => void;
@@ -214,30 +230,21 @@ function useDeleteVolumeGroup(): DeleteVolumeGroupFn {
   };
 }
 
-type AddVolumeGroupFromPartitionableFn = (driveName: string) => void;
-
-function useAddVolumeGroupFromPartitionable(): AddVolumeGroupFromPartitionableFn {
-  const config = useConfigModel();
-  return (driveName: string) => {
-    putStorageModel(configModel.volumeGroup.addFromPartitionable(config, driveName));
-  };
-}
-
-type AddLogicalVolumeFn = (vgName: string, data: Data.LogicalVolume) => void;
+type AddLogicalVolumeFn = (vgIndex: number, data: Data.LogicalVolume) => void;
 
 function useAddLogicalVolume(): AddLogicalVolumeFn {
   const config = useConfigModel();
-  return (vgName: string, data: Data.LogicalVolume) => {
-    putStorageModel(configModel.logicalVolume.add(config, vgName, data));
+  return (vgIndex: number, data: Data.LogicalVolume) => {
+    putStorageModel(configModel.logicalVolume.add(config, vgIndex, data));
   };
 }
 
-type EditLogicalVolumeFn = (vgName: string, mountPath: string, data: Data.LogicalVolume) => void;
+type EditLogicalVolumeFn = (vgIndex: number, mountPath: string, data: Data.LogicalVolume) => void;
 
 function useEditLogicalVolume(): EditLogicalVolumeFn {
   const config = useConfigModel();
-  return (vgName: string, mountPath: string, data: Data.LogicalVolume) => {
-    putStorageModel(configModel.logicalVolume.edit(config, vgName, mountPath, data));
+  return (vgIndex: number, mountPath: string, data: Data.LogicalVolume) => {
+    putStorageModel(configModel.logicalVolume.edit(config, vgIndex, mountPath, data));
   };
 }
 
@@ -315,15 +322,28 @@ function useSetFilesystem(): SetFilesystemFn {
 }
 
 type setSpacePolicyFn = (
-  collection: Partitionable.CollectionName,
+  collection: DeviceCollection,
   index: number,
   data: Data.SpacePolicy,
 ) => void;
 
 function useSetSpacePolicy(): setSpacePolicyFn {
   const model = useConfigModel();
-  return (collection: Partitionable.CollectionName, index: number, data: Data.SpacePolicy) => {
-    putStorageModel(configModel.partitionable.setSpacePolicy(model, collection, index, data));
+  return (collection: DeviceCollection, index: number, data: Data.SpacePolicy) => {
+    putStorageModel(configModel.device.setSpacePolicy(model, collection, index, data));
+  };
+}
+
+function useConvertDevice() {
+  const model = useConfigModel();
+  const system = useSystem();
+
+  return (deviceName: string, targetDeviceName: string) => {
+    const device = findDeviceByName(system, deviceName);
+    const targetDevice = findDeviceByName(system, targetDeviceName);
+
+    if (device && targetDevice)
+      putStorageModel(configModel.device.convert(model, device, targetDevice));
   };
 }
 
@@ -335,20 +355,19 @@ export {
   useSetBootDevice,
   useSetDefaultBootDevice,
   useDisableBoot,
+  useDevice,
   usePartitionable,
   useDrive,
   useAddDrive,
   useDeleteDrive,
-  useAddDriveFromMdRaid,
   useMdRaid,
   useAddMdRaid,
   useDeleteMdRaid,
-  useAddMdRaidFromDrive,
+  useConvertPartitionableToVolumeGroup,
   useVolumeGroup,
   useAddVolumeGroup,
   useEditVolumeGroup,
   useDeleteVolumeGroup,
-  useAddVolumeGroupFromPartitionable,
   useAddLogicalVolume,
   useEditLogicalVolume,
   useDeleteLogicalVolume,
@@ -358,4 +377,5 @@ export {
   useSetEncryption,
   useSetFilesystem,
   useSetSpacePolicy,
+  useConvertDevice,
 };

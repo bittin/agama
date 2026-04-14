@@ -21,6 +21,11 @@
       "type": "array",
       "items": { "type": "integer" }
     },
+    "availableVolumeGroups": {
+      "description": "SIDs of the available LVM volume groups",
+      "type": "array",
+      "items": { "type": "integer" }
+    },
     "candidateDrives": {
       "description": "SIDs of the drives that are candidate for installation",
       "type": "array",

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-16 17:01+0000\n"
+"POT-Creation-Date: 2026-04-10 10:53+0000\n"
 "PO-Revision-Date: 2026-02-23 22:04+0000\n"
 "Last-Translator: Efstathios Iosifidis <eiosifidis@yandex.com>\n"
 "Language-Team: Greek <https://l10n.opensuse.org/projects/agama/agama-service-"
@@ -470,7 +470,8 @@ msgstr ""
 #.
 #. @return [Issue]
 #: service/lib/agama/storage/proposal.rb:315
-msgid "A problem ocurred while calculating the storage setup"
+#, fuzzy
+msgid "A problem occurred while calculating the storage setup"
 msgstr ""
 "Παρουσιάστηκε πρόβλημα κατά τον υπολογισμό της ρύθμισης αποθηκευτικού χώρου"
 
@@ -480,7 +481,7 @@ msgid "Copying logs"
 msgstr "Αντιγραφή καταγραφών (logs)"
 
 #. Step to unmount the target file-systems
-#: service/lib/agama/storage/umounter.rb:146
+#: service/lib/agama/storage/umounter.rb:153
 msgid "Unmounting storage devices"
 msgstr "Αποπροσάρτηση συσκευών αποθήκευσης"
 

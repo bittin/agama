@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2024-2025] SUSE LLC
+# Copyright (c) [2024-2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -130,7 +130,7 @@ module Agama
           # @return [Configs::VolumeGroup]
           def convert_volume_group(volume_group_model, targets)
             FromModelConversions::VolumeGroup
-              .new(volume_group_model, targets, model_json[:encryption])
+              .new(volume_group_model, product_config, targets, model_json[:encryption])
               .convert
           end
 

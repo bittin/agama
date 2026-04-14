@@ -19,6 +19,7 @@ dependencies = [
  "anyhow",
  "tempfile",
  "tokio",
+ "tracing",
  "url",
 ]
 
@@ -206,6 +207,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
+ "tempfile",
  "test-context",
  "thiserror 2.0.18",
  "tokio",
@@ -246,14 +248,11 @@ dependencies = [
  "anyhow",
  "async-trait",
  "gettext-rs",
- "libsystemd",
  "strum",
  "tempfile",
  "thiserror 2.0.18",
  "tokio",
  "tracing",
- "tracing-journald",
- "tracing-subscriber",
 ]
 
 [[package]]
@@ -314,7 +313,6 @@ dependencies = [
  "http-body-util",
  "hyper 1.8.1",
  "hyper-util",
- "libsystemd",
  "openssl",
  "pam",
  "pin-project",
@@ -332,8 +330,6 @@ dependencies = [
  "tower",
  "tower-http",
  "tracing",
- "tracing-journald",
- "tracing-subscriber",
  "url",
  "utoipa",
  "zbus",
@@ -430,12 +426,14 @@ version = "0.1.0"
 dependencies = [
  "agama-locale-data",
  "agama-transfer",
+ "anyhow",
  "async-trait",
  "camino",
  "cidr",
  "fluent-uri 0.4.1",
  "fs-err",
  "gettext-rs",
+ "libsystemd",
  "macaddr",
  "merge",
  "regex",
@@ -450,6 +448,8 @@ dependencies = [
  "tokio",
  "tokio-test",
  "tracing",
+ "tracing-journald",
+ "tracing-subscriber",
  "url",
  "utoipa",
  "uuid",
@@ -4717,9 +4717,9 @@ checksum = "83176759e9416cf81ee66cb6508dbfe9c96f20b8b56265a39917551c23c70964"
 
 [[package]]
 name = "tempfile"
-version = "3.26.0"
+version = "3.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "82a72c767771b47409d2345987fda8628641887d5466101319899796367354a0"
+checksum = "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
 dependencies = [
  "fastrand",
  "getrandom 0.4.1",
