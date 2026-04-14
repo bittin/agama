@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Apr 14 17:36:58 UTC 2026 - Imobach Gonzalez Sosa <igonzalezsosa@suse.com>
+
+- Version 20
+
+-------------------------------------------------------------------
 Mon Apr 13 15:33:52 UTC 2026 - Martin Vidner <mvidner@suse.com>
 
 - Fix syntax in the enhanced_base change (gh#agama-project/agama#3378)
