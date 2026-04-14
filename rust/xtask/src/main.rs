@@ -4,9 +4,7 @@ mod tasks {
     use std::{fs::File, io::Write, path::Path};
 
     use agama_cli::Cli;
-    use agama_server::web::docs::{
-        ApiDocBuilder, ConfigApiDocBuilder, MiscApiDocBuilder, ProfileApiDocBuilder,
-    };
+    use agama_server::web::docs::{ApiDocBuilder, UnifiedApiDocBuilder};
     use clap::CommandFactory;
     use clap_complete::aot;
     use clap_markdown::MarkdownOptions;
@@ -62,9 +60,9 @@ mod tasks {
     pub fn generate_openapi() -> std::io::Result<()> {
         let out_dir = create_output_dir("openapi")?;
 
-        write_openapi(ConfigApiDocBuilder {}, out_dir.join("config.json"))?;
-        write_openapi(MiscApiDocBuilder {}, out_dir.join("misc.json"))?;
-        write_openapi(ProfileApiDocBuilder {}, out_dir.join("profile.json"))?;
+        // Generate unified OpenAPI specification
+        write_openapi(UnifiedApiDocBuilder {}, out_dir.join("agama.json"))?;
+
         println!(
             "Generate the OpenAPI specification at {}.",
             out_dir.display()

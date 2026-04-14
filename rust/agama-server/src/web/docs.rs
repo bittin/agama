@@ -29,6 +29,8 @@ mod profile;
 pub use profile::ProfileApiDocBuilder;
 mod misc;
 pub use misc::MiscApiDocBuilder;
+mod unified;
+pub use unified::UnifiedApiDocBuilder;
 
 pub trait ApiDocBuilder {
     fn title(&self) -> String {
