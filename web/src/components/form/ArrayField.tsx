@@ -33,6 +33,7 @@ import {
   HelperTextItem,
   Button,
 } from "@patternfly/react-core";
+import Text from "~/components/core/Text";
 import Interpolate from "~/components/core/Interpolate";
 import { useFieldContext } from "~/hooks/form-contexts";
 import { _ } from "~/i18n";
@@ -381,6 +382,7 @@ export default function ArrayField({
   const asDraft = (item: string) => (toDraft ? toDraft(item) : item);
   const valueId = (index: number) => `${field.name}-${index}`;
   const hintId = `${field.name}-hint`;
+  const instructionsId = `${field.name}-instructions`;
 
   /**
    * TODO: Refactor announcements to use a shared global live region component
@@ -574,7 +576,7 @@ export default function ArrayField({
             }}
             inputProps={{
               id: field.name,
-              "aria-describedby": hintId,
+              "aria-describedby": `${hintId} ${instructionsId}`,
               ...(ariaLabel && { "aria-label": ariaLabel }),
               onKeyDown,
               onPaste,
@@ -630,46 +632,43 @@ export default function ArrayField({
 
       <FormHelperText>
         <HelperText>
-          {!hasErrors &&
-            fieldErrors.map((error, i) => (
-              <HelperTextItem key={i} variant="error">
-                {error}
-              </HelperTextItem>
-            ))}
-          {hasErrors && (
-            <>
-              {entryErrors.map((error, i) => (
-                <HelperTextItem key={i} variant="error">
-                  {error}
-                </HelperTextItem>
-              ))}
-              <HelperTextItem variant="error">
-                <Interpolate
-                  // TRANSLATORS: helper text for when there are invalid
-                  // entries. Text inside square brackets [] becomes a button,
-                  // keep the brackets.
-                  sentence={_(
-                    "Select entries to edit or remove them. Or [remove all invalid entries.]",
-                  )}
-                >
-                  {(text) => (
-                    <Button variant="link" isInline onClick={clearInvalid}>
-                      {text}
-                    </Button>
-                  )}
-                </Interpolate>
-              </HelperTextItem>
-            </>
-          )}
-          <HelperTextItem id={hintId} variant="indeterminate">
-            {hasAnyError && helperText && <>{helperText}. </>}
-            {
-              // TRANSLATORS: keyboard usage hint shown below the field.
-              _(
-                "Enter or Tab to add; arrow keys to navigate entries, Escape to exit; Backspace or Delete to remove.",
-              )
-            }
+          <HelperTextItem id={hintId}>
+            {helperText && <Text textStyle={["fontSizeSm", "textColorSubtle"]}>{helperText}</Text>}
           </HelperTextItem>
+          <HelperTextItem id={instructionsId}>
+            <Text textStyle={["fontSizeXs", "textColorSubtle"]}>
+              {
+                // TRANSLATORS: keyboard usage hint shown below the field.
+                _(
+                  "Enter or Tab to add; arrow keys to navigate entries, Ctrl+arrows to reorder, Escape to exit; Backspace or Delete to remove.",
+                )
+              }
+            </Text>
+          </HelperTextItem>
+          {hasAnyError && (
+            <HelperTextItem variant="error">
+              {!hasErrors && fieldErrors.join(". ")}
+              {hasErrors && (
+                <>
+                  {entryErrors.join(". ")}.{" "}
+                  <Interpolate
+                    // TRANSLATORS: helper text for when there are invalid
+                    // entries. Text inside square brackets [] becomes a button,
+                    // keep the brackets.
+                    sentence={_(
+                      "Select entries to edit or remove them. Or [remove all invalid entries.]",
+                    )}
+                  >
+                    {(text) => (
+                      <Button variant="link" isInline onClick={clearInvalid}>
+                        {text}
+                      </Button>
+                    )}
+                  </Interpolate>
+                </>
+              )}
+            </HelperTextItem>
+          )}
         </HelperText>
       </FormHelperText>
     </FormGroup>

@@ -142,6 +142,13 @@ const IpSettings = withForm({
                       }
                       skipDuplicates
                       normalize={ensureIPPrefix}
+                      helperText={
+                        isIPv4
+                          ? // TRANSLATORS: helper text for IPv4 addresses field. Explains format and that prefix is auto-added.
+                            _("E.g., 192.168.1.1 or 192.168.1.1/24. Prefix auto-added if omitted.")
+                          : // TRANSLATORS: helper text for IPv6 addresses field. Explains format and that prefix is auto-added.
+                            _("E.g., 2001:db8::1 or 2001:db8::1/64. Prefix auto-added if omitted.")
+                      }
                       validateOnSubmit={(v) => {
                         if (isIPv4 ? isValidIPv4Address(v) : isValidIPv6Address(v))
                           return undefined;
@@ -167,6 +174,13 @@ const IpSettings = withForm({
                         >
                           {gatewayLabel}
                         </LabelText>
+                      }
+                      helperText={
+                        isIPv4
+                          ? // TRANSLATORS: helper text for IPv4 gateway field explaining the format.
+                            _("E.g., 192.168.1.1")
+                          : // TRANSLATORS: helper text for IPv6 gateway field explaining the format.
+                            _("E.g., 2001:db8::1")
                       }
                     />
                   )}

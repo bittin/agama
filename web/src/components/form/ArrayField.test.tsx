@@ -240,9 +240,9 @@ describe("ArrayField", () => {
   });
 
   describe("helperText", () => {
-    it("does not show helper text when there are no errors", () => {
+    it("shows helper text always, even when there are no errors", () => {
       installerRender(<TestForm helperText="Some hint" />);
-      expect(screen.queryByText(/Some hint/)).not.toBeInTheDocument();
+      screen.getByText(/Some hint/);
     });
 
     it("shows helper text alongside the error block when there are invalid entries", () => {

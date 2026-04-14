@@ -487,6 +487,10 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
                       // TRANSLATORS: label for the DNS servers field.
                       label={_("DNS servers")}
                       skipDuplicates
+                      helperText={
+                        // TRANSLATORS: helper text for DNS servers field explaining the format.
+                        _("E.g., 8.8.8.8 or 2001:4860:4860::8888")
+                      }
                       validateOnSubmit={(v) =>
                         // TRANSLATORS: validation error for an invalid DNS server address entry.
                         isValidNameserver(v) ? undefined : _("Invalid DNS server address")
@@ -519,6 +523,10 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
                       // TRANSLATORS: label for the DNS search domains field.
                       label={_("DNS search domains")}
                       skipDuplicates
+                      helperText={
+                        // TRANSLATORS: helper text for DNS search domains field explaining the format.
+                        _("E.g., example.com")
+                      }
                       validateOnSubmit={(v) =>
                         // TRANSLATORS: validation error for an invalid DNS search domain entry.
                         isValidDNSSearchDomain(v) ? undefined : _("Invalid DNS search domain")
