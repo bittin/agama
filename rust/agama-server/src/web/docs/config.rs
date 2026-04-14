@@ -31,16 +31,19 @@ impl ApiDocBuilder for ConfigApiDocBuilder {
 
     fn paths(&self) -> Paths {
         PathsBuilder::new()
+            .path_from::<crate::server::web::__path_get_status>()
             .path_from::<crate::server::web::__path_get_system>()
             .path_from::<crate::server::web::__path_get_extended_config>()
             .path_from::<crate::server::web::__path_get_config>()
             .path_from::<crate::server::web::__path_put_config>()
             .path_from::<crate::server::web::__path_patch_config>()
             .path_from::<crate::server::web::__path_get_proposal>()
+            .path_from::<crate::server::web::__path_get_issues>()
             .path_from::<crate::server::web::__path_get_questions>()
             .path_from::<crate::server::web::__path_ask_question>()
             .path_from::<crate::server::web::__path_update_question>()
             .path_from::<crate::server::web::__path_run_action>()
+            .path_from::<crate::server::web::__path_get_license>()
             .build()
     }
 
