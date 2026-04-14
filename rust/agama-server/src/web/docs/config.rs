@@ -26,7 +26,14 @@ pub struct ConfigApiDocBuilder;
 
 impl ApiDocBuilder for ConfigApiDocBuilder {
     fn title(&self) -> String {
-        "Config HTTP API".to_string()
+        "Agama Configuration API".to_string()
+    }
+
+    fn description(&self) -> String {
+        "REST API for configuring and monitoring the Agama installer. \
+        This API allows you to configure the target system installation (config), \
+        view the current system state (system), retrieve the installation proposal, \
+        and monitor installation progress.".to_string()
     }
 
     fn paths(&self) -> Paths {

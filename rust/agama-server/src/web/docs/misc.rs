@@ -26,7 +26,11 @@ pub struct MiscApiDocBuilder;
 
 impl ApiDocBuilder for MiscApiDocBuilder {
     fn title(&self) -> String {
-        "Miscelaneous HTTP API".to_string()
+        "Agama Utility API".to_string()
+    }
+
+    fn description(&self) -> String {
+        "Utility endpoints for the Agama installer, including health checks and diagnostics.".to_string()
     }
 
     fn paths(&self) -> Paths {

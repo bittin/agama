@@ -26,8 +26,15 @@ pub struct ProfileApiDocBuilder;
 
 impl ApiDocBuilder for ProfileApiDocBuilder {
     fn title(&self) -> String {
-        "Profile HTTP API".to_string()
+        "Agama Profile API".to_string()
     }
+
+    fn description(&self) -> String {
+        "API for managing Agama installation profiles. \
+        Profiles define the complete installation configuration and can be imported, \
+        validated, and converted from AutoYaST format.".to_string()
+    }
+
     fn paths(&self) -> Paths {
         PathsBuilder::new()
             .path_from::<crate::profile::web::__path_autoyast>()

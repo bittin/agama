@@ -18,7 +18,10 @@
 // To contact SUSE LLC about this file by physical or electronic mail, you may
 // find current contact information at www.suse.com.
 
-use utoipa::openapi::{Components, Info, InfoBuilder, OpenApi, OpenApiBuilder, Paths};
+use utoipa::openapi::{
+    Components, Info, InfoBuilder, OpenApi, OpenApiBuilder, Paths,
+    server::{Server, ServerBuilder, ServerVariableBuilder},
+};
 
 mod config;
 pub use config::ConfigApiDocBuilder;
@@ -32,6 +35,11 @@ pub trait ApiDocBuilder {
         "Agama HTTP API".to_string()
     }
 
+    fn description(&self) -> String {
+        "HTTP API for the Agama installer. \
+        See https://agama-project.github.io for more information.".to_string()
+    }
+
     fn paths(&self) -> Paths;
 
     fn components(&self) -> Components;
@@ -39,8 +47,29 @@ pub trait ApiDocBuilder {
     fn info(&self) -> Info {
         InfoBuilder::new()
             .title(self.title())
-            .version("0.1.0")
+            .version(env!("CARGO_PKG_VERSION"))
+            .description(Some(self.description()))
             .build()
+    }
+
+    fn servers(&self) -> Vec<Server> {
+        vec![
+            ServerBuilder::new()
+                .url("http://localhost")
+                .description(Some("Local development server"))
+                .build(),
+            ServerBuilder::new()
+                .url("https://{agamaHost}")
+                .description(Some("Agama server"))
+                .parameter(
+                    "agamaHost",
+                    ServerVariableBuilder::new()
+                        .default_value("agama.local")
+                        .description(Some("Hostname or IP address of the Agama server"))
+                        .build(),
+                )
+                .build(),
+        ]
     }
 
     fn nested(&self) -> Option<OpenApi> {
@@ -50,6 +79,7 @@ pub trait ApiDocBuilder {
     fn build(&self) -> utoipa::openapi::OpenApi {
         let mut api = OpenApiBuilder::new()
             .info(self.info())
+            .servers(Some(self.servers()))
             .paths(self.paths())
             .components(Some(self.components()))
             .build();
