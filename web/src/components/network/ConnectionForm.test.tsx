@@ -183,20 +183,20 @@ describe("ConnectionForm", () => {
     expect(screen.queryByText("IPv6 Addresses")).not.toBeInTheDocument();
   });
 
-  it("shows the IPv4 addresses and gateway when IPv4 mode is advanced", async () => {
+  it("shows the IPv4 addresses and gateway when IPv4 mode is automatic + manual", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.click(screen.getByLabelText("IPv4 Settings"));
-    await user.click(screen.getByRole("option", { name: /^Advanced auto/ }));
+    await user.click(screen.getByRole("option", { name: /^Automatic \+ manual/ }));
     screen.getByText("IPv4 Addresses");
     screen.getByLabelText("IPv4 Gateway (optional)");
     expect(screen.queryByText("IPv6 Addresses")).not.toBeInTheDocument();
   });
 
-  it("shows an error when addresses are invalid in advanced mode", async () => {
+  it("shows an error when addresses are invalid in automatic + manual mode", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.type(screen.getByLabelText("Name"), "Test");
     await user.click(screen.getByLabelText("IPv4 Settings"));
-    await user.click(screen.getByRole("option", { name: /^Advanced auto/ }));
+    await user.click(screen.getByRole("option", { name: /^Automatic \+ manual/ }));
     await user.type(screen.getByLabelText("IPv4 Addresses"), "not-an-ip{Enter}");
     await user.click(screen.getByRole("button", { name: "Accept" }));
     await screen.findByText(/Invalid IPv4 address/);
