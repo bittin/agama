@@ -18,7 +18,41 @@
 // To contact SUSE LLC about this file by physical or electronic mail, you may
 // find current contact information at www.suse.com.
 
-//! This module implements a monitor that keeps last important event for monitor CLI.
+//! This module implements a monitor that listens to Agama events and keeps an updated
+//! representation of the installation status, issues, and questions.
+//!
+//! It provides a [`MonitorClient`] that can be used to query the current status or subscribe
+//! to updates via a broadcast channel.
+//!
+//! # Example
+//!
+//! ```no_run
+//! use agama_lib::http::{BaseHTTPClient, WebSocketClient};
+//! use agama_lib::monitor::Monitor;
+//! use agama_lib::auth::AuthToken;
+//! use url::Url;
+//!
+//! # async fn run() -> anyhow::Result<()> {
+//! let http_client = BaseHTTPClient::new("http://localhost/api/")?;
+//! let url = Url::parse("http://localhost/ws")?;
+//! let token = AuthToken::new("token");
+//! let ws_client = WebSocketClient::connect(&url, &token, false).await?;
+//!
+//! // Connect the monitor (this spawns a background task)
+//! let monitor_client = Monitor::connect(ws_client, &http_client).await?;
+//!
+//! // Get the current installation status
+//! let status = monitor_client.get_installation_status().await?;
+//! println!("Current stage: {:?}", status.status.stage);
+//!
+//! // Subscribe to future updates
+//! let mut rx = monitor_client.subscribe();
+//! while let Ok(Ok(new_status)) = rx.recv().await {
+//!     println!("Status updated! Issues count: {}", new_status.issues.len());
+//! }
+//! # Ok(())
+//! # }
+//! ```
 
 use std::fmt;
 
@@ -26,28 +60,32 @@ use agama_utils::api::{self, Event};
 use tokio::sync::{broadcast, mpsc, oneshot, Mutex};
 
 use crate::{
-    http::{BaseHTTPClient, WebSocketClient, WebSocketError},
+    http::{BaseHTTPClient, WebSocketClient},
     manager::{http_client::ManagerHTTPClientError, ManagerHTTPClient},
     questions::{self, http_client::QuestionsHTTPClientError},
 };
+
+/// Errors that can occur when interacting with the monitor.
 #[derive(thiserror::Error, Debug)]
 pub enum MonitorError {
+    /// Error connecting to the Manager HTTP API.
     #[error("Error connecting to the Manager HTTP API: {0}")]
     Manager(#[from] ManagerHTTPClientError),
+    /// Error connecting to the Questions HTTP API.
     #[error("Error connecting to the Questions HTTP API: {0}")]
     Questions(#[from] QuestionsHTTPClientError),
-    #[error("WebSocket error: {0}")]
-    WebSocket(#[from] WebSocketError),
-    #[error(transparent)]
-    Url(#[from] url::ParseError),
+    /// Error receiving a message from the monitor task.
     #[error("Error receiving the monitor message: {0}")]
     Recv(#[from] oneshot::error::RecvError),
+    /// Error sending a command to the monitor task.
     #[error("Error sending the monitor message: {0}")]
     Send(#[from] tokio::sync::mpsc::error::SendError<MonitorCommand>),
+    /// An error occurred in the monitor backend.
     #[error(transparent)]
     Backend(#[from] MonitorBackendError),
 }
 
+/// Represents an error occurring in the backend while monitoring the status.
 #[derive(Debug, Clone, thiserror::Error)]
 pub struct MonitorBackendError(String);
 
@@ -60,8 +98,11 @@ impl fmt::Display for MonitorBackendError {
 /// Extended status information with combination of status, issues and questions
 #[derive(Clone, Debug, PartialEq)]
 pub struct InstallationStatus {
+    /// Current installation status.
     pub status: api::Status,
+    /// List of issues currently blocking or affecting the installation.
     pub issues: Vec<api::IssueWithScope>,
+    /// List of unanswered questions.
     pub questions: Vec<api::question::Question>,
 }
 
@@ -70,12 +111,14 @@ pub struct InstallationStatus {
 /// It can be cloned and moved between threads.
 #[derive(Clone, Debug)]
 pub struct MonitorClient {
+    /// Channel to send commands to the monitor task.
     commands: mpsc::Sender<MonitorCommand>,
+    /// Channel to subscribe to status updates.
     updates: broadcast::Sender<Result<InstallationStatus, MonitorBackendError>>,
 }
 
 impl MonitorClient {
-    /// Returns and clear the last event or none if no event was there from previous call.
+    /// Returns the current installation status.
     pub async fn get_installation_status(&self) -> Result<InstallationStatus, MonitorError> {
         let (tx, rx) = tokio::sync::oneshot::channel();
         self.commands
@@ -98,18 +141,27 @@ impl MonitorClient {
 ///
 /// It can be cloned and moved between threads
 pub struct Monitor {
-    // Channel to receive commands.
+    /// Channel to receive commands.
     commands: mpsc::Receiver<MonitorCommand>,
+    /// WebSocket client to listen for events.
     ws_client: WebSocketClient,
+    /// HTTP client to fetch additional data.
     http_client: BaseHTTPClient,
-    // mutex is needed to avoid race conditions
-    // Result is needed to be able to report problems with socket
+    /// The current installation status.
+    ///
+    /// A mutex is needed to avoid race conditions.
+    /// Result is needed to be able to report problems with the socket.
     status: Mutex<Result<InstallationStatus, MonitorBackendError>>,
+    /// Channel to broadcast status updates to subscribers.
     updates: broadcast::Sender<Result<InstallationStatus, MonitorBackendError>>,
 }
 
+/// Commands that can be sent to the monitor task.
 #[derive(Debug)]
 pub enum MonitorCommand {
+    /// Command to request the current installation status.
+    ///
+    /// The monitor will send the status back through the provided oneshot channel.
     GetInstallationStatus(
         tokio::sync::oneshot::Sender<Result<InstallationStatus, MonitorBackendError>>,
     ),
@@ -194,7 +246,7 @@ impl Monitor {
     /// sends the updated state to its subscribers.
     ///
     /// * `event`: Agama event.
-    async fn handle_event(&mut self, event: Result<Event, WebSocketError>) {
+    async fn handle_event(&mut self, event: Result<Event, crate::http::WebSocketError>) {
         let mut g = self.status.lock().await;
         let Ok(status) = g.as_mut() else {
             // we already errored, so just return
