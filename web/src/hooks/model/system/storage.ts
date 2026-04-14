@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2025] SUSE LLC
+ * Copyright (c) [2025-2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -52,6 +52,7 @@ const enum DeviceGroup {
   CandidateDrives = "candidateDrives",
   AvailableMdRaids = "availableMdRaids",
   CandidateMdRaids = "candidateMdRaids",
+  AvailableVolumeGroups = "availableVolumeGroups",
 }
 
 function selectDeviceGroups(data: System | null, groups: DeviceGroup[]): Storage.Device[] {
@@ -117,7 +118,11 @@ function useCandidateMdRaids(): Storage.Device[] {
 }
 
 const selectAvailableDevices = (data: System | null): Storage.Device[] =>
-  selectDeviceGroups(data, [DeviceGroup.AvailableDrives, DeviceGroup.AvailableMdRaids]);
+  selectDeviceGroups(data, [
+    DeviceGroup.AvailableDrives,
+    DeviceGroup.AvailableMdRaids,
+    DeviceGroup.AvailableVolumeGroups,
+  ]);
 
 /**
  * Hook that returns the list of available devices for installation.

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2024-2025] SUSE LLC
+# Copyright (c) [2024-2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -22,6 +22,7 @@
 require "agama/storage/config_checkers/base"
 require "agama/storage/config_checkers/logical_volume"
 require "agama/storage/config_checkers/physical_volumes_encryption"
+require "agama/storage/config_checkers/with_search"
 require "yast/i18n"
 
 module Agama
@@ -30,6 +31,7 @@ module Agama
       # Class for checking a volume group config.
       class VolumeGroup < Base
         include Yast::I18n
+        include WithSearch
 
         # @param config [Configs::VolumeGroup]
         # @param storage_config [Storage::Config]
@@ -52,7 +54,8 @@ module Agama
             logical_volumes_issues,
             physical_volumes_issues,
             physical_volumes_devices_issues,
-            physical_volumes_encryption_issues
+            physical_volumes_encryption_issues,
+            search_issues
           ].compact.flatten
         end
 
@@ -85,7 +88,7 @@ module Agama
         def logical_volumes_issues
           config.logical_volumes.flat_map do |logical_volume|
             ConfigCheckers::LogicalVolume
-              .new(logical_volume, config, product_config)
+              .new(logical_volume, config, storage_config, product_config)
               .issues
           end
         end

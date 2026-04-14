@@ -7,6 +7,11 @@ Tue Apr 14 10:20:25 UTC 2026 - Michal Filka <mfilka@suse.com>
     from ruby to rust.
 
 -------------------------------------------------------------------
+Mon Apr 13 15:21:17 UTC 2026 - José Iván López González <jlopez@suse.com>
+
+- Update storage schemas (gh#agama-project/agama#3380).
+
+-------------------------------------------------------------------
 Fri Apr 10 13:46:02 UTC 2026 - Ladislav Slezák <lslezak@suse.com>
 
 - Replace the "inst.listen_on" boot option with "inst.remote=0"

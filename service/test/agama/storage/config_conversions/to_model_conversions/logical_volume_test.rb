@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2025] SUSE LLC
+# Copyright (c) [2025-2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -39,21 +39,27 @@ describe Agama::Storage::ConfigConversions::ToModelConversions::LogicalVolume do
 
   let(:config_json) do
     {
-      filesystem: filesystem,
-      size:       size,
-      name:       name,
-      stripes:    stripes,
-      stripeSize: stripe_size
+      search:         search,
+      filesystem:     filesystem,
+      size:           size,
+      name:           name,
+      stripes:        stripes,
+      stripeSize:     stripe_size,
+      delete:         delete,
+      deleteIfNeeded: delete_if_needed
     }
   end
 
   let(:volumes) { Agama::Storage::VolumeTemplatesBuilder.new([]) }
 
+  let(:search) { nil }
   let(:filesystem) { nil }
   let(:size) { nil }
   let(:name) { nil }
   let(:stripes) { nil }
   let(:stripe_size) { nil }
+  let(:delete) { nil }
+  let(:delete_if_needed) { nil }
 
   describe "#convert" do
     context "if #name is not configured" do
@@ -83,6 +89,8 @@ describe Agama::Storage::ConfigConversions::ToModelConversions::LogicalVolume do
       end
     end
 
+    include_examples "without delete"
+    include_examples "without delete_if_needed"
     include_examples "without filesystem"
     include_examples "without size"
 
@@ -113,7 +121,11 @@ describe Agama::Storage::ConfigConversions::ToModelConversions::LogicalVolume do
       end
     end
 
+    include_examples "with delete"
+    include_examples "with delete_if_needed"
     include_examples "with filesystem"
     include_examples "with size"
+    include_examples "device name"
+    include_examples "resize"
   end
 end
