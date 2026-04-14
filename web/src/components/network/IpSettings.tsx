@@ -47,23 +47,23 @@ const modeOptions = () => [
   {
     value: FormIpMode.AUTO,
     // TRANSLATORS: option label for automatic IP configuration.
-    label: N_("Auto"),
+    label: N_("Automatic"),
     // TRANSLATORS: description for automatic IP configuration mode.
-    description: N_("Automatic configuration"),
+    description: N_("Address and gateway assigned from the network"),
   },
   {
     value: FormIpMode.ADVANCED_AUTO,
     // TRANSLATORS: option label for advanced automatic IP configuration with static addresses.
-    label: N_("Advanced auto"),
+    label: N_("Automatic + manual"),
     // TRANSLATORS: description for advanced automatic mode with static addresses.
-    description: N_("Automatic with static addresses"),
+    description: N_("Configuration from the network plus static addresses and gateway"),
   },
   {
     value: FormIpMode.MANUAL,
     // TRANSLATORS: option label for manual IP configuration
     label: N_("Manual"),
     // TRANSLATORS: description for manual IP configuration mode.
-    description: N_("Static configuration"),
+    description: N_("Static addresses and gateway"),
   },
 ];
 
