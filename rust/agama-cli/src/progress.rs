@@ -34,7 +34,7 @@ pub struct ProgressMonitor {
     state: InstallationStatus,
     stop_on_idle: bool,
     progress_bar: Option<MultiProgress>,
-    progresses: HashMap<Scope, ProgressBar>,
+    progresses: HashMap<Scope, (ProgressBar, ProgressBar)>,
     monitor: MonitorClient,
 }
 
@@ -67,9 +67,11 @@ impl ProgressMonitor {
     async fn render_state(&mut self) -> anyhow::Result<bool> {
         // clear progresses to not interfere with new state
         if let Some(main) = &self.progress_bar {
-            for p in self.progresses.values() {
-                p.finish_and_clear();
-                main.remove(p);
+            for (p1, p2) in self.progresses.values() {
+                p1.finish_and_clear();
+                main.remove(p1);
+                p2.finish_and_clear();
+                main.remove(p2);
             }
             // if clearing failed, just ignore it, following terminal clear should handle it
             let _ = main.clear();
@@ -105,10 +107,11 @@ impl ProgressMonitor {
                 gettext("Installing target system:")
             };
             multibar.println(message)?;
+            multibar.println("")?;
 
             for progress in progresses {
-                let bar = Self::create_progress_bar(&multibar, progress);
-                self.progresses.insert(progress.scope, bar);
+                let bars = Self::create_progress_bar(&multibar, progress);
+                self.progresses.insert(progress.scope, bars);
             }
             self.progress_bar = Some(multibar);
             return Ok(true);
@@ -150,12 +153,14 @@ impl ProgressMonitor {
                 self.state = new_state;
                 if let Some(main_bar) = &self.progress_bar {
                     for progress in &self.state.status.progresses {
-                        if let Some(bar) = self.progresses.get(&progress.scope) {
-                            bar.set_position(progress.index as u64);
-                            bar.set_message(progress.step.clone());
+                        if let Some((bar1, bar2)) = self.progresses.get(&progress.scope) {
+                            bar1.set_position(progress.index as u64);
+                            bar1.set_message(progress.step.clone());
+                            bar2.set_position(progress.index as u64);
+                            bar2.set_message(progress.step.clone());
                         } else {
-                            let bar = Self::create_progress_bar(main_bar, progress);
-                            self.progresses.insert(progress.scope, bar);
+                            let bars = Self::create_progress_bar(main_bar, progress);
+                            self.progresses.insert(progress.scope, bars);
                         }
                     }
                 // there are no multi progress, so no progress before and we should redraw
@@ -246,20 +251,33 @@ impl ProgressMonitor {
         }
     }
 
-    fn create_progress_bar(multibar: &MultiProgress, progress: &api::Progress) -> ProgressBar {
-        let bar = multibar.add(ProgressBar::new(progress.size as u64));
-        let template = if progress.scope == Scope::Manager {
-            format!(
-                "{} ({{pos:>2}}/{{len:2}}): {{wide_msg}}",
-                gettext("Current step")
+    fn create_progress_bar(
+        multibar: &MultiProgress,
+        progress: &api::Progress,
+    ) -> (ProgressBar, ProgressBar) {
+        let bar1 = multibar.add(ProgressBar::new(progress.size as u64));
+        let bar2 = multibar.add(ProgressBar::new(progress.size as u64));
+        let (template1, template2) = if progress.scope == Scope::Manager {
+            (
+                format!(
+                    "{} ({{pos:>2}}/{{len:2}}): {{wide_msg}}",
+                    gettext("Current step")
+                ),
+                "".to_string(), // just separate main progress and subprogress
             )
         } else {
-            "{bar:40.green} {pos:>5}/{len:5} {wide_msg}".to_string()
+            (
+                "{wide_bar:40.green}".to_string(),
+                "{pos:>5}/{len:5} {wide_msg}".to_string(),
+            )
         };
         // unwrap is safe as we created the style ( hope rust can do compile time check in future )
-        bar.set_style(ProgressStyle::with_template(&template).unwrap());
-        bar.set_position(progress.index as u64);
-        bar.set_message(progress.step.clone());
-        bar
+        bar1.set_style(ProgressStyle::with_template(&template1).unwrap());
+        bar2.set_style(ProgressStyle::with_template(&template2).unwrap());
+        bar1.set_position(progress.index as u64);
+        bar1.set_message(progress.step.clone());
+        bar2.set_position(progress.index as u64);
+        bar2.set_message(progress.step.clone());
+        (bar1, bar2)
     }
 }
