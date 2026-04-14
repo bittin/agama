@@ -58,6 +58,8 @@ const NoDevicesConfiguredAlert = () => {
 
 export default function ConfigEditor() {
   const config = useConfigModel();
+  if (!config) return;
+
   const drives = config.drives;
   const mdRaids = config.mdRaids;
   const volumeGroups = config.volumeGroups;
@@ -70,8 +72,8 @@ export default function ConfigEditor() {
     <>
       {/* FIXME add arial label */}
       <DataList aria-label="" isCompact className="storage-structure">
-        {volumeGroups.map((vg, i) => {
-          return <VolumeGroupEditor key={`vg-${i}`} vg={vg} />;
+        {volumeGroups.map((_, i) => {
+          return <VolumeGroupEditor key={`vg-${i}`} index={i} />;
         })}
         {mdRaids.map((_, i) => (
           <MdRaidEditor key={`md-${i}`} index={i} />

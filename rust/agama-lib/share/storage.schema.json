@@ -300,7 +300,9 @@
         { "$ref": "#/$defs/advancedLogicalVolumesGenerator" },
         { "$ref": "#/$defs/logicalVolume" },
         { "$ref": "#/$defs/thinPoolLogicalVolume" },
-        { "$ref": "#/$defs/thinLogicalVolume" }
+        { "$ref": "#/$defs/thinLogicalVolume" },
+        { "$ref": "#/$defs/logicalVolumeToDelete" },
+        { "$ref": "#/$defs/logicalVolumeToDeleteIfNeeded" }
       ]
     },
     "advancedLogicalVolumesGenerator": {
@@ -364,6 +366,31 @@
         "usedPool": { "$ref": "#/$defs/alias" },
         "encryption": { "$ref": "#/$defs/encryption" },
         "filesystem": { "$ref": "#/$defs/filesystem" }
+      }
+    },
+    "logicalVolumeToDelete": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["delete", "search"],
+      "properties": {
+        "search": { "$ref": "#/$defs/deleteLogicalVolumeSearch" },
+        "delete": {
+          "description": "Delete the logical volume.",
+          "const": true
+        }
+      }
+    },
+    "logicalVolumeToDeleteIfNeeded": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["deleteIfNeeded", "search"],
+      "properties": {
+        "search": { "$ref": "#/$defs/deleteLogicalVolumeSearch" },
+        "deleteIfNeeded": {
+          "description": "Delete the logical volume if needed to make space.",
+          "const": true
+        },
+        "size": { "$ref": "#/$defs/size" }
       }
     },
     "logicalVolumeStripes": {
@@ -585,6 +612,23 @@
         "sort": { "$ref": "#/$defs/logicalVolumeSearchSort" },
         "max": { "$ref": "#/$defs/searchMax" },
         "ifNotFound": { "$ref": "#/$defs/searchCreatableActions" }
+      }
+    },
+    "deleteLogicalVolumeSearch": {
+      "anyOf": [
+        { "$ref": "#/$defs/searchAll" },
+        { "$ref": "#/$defs/searchName" },
+        { "$ref": "#/$defs/deleteLogicalVolumeAdvancedSearch" }
+      ]
+    },
+    "deleteLogicalVolumeAdvancedSearch": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "condition": { "$ref": "#/$defs/logicalVolumeSearchCondition" },
+        "sort": { "$ref": "#/$defs/logicalVolumeSearchSort" },
+        "max": { "$ref": "#/$defs/searchMax" },
+        "ifNotFound": { "$ref": "#/$defs/searchActions" }
       }
     },
     "logicalVolumeSearchCondition": {

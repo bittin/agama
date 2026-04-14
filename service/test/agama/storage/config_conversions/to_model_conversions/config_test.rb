@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2025] SUSE LLC
+# Copyright (c) [2025-2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -48,6 +48,15 @@ describe Agama::Storage::ConfigConversions::ToModelConversions::Config do
       it "generates the expected JSON" do
         config_model = subject.convert
         expect(config_model[:drives]).to eq([])
+      end
+    end
+
+    context "if #md_raids is not configured" do
+      let(:md_raids) { nil }
+
+      it "generates the expected JSON" do
+        config_model = subject.convert
+        expect(config_model[:mdRaids]).to eq([])
       end
     end
 
@@ -190,14 +199,19 @@ describe Agama::Storage::ConfigConversions::ToModelConversions::Config do
           [
             {
               vgName:         "vg0",
+              spacePolicy:    "keep",
               targetDevices:  [],
               logicalVolumes: [
                 {
-                  filesystem: {
+                  delete:         false,
+                  deleteIfNeeded: false,
+                  resize:         false,
+                  resizeIfNeeded: false,
+                  filesystem:     {
                     reuse: false
                   },
-                  mountPath:  "/",
-                  size:       {
+                  mountPath:      "/",
+                  size:           {
                     default: true,
                     min:     0
                   }
