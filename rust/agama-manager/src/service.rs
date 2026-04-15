@@ -19,8 +19,8 @@
 // find current contact information at www.suse.com.
 
 use crate::{
-    actions::FinishAction, bootloader, checks, files, hardware, hostname, iscsi, l10n, message,
-    network, proxy, s390, security, software, storage, tasks, users,
+    actions::FinishAction, bootloader, checks, files, hardware, hostname, ipmi, iscsi, l10n,
+    message, network, proxy, s390, security, software, storage, tasks, users,
 };
 use agama_users::PasswordCheckResult;
 use agama_utils::{
@@ -97,6 +97,8 @@ pub enum Error {
     Users(#[from] users::service::Error),
     #[error(transparent)]
     S390(#[from] s390::service::Error),
+    #[error(transparent)]
+    Ipmi(#[from] ipmi::Error),
 }
 
 pub struct Starter {
@@ -814,7 +816,19 @@ impl MessageHandler<message::RunAction> for Service {
                 self.probe_dasd().await?;
             }
             Action::Install => {
-                self.tasks.cast(tasks::message::Install)?;
+                let ipmi = ipmi::Ipmi::default();
+
+                if let Err(e) = ipmi.started() {
+                    tracing::error!("IPMI failed: {}", e);
+                }
+
+                if let Err(error) = self.tasks.cast(tasks::message::Install) {
+                    if let Err(e) = ipmi.failed() {
+                        tracing::error!("IPMI failed: {}", e);
+                    }
+
+                    return Err(error);
+                }
             }
             Action::Finish(method) => {
                 checks::check_stage(&self.progress, Stage::Finished).await?;

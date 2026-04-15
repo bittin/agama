@@ -209,12 +209,14 @@ describe Agama::DBus::Storage::Manager do
       allow(proposal.storage_system).to receive(:candidate_md_raids).and_return(candidate_raids)
       allow(proposal.storage_system).to receive(:candidate_devices)
         .and_return(candidate_drives + candidate_raids)
+      allow(proposal.storage_system).to receive(:available_volume_groups).and_return(available_vgs)
     end
 
     let(:available_drives) { [] }
     let(:candidate_drives) { [] }
     let(:available_raids) { [] }
     let(:candidate_raids) { [] }
+    let(:available_vgs) { [] }
 
     describe "serialized_system[:availableDrives]" do
       context "if there is no available drives" do
@@ -302,6 +304,29 @@ describe Agama::DBus::Storage::Manager do
         it "returns the path of each MD RAID" do
           result = parse(subject.serialized_system)[:candidateMdRaids]
           expect(result).to contain_exactly(100, 101)
+        end
+      end
+    end
+
+    describe "serialized_system[:availableVolumeGroups]" do
+      context "if there is no available volume groups" do
+        let(:available_vgs) { [] }
+
+        it "returns an empty list" do
+          expect(parse(subject.serialized_system)[:availableVolumeGroups]).to eq([])
+        end
+      end
+
+      context "if there are available volume groups" do
+        let(:available_vgs) { [vg1, vg2, vg3] }
+
+        let(:vg1) { instance_double(Y2Storage::LvmVg, sid: 200) }
+        let(:vg2) { instance_double(Y2Storage::LvmVg, sid: 201) }
+        let(:vg3) { instance_double(Y2Storage::LvmVg, sid: 202) }
+
+        it "retuns the id of each volume group" do
+          result = parse(subject.serialized_system)[:availableVolumeGroups]
+          expect(result).to contain_exactly(200, 201, 202)
         end
       end
     end

@@ -94,12 +94,14 @@
       "additionalProperties": false,
       "required": ["vgName"],
       "properties": {
+        "name": { "type": "string" },
         "vgName": { "type": "string" },
         "extentSize": { "type": "integer" },
         "targetDevices": {
           "type": "array",
           "items": { "type": "string" }
         },
+        "spacePolicy": { "$ref": "#/$defs/spacePolicy" },
         "logicalVolumes": {
           "type": "array",
           "items": { "$ref": "#/$defs/logicalVolume" }
@@ -110,12 +112,17 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "name": { "type": "string" },
         "lvName": { "type": "string" },
         "mountPath": { "type": "string" },
         "filesystem": { "$ref": "#/$defs/filesystem" },
-        "size": { "$ref": "#/$defs/size" },
         "stripes": { "type": "integer" },
-        "stripeSize": { "type": "integer" }
+        "stripeSize": { "type": "integer" },
+        "size": { "$ref": "#/$defs/size" },
+        "delete": { "type": "boolean" },
+        "deleteIfNeeded": { "type": "boolean" },
+        "resize": { "type": "boolean" },
+        "resizeIfNeeded": { "type": "boolean" }
       }
     },
     "spacePolicy": {

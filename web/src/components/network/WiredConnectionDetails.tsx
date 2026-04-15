@@ -265,10 +265,10 @@ const ConnectionDetails = ({ connection }: { connection: Connection }) => {
             <DescriptionListDescription>
               <Flex direction={{ default: "column" }}>
                 <FlexItem>
-                  {_("IPv4")} {connection.method4}
+                  {_("IPv4")} {connection.method4 ?? _("None set")}
                 </FlexItem>
                 <FlexItem>
-                  {_("IPv6")} {connection.method6}
+                  {_("IPv6")} {connection.method6 ?? _("None set")}
                 </FlexItem>
               </Flex>
             </DescriptionListDescription>

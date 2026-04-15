@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2024-2025] SUSE LLC
+# Copyright (c) [2024-2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -782,6 +782,48 @@ describe Y2Storage::AgamaProposal do
 
         lv = proposal.devices.find_by_name("/dev/data/root")
         expect(lv.size).to be > Y2Storage::DiskSize.GiB(50)
+      end
+    end
+
+    context "when deleting volumes in a new volume group" do
+      let(:config_json) do
+        {
+          boot:         { configure: false },
+          drives:       [
+            {
+              partitions: [
+                {
+                  alias: "system-pv",
+                  size:  "40 GiB"
+                }
+              ]
+            }
+          ],
+          volumeGroups: [
+            {
+              name:            "system",
+              physicalVolumes: ["system-pv"],
+              logicalVolumes:  [
+                { search: "*", delete: true },
+                {
+                  name:       "root",
+                  size:       "5 GiB",
+                  filesystem: {
+                    path: "/",
+                    type: "btrfs"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      end
+
+      it "proposes the expected devices" do
+        devicegraph = proposal.propose
+
+        vg = devicegraph.find_by_name("/dev/system")
+        expect(vg.lvm_lvs.map { |lv| lv.mount_point.path }).to contain_exactly("/")
       end
     end
   end

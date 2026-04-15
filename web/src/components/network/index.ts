@@ -21,5 +21,4 @@
  */
 
 export { default as NetworkPage } from "./NetworkPage";
-export { default as IpSettingsForm } from "./IpSettingsForm";
 export { default as WiredConnectionPage } from "./WiredConnectionPage";

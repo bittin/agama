@@ -979,6 +979,141 @@ describe("extendCollection", () => {
     expect(extended[0]).toEqual({ id: 1, value: "a", extra: "b" });
     expect(all).toEqual(extended);
   });
+
+  describe("mergeArrays", () => {
+    it("merges all array properties when mergeArrays is true", () => {
+      const base = [{ id: "conn1", addresses: [], nameservers: ["1.1.1.1"] }];
+      const extension = [{ id: "conn1", addresses: ["192.168.1.1"], nameservers: ["8.8.8.8"] }];
+
+      const { extended } = extendCollection(base, {
+        with: extension,
+        mergeArrays: true,
+      });
+
+      expect(extended[0]).toEqual({
+        id: "conn1",
+        addresses: ["192.168.1.1"],
+        nameservers: ["1.1.1.1", "8.8.8.8"],
+      });
+    });
+
+    it("merges only specified array properties when mergeArrays is an array", () => {
+      const base = [{ id: "conn1", addresses: [], tags: ["tag1"] }];
+      const extension = [{ id: "conn1", addresses: ["192.168.1.1"], tags: ["tag2"] }];
+
+      const { extended } = extendCollection(base, {
+        with: extension,
+        mergeArrays: ["addresses"],
+      });
+
+      expect(extended[0]).toEqual({
+        id: "conn1",
+        addresses: ["192.168.1.1"],
+        tags: ["tag1"], // baseWins precedence, not merged
+      });
+    });
+
+    it("removes duplicate values when merging arrays", () => {
+      const base = [{ id: "conn1", addresses: ["192.168.1.1", "192.168.1.2"] }];
+      const extension = [{ id: "conn1", addresses: ["192.168.1.2", "192.168.1.3"] }];
+
+      const { extended } = extendCollection(base, {
+        with: extension,
+        mergeArrays: true,
+      });
+
+      expect(extended[0].addresses).toEqual(["192.168.1.1", "192.168.1.2", "192.168.1.3"]);
+    });
+
+    it("merges arrays with extensionWins precedence", () => {
+      const base = [{ id: "conn1", method: "auto", addresses: ["192.168.1.1"] }];
+      const extension = [{ id: "conn1", method: "manual", addresses: ["192.168.1.2"] }];
+
+      const { extended } = extendCollection(base, {
+        with: extension,
+        precedence: "extensionWins",
+        mergeArrays: true,
+      });
+
+      expect(extended[0]).toEqual({
+        id: "conn1",
+        method: "manual", // extension wins
+        addresses: ["192.168.1.1", "192.168.1.2"], // merged
+      });
+    });
+
+    it("uses precedence for arrays when mergeArrays is false", () => {
+      const base = [{ id: "conn1", addresses: [] }];
+      const extension = [{ id: "conn1", addresses: ["192.168.1.1"] }];
+
+      const { extended } = extendCollection(base, {
+        with: extension,
+        mergeArrays: false,
+      });
+
+      expect(extended[0].addresses).toEqual([]); // baseWins, not merged
+    });
+
+    it("uses precedence for arrays when mergeArrays is undefined", () => {
+      const base = [{ id: "conn1", addresses: ["192.168.1.1"] }];
+      const extension = [{ id: "conn1", addresses: [] }];
+
+      const { extended } = extendCollection(base, {
+        with: extension,
+        precedence: "extensionWins",
+      });
+
+      expect(extended[0].addresses).toEqual([]); // extensionWins, not merged
+    });
+
+    it("handles case where only base has array values", () => {
+      const base = [{ id: "conn1", addresses: ["192.168.1.1"] }];
+      const extension = [{ id: "conn1", gateway: "10.0.0.1" }];
+
+      const { extended } = extendCollection(base, {
+        with: extension,
+        mergeArrays: true,
+      });
+
+      expect(extended[0]).toEqual({
+        id: "conn1",
+        addresses: ["192.168.1.1"],
+        gateway: "10.0.0.1",
+      });
+    });
+
+    it("handles case where only extension has array values", () => {
+      const base = [{ id: "conn1", method: "auto" }];
+      const extension = [{ id: "conn1", addresses: ["192.168.1.1"] }];
+
+      const { extended } = extendCollection(base, {
+        with: extension,
+        mergeArrays: true,
+      });
+
+      expect(extended[0]).toEqual({
+        id: "conn1",
+        method: "auto",
+        addresses: ["192.168.1.1"],
+      });
+    });
+
+    it("does not merge non-array properties even with mergeArrays true", () => {
+      const base = [{ id: "conn1", name: "Connection 1", addresses: [] }];
+      const extension = [{ id: "conn1", name: "Connection One", addresses: ["192.168.1.1"] }];
+
+      const { extended } = extendCollection(base, {
+        with: extension,
+        mergeArrays: true,
+      });
+
+      expect(extended[0]).toEqual({
+        id: "conn1",
+        name: "Connection 1", // baseWins precedence for non-arrays
+        addresses: ["192.168.1.1"], // merged
+      });
+    });
+  });
 });
 
 describe("translateEntries", () => {

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-16 17:01+0000\n"
+"POT-Creation-Date: 2026-04-10 10:53+0000\n"
 "PO-Revision-Date: 2025-10-05 22:59+0000\n"
 "Last-Translator: Emin Tufan Çetin <cetin@users.noreply.l10n.opensuse.org>\n"
 "Language-Team: Turkish <https://l10n.opensuse.org/projects/agama/agama-"
@@ -458,7 +458,8 @@ msgstr "Mevcut yapılandırmayla geçerli bir depolama kurulumu hesaplanamıyor"
 #.
 #. @return [Issue]
 #: service/lib/agama/storage/proposal.rb:315
-msgid "A problem ocurred while calculating the storage setup"
+#, fuzzy
+msgid "A problem occurred while calculating the storage setup"
 msgstr "Depolama kurulumu hesaplanırken bir sorun oluştu"
 
 #. Step to copy the installation logs
@@ -467,7 +468,7 @@ msgid "Copying logs"
 msgstr "Günlükleri kopyalama"
 
 #. Step to unmount the target file-systems
-#: service/lib/agama/storage/umounter.rb:146
+#: service/lib/agama/storage/umounter.rb:153
 msgid "Unmounting storage devices"
 msgstr "Depolama aygıtlarının bağlantısını kesme"
 

@@ -500,6 +500,40 @@ interface ExtendCollectionOptions<T, U> {
    * @default "baseWins"
    */
   precedence?: "baseWins" | "extensionWins";
+
+  /**
+   * Controls how array properties are merged:
+   *  - `true`: Merge all array properties by concatenating values from both sources
+   *  - `string[]`: Merge only the specified array property names
+   *  - `false` or `undefined`: Use precedence rules (default behavior)
+   *
+   * When merging arrays, values from the extension are added to the base array,
+   * with duplicates removed using strict equality.
+   *
+   * @example
+   * ```ts
+   * // Merge all arrays
+   * extendCollection(
+   *   [{ id: "a", addresses: [], nameservers: [] }],
+   *   {
+   *     with: [{ id: "a", addresses: ["192.168.1.1"], nameservers: ["8.8.8.8"] }],
+   *     mergeArrays: true
+   *   }
+   * )
+   * // => addresses: ["192.168.1.1"], nameservers: ["8.8.8.8"]
+   *
+   * // Merge specific arrays only
+   * extendCollection(
+   *   [{ id: "a", addresses: [], tags: ["tag1"] }],
+   *   {
+   *     with: [{ id: "a", addresses: ["192.168.1.1"], tags: ["tag2"] }],
+   *     mergeArrays: ["addresses"]
+   *   }
+   * )
+   * // => addresses: ["192.168.1.1"], tags: ["tag1"] (precedence wins for tags)
+   * ```
+   */
+  mergeArrays?: boolean | string[];
 }
 
 /**
@@ -592,7 +626,7 @@ function extendCollection<T extends object, U extends object>(
   collection: T[] = [],
   options: ExtendCollectionOptions<T, U>,
 ): ExtendCollectionResult<T, U> {
-  const { with: extension = [], matching = "id", precedence = "baseWins" } = options;
+  const { with: extension = [], matching = "id", precedence = "baseWins", mergeArrays } = options;
 
   // Normalize matching field(s) to array
   const keys = Array.isArray(matching) ? matching : [matching];
@@ -609,17 +643,45 @@ function extendCollection<T extends object, U extends object>(
   const unmatched: U[] = [];
   const all: (T & U)[] = [];
 
+  // Helper to merge two items with array merging support
+  const mergeItems = (base: T, ext: U): T & U => {
+    const merged = precedence === "baseWins" ? { ...ext, ...base } : { ...base, ...ext };
+
+    if (!mergeArrays) return merged as T & U;
+
+    // Determine which properties should have their arrays merged
+    const shouldMergeArray = (key: string): boolean => {
+      if (mergeArrays === true) return true;
+      if (Array.isArray(mergeArrays)) return mergeArrays.includes(key);
+      return false;
+    };
+
+    // Merge array properties
+    for (const key of Object.keys(merged)) {
+      if (!shouldMergeArray(key)) continue;
+
+      const baseVal = base[key as keyof T];
+      const extVal = ext[key as keyof U];
+
+      if (isArray(baseVal) && isArray(extVal)) {
+        // Concatenate arrays and remove duplicates
+        const combined = [...baseVal, ...extVal];
+        merged[key as keyof typeof merged] = Array.from(new Set(combined)) as unknown as (T &
+          U)[keyof (T & U)];
+      }
+    }
+
+    return merged as T & U;
+  };
+
   // Extend each item in the base collection
   for (const item of collection) {
     const key = getKey(item);
     const match = extensionLookup.get(key);
 
-    const resolved = (
-      !match
-        ? item
-        : (extensionLookup.delete(key),
-          precedence === "baseWins" ? { ...match, ...item } : { ...item, ...match })
-    ) as T & U;
+    const resolved = !match
+      ? (item as T & U)
+      : (extensionLookup.delete(key), mergeItems(item, match));
 
     extended.push(resolved);
     all.push(resolved);

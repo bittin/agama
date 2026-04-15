@@ -24,6 +24,7 @@ require_relative "./examples"
 require "agama/storage/config_conversions/from_json_conversions/md_raid"
 require "agama/storage/config_conversions/to_model_conversions/md_raid"
 require "agama/storage/volume_templates_builder"
+require "y2storage/md"
 
 describe Agama::Storage::ConfigConversions::ToModelConversions::MdRaid do
   subject { described_class.new(config, volumes) }
