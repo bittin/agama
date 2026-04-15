@@ -45,7 +45,7 @@ import { SelectedBy } from "~/model/proposal/software";
 import { useProposal } from "~/hooks/model/proposal/software";
 import { patchConfig } from "~/api";
 import { SOFTWARE } from "~/routes/paths";
-import { useAppForm } from "~/hooks/form";
+import { usePristineSafeForm } from "~/hooks/form";
 import { filterPatterns, groupPatterns, isPatternSelected, sortGroupNames } from "~/utils/software";
 
 /**
@@ -77,16 +77,10 @@ function SoftwarePatternsSelection() {
     {} as Record<string, boolean>,
   );
 
-  const form = useAppForm({
+  const form = usePristineSafeForm({
     ...softwarePatternsFormOptions,
     defaultValues: initialValues,
     onSubmit: async ({ value: formValues, formApi }) => {
-      // Skip API call if form is pristine (nothing changed)
-      if (!formApi.state.isDirty) {
-        navigate(SOFTWARE.root);
-        return;
-      }
-
       // Add: selected patterns that user touched OR were already USER-selected
       const add = patterns
         .filter((p) => {
@@ -115,8 +109,8 @@ function SoftwarePatternsSelection() {
         .map((p) => p.name);
 
       await patchConfig({ software: { patterns: { add, remove } } });
-      navigate(SOFTWARE.root);
     },
+    onSubmitComplete: () => navigate(SOFTWARE.root),
   });
 
   // initial empty screen, the patterns are loaded very quickly, no need for any progress

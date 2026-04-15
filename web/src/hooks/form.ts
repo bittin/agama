@@ -47,6 +47,58 @@ const { useAppForm, withForm } = createFormHook({
 });
 
 /**
+ * Form hook built on top of useAppForm that skips business logic when pristine.
+ *
+ * Optimizes form submission by checking if the form has changes before executing
+ * validation and business logic. Always executes onSubmitComplete regardless of
+ * pristine state, making it ideal for forms that need guaranteed completion logic
+ * (e.g., navigation, cleanup, modal dismissal).
+ *
+ * Behavior:
+ * - When pristine: skips validators.onSubmitAsync and onSubmit business logic
+ * - When dirty: executes all validators and handlers normally
+ * - Always: executes onSubmitComplete
+ *
+ * Use this pattern to separate concerns:
+ * - validators.onSubmitAsync: validation logic (skipped when pristine)
+ * - onSubmit: business logic like data persistence (skipped when pristine)
+ * - onSubmitComplete: completion logic like navigation (always executed)
+ *
+ * @example
+ * const form = usePristineSafeForm({
+ *   defaultValues: { patterns: {} },
+ *   validators: {
+ *     onSubmitAsync: async ({ value }) => validatePatterns(value),
+ *   },
+ *   onSubmit: async ({ value }) => {
+ *     await patchConfig(value);
+ *   },
+ *   onSubmitComplete: () => navigate(SOFTWARE.root),
+ * });
+ */
+function usePristineSafeForm(options) {
+  const { validators, onSubmit, onSubmitComplete, ...rest } = options;
+
+  return useAppForm({
+    ...rest,
+    validators: {
+      ...validators,
+      onSubmitAsync: async (ctx) => {
+        if (ctx.formApi.state.isDirty) {
+          return validators?.onSubmitAsync?.(ctx);
+        }
+      },
+    },
+    onSubmit: async (ctx) => {
+      if (ctx.formApi.state.isDirty) {
+        await onSubmit?.(ctx);
+      }
+      onSubmitComplete?.();
+    },
+  });
+}
+
+/**
  * Merges runtime-derived values into a `formOptions` object's `defaultValues`.
  *
  * Use this when some defaults depend on runtime data (e.g. values from a hook)
@@ -70,4 +122,11 @@ function mergeFormDefaults<T extends { defaultValues: Record<string, unknown> }>
   return { ...opts, defaultValues: { ...opts.defaultValues, ...runtimeDefaults } };
 }
 
-export { useAppForm, withForm, mergeFormDefaults, useFieldContext, useFormContext };
+export {
+  useAppForm,
+  usePristineSafeForm,
+  withForm,
+  mergeFormDefaults,
+  useFieldContext,
+  useFormContext,
+};
