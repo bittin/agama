@@ -24,6 +24,10 @@ use utoipa::openapi::{Components, ComponentsBuilder, Paths, PathsBuilder};
 pub fn paths() -> Paths {
     PathsBuilder::new()
         .path_from::<crate::web::http::__path_ping>()
+        .path_from::<crate::web::http::__path_login>()
+        .path_from::<crate::web::http::__path_login_from_query>()
+        .path_from::<crate::web::http::__path_logout>()
+        .path_from::<crate::web::http::__path_session>()
         .build()
 }
 
@@ -31,5 +35,8 @@ pub fn paths() -> Paths {
 pub fn components() -> Components {
     ComponentsBuilder::new()
         .schema_from::<crate::web::http::PingResponse>()
+        .schema_from::<crate::web::http::AuthResponse>()
+        .schema_from::<crate::web::http::LoginRequest>()
+        .schema_from::<crate::web::http::LoginFromQueryParams>()
         .build()
 }
