@@ -193,26 +193,25 @@ describe("SoftwarePatternsSelection", () => {
       });
     });
 
-    it("only adds USER-selected patterns when form is pristine", async () => {
+    it("skips API call when form is pristine (nothing changed)", async () => {
       const { user } = installerRender(<SoftwarePatternsSelection />);
 
       const acceptButton = screen.getByRole("button", { name: "Accept" });
       await user.click(acceptButton);
 
-      expect(patchConfig).toHaveBeenCalledWith({
-        software: {
-          patterns: {
-            // Only USER-selected patterns (not AUTO)
-            add: ["gnome"],
-            // AUTO patterns stay AUTO (not converted to USER)
-            remove: expect.arrayContaining(["kde"]),
-          },
-        },
-      });
+      // Form is pristine, no API call should be made
+      expect(patchConfig).not.toHaveBeenCalled();
     });
 
-    it("does not include unselected patterns that remain unselected", async () => {
+    it("only adds touched patterns when user makes changes", async () => {
       const { user } = installerRender(<SoftwarePatternsSelection />);
+      const kdePattern = testingPatterns.find((p) => p.name === "kde");
+
+      // Touch one pattern (select kde)
+      const kdeCheckbox = await screen.findByRole("checkbox", {
+        name: `Select ${kdePattern.summary}`,
+      });
+      await user.click(kdeCheckbox);
 
       const acceptButton = screen.getByRole("button", { name: "Accept" });
       await user.click(acceptButton);
@@ -220,8 +219,10 @@ describe("SoftwarePatternsSelection", () => {
       expect(patchConfig).toHaveBeenCalledWith({
         software: {
           patterns: {
-            add: expect.not.arrayContaining(["kde", "xfce", "yast2_server"]),
-            remove: expect.not.arrayContaining(["kde", "xfce", "yast2_server"]),
+            // Only touched patterns (kde) and USER patterns (gnome)
+            add: expect.arrayContaining(["kde", "gnome"]),
+            // Unselected patterns that remain unselected are not included
+            remove: expect.not.arrayContaining(["xfce", "yast2_server"]),
           },
         },
       });
@@ -253,6 +254,14 @@ describe("SoftwarePatternsSelection", () => {
 
     it("keeps REMOVED patterns in remove list when they remain unchecked", async () => {
       const { user } = installerRender(<SoftwarePatternsSelection />);
+      const gnomePattern = testingPatterns.find((p) => p.name === "gnome");
+
+      // Make a change to make form dirty (toggle gnome off then on)
+      const gnomeCheckbox = await screen.findByRole("checkbox", {
+        name: `Unselect ${gnomePattern.summary}`,
+      });
+      await user.click(gnomeCheckbox);
+      await user.click(gnomeCheckbox);
 
       const acceptButton = screen.getByRole("button", { name: "Accept" });
       await user.click(acceptButton);
@@ -260,7 +269,8 @@ describe("SoftwarePatternsSelection", () => {
       expect(patchConfig).toHaveBeenCalledWith({
         software: {
           patterns: {
-            add: expect.any(Array),
+            add: expect.arrayContaining(["gnome"]),
+            // kde was REMOVED and remains unchecked
             remove: expect.arrayContaining(["kde"]),
           },
         },

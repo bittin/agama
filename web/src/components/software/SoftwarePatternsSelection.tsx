@@ -81,6 +81,12 @@ function SoftwarePatternsSelection() {
     ...softwarePatternsFormOptions,
     defaultValues: initialValues,
     onSubmit: async ({ value: formValues, formApi }) => {
+      // Skip API call if form is pristine (nothing changed)
+      if (!formApi.state.isDirty) {
+        navigate(SOFTWARE.root);
+        return;
+      }
+
       // Add: selected patterns that user touched OR were already USER-selected
       const add = patterns
         .filter((p) => {
