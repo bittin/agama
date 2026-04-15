@@ -31,15 +31,26 @@ use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 /// Displays the progress on the terminal.
 #[derive(Debug)]
 pub struct ProgressMonitor {
+    /// The current installation status.
     state: InstallationStatus,
+    /// Whether to stop monitoring when Agama becomes idle.
     stop_on_idle: bool,
+    /// The main progress bar container.
     progress_bar: Option<MultiProgress>,
+    /// A map of progress bars for each scope.
     progresses: HashMap<Scope, (ProgressBar, ProgressBar)>,
+    /// The client to communicate with the monitor task.
     monitor: MonitorClient,
 }
 
 impl ProgressMonitor {
     /// Starts the CLI representing the progress.
+    ///
+    /// # Arguments
+    ///
+    /// * `http_client`: The HTTP client to communicate with the Agama service.
+    /// * `websocket`: The WebSocket client to listen for events.
+    /// * `stop_on_idle`: Whether to stop monitoring when Agama becomes idle.
     pub async fn run(
         http_client: BaseHTTPClient,
         websocket: WebSocketClient,
@@ -64,6 +75,7 @@ impl ProgressMonitor {
         Ok(())
     }
 
+    /// Renders the current state of the installation progress.
     async fn render_state(&mut self) -> anyhow::Result<bool> {
         // clear progresses to not interfere with new state
         if let Some(main) = &self.progress_bar {
@@ -130,6 +142,7 @@ impl ProgressMonitor {
         Ok(!self.stop_on_idle)
     }
 
+    /// Listens for updates from the monitor and updates the progress display.
     async fn loop_monitor(&mut self) -> anyhow::Result<()> {
         let mut receiver = self.monitor.subscribe();
         loop {
@@ -190,6 +203,7 @@ impl ProgressMonitor {
         Ok(())
     }
 
+    /// Prints the current installation stage.
     fn print_stage(stage: &Stage) {
         match stage {
             Stage::Configuring => println!("{}", gettext("Installation is ready to start.")),
@@ -200,6 +214,7 @@ impl ProgressMonitor {
         }
     }
 
+    /// Prints the final installation status.
     fn print_final_status(status: &api::Status) {
         match status.stage {
             Stage::Finished => println!("{}", gettext("Installation successfully finished")),
@@ -208,11 +223,13 @@ impl ProgressMonitor {
         }
     }
 
+    /// Clears the terminal screen.
     fn clear_terminal() {
         // ignore failure of screen clearing, as it not critical
         let _ = console::Term::stdout().clear_screen();
     }
 
+    /// Prints any unanswered questions.
     async fn print_questions(&self, questions: &Vec<Question>) -> anyhow::Result<()> {
         println!("{}", gettext("There are unanswered questions. Please use `agama questions` command or web interface to answer them:"));
         for q in questions {
@@ -222,6 +239,7 @@ impl ProgressMonitor {
         Ok(())
     }
 
+    /// Prints any issues blocking the installation.
     fn print_issues(issues: &Vec<IssueWithScope>) -> anyhow::Result<()> {
         println!("{}", gettext("Installer is preparing target configuration. But there are issues blocking installation:"));
 
@@ -242,6 +260,7 @@ impl ProgressMonitor {
         Ok(())
     }
 
+    /// Converts a `Scope` enum to a human-readable string.
     fn scope_to_string(scope: &Scope) -> String {
         match scope {
             Scope::Manager => gettext("Manager"),
@@ -259,6 +278,7 @@ impl ProgressMonitor {
         }
     }
 
+    /// Creates and configures a new progress bar.
     fn create_progress_bar(
         multibar: &MultiProgress,
         progress: &api::Progress,
