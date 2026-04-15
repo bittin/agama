@@ -193,7 +193,7 @@ describe("SoftwarePatternsSelection", () => {
       });
     });
 
-    it("keeps initially selected patterns in add list when they remain selected", async () => {
+    it("only adds USER-selected patterns when form is pristine", async () => {
       const { user } = installerRender(<SoftwarePatternsSelection />);
 
       const acceptButton = screen.getByRole("button", { name: "Accept" });
@@ -202,8 +202,10 @@ describe("SoftwarePatternsSelection", () => {
       expect(patchConfig).toHaveBeenCalledWith({
         software: {
           patterns: {
-            add: expect.arrayContaining(["gnome", "yast2_basis", "yast2_desktop"]),
-            remove: expect.any(Array),
+            // Only USER-selected patterns (not AUTO)
+            add: ["gnome"],
+            // AUTO patterns stay AUTO (not converted to USER)
+            remove: expect.arrayContaining(["kde"]),
           },
         },
       });
@@ -259,6 +261,35 @@ describe("SoftwarePatternsSelection", () => {
         software: {
           patterns: {
             add: expect.any(Array),
+            remove: expect.arrayContaining(["kde"]),
+          },
+        },
+      });
+    });
+
+    it("adds AUTO-selected patterns when user touches them (uncheck/recheck)", async () => {
+      const { user } = installerRender(<SoftwarePatternsSelection />);
+      const y2BasisPattern = testingPatterns.find((p) => p.name === "yast2_basis");
+
+      const basisCheckbox = await screen.findByRole("checkbox", {
+        name: `Unselect ${y2BasisPattern.summary}`,
+      });
+      expect(basisCheckbox).toBeChecked();
+
+      // Uncheck then recheck (makes it dirty)
+      await user.click(basisCheckbox);
+      expect(basisCheckbox).not.toBeChecked();
+      await user.click(basisCheckbox);
+      expect(basisCheckbox).toBeChecked();
+
+      const acceptButton = screen.getByRole("button", { name: "Accept" });
+      await user.click(acceptButton);
+
+      expect(patchConfig).toHaveBeenCalledWith({
+        software: {
+          patterns: {
+            // Now yast2_basis is added because user touched it (dirty)
+            add: expect.arrayContaining(["gnome", "yast2_basis"]),
             remove: expect.arrayContaining(["kde"]),
           },
         },
