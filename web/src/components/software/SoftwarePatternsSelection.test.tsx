@@ -23,10 +23,10 @@
 import React from "react";
 import { screen, within } from "@testing-library/react";
 import { installerRender } from "~/test-utils";
+import { patchConfig } from "~/api";
 import testingPatterns from "./patterns.test.json";
 import testingProposal from "./proposal.test.json";
 import SoftwarePatternsSelection from "./SoftwarePatternsSelection";
-import { patchConfig } from "~/api";
 
 jest.mock("~/hooks/model/system/software", () => ({
   useSystem: () => ({ patterns: testingPatterns }),
@@ -101,9 +101,22 @@ describe("SoftwarePatternsSelection", () => {
     const basisCheckbox = await screen.findByRole("checkbox", {
       name: `Unselect ${y2BasisPattern.summary}`,
     });
+
     expect(basisCheckbox).toBeChecked();
 
     await user.click(basisCheckbox);
-    expect(patchConfig).toHaveBeenCalled();
+    expect(basisCheckbox).not.toBeChecked();
+
+    const acceptButton = await screen.findByRole("button", { name: /accept/i });
+    await user.click(acceptButton);
+
+    expect(patchConfig).toHaveBeenCalledWith({
+      software: {
+        patterns: {
+          add: expect.any(Array),
+          remove: expect.arrayContaining(["yast2_basis"]),
+        },
+      },
+    });
   });
 });
