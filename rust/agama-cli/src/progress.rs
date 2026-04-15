@@ -151,6 +151,14 @@ impl ProgressMonitor {
             // then check update of progresses
             if self.state.status.progresses != new_state.status.progresses {
                 self.state = new_state;
+                // no progress remaining, so just redraw screen
+                if self.state.status.progresses.is_empty() {
+                    if self.render_state().await? {
+                        continue;
+                    } else {
+                        break;
+                    }
+                }
                 if let Some(main_bar) = &self.progress_bar {
                     for progress in &self.state.status.progresses {
                         if let Some((bar1, bar2)) = self.progresses.get(&progress.scope) {
