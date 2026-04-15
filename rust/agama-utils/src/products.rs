@@ -1,4 +1,4 @@
-// Copyright (c) [2024] SUSE LLC
+// Copyright (c) [2024-2026] SUSE LLC
 //
 // All Rights Reserved.
 //
@@ -44,7 +44,7 @@
 use crate::{
     api::{
         l10n::Translations,
-        manager::{Product, ProductMode},
+        manager::{system_info, Product, ProductMode},
     },
     arch::Arch,
 };
@@ -166,6 +166,12 @@ impl Registry {
                         description: m.description.clone(),
                     })
                     .collect();
+
+                let desktop_selection = p.desktop_selection.as_ref().map(|ds| match ds {
+                    DesktopSelection::Optional => system_info::DesktopSelection::Optional,
+                    DesktopSelection::Suggested => system_info::DesktopSelection::Suggested,
+                });
+
                 Product {
                     id: p.id.clone(),
                     name: p.name.clone(),
@@ -173,6 +179,7 @@ impl Registry {
                     icon: p.icon.clone(),
                     registration: p.registration,
                     license: p.license.clone(),
+                    desktop_selection,
                     translations: Some(p.translations.clone()),
                     modes,
                 }
@@ -207,6 +214,8 @@ pub struct ProductTemplate {
     pub registration: bool,
     pub version: Option<String>,
     pub license: Option<String>,
+    #[serde(default)]
+    pub desktop_selection: Option<DesktopSelection>,
     #[serde(default)]
     pub software: SoftwareSpec,
     #[serde(default)]
@@ -253,6 +262,7 @@ impl ProductTemplate {
             registration: self.registration,
             version: self.version.clone(),
             license: self.license.clone(),
+            desktop_selection: self.desktop_selection.clone(),
             software,
             storage,
         })
@@ -287,8 +297,17 @@ pub struct ProductSpec {
     pub registration: bool,
     pub version: Option<String>,
     pub license: Option<String>,
+    #[serde(default)]
+    pub desktop_selection: Option<DesktopSelection>,
     pub software: SoftwareSpec,
     pub storage: StorageSpec,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum DesktopSelection {
+    Optional,
+    Suggested,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize, Merge)]

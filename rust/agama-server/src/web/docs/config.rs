@@ -118,6 +118,7 @@ impl ApiDocBuilder for ConfigApiDocBuilder {
             .schema_from::<agama_utils::api::manager::Product>()
             .schema_from::<agama_utils::api::manager::ProductMode>()
             .schema_from::<agama_utils::api::manager::HardwareInfo>()
+            .schema_from::<agama_utils::api::manager::system_info::DesktopSelection>()
             .schema_from::<agama_locale_data::KeymapId>()
             .schema_from::<agama_locale_data::LocaleId>()
             .schema_from::<agama_locale_data::TimezoneId>()
