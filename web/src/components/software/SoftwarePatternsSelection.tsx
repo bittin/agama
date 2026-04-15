@@ -41,17 +41,12 @@ import { Page } from "~/components/core";
 import { _ } from "~/i18n";
 import a11yStyles from "@patternfly/react-styles/css/utilities/Accessibility/accessibility";
 import { useSystem } from "~/hooks/model/system/software";
-import { Pattern } from "~/model/system/software";
 import { SelectedBy } from "~/model/proposal/software";
 import { useProposal } from "~/hooks/model/proposal/software";
 import { patchConfig } from "~/api";
 import { SOFTWARE } from "~/routes/paths";
 import { useAppForm } from "~/hooks/form";
-
-/**
- * PatternGroups mapping "group name" => list of patterns
- */
-type PatternsGroups = { [key: string]: Pattern[] };
+import { filterPatterns, groupPatterns, isPatternSelected, sortGroupNames } from "~/utils/software";
 
 /**
  * Form options for pattern selection.
@@ -62,58 +57,6 @@ const softwarePatternsFormOptions = formOptions({
   },
 });
 
-/**
- * Group the patterns with the same group name
- */
-function groupPatterns(patterns: Pattern[]): PatternsGroups {
-  const groups = {};
-
-  patterns.forEach((pattern) => {
-    if (groups[pattern.category]) {
-      groups[pattern.category].push(pattern);
-    } else {
-      groups[pattern.category] = [pattern];
-    }
-  });
-
-  // sort patterns by the "order" value
-  Object.keys(groups).forEach((group) => {
-    groups[group].sort((p1, p2) => {
-      if (p1.order === p2.order) {
-        // there should be no patterns with the same name
-        return p1.name < p2.name ? -1 : 1;
-      } else {
-        return p1.order - p2.order;
-      }
-    });
-  });
-
-  return groups;
-}
-
-/**
- * Sort pattern group names
- */
-function sortGroups(groups: PatternsGroups): string[] {
-  return Object.keys(groups).sort((g1, g2) => {
-    const order1 = groups[g1][0].order;
-    const order2 = groups[g2][0].order;
-    return order1 - order2;
-  });
-}
-
-const filterPatterns = (patterns: Pattern[] = [], searchValue = ""): Pattern[] => {
-  if (searchValue.trim() === "") return patterns;
-
-  // case insensitive search
-  const searchData = searchValue.toUpperCase();
-  return patterns.filter(
-    (p) =>
-      p.name.toUpperCase().indexOf(searchData) !== -1 ||
-      p.description.toUpperCase().indexOf(searchData) !== -1,
-  );
-};
-
 const NoMatches = (): React.ReactNode => <b>{_("None of the patterns match the filter.")}</b>;
 
 /**
@@ -123,12 +66,12 @@ function SoftwarePatternsSelection(): React.ReactNode {
   const navigate = useNavigate();
   const { patterns } = useSystem();
   const proposal = useProposal();
-  const selection = proposal?.patterns || [];
+  const selection = proposal?.patterns || {};
   const [searchValue, setSearchValue] = useState("");
 
   // Extract initially selected patterns (USER or AUTO)
   const initialSelection = patterns
-    .filter((p) => [SelectedBy.USER, SelectedBy.AUTO].includes(selection[p.name]))
+    .filter((p) => isPatternSelected(selection, p.name))
     .map((p) => p.name);
 
   const form = useAppForm({
@@ -145,11 +88,10 @@ function SoftwarePatternsSelection(): React.ReactNode {
       // Patterns that were previously selected (AUTO or USER) or preselected but now unchecked
       const remove = patterns
         .filter((p) => {
-          const wasSelected = [SelectedBy.USER, SelectedBy.AUTO].includes(selection[p.name]);
-          const isPreselected = p.preselected;
+          const wasSelected = isPatternSelected(selection, p.name);
           const isNowUnselected = !selectedSet.has(p.name);
 
-          return isNowUnselected && (wasSelected || isPreselected);
+          return isNowUnselected && (wasSelected || p.preselected);
         })
         .map((p) => p.name);
 
@@ -190,7 +132,7 @@ function SoftwarePatternsSelection(): React.ReactNode {
               <form.Subscribe selector={(s) => s.values.selectedPatterns}>
                 {(selectedPatterns) => {
                   const selectedSet = new Set(selectedPatterns);
-                  const selector = sortGroups(groups).map((groupName) => (
+                  const selector = sortGroupNames(groups).map((groupName) => (
                     <section key={groupName}>
                       <Content component="h3">{groupName}</Content>
                       <DataList isCompact aria-label={groupName}>
