@@ -62,7 +62,7 @@ const NoMatches = (): React.ReactNode => <b>{_("None of the patterns match the f
 /**
  * Pattern selector component
  */
-function SoftwarePatternsSelection(): React.ReactNode {
+function SoftwarePatternsSelection() {
   const navigate = useNavigate();
   const { patterns } = useSystem();
   const proposal = useProposal();
@@ -80,18 +80,23 @@ function SoftwarePatternsSelection(): React.ReactNode {
       selectedPatterns: initialSelection,
     },
     onSubmit: async ({ value: formValues }) => {
-      const selectedSet = new Set(formValues.selectedPatterns);
+      const initiallySelected = new Set(initialSelection);
+      const currentlySelected = new Set(formValues.selectedPatterns);
+      const preselected = new Set(patterns.filter((p) => p.preselected).map((p) => p.name));
 
-      // All selected patterns become USER-selected
+      // All currently selected patterns (API expects full list, not delta)
       const add = formValues.selectedPatterns;
 
-      // Patterns that were previously selected (AUTO or USER) or preselected but now unchecked
+      // Patterns to remove: unchecked patterns that were previously selected, preselected, or explicitly removed
       const remove = patterns
         .filter((p) => {
-          const wasSelected = isPatternSelected(selection, p.name);
-          const isNowUnselected = !selectedSet.has(p.name);
+          if (currentlySelected.has(p.name)) return false;
 
-          return isNowUnselected && (wasSelected || p.preselected);
+          const wasInitiallySelected = initiallySelected.has(p.name);
+          const wasPreselected = preselected.has(p.name);
+          const wasExplicitlyRemoved = selection[p.name] === SelectedBy.REMOVED;
+
+          return wasInitiallySelected || wasPreselected || wasExplicitlyRemoved;
         })
         .map((p) => p.name);
 

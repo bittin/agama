@@ -28,12 +28,31 @@ import testingPatterns from "./patterns.test.json";
 import testingProposal from "./proposal.test.json";
 import SoftwarePatternsSelection from "./SoftwarePatternsSelection";
 
+const patternsWithPreselected = [
+  ...testingPatterns,
+  {
+    name: "preselected_pattern",
+    category: "Base Technologies",
+    icon: "./pattern-base",
+    description: "A pattern preselected by the product",
+    summary: "Preselected Pattern",
+    order: "1225",
+    preselected: true,
+  },
+];
+
 jest.mock("~/hooks/model/system/software", () => ({
-  useSystem: () => ({ patterns: testingPatterns }),
+  useSystem: () => ({ patterns: patternsWithPreselected }),
 }));
 
 jest.mock("~/hooks/model/proposal/software", () => ({
-  useProposal: () => ({ patterns: testingProposal.patterns }),
+  useProposal: () => ({
+    patterns: {
+      ...testingProposal.patterns,
+      preselected_pattern: "auto",
+      kde: "removed",
+    },
+  }),
 }));
 
 jest.mock("~/api", () => ({
@@ -94,29 +113,156 @@ describe("SoftwarePatternsSelection", () => {
     expect(serverCheckbox).not.toBeChecked();
   });
 
-  it("allows changing the selection", async () => {
-    const { user } = installerRender(<SoftwarePatternsSelection />);
-    const y2BasisPattern = testingPatterns.find((p) => p.name === "yast2_basis");
-
-    const basisCheckbox = await screen.findByRole("checkbox", {
-      name: `Unselect ${y2BasisPattern.summary}`,
+  describe("when submitting the form", () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
     });
 
-    expect(basisCheckbox).toBeChecked();
+    it("removes patterns that were initially selected (AUTO) and are now unchecked", async () => {
+      const { user } = installerRender(<SoftwarePatternsSelection />);
+      const y2BasisPattern = testingPatterns.find((p) => p.name === "yast2_basis");
 
-    await user.click(basisCheckbox);
-    expect(basisCheckbox).not.toBeChecked();
+      const basisCheckbox = await screen.findByRole("checkbox", {
+        name: `Unselect ${y2BasisPattern.summary}`,
+      });
+      expect(basisCheckbox).toBeChecked();
 
-    const acceptButton = await screen.findByRole("button", { name: /accept/i });
-    await user.click(acceptButton);
+      await user.click(basisCheckbox);
+      expect(basisCheckbox).not.toBeChecked();
 
-    expect(patchConfig).toHaveBeenCalledWith({
-      software: {
-        patterns: {
-          add: expect.any(Array),
-          remove: expect.arrayContaining(["yast2_basis"]),
+      const acceptButton = screen.getByRole("button", { name: "Accept" });
+      await user.click(acceptButton);
+
+      expect(patchConfig).toHaveBeenCalledWith({
+        software: {
+          patterns: {
+            add: expect.not.arrayContaining(["yast2_basis"]),
+            remove: expect.arrayContaining(["yast2_basis"]),
+          },
         },
-      },
+      });
+    });
+
+    it("removes patterns that were initially selected (USER) and are now unchecked", async () => {
+      const { user } = installerRender(<SoftwarePatternsSelection />);
+      const gnomePattern = testingPatterns.find((p) => p.name === "gnome");
+
+      const gnomeCheckbox = await screen.findByRole("checkbox", {
+        name: `Unselect ${gnomePattern.summary}`,
+      });
+      expect(gnomeCheckbox).toBeChecked();
+
+      await user.click(gnomeCheckbox);
+      expect(gnomeCheckbox).not.toBeChecked();
+
+      const acceptButton = screen.getByRole("button", { name: "Accept" });
+      await user.click(acceptButton);
+
+      expect(patchConfig).toHaveBeenCalledWith({
+        software: {
+          patterns: {
+            add: expect.not.arrayContaining(["gnome"]),
+            remove: expect.arrayContaining(["gnome"]),
+          },
+        },
+      });
+    });
+
+    it("adds newly selected patterns", async () => {
+      const { user } = installerRender(<SoftwarePatternsSelection />);
+      const kdePattern = testingPatterns.find((p) => p.name === "kde");
+
+      const kdeCheckbox = await screen.findByRole("checkbox", {
+        name: `Select ${kdePattern.summary}`,
+      });
+      expect(kdeCheckbox).not.toBeChecked();
+
+      await user.click(kdeCheckbox);
+      expect(kdeCheckbox).toBeChecked();
+
+      const acceptButton = screen.getByRole("button", { name: "Accept" });
+      await user.click(acceptButton);
+
+      expect(patchConfig).toHaveBeenCalledWith({
+        software: {
+          patterns: {
+            add: expect.arrayContaining(["kde"]),
+            remove: expect.not.arrayContaining(["kde"]),
+          },
+        },
+      });
+    });
+
+    it("keeps initially selected patterns in add list when they remain selected", async () => {
+      const { user } = installerRender(<SoftwarePatternsSelection />);
+
+      const acceptButton = screen.getByRole("button", { name: "Accept" });
+      await user.click(acceptButton);
+
+      expect(patchConfig).toHaveBeenCalledWith({
+        software: {
+          patterns: {
+            add: expect.arrayContaining(["gnome", "yast2_basis", "yast2_desktop"]),
+            remove: expect.any(Array),
+          },
+        },
+      });
+    });
+
+    it("does not include unselected patterns that remain unselected", async () => {
+      const { user } = installerRender(<SoftwarePatternsSelection />);
+
+      const acceptButton = screen.getByRole("button", { name: "Accept" });
+      await user.click(acceptButton);
+
+      expect(patchConfig).toHaveBeenCalledWith({
+        software: {
+          patterns: {
+            add: expect.not.arrayContaining(["kde", "xfce", "yast2_server"]),
+            remove: expect.not.arrayContaining(["kde", "xfce", "yast2_server"]),
+          },
+        },
+      });
+    });
+
+    it("removes preselected patterns when unchecked", async () => {
+      const { user } = installerRender(<SoftwarePatternsSelection />);
+
+      const preselectedCheckbox = await screen.findByRole("checkbox", {
+        name: /Preselected Pattern/,
+      });
+      expect(preselectedCheckbox).toBeChecked();
+
+      await user.click(preselectedCheckbox);
+      expect(preselectedCheckbox).not.toBeChecked();
+
+      const acceptButton = screen.getByRole("button", { name: "Accept" });
+      await user.click(acceptButton);
+
+      expect(patchConfig).toHaveBeenCalledWith({
+        software: {
+          patterns: {
+            add: expect.not.arrayContaining(["preselected_pattern"]),
+            remove: expect.arrayContaining(["preselected_pattern"]),
+          },
+        },
+      });
+    });
+
+    it("keeps REMOVED patterns in remove list when they remain unchecked", async () => {
+      const { user } = installerRender(<SoftwarePatternsSelection />);
+
+      const acceptButton = screen.getByRole("button", { name: "Accept" });
+      await user.click(acceptButton);
+
+      expect(patchConfig).toHaveBeenCalledWith({
+        software: {
+          patterns: {
+            add: expect.any(Array),
+            remove: expect.arrayContaining(["kde"]),
+          },
+        },
+      });
     });
   });
 });
