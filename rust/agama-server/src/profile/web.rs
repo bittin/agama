@@ -21,33 +21,72 @@
 use crate::web::error::ErrorResponse;
 use agama_lib::profile::AutoyastError;
 use agama_transfer::Transfer;
-use anyhow::Context;
 
 use agama_lib::{
     error::ServiceError,
     profile::{AutoyastProfileImporter, ProfileEvaluator, ProfileValidator, ValidationOutcome},
 };
-use axum::{response::Response, routing::post, Json, Router};
+use axum::{
+    response::{IntoResponse, Response},
+    routing::post,
+    Json, Router,
+};
 use serde::Deserialize;
 use std::collections::HashMap;
+use thiserror::Error;
 use url::Url;
 
-/// Helper to convert AutoyastError to appropriate HTTP response.
-fn autoyast_error_response(error: AutoyastError) -> Response {
-    match error {
-        AutoyastError::Execute(..) => ErrorResponse::internal_server_error(format!("{:#}", error)),
-        _ => ErrorResponse::bad_request(format!("{:#}", error)),
+#[derive(Error, Debug)]
+enum ProfileError {
+    #[error("Failed to retrieve profile from URL {url}: {source}")]
+    UrlRetrieval {
+        url: String,
+        source: agama_transfer::Error,
+    },
+    #[error("Invalid UTF-8 data at URL {url}: {source}")]
+    InvalidUtf8 {
+        url: String,
+        source: std::string::FromUtf8Error,
+    },
+    #[error("Failed to read profile from file {path}: {source}")]
+    FileRead {
+        path: String,
+        source: std::io::Error,
+    },
+    #[error("Failed to set up profile validator: {0}")]
+    ValidatorSetup(String),
+    #[error("Profile validation failed: {0}")]
+    ValidationError(String),
+    #[error("Failed to evaluate profile: {0}")]
+    EvaluationError(String),
+    #[error("Invalid URL: {0}")]
+    UrlParse(#[from] url::ParseError),
+    #[error("AutoYaST import failed: {0}")]
+    Autoyast(#[from] AutoyastError),
+    #[error("{0}")]
+    BadRequest(String),
+}
+
+impl IntoResponse for ProfileError {
+    fn into_response(self) -> Response {
+        match self {
+            // Server errors (500)
+            ProfileError::ValidatorSetup(_) | ProfileError::ValidationError(_) => {
+                ErrorResponse::internal_server_error(self.to_string())
+            }
+            ProfileError::Autoyast(AutoyastError::Execute(..)) => {
+                ErrorResponse::internal_server_error(self.to_string())
+            }
+            // Client errors (400)
+            ProfileError::UrlRetrieval { .. }
+            | ProfileError::InvalidUtf8 { .. }
+            | ProfileError::FileRead { .. }
+            | ProfileError::EvaluationError(_)
+            | ProfileError::UrlParse(_)
+            | ProfileError::Autoyast(_)
+            | ProfileError::BadRequest(_) => ErrorResponse::bad_request(self.to_string()),
+        }
     }
-}
-
-/// Helper to convert anyhow::Error to BAD_REQUEST response.
-fn bad_request_from_anyhow(error: anyhow::Error) -> Response {
-    ErrorResponse::bad_request(format!("{:#}", error))
-}
-
-/// Helper to convert anyhow::Error to INTERNAL_SERVER_ERROR response.
-fn internal_server_error_from_anyhow(error: anyhow::Error) -> Response {
-    ErrorResponse::internal_server_error(format!("{:#}", error))
 }
 
 /// Sets up and returns the axum service for the auto-installation profile.
@@ -87,21 +126,25 @@ impl ProfileBody {
 
     /// Retrieve a profile if specified by one of *url*, *path* or
     /// pass already obtained *json* file content
-    #[allow(clippy::result_large_err)]
-    fn retrieve_profile(&self) -> Result<Option<String>, Response> {
+    fn retrieve_profile(&self) -> Result<Option<String>, ProfileError> {
         if let Some(url_string) = &self.url {
             let mut bytebuf = Vec::new();
-            Transfer::get(url_string, &mut bytebuf, false)
-                .context(format!("Retrieving data from URL {}", url_string))
-                .map_err(bad_request_from_anyhow)?;
-            let s = String::from_utf8(bytebuf)
-                .context(format!("Invalid UTF-8 data at URL {}", url_string))
-                .map_err(bad_request_from_anyhow)?;
+            Transfer::get(url_string, &mut bytebuf, false).map_err(|source| {
+                ProfileError::UrlRetrieval {
+                    url: url_string.clone(),
+                    source,
+                }
+            })?;
+            let s = String::from_utf8(bytebuf).map_err(|source| ProfileError::InvalidUtf8 {
+                url: url_string.clone(),
+                source,
+            })?;
             Ok(Some(s))
         } else if let Some(path) = &self.path {
-            let s = std::fs::read_to_string(path)
-                .context(format!("Reading from file {}", path))
-                .map_err(bad_request_from_anyhow)?;
+            let s = std::fs::read_to_string(path).map_err(|source| ProfileError::FileRead {
+                path: path.clone(),
+                source,
+            })?;
             Ok(Some(s))
         } else {
             Ok(self.json.clone())
@@ -118,19 +161,17 @@ impl ProfileBody {
         (status = 400, description = "Some error has occurred", body = ErrorResponse)
     )
 )]
-async fn validate(body: String) -> Result<Json<ValidationOutcome>, Response> {
+async fn validate(body: String) -> Result<Json<ValidationOutcome>, ProfileError> {
     let profile = ProfileBody::from_string(body);
     let profile_string = match profile.retrieve_profile()? {
         Some(retrieved) => retrieved,
         None => profile.json.expect("Missing profile"),
     };
     let validator = ProfileValidator::default_schema()
-        .context("Setting up profile validator")
-        .map_err(bad_request_from_anyhow)?;
+        .map_err(|e| ProfileError::ValidatorSetup(e.to_string()))?;
     let result = validator
         .validate_str(&profile_string)
-        .context("Could not validate the profile".to_string())
-        .map_err(internal_server_error_from_anyhow)?;
+        .map_err(|e| ProfileError::ValidationError(e.to_string()))?;
 
     Ok(Json(result))
 }
@@ -144,7 +185,7 @@ async fn validate(body: String) -> Result<Json<ValidationOutcome>, Response> {
         (status = 400, description = "Some error has occurred", body = ErrorResponse)
     )
 )]
-async fn evaluate(body: String) -> Result<String, Response> {
+async fn evaluate(body: String) -> Result<String, ProfileError> {
     let profile = ProfileBody::from_string(body);
     let profile_string = match profile.retrieve_profile()? {
         Some(retrieved) => retrieved,
@@ -153,8 +194,7 @@ async fn evaluate(body: String) -> Result<String, Response> {
     let evaluator = ProfileEvaluator {};
     let output = evaluator
         .evaluate_string(&profile_string)
-        .context("Could not evaluate the profile".to_string())
-        .map_err(bad_request_from_anyhow)?;
+        .map_err(|e| ProfileError::EvaluationError(e.to_string()))?;
 
     Ok(output)
 }
@@ -169,10 +209,10 @@ async fn evaluate(body: String) -> Result<String, Response> {
         (status = 500, description = "Internal server error", body = ErrorResponse)
     )
 )]
-async fn autoyast(body: String) -> Result<String, Response> {
+async fn autoyast(body: String) -> Result<String, ProfileError> {
     let profile = ProfileBody::from_string(body);
     if profile.url.is_none() || profile.path.is_some() || profile.json.is_some() {
-        return Err(ErrorResponse::bad_request(format!(
+        return Err(ProfileError::BadRequest(format!(
             "Only url= is expected, no path= or request body. Seen: url {}, path {}, body {}",
             profile.url.is_some(),
             profile.path.is_some(),
@@ -180,10 +220,7 @@ async fn autoyast(body: String) -> Result<String, Response> {
         )));
     }
 
-    let url = Url::parse(profile.url.as_ref().unwrap())
-        .map_err(|e| bad_request_from_anyhow(anyhow::Error::new(e)))?;
-    let importer = AutoyastProfileImporter::read(&url)
-        .await
-        .map_err(autoyast_error_response)?;
+    let url = Url::parse(profile.url.as_ref().unwrap())?;
+    let importer = AutoyastProfileImporter::read(&url).await?;
     Ok(importer.content)
 }
