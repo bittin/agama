@@ -161,50 +161,54 @@ impl ProgressMonitor {
                 return Err(anyhow::Error::msg("Communication with agama server failed"));
             };
 
-            // lets first check if there is update in questions
-            // if so, we need to redraw screen
-            if self.status.questions != new_status.questions {
-                self.status = new_status;
-                if !self.render_state().await? {
-                    break;
-                }
-                continue;
-            }
-
-            // then check update of progresses
-            if self.status.status.progresses != new_status.status.progresses {
-                self.status = new_status;
-                // no progress remaining, so just redraw screen
-                if self.status.status.progresses.is_empty() {
-                    if self.render_state().await? {
-                        continue;
-                    } else {
-                        break;
-                    }
-                }
-                if let Some(main_bar) = &self.progress_bar {
-                    Self::update_progress_bars(
-                        main_bar,
-                        &mut self.progresses,
-                        &self.status.status.progresses,
-                    );
-                // there are no multi progress, so no progress before and we should redraw
-                } else if !self.render_state().await? {
-                    break;
-                }
-                continue;
-            }
-
-            // remaining cases like change of issues or stage will all result in redrawing
-            if self.status != new_status {
-                self.status = new_status;
-                if !self.render_state().await? {
-                    break;
-                }
+            if !self.handle_status_update(new_status).await? {
+                break;
             }
         }
 
         Ok(())
+    }
+
+    /// Handles updates to the installation status.
+    /// Returns `Ok(false)` if the monitor loop should terminate.
+    async fn handle_status_update(
+        &mut self,
+        new_status: InstallationStatus,
+    ) -> anyhow::Result<bool> {
+        // lets first check if there is update in questions
+        // if so, we need to redraw screen
+        if self.status.questions != new_status.questions {
+            self.status = new_status;
+            return self.render_state().await;
+        }
+
+        // then check update of progresses
+        if self.status.status.progresses != new_status.status.progresses {
+            self.status = new_status;
+            // no progress remaining, so just redraw screen
+            if self.status.status.progresses.is_empty() {
+                return self.render_state().await;
+            }
+            if let Some(main_bar) = &self.progress_bar {
+                Self::update_progress_bars(
+                    main_bar,
+                    &mut self.progresses,
+                    &self.status.status.progresses,
+                );
+            // there are no multi progress, so no progress before and we should redraw
+            } else {
+                return self.render_state().await;
+            }
+            return Ok(true);
+        }
+
+        // remaining cases like change of issues or stage will all result in redrawing
+        if self.status != new_status {
+            self.status = new_status;
+            return self.render_state().await;
+        }
+
+        Ok(true)
     }
 
     /// Prints the current installation stage.
@@ -245,7 +249,14 @@ impl ProgressMonitor {
 
     /// Prints any issues blocking the installation.
     fn print_issues(issues: &Vec<IssueWithScope>) -> anyhow::Result<()> {
-        println!("{}", gettext("Installer is preparing target configuration. But there are issues blocking installation:"));
+        println!(
+            "{}",
+            gettext("Installer is failed to calculate the installation proposal.")
+        );
+        println!(
+            "{}",
+            gettext("There are these issues blocking installation:")
+        );
 
         let mut grouped: HashMap<&Scope, Vec<&api::Issue>> = HashMap::new();
         for i in issues {

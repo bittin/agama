@@ -38,11 +38,8 @@
 //! let token = AuthToken::new("token");
 //! let ws_client = WebSocketClient::connect(&url, &token, false).await?;
 //!
-//! // Connect the monitor (this spawns a background task)
-//! let monitor_client = Monitor::connect(ws_client, &http_client).await?;
-//!
-//! // Get the current installation status
-//! let status = monitor_client.get_installation_status().await?;
+//! // Connect the monitor (this spawns a background task) also receive initial status
+//! let (monitor_client, status) = Monitor::connect(ws_client, &http_client).await?;
 //! println!("Current stage: {:?}", status.status.stage);
 //!
 //! // Subscribe to future updates
@@ -57,7 +54,7 @@
 use std::fmt;
 
 use agama_utils::api::{self, Event};
-use tokio::sync::{broadcast, oneshot, Mutex};
+use tokio::sync::{broadcast, Mutex};
 
 use crate::{
     http::{BaseHTTPClient, WebSocketClient},
@@ -74,12 +71,6 @@ pub enum MonitorError {
     /// Error connecting to the Questions HTTP API.
     #[error("Error connecting to the Questions HTTP API: {0}")]
     Questions(#[from] QuestionsHTTPClientError),
-    /// Error receiving a message from the monitor task.
-    #[error("Error receiving the monitor message: {0}")]
-    Recv(#[from] oneshot::error::RecvError),
-    /// An error occurred in the monitor backend.
-    #[error(transparent)]
-    Backend(#[from] MonitorBackendError),
 }
 
 /// Represents an error occurring in the backend while monitoring the status.
