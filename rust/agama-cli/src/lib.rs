@@ -290,7 +290,6 @@ pub async fn show_progress(
     ws: WebSocketClient,
     stop_on_idle: bool,
 ) -> anyhow::Result<()> {
-    // TODO: should monitor has some non interactive version?
     ProgressMonitor::run(http, ws, stop_on_idle).await?;
 
     Ok(())

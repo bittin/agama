@@ -49,7 +49,7 @@ pub enum Stage {
 }
 
 impl Stage {
-    pub fn is_end(&self) -> bool {
+    pub fn is_last(&self) -> bool {
         matches!(self, Stage::Finished | Stage::Failed)
     }
 }

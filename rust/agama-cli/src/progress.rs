@@ -32,7 +32,7 @@ use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 #[derive(Debug)]
 pub struct ProgressMonitor {
     /// The current installation status.
-    state: InstallationStatus,
+    status: InstallationStatus,
     /// Whether to stop monitoring when Agama becomes idle.
     stop_on_idle: bool,
     /// The main progress bar container.
@@ -56,10 +56,9 @@ impl ProgressMonitor {
         websocket: WebSocketClient,
         stop_on_idle: bool,
     ) -> anyhow::Result<()> {
-        let monitor = Monitor::connect(websocket, &http_client).await?;
-        let state = monitor.get_installation_status().await?;
+        let (monitor, status) = Monitor::connect(websocket, &http_client).await?;
         let mut progress_monitor = Self {
-            state,
+            status,
             stop_on_idle,
             progress_bar: None,
             progresses: HashMap::new(),
@@ -97,15 +96,15 @@ impl ProgressMonitor {
         Self::clear_terminal();
 
         // if there is any unaswered question, it has precedence as it affects everything else
-        let questions = &self.state.questions;
+        let questions = &self.status.questions;
         if !questions.is_empty() {
-            self.print_questions(questions).await?;
+            Self::print_questions(questions).await?;
             return Ok(true);
         }
 
-        let status = &self.state.status;
+        let status = &self.status.status;
         // if we end installation, then just finish with some nice message
-        if status.stage.is_end() {
+        if status.stage.is_last() {
             Self::print_final_status(status);
             return Ok(false);
         }
@@ -142,7 +141,7 @@ impl ProgressMonitor {
 
         // if we configuring and there are some issue, print it and wait for user to fix it
         if status.stage == Stage::Configuring {
-            let issues = &self.state.issues;
+            let issues = &self.status.issues;
             if !issues.is_empty() {
                 Self::print_issues(issues)?;
                 return Ok(true);
@@ -157,15 +156,15 @@ impl ProgressMonitor {
     async fn loop_monitor(&mut self) -> anyhow::Result<()> {
         let mut receiver = self.monitor.subscribe();
         loop {
-            let new_state = receiver.recv().await;
-            let Ok(Ok(new_state)) = new_state else {
-                return Err(anyhow::Error::msg("Communication with backend failed"));
+            let new_status = receiver.recv().await;
+            let Ok(new_status) = new_status else {
+                return Err(anyhow::Error::msg("Communication with agama server failed"));
             };
 
             // lets first check if there is update in questions
             // if so, we need to redraw screen
-            if self.state.questions != new_state.questions {
-                self.state = new_state;
+            if self.status.questions != new_status.questions {
+                self.status = new_status;
                 if !self.render_state().await? {
                     break;
                 }
@@ -173,10 +172,10 @@ impl ProgressMonitor {
             }
 
             // then check update of progresses
-            if self.state.status.progresses != new_state.status.progresses {
-                self.state = new_state;
+            if self.status.status.progresses != new_status.status.progresses {
+                self.status = new_status;
                 // no progress remaining, so just redraw screen
-                if self.state.status.progresses.is_empty() {
+                if self.status.status.progresses.is_empty() {
                     if self.render_state().await? {
                         continue;
                     } else {
@@ -187,7 +186,7 @@ impl ProgressMonitor {
                     Self::update_progress_bars(
                         main_bar,
                         &mut self.progresses,
-                        &self.state.status.progresses,
+                        &self.status.status.progresses,
                     );
                 // there are no multi progress, so no progress before and we should redraw
                 } else if !self.render_state().await? {
@@ -197,8 +196,8 @@ impl ProgressMonitor {
             }
 
             // remaining cases like change of issues or stage will all result in redrawing
-            if self.state != new_state {
-                self.state = new_state;
+            if self.status != new_status {
+                self.status = new_status;
                 if !self.render_state().await? {
                     break;
                 }
@@ -235,7 +234,7 @@ impl ProgressMonitor {
     }
 
     /// Prints any unanswered questions.
-    async fn print_questions(&self, questions: &Vec<Question>) -> anyhow::Result<()> {
+    async fn print_questions(questions: &Vec<Question>) -> anyhow::Result<()> {
         println!("{}", gettext("There are unanswered questions. Please use `agama questions` command or web interface to answer them:"));
         for q in questions {
             // Should we also print question class?

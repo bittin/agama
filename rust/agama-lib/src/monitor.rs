@@ -57,7 +57,7 @@
 use std::fmt;
 
 use agama_utils::api::{self, Event};
-use tokio::sync::{broadcast, mpsc, oneshot, Mutex};
+use tokio::sync::{broadcast, oneshot, Mutex};
 
 use crate::{
     http::{BaseHTTPClient, WebSocketClient},
@@ -77,9 +77,6 @@ pub enum MonitorError {
     /// Error receiving a message from the monitor task.
     #[error("Error receiving the monitor message: {0}")]
     Recv(#[from] oneshot::error::RecvError),
-    /// Error sending a command to the monitor task.
-    #[error("Error sending the monitor message: {0}")]
-    Send(#[from] tokio::sync::mpsc::error::SendError<MonitorCommand>),
     /// An error occurred in the monitor backend.
     #[error(transparent)]
     Backend(#[from] MonitorBackendError),
@@ -111,28 +108,15 @@ pub struct InstallationStatus {
 /// It can be cloned and moved between threads.
 #[derive(Clone, Debug)]
 pub struct MonitorClient {
-    /// Channel to send commands to the monitor task.
-    commands: mpsc::Sender<MonitorCommand>,
     /// Channel to subscribe to status updates.
-    updates: broadcast::Sender<Result<InstallationStatus, MonitorBackendError>>,
+    updates: broadcast::Sender<InstallationStatus>,
 }
 
 impl MonitorClient {
-    /// Returns the current installation status.
-    pub async fn get_installation_status(&self) -> Result<InstallationStatus, MonitorError> {
-        let (tx, rx) = tokio::sync::oneshot::channel();
-        self.commands
-            .send(MonitorCommand::GetInstallationStatus(tx))
-            .await?;
-        Ok(rx.await??)
-    }
-
     /// Subscribe to status updates from the monitor.
     ///
     /// It uses a regular broadcast channel from the Tokio library.
-    pub fn subscribe(
-        &self,
-    ) -> broadcast::Receiver<Result<InstallationStatus, MonitorBackendError>> {
+    pub fn subscribe(&self) -> broadcast::Receiver<InstallationStatus> {
         self.updates.subscribe()
     }
 }
@@ -141,8 +125,6 @@ impl MonitorClient {
 ///
 /// It can be cloned and moved between threads
 pub struct Monitor {
-    /// Channel to receive commands.
-    commands: mpsc::Receiver<MonitorCommand>,
     /// WebSocket client to listen for events.
     ws_client: WebSocketClient,
     /// HTTP client to fetch additional data.
@@ -150,21 +132,9 @@ pub struct Monitor {
     /// The current installation status.
     ///
     /// A mutex is needed to avoid race conditions.
-    /// Result is needed to be able to report problems with the socket.
-    status: Mutex<Result<InstallationStatus, MonitorBackendError>>,
+    status: Mutex<InstallationStatus>,
     /// Channel to broadcast status updates to subscribers.
-    updates: broadcast::Sender<Result<InstallationStatus, MonitorBackendError>>,
-}
-
-/// Commands that can be sent to the monitor task.
-#[derive(Debug)]
-pub enum MonitorCommand {
-    /// Command to request the current installation status.
-    ///
-    /// The monitor will send the status back through the provided oneshot channel.
-    GetInstallationStatus(
-        tokio::sync::oneshot::Sender<Result<InstallationStatus, MonitorBackendError>>,
-    ),
+    updates: broadcast::Sender<InstallationStatus>,
 }
 
 impl Monitor {
@@ -177,12 +147,10 @@ impl Monitor {
     pub async fn connect(
         websocket_client: WebSocketClient,
         http_client: &BaseHTTPClient,
-    ) -> Result<MonitorClient, MonitorError> {
+    ) -> Result<(MonitorClient, InstallationStatus), MonitorError> {
         // Channel to send/receive commands from the client.
-        let (commands_tx, commands_rx) = mpsc::channel(16);
         let (updates, _rx) = broadcast::channel(16);
         let client = MonitorClient {
-            commands: commands_tx,
             updates: updates.clone(),
         };
         let manager = ManagerHTTPClient::new(http_client.clone());
@@ -200,43 +168,24 @@ impl Monitor {
         };
 
         let mut monitor = Monitor {
-            commands: commands_rx,
             ws_client: websocket_client,
             http_client: http_client.clone(),
-            status: Mutex::new(Ok(initial_status)),
+            status: Mutex::new(initial_status.clone()),
             updates,
         };
 
         tokio::spawn(async move { monitor.run().await });
-        Ok(client)
+        Ok((client, initial_status))
     }
 
     /// Runs the monitor.
     async fn run(&mut self) {
         loop {
-            tokio::select! {
-                Some(cmd) = self.commands.recv() => {
-                    self.handle_command(cmd).await;
-                }
-                event = self.ws_client.receive() => {
-                    self.handle_event(event).await;
-                }
-            }
-        }
-    }
-
-    /// Handle commands from the client.
-    ///
-    /// * `command`: command to execute.
-    async fn handle_command(&mut self, command: MonitorCommand) {
-        match command {
-            MonitorCommand::GetInstallationStatus(channel) => {
-                let g = self.status.lock().await;
-                let r = channel.send(g.clone());
-                if r.is_err() {
-                    tracing::error!("failed to send installation status {:?}", r);
-                }
-            }
+            let event = self.ws_client.receive().await;
+            if let Err(err) = self.handle_event(event).await {
+                tracing::error!("Critical error happen during event handling: {:?}", err);
+                break;
+            };
         }
     }
 
@@ -246,18 +195,14 @@ impl Monitor {
     /// sends the updated state to its subscribers.
     ///
     /// * `event`: Agama event.
-    async fn handle_event(&mut self, event: Result<Event, crate::http::WebSocketError>) {
-        let mut g = self.status.lock().await;
-        let Ok(status) = g.as_mut() else {
-            // we already errored, so just return
-            return;
-        };
+    async fn handle_event(
+        &mut self,
+        event: Result<Event, crate::http::WebSocketError>,
+    ) -> Result<(), crate::http::WebSocketError> {
+        let event = event?;
 
-        let Ok(event) = event else {
-            *g = Err(MonitorBackendError(event.unwrap_err().to_string()));
-            let _ = self.updates.send(g.clone());
-            return;
-        };
+        let mut g = self.status.lock().await;
+        let status = &mut *g;
 
         // store only events that are important for monitor
         match event {
@@ -270,7 +215,7 @@ impl Monitor {
                 let issues = manager.issues().await;
                 let Ok(issues) = issues else {
                     tracing::error!("Failed to get list of issues: {:?}", issues);
-                    return;
+                    return Ok(());
                 };
                 status.issues = issues;
             }
@@ -280,7 +225,7 @@ impl Monitor {
                 let questions = questions.get_questions().await;
                 let Ok(questions) = questions else {
                     tracing::error!("Failed to get list of questions: {:?}", questions);
-                    return;
+                    return Ok(());
                 };
                 let questions = questions
                     .into_iter()
@@ -308,11 +253,12 @@ impl Monitor {
             }
             _ => {
                 // other events are not interesting for monitor
-                return;
+                return Ok(());
             }
         }
 
         // lets ignore if send failed, otherwise with progress updates we will have logs full quickly
         let _ = self.updates.send(g.clone());
+        Ok(())
     }
 }
