@@ -121,8 +121,19 @@ impl ProgressMonitor {
             multibar.println(message)?;
             multibar.println("")?;
 
-            for progress in progresses {
-                let bars = Self::create_progress_bar(&multibar, progress);
+            let mut sorted_progresses = progresses.clone();
+            sorted_progresses.sort_by(|p1, p2| {
+                if p1.scope == Scope::Manager {
+                    return std::cmp::Ordering::Less;
+                }
+                if p2.scope == Scope::Manager {
+                    return std::cmp::Ordering::Greater;
+                }
+                std::cmp::Ord::cmp(&p1.scope, &p2.scope)
+            });
+
+            for progress in sorted_progresses {
+                let bars = Self::create_progress_bar(&multibar, &progress);
                 self.progresses.insert(progress.scope, bars);
             }
             self.progress_bar = Some(multibar);
@@ -173,17 +184,11 @@ impl ProgressMonitor {
                     }
                 }
                 if let Some(main_bar) = &self.progress_bar {
-                    for progress in &self.state.status.progresses {
-                        if let Some((bar1, bar2)) = self.progresses.get(&progress.scope) {
-                            bar1.set_position(progress.index as u64);
-                            bar1.set_message(progress.step.clone());
-                            bar2.set_position(progress.index as u64);
-                            bar2.set_message(progress.step.clone());
-                        } else {
-                            let bars = Self::create_progress_bar(main_bar, progress);
-                            self.progresses.insert(progress.scope, bars);
-                        }
-                    }
+                    Self::update_progress_bars(
+                        main_bar,
+                        &mut self.progresses,
+                        &self.state.status.progresses,
+                    );
                 // there are no multi progress, so no progress before and we should redraw
                 } else if !self.render_state().await? {
                     break;
@@ -278,6 +283,41 @@ impl ProgressMonitor {
         }
     }
 
+    /// Updates the existing progress bars or creates new ones based on the current state.
+    fn update_progress_bars(
+        main_bar: &MultiProgress,
+        progresses: &mut HashMap<Scope, (ProgressBar, ProgressBar)>,
+        current_progresses: &[api::Progress],
+    ) {
+        // first find progresses that disappeared
+        progresses.retain(|scope, (bar1, bar2)| {
+            let keep = current_progresses
+                .iter()
+                .any(|progress| progress.scope == *scope);
+            if !keep {
+                bar1.finish_and_clear();
+                main_bar.remove(bar1);
+                bar2.finish_and_clear();
+                main_bar.remove(bar2);
+            }
+            keep
+        });
+
+        // and now process what remains
+        for progress in current_progresses {
+            if let Some((bar1, bar2)) = progresses.get(&progress.scope) {
+                bar1.set_position(progress.index as u64);
+                bar1.set_message(progress.step.clone());
+                bar2.set_position(progress.index as u64);
+                bar2.set_message(progress.step.clone());
+            // new progress
+            } else {
+                let bars = Self::create_progress_bar(main_bar, progress);
+                progresses.insert(progress.scope, bars);
+            }
+        }
+    }
+
     /// Creates and configures a new progress bar.
     fn create_progress_bar(
         multibar: &MultiProgress,
@@ -291,12 +331,12 @@ impl ProgressMonitor {
                     "{} ({{pos:>2}}/{{len:2}}): {{wide_msg}}",
                     gettext("Current step")
                 ),
-                "".to_string(), // just separate main progress and subprogress
+                "Details:".to_string(), // just separate main progress and subprogress
             )
         } else {
             (
-                "{wide_bar:40.green}".to_string(),
-                "{pos:>5}/{len:5} {wide_msg}".to_string(),
+                "{wide_bar:.green/grey}".to_string(),
+                "{wide_msg} {pos:>}/{len:}".to_string(),
             )
         };
         // unwrap is safe as we created the style ( hope rust can do compile time check in future )
