@@ -53,6 +53,7 @@ translations:
       SUSE Linux Enterprise Server.
     zh_CN: 基于 SUSE Linux Enterprise Server 构建的社区发行版的最新版本。
     zh_TW: 根據最新 SUSE Linux Enterprise Server 打造的最新社群版發行版本。
+desktop_selection: suggested
 software:
   installation_repositories:
     - url: https://download.opensuse.org/distribution/leap/16.1/repo/oss/$basearch

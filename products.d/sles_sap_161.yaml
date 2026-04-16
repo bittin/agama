@@ -149,6 +149,7 @@ translations:
         ru: Неизменяемая система с атомарными обновлениями
         sv: Oföränderligt system med atomiska uppdateringar
         uk: Незмінна система з атомарними оновленнями
+desktop_selection: optional
 software:
   installation_repositories: []
   installation_labels:
