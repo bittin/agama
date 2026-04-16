@@ -918,7 +918,7 @@
             },
             "keyType": {
               "description": "Type of the generated secure key.",
-              "enum": ["EP11-AES", "CCA-AESCIPHER"]
+              "enum": ["EP11-AES", "CCA-AESCIPHER", "CCA-AESDATA"]
             }
           }
         }
