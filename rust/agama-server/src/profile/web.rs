@@ -18,6 +18,7 @@
 // To contact SUSE LLC about this file by physical or electronic mail, you may
 // find current contact information at www.suse.com.
 
+use crate::web::error::ErrorResponse;
 use agama_lib::profile::AutoyastError;
 use agama_transfer::Transfer;
 use anyhow::Context;
@@ -26,77 +27,27 @@ use agama_lib::{
     error::ServiceError,
     profile::{AutoyastProfileImporter, ProfileEvaluator, ProfileValidator, ValidationOutcome},
 };
-use axum::{
-    http::StatusCode,
-    response::{IntoResponse, Response},
-    routing::post,
-    Json, Router,
-};
+use axum::{response::Response, routing::post, Json, Router};
 use serde::Deserialize;
-use serde_json::json;
 use std::collections::HashMap;
-use thiserror::Error;
 use url::Url;
 
-#[derive(Error, Debug)]
-pub struct ProfileServiceError {
-    source: anyhow::Error,
-    http_status: StatusCode,
-}
-
-impl std::fmt::Display for ProfileServiceError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // `#` is std::fmt "Alternate form", anyhow::Error interprets as "include causes"
-        write!(f, "{:#}", &self.source)
+/// Helper to convert AutoyastError to appropriate HTTP response.
+fn autoyast_error_response(error: AutoyastError) -> Response {
+    match error {
+        AutoyastError::Execute(..) => ErrorResponse::internal_server_error(format!("{:#}", error)),
+        _ => ErrorResponse::bad_request(format!("{:#}", error)),
     }
 }
 
-impl From<AutoyastError> for ProfileServiceError {
-    fn from(e: AutoyastError) -> Self {
-        let http_status = match e {
-            AutoyastError::Execute(..) => StatusCode::INTERNAL_SERVER_ERROR,
-            _ => StatusCode::BAD_REQUEST,
-        };
-        Self {
-            source: e.into(),
-            http_status,
-        }
-    }
+/// Helper to convert anyhow::Error to BAD_REQUEST response.
+fn bad_request_from_anyhow(error: anyhow::Error) -> Response {
+    ErrorResponse::bad_request(format!("{:#}", error))
 }
 
-// Make a 400 response
-// ```
-// let r: Result<T, anyhow::Error> = foo();
-// r?
-// ```
-impl From<anyhow::Error> for ProfileServiceError {
-    fn from(e: anyhow::Error) -> Self {
-        Self {
-            source: e,
-            http_status: StatusCode::BAD_REQUEST,
-        }
-    }
-}
-
-// Make a 500 response
-// ```
-// let r: Result<T, anyhow::Error> = foo();
-// r.map_err(make_internal)?
-// ```
-fn make_internal(anyhow: anyhow::Error) -> ProfileServiceError {
-    ProfileServiceError {
-        http_status: StatusCode::INTERNAL_SERVER_ERROR,
-        source: anyhow,
-    }
-}
-
-impl IntoResponse for ProfileServiceError {
-    fn into_response(self) -> Response {
-        let body = json!({
-            "error": self.to_string()
-        });
-        (self.http_status, Json(body)).into_response()
-    }
+/// Helper to convert anyhow::Error to INTERNAL_SERVER_ERROR response.
+fn internal_server_error_from_anyhow(error: anyhow::Error) -> Response {
+    ErrorResponse::internal_server_error(format!("{:#}", error))
 }
 
 /// Sets up and returns the axum service for the auto-installation profile.
@@ -136,16 +87,21 @@ impl ProfileBody {
 
     /// Retrieve a profile if specified by one of *url*, *path* or
     /// pass already obtained *json* file content
-    fn retrieve_profile(&self) -> Result<Option<String>, ProfileServiceError> {
+    #[allow(clippy::result_large_err)]
+    fn retrieve_profile(&self) -> Result<Option<String>, Response> {
         if let Some(url_string) = &self.url {
             let mut bytebuf = Vec::new();
             Transfer::get(url_string, &mut bytebuf, false)
-                .context(format!("Retrieving data from URL {}", url_string))?;
+                .context(format!("Retrieving data from URL {}", url_string))
+                .map_err(bad_request_from_anyhow)?;
             let s = String::from_utf8(bytebuf)
-                .context(format!("Invalid UTF-8 data at URL {}", url_string))?;
+                .context(format!("Invalid UTF-8 data at URL {}", url_string))
+                .map_err(bad_request_from_anyhow)?;
             Ok(Some(s))
         } else if let Some(path) = &self.path {
-            let s = std::fs::read_to_string(path).context(format!("Reading from file {}", path))?;
+            let s = std::fs::read_to_string(path)
+                .context(format!("Reading from file {}", path))
+                .map_err(bad_request_from_anyhow)?;
             Ok(Some(s))
         } else {
             Ok(self.json.clone())
@@ -159,20 +115,22 @@ impl ProfileBody {
     context_path = "/api/profile",
     responses(
         (status = 200, description = "Validation result", body = ValidationOutcome),
-        (status = 400, description = "Some error has occurred")
+        (status = 400, description = "Some error has occurred", body = ErrorResponse)
     )
 )]
-async fn validate(body: String) -> Result<Json<ValidationOutcome>, ProfileServiceError> {
+async fn validate(body: String) -> Result<Json<ValidationOutcome>, Response> {
     let profile = ProfileBody::from_string(body);
     let profile_string = match profile.retrieve_profile()? {
         Some(retrieved) => retrieved,
         None => profile.json.expect("Missing profile"),
     };
-    let validator = ProfileValidator::default_schema().context("Setting up profile validator")?;
+    let validator = ProfileValidator::default_schema()
+        .context("Setting up profile validator")
+        .map_err(bad_request_from_anyhow)?;
     let result = validator
         .validate_str(&profile_string)
         .context("Could not validate the profile".to_string())
-        .map_err(make_internal)?;
+        .map_err(internal_server_error_from_anyhow)?;
 
     Ok(Json(result))
 }
@@ -183,10 +141,10 @@ async fn validate(body: String) -> Result<Json<ValidationOutcome>, ProfileServic
     context_path = "/api/profile",
     responses(
         (status = 200, description = "Evaluated profile", body = String, content_type = "application/json"),
-        (status = 400, description = "Some error has occurred")
+        (status = 400, description = "Some error has occurred", body = ErrorResponse)
     )
 )]
-async fn evaluate(body: String) -> Result<String, ProfileServiceError> {
+async fn evaluate(body: String) -> Result<String, Response> {
     let profile = ProfileBody::from_string(body);
     let profile_string = match profile.retrieve_profile()? {
         Some(retrieved) => retrieved,
@@ -195,7 +153,8 @@ async fn evaluate(body: String) -> Result<String, ProfileServiceError> {
     let evaluator = ProfileEvaluator {};
     let output = evaluator
         .evaluate_string(&profile_string)
-        .context("Could not evaluate the profile".to_string())?;
+        .context("Could not evaluate the profile".to_string())
+        .map_err(bad_request_from_anyhow)?;
 
     Ok(output)
 }
@@ -206,22 +165,25 @@ async fn evaluate(body: String) -> Result<String, ProfileServiceError> {
     context_path = "/api/profile",
     responses(
         (status = 200, description = "AutoYaST profile conversion", body = String, content_type = "application/json"),
-        (status = 400, description = "Some error has occurred")
+        (status = 400, description = "Some error has occurred", body = ErrorResponse),
+        (status = 500, description = "Internal server error", body = ErrorResponse)
     )
 )]
-async fn autoyast(body: String) -> Result<String, ProfileServiceError> {
+async fn autoyast(body: String) -> Result<String, Response> {
     let profile = ProfileBody::from_string(body);
     if profile.url.is_none() || profile.path.is_some() || profile.json.is_some() {
-        return Err(anyhow::anyhow!(
+        return Err(ErrorResponse::bad_request(format!(
             "Only url= is expected, no path= or request body. Seen: url {}, path {}, body {}",
             profile.url.is_some(),
             profile.path.is_some(),
             profile.json.is_some()
-        )
-        .into());
+        )));
     }
 
-    let url = Url::parse(profile.url.as_ref().unwrap()).map_err(anyhow::Error::new)?;
-    let importer = AutoyastProfileImporter::read(&url).await?;
+    let url = Url::parse(profile.url.as_ref().unwrap())
+        .map_err(|e| bad_request_from_anyhow(anyhow::Error::new(e)))?;
+    let importer = AutoyastProfileImporter::read(&url)
+        .await
+        .map_err(autoyast_error_response)?;
     Ok(importer.content)
 }
