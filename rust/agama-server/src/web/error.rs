@@ -37,9 +37,9 @@ pub struct ErrorResponse {
 
 impl ErrorResponse {
     /// Creates a new error response with the given message.
-    pub fn new(error: impl Into<String>) -> Self {
+    pub fn new(error: impl std::error::Error) -> Self {
         Self {
-            error: error.into(),
+            error: error.to_string(),
         }
     }
 
@@ -50,17 +50,17 @@ impl ErrorResponse {
     }
 
     /// Creates a BAD_REQUEST (400) response.
-    pub fn bad_request(error: impl Into<String>) -> Response {
+    pub fn bad_request(error: impl std::error::Error) -> Response {
         Self::new(error).into_response_with_status(StatusCode::BAD_REQUEST)
     }
 
     /// Creates an INTERNAL_SERVER_ERROR (500) response.
-    pub fn internal_server_error(error: impl Into<String>) -> Response {
+    pub fn internal_server_error(error: impl std::error::Error) -> Response {
         Self::new(error).into_response_with_status(StatusCode::INTERNAL_SERVER_ERROR)
     }
 
     /// Creates an UNPROCESSABLE_ENTITY (422) response.
-    pub fn unprocessable_entity(error: impl Into<String>) -> Response {
+    pub fn unprocessable_entity(error: impl std::error::Error) -> Response {
         Self::new(error).into_response_with_status(StatusCode::UNPROCESSABLE_ENTITY)
     }
 }

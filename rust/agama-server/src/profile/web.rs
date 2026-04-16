@@ -72,10 +72,10 @@ impl IntoResponse for ProfileError {
         match self {
             // Server errors (500)
             ProfileError::ValidatorSetup(_) | ProfileError::ValidationError(_) => {
-                ErrorResponse::internal_server_error(self.to_string())
+                ErrorResponse::internal_server_error(self)
             }
             ProfileError::Autoyast(AutoyastError::Execute(..)) => {
-                ErrorResponse::internal_server_error(self.to_string())
+                ErrorResponse::internal_server_error(self)
             }
             // Client errors (400)
             ProfileError::UrlRetrieval { .. }
@@ -84,7 +84,7 @@ impl IntoResponse for ProfileError {
             | ProfileError::EvaluationError(_)
             | ProfileError::UrlParse(_)
             | ProfileError::Autoyast(_)
-            | ProfileError::BadRequest(_) => ErrorResponse::bad_request(self.to_string()),
+            | ProfileError::BadRequest(_) => ErrorResponse::bad_request(self),
         }
     }
 }

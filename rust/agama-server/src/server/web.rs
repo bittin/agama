@@ -66,17 +66,17 @@ pub enum Error {
 impl Error {
     /// Creates a BAD_REQUEST (400) response from this error.
     fn bad_request(self) -> Response {
-        ErrorResponse::bad_request(self.to_string())
+        ErrorResponse::bad_request(self)
     }
 
     /// Creates an INTERNAL_SERVER_ERROR (500) response from this error.
     fn internal_server_error(self) -> Response {
-        ErrorResponse::internal_server_error(self.to_string())
+        ErrorResponse::internal_server_error(self)
     }
 
     /// Creates an UNPROCESSABLE_ENTITY (422) response from this error.
     fn unprocessable_entity(self) -> Response {
-        ErrorResponse::unprocessable_entity(self.to_string())
+        ErrorResponse::unprocessable_entity(self)
     }
 }
 
