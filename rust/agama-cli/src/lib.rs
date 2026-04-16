@@ -132,7 +132,7 @@ async fn install(http_client: BaseHTTPClient, mut ws: WebSocketClient) -> anyhow
 
     let res = show_progress(http_client, ws, true).await;
     if let Err(e) = res {
-        eprintln!("failed to show progress: {:?}", e);
+        eprintln!("Failed to show progress: {:?}", e);
     }
     Ok(())
 }
@@ -305,21 +305,21 @@ pub async fn run_command(cli: Cli) -> anyhow::Result<()> {
             let (http, mut ws) = build_clients(api_url, cli.opts.insecure).await?;
             wait_until_idle(&http, &mut ws)
                 .await
-                .context("failed to check if service is busy")?;
+                .context("Failed to check if service is busy")?;
             probe(http, ws).await?
         }
         Commands::Install => {
             let (http, mut ws) = build_clients(api_url, cli.opts.insecure).await?;
             wait_until_idle(&http, &mut ws)
                 .await
-                .context("failed to check if service is busy")?;
+                .context("Failed to check if service is busy")?;
             install(http, ws).await?
         }
         Commands::Finish { method } => {
             let (http, mut ws) = build_clients(api_url, cli.opts.insecure).await?;
             wait_until_idle(&http, &mut ws)
                 .await
-                .context("failed to check if service is busy")?;
+                .context("Failed to check if service is busy")?;
             finish(http, ws, method).await?;
         }
         Commands::Questions(subcommand) => {

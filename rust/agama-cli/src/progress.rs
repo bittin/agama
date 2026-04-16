@@ -114,9 +114,9 @@ impl ProgressMonitor {
         if !progresses.is_empty() {
             let multibar = MultiProgress::new();
             let message = if status.stage == Stage::Configuring {
-                gettext("Calculating proposal:")
+                gettext("Calculating the installation proposal:")
             } else {
-                gettext("Installing target system:")
+                gettext("Installing the system:")
             };
             multibar.println(message)?;
             multibar.println("")?;
