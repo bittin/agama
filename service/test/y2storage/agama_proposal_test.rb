@@ -410,13 +410,18 @@ describe Y2Storage::AgamaProposal do
       context "if the encryption settings contains pervasive method" do
         before do
           allow(Y2Storage::EncryptionProcesses::SecureKey).to receive(:all).and_return([])
+          allow(Y2Storage::EncryptionProcesses::Apqn).to receive(:all).and_return(apqns)
         end
+
+        let(:apqns) { [apqn1, apqn2] }
+        let(:apqn1) { Y2Storage::EncryptionProcesses::Apqn.new("01.0001", "", "", "") }
+        let(:apqn2) { Y2Storage::EncryptionProcesses::Apqn.new("01.0002", "", "", "") }
 
         let(:home_encryption) do
           Agama::Storage::Configs::Encryption.new.tap do |enc|
             enc.method = Y2Storage::EncryptionMethod::PERVASIVE_LUKS2
             enc.password = "notSecreT"
-            enc.apqns = ["01.0001", "01.0002"]
+            enc.apqns = ["01.0001", "01.0002", "01.0003"]
             enc.pervasive_key_type = "CCA-AESCIPHER"
           end
         end
@@ -431,10 +436,9 @@ describe Y2Storage::AgamaProposal do
             method:   Y2Storage::EncryptionMethod::PERVASIVE_LUKS2,
             password: "notSecreT"
           )
-          expect(partition.encryption.encryption_process).to have_attributes(
-            apqns:    ["01.0001", "01.0002"],
-            key_type: "CCA-AESCIPHER"
-          )
+          expect(partition.encryption.encryption_process.apqns.map(&:name))
+            .to contain_exactly("01.0001", "01.0002")
+          expect(partition.encryption.encryption_process.key_type).to eq("CCA-AESCIPHER")
         end
       end
 
