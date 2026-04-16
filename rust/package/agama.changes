@@ -1,7 +1,7 @@
 -------------------------------------------------------------------
 Wed Apr 15 07:25:18 UTC 2026 - Knut Anderssen <kanderssen@suse.com>
 
-- Copy Agama the systemd network link files for renaming devices
+- Copy the Agama systemd network link files for renaming devices
   after the installation (bsc#1261774).
 
 -------------------------------------------------------------------
