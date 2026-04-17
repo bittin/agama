@@ -32,111 +32,86 @@ import {
   SearchInput,
   Stack,
   Content,
+  ActionGroup,
+  Form,
 } from "@patternfly/react-core";
+import { formOptions } from "@tanstack/react-form";
+import { useNavigate } from "react-router";
 import { Page } from "~/components/core";
 import { _ } from "~/i18n";
 import a11yStyles from "@patternfly/react-styles/css/utilities/Accessibility/accessibility";
 import { useSystem } from "~/hooks/model/system/software";
-import { Pattern } from "~/model/system/software";
 import { SelectedBy } from "~/model/proposal/software";
 import { useProposal } from "~/hooks/model/proposal/software";
 import { patchConfig } from "~/api";
 import { SOFTWARE } from "~/routes/paths";
+import { usePristineSafeForm } from "~/hooks/form";
+import { filterPatterns, groupPatterns, isPatternSelected, sortGroupNames } from "~/utils/software";
 
 /**
- * PatternGroups mapping "group name" => list of patterns
+ * Form options for pattern selection.
+ * Each pattern is a boolean field (pattern name -> selected state).
  */
-type PatternsGroups = { [key: string]: Pattern[] };
-
-/**
- * Group the patterns with the same group name
- */
-function groupPatterns(patterns: Pattern[]): PatternsGroups {
-  const groups = {};
-
-  patterns.forEach((pattern) => {
-    if (groups[pattern.category]) {
-      groups[pattern.category].push(pattern);
-    } else {
-      groups[pattern.category] = [pattern];
-    }
-  });
-
-  // sort patterns by the "order" value
-  Object.keys(groups).forEach((group) => {
-    groups[group].sort((p1, p2) => {
-      if (p1.order === p2.order) {
-        // there should be no patterns with the same name
-        return p1.name < p2.name ? -1 : 1;
-      } else {
-        return p1.order - p2.order;
-      }
-    });
-  });
-
-  return groups;
-}
-
-/**
- * Sort pattern group names
- */
-function sortGroups(groups: PatternsGroups): string[] {
-  return Object.keys(groups).sort((g1, g2) => {
-    const order1 = groups[g1][0].order;
-    const order2 = groups[g2][0].order;
-    return order1 - order2;
-  });
-}
-
-const filterPatterns = (patterns: Pattern[] = [], searchValue = ""): Pattern[] => {
-  if (searchValue.trim() === "") return patterns;
-
-  // case insensitive search
-  const searchData = searchValue.toUpperCase();
-  return patterns.filter(
-    (p) =>
-      p.name.toUpperCase().indexOf(searchData) !== -1 ||
-      p.description.toUpperCase().indexOf(searchData) !== -1,
-  );
-};
+const softwarePatternsFormOptions = formOptions({
+  defaultValues: {} as Record<string, boolean>,
+});
 
 const NoMatches = (): React.ReactNode => <b>{_("None of the patterns match the filter.")}</b>;
 
 /**
  * Pattern selector component
  */
-function SoftwarePatternsSelection(): React.ReactNode {
+function SoftwarePatternsSelection() {
+  const navigate = useNavigate();
   const { patterns } = useSystem();
   const proposal = useProposal();
-  const selection = proposal?.patterns || [];
+  const selection = proposal?.patterns || {};
   const [searchValue, setSearchValue] = useState("");
 
-  const onToggle = (name: string, selected: boolean) => {
-    const add = patterns
-      .filter((p) => selection[p.name] === SelectedBy.USER && p.name !== name)
-      .map((p) => p.name);
-    const remove = patterns
-      .filter((p) => selection[p.name] === SelectedBy.REMOVED && p.name !== name)
-      .map((p) => p.name);
+  // Build initial form values: each pattern name -> selected boolean
+  const initialValues = patterns.reduce(
+    (acc, pattern) => {
+      acc[pattern.name] = isPatternSelected(selection, pattern.name);
+      return acc;
+    },
+    {} as Record<string, boolean>,
+  );
 
-    if (selected) {
-      add.push(name);
-    } else {
-      // add the pattern to the "remove" list only if it was autoselected by dependencies, otherwise
-      // it was selected by user and it is enough to remove it from the "add" list above
-      // with exception of product preselected pattern which also needs to be added
-      const preselected = patterns.find((p) => p.name === name && p.preselected);
+  const form = usePristineSafeForm({
+    ...softwarePatternsFormOptions,
+    defaultValues: initialValues,
+    onSubmit: async ({ value: formValues, formApi }) => {
+      // Add: selected patterns that user touched OR were already USER-selected
+      const add = patterns
+        .filter((p) => {
+          const isSelected = formValues[p.name];
+          if (!isSelected) return false;
 
-      if (selection[name] === SelectedBy.AUTO || preselected) {
-        remove.push(name);
-      }
-    }
+          const isDirty = formApi.getFieldMeta(p.name)?.isDirty;
+          const wasUserSelected = selection[p.name] === SelectedBy.USER;
 
-    patchConfig({ software: { patterns: { add, remove } } });
-  };
+          // Add if user touched it OR it was already USER-selected
+          return isDirty || wasUserSelected;
+        })
+        .map((p) => p.name);
 
-  // FIXME: use loading indicator when busy, we cannot know if it will be
-  // quickly or not in advance.
+      // Remove: unchecked patterns that were previously selected, preselected, or explicitly removed
+      const remove = patterns
+        .filter((p) => {
+          const isSelected = formValues[p.name];
+          if (isSelected) return false;
+
+          const wasInitiallySelected = initialValues[p.name];
+          const wasExplicitlyRemoved = selection[p.name] === SelectedBy.REMOVED;
+
+          return wasInitiallySelected || p.preselected || wasExplicitlyRemoved;
+        })
+        .map((p) => p.name);
+
+      await patchConfig({ software: { patterns: { add, remove } } });
+    },
+    onSubmitComplete: () => navigate(SOFTWARE.root),
+  });
 
   // initial empty screen, the patterns are loaded very quickly, no need for any progress
   const visiblePatterns = filterPatterns(patterns, searchValue);
@@ -144,84 +119,91 @@ function SoftwarePatternsSelection(): React.ReactNode {
 
   const groups = groupPatterns(visiblePatterns);
 
-  // FIXME: use a switch instead of a checkbox since these patterns are going to
-  // be selected/deselected immediately.
-  // TODO: extract to a DataListSelector component or so.
-  const selector = sortGroups(groups).map((groupName) => {
-    const selectedIds = groups[groupName]
-      .filter((p) => [SelectedBy.USER, SelectedBy.AUTO].includes(selection[p.name]))
-      .map((p) => p.name);
-
-    return (
-      <section key={groupName}>
-        <Content component="h3">{groupName}</Content>
-        <DataList isCompact aria-label={groupName}>
-          {groups[groupName].map((option) => {
-            const titleId = `${option.name}-title`;
-            const descId = `${option.name}-desc`;
-            const selected = selectedIds.includes(option.name);
-            const nextActionId = `${option.name}-next-action`;
-
-            return (
-              <DataListItem key={option.name}>
-                <DataListItemRow>
-                  <DataListCheck
-                    onChange={(_, value) => onToggle(option.name, value)}
-                    aria-labelledby={[nextActionId, titleId].join(" ")}
-                    isChecked={selected}
-                  />
-                  <DataListItemCells
-                    dataListCells={[
-                      <DataListCell key="summary">
-                        <Stack hasGutter>
-                          <div>
-                            <b id={titleId}>{option.summary}</b>{" "}
-                            {selection[option.name] === SelectedBy.AUTO && (
-                              <Label color="blue" isCompact>
-                                {_("auto selected")}
-                              </Label>
-                            )}
-                            <span id={nextActionId} className={a11yStyles.hidden}>
-                              {selected ? _("Unselect") : _("Select")}
-                            </span>
-                          </div>
-                          <div id={descId}>{option.description}</div>
-                        </Stack>
-                      </DataListCell>,
-                    ]}
-                  />
-                </DataListItemRow>
-              </DataListItem>
-            );
-          })}
-        </DataList>
-      </section>
-    );
-  });
-
   return (
     <Page
       breadcrumbs={[{ label: _("Software"), path: SOFTWARE.root }, { label: "Patterns selection" }]}
       progress={{ scope: "software" }}
     >
       <Page.Content>
-        <SearchInput
-          // TRANSLATORS: search field placeholder text
-          placeholder={_("Filter by pattern title or description")}
-          aria-label={_("Filter by pattern title or description")}
-          value={searchValue}
-          onChange={(_event, value) => setSearchValue(value)}
-          onClear={() => setSearchValue("")}
-          resultsCount={visiblePatterns.length}
-        />
-        <Page.Section title="Patterns">
-          {selector.length > 0 ? <Stack hasGutter>{selector}</Stack> : <NoMatches />}
-        </Page.Section>
-      </Page.Content>
+        <form.AppForm>
+          <Form
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+          >
+            <SearchInput
+              // TRANSLATORS: search field placeholder text
+              placeholder={_("Filter by pattern title or description")}
+              aria-label={_("Filter by pattern title or description")}
+              value={searchValue}
+              onChange={(_event, value) => setSearchValue(value)}
+              onClear={() => setSearchValue("")}
+              resultsCount={visiblePatterns.length}
+            />
+            <Page.Section title="Patterns">
+              <Stack hasGutter>
+                {sortGroupNames(groups).map((groupName) => (
+                  <section key={groupName}>
+                    <Content component="h3">{groupName}</Content>
+                    <DataList isCompact aria-label={groupName}>
+                      {groups[groupName].map((option) => {
+                        const titleId = `${option.name}-title`;
+                        const descId = `${option.name}-desc`;
+                        const nextActionId = `${option.name}-next-action`;
 
-      <Page.Actions>
-        <Page.Cancel variant="secondary">{_("Close")}</Page.Cancel>
-      </Page.Actions>
+                        return (
+                          <DataListItem key={option.name}>
+                            <form.Subscribe selector={(s) => s.values[option.name]}>
+                              {(selected) => (
+                                <DataListItemRow>
+                                  <DataListCheck
+                                    onChange={(_, value) => {
+                                      form.setFieldValue(option.name, value);
+                                    }}
+                                    aria-labelledby={[nextActionId, titleId].join(" ")}
+                                    isChecked={selected}
+                                  />
+                                  <DataListItemCells
+                                    dataListCells={[
+                                      <DataListCell key="summary">
+                                        <Stack hasGutter>
+                                          <div>
+                                            <b id={titleId}>{option.summary}</b>{" "}
+                                            {selection[option.name] === SelectedBy.AUTO && (
+                                              <Label color="blue" isCompact>
+                                                {_("auto selected")}
+                                              </Label>
+                                            )}
+                                            <span id={nextActionId} className={a11yStyles.hidden}>
+                                              {selected ? _("Unselect") : _("Select")}
+                                            </span>
+                                          </div>
+                                          <div id={descId}>{option.description}</div>
+                                        </Stack>
+                                      </DataListCell>,
+                                    ]}
+                                  />
+                                </DataListItemRow>
+                              )}
+                            </form.Subscribe>
+                          </DataListItem>
+                        );
+                      })}
+                    </DataList>
+                  </section>
+                ))}
+              </Stack>
+              {visiblePatterns.length === 0 && <NoMatches />}
+            </Page.Section>
+
+            <ActionGroup>
+              <form.SubmitButton />
+              <form.CancelButton />
+            </ActionGroup>
+          </Form>
+        </form.AppForm>
+      </Page.Content>
     </Page>
   );
 }
