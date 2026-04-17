@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Apr 17 10:26:35 UTC 2026 - Michal Filka <mfilka@suse.com>
+
+- bsc#1261932
+  - Explicitly allow virtual terminal switching for the gnome kiosk
+    session 
+
+-------------------------------------------------------------------
 Tue Apr 14 17:36:59 UTC 2026 - Imobach Gonzalez Sosa <igonzalezsosa@suse.com>
 
 - Version 20
