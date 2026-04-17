@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Apr 17 10:29:38 UTC 2026 - José Iván López González <jlopez@suse.com>
+
+- Add support for pervasive encryption options in storage
+  configuration schema (gh#agama-project/agama#3384).
+
+-------------------------------------------------------------------
 Wed Apr 15 07:25:18 UTC 2026 - Knut Anderssen <kanderssen@suse.com>
 
 - Copy the Agama systemd network link files for renaming devices
