@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2024] SUSE LLC
+# Copyright (c) [2024-2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -75,7 +75,9 @@ module Agama
           # @return [Hash]
           def pervasive_luks2_properties_conversions
             {
-              password: config.password
+              password: config.password,
+              apqns:    config.apqns,
+              keyType:  config.pervasive_key_type
             }
           end
 

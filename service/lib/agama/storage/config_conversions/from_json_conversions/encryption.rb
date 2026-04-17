@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2024] SUSE LLC
+# Copyright (c) [2024-2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -110,8 +110,10 @@ module Agama
             pervasive_json = encryption_json[:pervasiveLuks2]
 
             {
-              method:   Y2Storage::EncryptionMethod::PERVASIVE_LUKS2,
-              password: convert_password(pervasive_json)
+              method:             Y2Storage::EncryptionMethod::PERVASIVE_LUKS2,
+              password:           convert_password(pervasive_json),
+              apqns:              pervasive_json[:apqns] || [],
+              pervasive_key_type: pervasive_json[:keyType]
             }
           end
 
