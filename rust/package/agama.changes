@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Apr 17 16:56:48 UTC 2026 - Josef Reidinger <jreidinger@suse.com>
+
+- CLI: improve `agama monitor` command to be able to show blocking
+  issues or waiting for questions. Also command now ends when
+  installation finishes. (gh#agama-project/agama#3377)
+
+-------------------------------------------------------------------
 Fri Apr 17 10:29:38 UTC 2026 - José Iván López González <jlopez@suse.com>
 
 - Add support for pervasive encryption options in storage

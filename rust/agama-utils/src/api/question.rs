@@ -106,7 +106,7 @@ impl AnswerRule {
 }
 
 /// Represents a question including its [specification](QuestionSpec) and [answer](QuestionAnswer).
-#[derive(Clone, Serialize, Deserialize, utoipa::ToSchema)]
+#[derive(Clone, Serialize, Deserialize, PartialEq, utoipa::ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct Question {
     /// Question ID.
