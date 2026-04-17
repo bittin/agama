@@ -112,7 +112,7 @@ impl security::Callback for Security {
             .with_data(&[
                 ("id", key_id.as_str()),
                 ("name", key_name.as_str()),
-                ("fingerprint", key_fingerprint.as_str()),
+                ("fingerprint", human_fingerprint.as_str()),
             ])
             .with_default_action("Skip");
         let result = ask_software_question(&self.questions, question);
@@ -121,6 +121,7 @@ impl security::Callback for Security {
             return security::GpgKeyTrust::Reject;
         };
 
+        tracing::info!("Received answer: {:?}", answer);
         answer
             .action
             .as_str()

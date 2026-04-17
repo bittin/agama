@@ -345,7 +345,7 @@ impl ZyppServer {
         // TODO: add information about the current registration state
         let old_state = self.read(zypp)?;
         if let Some(registration_config) = &state.registration {
-            self.update_registration(registration_config, zypp, &security_srv, &mut issues);
+            self.update_registration(registration_config, zypp, security, &security_srv, &mut issues);
 
             if !issues.is_empty() {
                 return Self::send_issues_and_finish(issues, tx, progress);
@@ -903,18 +903,19 @@ impl ZyppServer {
         &mut self,
         state: &RegistrationState,
         zypp: &zypp_agama::Zypp,
+        security: &mut callbacks::Security,
         security_srv: &Handler<security::Service>,
         issues: &mut WriteIssues,
     ) {
         match &self.registration {
             RegistrationStatus::Failed(_) | RegistrationStatus::NotRegistered => {
-                self.register_base_system(state, zypp, security_srv, issues);
+                self.register_base_system(state, zypp, security, security_srv, issues);
             }
             RegistrationStatus::Registered(_) => {}
         };
 
         if !state.addons.is_empty() {
-            self.register_addons(&state.addons, zypp, issues);
+            self.register_addons(&state.addons, zypp, security, issues);
         }
     }
 
@@ -922,6 +923,7 @@ impl ZyppServer {
         &mut self,
         state: &RegistrationState,
         zypp: &zypp_agama::Zypp,
+        security: &mut callbacks::Security,
         security_srv: &Handler<security::Service>,
         issues: &mut WriteIssues,
     ) {
@@ -940,7 +942,7 @@ impl ZyppServer {
             registration = registration.with_url(url);
         }
 
-        match registration.register(zypp, security_srv) {
+        match registration.register(zypp, security, security_srv) {
             Ok(registration) => {
                 self.registration = RegistrationStatus::Registered(Box::new(registration));
             }
@@ -961,6 +963,7 @@ impl ZyppServer {
         &mut self,
         addons: &Vec<Addon>,
         zypp: &zypp_agama::Zypp,
+        security: &mut callbacks::Security,
         issues: &mut WriteIssues,
     ) {
         let RegistrationStatus::Registered(registration) = &mut self.registration else {
@@ -973,7 +976,7 @@ impl ZyppServer {
                 tracing::info!("Skipping already registered add-on {}", &addon.id);
                 continue;
             }
-            if let Err(error) = registration.register_addon(zypp, addon) {
+            if let Err(error) = registration.register_addon(zypp, security, addon) {
                 let message = format!("Failed to register the add-on {}", addon.id);
                 let issue_id = format!("addon_registration_failed[{}]", &addon.id);
                 let issue = Issue::new(&issue_id, &message).with_details(&error.to_string());

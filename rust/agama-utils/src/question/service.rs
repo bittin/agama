@@ -76,6 +76,7 @@ impl Service {
 
         self.config.as_ref().and_then(|config| {
             if let Some(Policy::Auto) = config.policy {
+                tracing::info!("Returning automatic answer: {:?}", &spec.default_action);
                 spec.default_action.clone().map(|action| Answer {
                     action,
                     value: None,

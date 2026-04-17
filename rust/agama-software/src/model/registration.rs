@@ -36,6 +36,7 @@ use suseconnect_agama::{self, ConnectParams, Credentials};
 use url::Url;
 
 use crate::state::Addon;
+use crate::callbacks;
 
 #[derive(thiserror::Error, Debug)]
 pub enum RegistrationError {
@@ -91,12 +92,13 @@ impl Registration {
     pub fn register_addon(
         &mut self,
         zypp: &zypp_agama::Zypp,
+        security: &mut callbacks::Security,
         addon: &Addon,
     ) -> RegistrationResult<()> {
         // Use the product's version as default.
         let version = addon.version.clone().unwrap_or(self.version.clone());
         let code = addon.code.as_deref();
-        self.activate_product(zypp, &addon.id, &version, code)?;
+        self.activate_product(zypp, security, &addon.id, &version, code)?;
         self.addons.push(addon.clone());
         Ok(())
     }
@@ -114,6 +116,7 @@ impl Registration {
     fn activate_product(
         &mut self,
         zypp: &zypp_agama::Zypp,
+        security: &mut callbacks::Security,
         name: &str,
         version: &str,
         code: Option<&str>,
@@ -155,7 +158,7 @@ impl Registration {
             .map_err(|e| RegistrationError::RefreshService(name.clone(), e))?;
         zypp.load_source(
             zypp_agama::callbacks::empty_progress,
-            &mut zypp_agama::callbacks::security::EmptyCallback,
+            security,
         )
         .map_err(|e| RegistrationError::RefreshService(name, e))?;
 
@@ -359,6 +362,7 @@ impl RegistrationBuilder {
     pub fn register(
         &self,
         zypp: &zypp_agama::Zypp,
+        security: &mut callbacks::Security,
         security_srv: &Handler<security::Service>,
     ) -> RegistrationResult<Registration> {
         let params = suseconnect_agama::ConnectParams {
@@ -401,7 +405,7 @@ impl RegistrationBuilder {
             config_files: vec![suseconnect_agama::GLOBAL_CREDENTIALS_FILE.into()],
         };
 
-        registration.activate_product(zypp, &self.product, &self.version, None)?;
+        registration.activate_product(zypp, security, &self.product, &self.version, None)?;
         Ok(registration)
     }
 }
