@@ -439,7 +439,7 @@ async fn get_license(
     let lang = lang
         .as_str()
         .try_into()
-        .map_err(|_| Error::from(Error::MissingLanguageTag).bad_request())?;
+        .map_err(|_| Error::MissingLanguageTag.bad_request())?;
 
     let license = state
         .manager
