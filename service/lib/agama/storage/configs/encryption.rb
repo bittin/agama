@@ -69,7 +69,8 @@ module Agama
 
         # Type of the generated secure key (only for pervasive encryption).
         #
-        # @return [String, nil] Accepted key types: "EP11-AES", "CCA-AESCIPHER", "CCA-AESCIPHER".
+        # @return [String, nil] Accepted key types: "EP11-AES", "CCA-AESCIPHER", "CCA-AESCIPHER". If
+        #   nil, a default one is used according to the APQNs.
         attr_accessor :pervasive_key_type
 
         def initialize
