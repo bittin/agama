@@ -20,24 +20,23 @@
 
 use utoipa::openapi::{Components, ComponentsBuilder, Paths, PathsBuilder};
 
-use super::ApiDocBuilder;
+/// Returns the paths for the utility API endpoints.
+pub fn paths() -> Paths {
+    PathsBuilder::new()
+        .path_from::<crate::web::http::__path_ping>()
+        .path_from::<crate::web::http::__path_login>()
+        .path_from::<crate::web::http::__path_login_from_query>()
+        .path_from::<crate::web::http::__path_logout>()
+        .path_from::<crate::web::http::__path_session>()
+        .build()
+}
 
-pub struct MiscApiDocBuilder;
-
-impl ApiDocBuilder for MiscApiDocBuilder {
-    fn title(&self) -> String {
-        "Miscelaneous HTTP API".to_string()
-    }
-
-    fn paths(&self) -> Paths {
-        PathsBuilder::new()
-            .path_from::<crate::web::http::__path_ping>()
-            .build()
-    }
-
-    fn components(&self) -> Components {
-        ComponentsBuilder::new()
-            .schema_from::<crate::web::http::PingResponse>()
-            .build()
-    }
+/// Returns the components (schemas) for the utility API.
+pub fn components() -> Components {
+    ComponentsBuilder::new()
+        .schema_from::<crate::web::http::PingResponse>()
+        .schema_from::<crate::web::http::AuthResponse>()
+        .schema_from::<crate::web::http::LoginRequest>()
+        .schema_from::<crate::web::http::LoginFromQueryParams>()
+        .build()
 }

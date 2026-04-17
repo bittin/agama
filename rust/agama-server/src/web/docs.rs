@@ -18,45 +18,61 @@
 // To contact SUSE LLC about this file by physical or electronic mail, you may
 // find current contact information at www.suse.com.
 
-use utoipa::openapi::{Components, Info, InfoBuilder, OpenApi, OpenApiBuilder, Paths};
+use utoipa::openapi::{
+    server::{ServerBuilder, ServerVariableBuilder},
+    InfoBuilder, OpenApi, OpenApiBuilder,
+};
 
 mod config;
-pub use config::ConfigApiDocBuilder;
-mod profile;
-pub use profile::ProfileApiDocBuilder;
 mod misc;
-pub use misc::MiscApiDocBuilder;
+mod profile;
 
-pub trait ApiDocBuilder {
-    fn title(&self) -> String {
-        "Agama HTTP API".to_string()
-    }
+/// Builds the unified OpenAPI specification for the Agama HTTP API.
+///
+/// This function merges all API endpoints and schemas from the different
+/// modules (config, misc, profile) into a single OpenAPI document.
+pub fn build() -> OpenApi {
+    let mut paths = config::paths();
+    paths.paths.extend(misc::paths().paths);
+    paths.paths.extend(profile::paths().paths);
 
-    fn paths(&self) -> Paths;
+    let mut components = config::components();
+    components.schemas.extend(misc::components().schemas);
+    components.schemas.extend(profile::components().schemas);
 
-    fn components(&self) -> Components;
+    let info = InfoBuilder::new()
+        .title("Agama HTTP API")
+        .version(env!("CARGO_PKG_VERSION"))
+        .description(Some(
+            "Complete HTTP API for the Agama installer. \
+            This unified specification includes endpoints for system configuration, \
+            installation profiles, and utility functions. \
+            See https://agama-project.github.io for more information.",
+        ))
+        .build();
 
-    fn info(&self) -> Info {
-        InfoBuilder::new()
-            .title(self.title())
-            .version("0.1.0")
-            .build()
-    }
+    let servers = vec![
+        ServerBuilder::new()
+            .url("http://localhost")
+            .description(Some("Local development server"))
+            .build(),
+        ServerBuilder::new()
+            .url("https://{agamaHost}")
+            .description(Some("Agama server"))
+            .parameter(
+                "agamaHost",
+                ServerVariableBuilder::new()
+                    .default_value("agama.local")
+                    .description(Some("Hostname or IP address of the Agama server"))
+                    .build(),
+            )
+            .build(),
+    ];
 
-    fn nested(&self) -> Option<OpenApi> {
-        None
-    }
-
-    fn build(&self) -> utoipa::openapi::OpenApi {
-        let mut api = OpenApiBuilder::new()
-            .info(self.info())
-            .paths(self.paths())
-            .components(Some(self.components()))
-            .build();
-
-        if let Some(nested) = self.nested() {
-            api.merge(nested);
-        }
-        api
-    }
+    OpenApiBuilder::new()
+        .info(info)
+        .servers(Some(servers))
+        .paths(paths)
+        .components(Some(components))
+        .build()
 }

@@ -286,8 +286,7 @@ echo $PATH
 
 %files -n agama-openapi
 %dir %{_datadir}/agama
-%dir %{_datadir}/agama/openapi
-%{_datadir}/agama/openapi/*.json
+%{_datadir}/agama/openapi.json
 
 %files -n agama-scripts
 %{_unitdir}/agama-scripts.service

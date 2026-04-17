@@ -33,7 +33,7 @@ use agama_utils::{
         manager::LicenseContent,
         query,
         question::{Question, QuestionSpec, UpdateQuestion},
-        Action, Config, IssueWithScope, Patch, Status, SystemInfo,
+        Action, Config, IssueWithScope, Patch, Proposal, Status, SystemInfo,
     },
     progress, question,
 };
@@ -149,7 +149,7 @@ pub fn server_with_state(state: ServerState) -> Result<Router, ServiceError> {
     path = "/status",
     context_path = "/api/v2",
     responses(
-        (status = 200, description = "Status of the installation."),
+        (status = 200, description = "Status of the installation.", body = Status),
         (status = 400, description = "Not possible to retrieve the status of the installation.")
     )
 )]
@@ -164,7 +164,7 @@ async fn get_status(State(state): State<ServerState>) -> ServerResult<Json<Statu
     path = "/system",
     context_path = "/api/v2",
     responses(
-        (status = 200, description = "System information."),
+        (status = 200, description = "System information.", body = SystemInfo),
         (status = 400, description = "Not possible to retrieve the system information.")
     )
 )]
@@ -179,7 +179,7 @@ async fn get_system(State(state): State<ServerState>) -> ServerResult<Json<Syste
     path = "/extended_config",
     context_path = "/api/v2",
     responses(
-        (status = 200, description = "Extended configuration"),
+        (status = 200, description = "Extended configuration", body = Config),
         (status = 400, description = "Not possible to retrieve the configuration.")
     )
 )]
@@ -194,7 +194,7 @@ async fn get_extended_config(State(state): State<ServerState>) -> ServerResult<J
     path = "/config",
     context_path = "/api/v2",
     responses(
-        (status = 200, description = "Configuration."),
+        (status = 200, description = "Configuration.", body = Config),
         (status = 400, description = "Not possible to retrieve the configuration.")
     )
 )]
@@ -257,8 +257,9 @@ async fn patch_config(
     path = "/proposal",
     context_path = "/api/v2",
     responses(
-        (status = 200, description = "Proposal successfully retrieved."),
-        (status = 400, description = "Not possible to retrieve the proposal.")
+        (status = 200, description = "Proposal successfully retrieved.", body = Proposal),
+        (status = 400, description = "Not possible to retrieve the proposal."),
+        (status = 404, description = "Proposal not available yet.")
     )
 )]
 async fn get_proposal(State(state): State<ServerState>) -> ServerResult<Response> {
