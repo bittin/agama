@@ -71,9 +71,7 @@ impl IntoResponse for ProfileError {
     fn into_response(self) -> Response {
         match self {
             // Server errors (500)
-            ProfileError::ValidatorSetup(_) | ProfileError::ValidationError(_) => {
-                ErrorResponse::internal_server_error(self)
-            }
+            ProfileError::ValidatorSetup(_) => ErrorResponse::internal_server_error(self),
             ProfileError::Autoyast(AutoyastError::Execute(..)) => {
                 ErrorResponse::internal_server_error(self)
             }
@@ -81,6 +79,7 @@ impl IntoResponse for ProfileError {
             ProfileError::UrlRetrieval { .. }
             | ProfileError::InvalidUtf8 { .. }
             | ProfileError::FileRead { .. }
+            | ProfileError::ValidationError(_)
             | ProfileError::EvaluationError(_)
             | ProfileError::UrlParse(_)
             | ProfileError::Autoyast(_)

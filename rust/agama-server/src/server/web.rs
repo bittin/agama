@@ -61,6 +61,8 @@ pub enum Error {
     ConfigSchema(#[from] config_schema::Error),
     #[error(transparent)]
     Json(#[from] serde_json::Error),
+    #[error("Missing language tag")]
+    MissingLanguageTag,
 }
 
 impl Error {
@@ -434,11 +436,10 @@ async fn get_license(
     Query(query): Query<LicenseQuery>,
 ) -> Result<Response, Response> {
     let lang = query.lang.unwrap_or("en".to_string());
-
-    // Invalid language tag is a client error (400)
-    let Ok(lang) = lang.as_str().try_into() else {
-        return Ok(StatusCode::BAD_REQUEST.into_response());
-    };
+    let lang = lang
+        .as_str()
+        .try_into()
+        .map_err(|_| Error::from(Error::MissingLanguageTag).bad_request())?;
 
     let license = state
         .manager
