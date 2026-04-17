@@ -44,7 +44,7 @@
 //!
 //! // Subscribe to future updates
 //! let mut rx = monitor_client.subscribe();
-//! while let Ok(Ok(new_status)) = rx.recv().await {
+//! while let Ok(new_status) = rx.recv().await {
 //!     println!("Status updated! Issues count: {}", new_status.issues.len());
 //! }
 //! # Ok(())
