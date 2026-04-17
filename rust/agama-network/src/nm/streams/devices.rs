@@ -124,17 +124,20 @@ impl DeviceChangedStream {
 
         match args.interface_name.as_str() {
             "org.freedesktop.NetworkManager.IP4Config"
-                if Self::include_properties(IP_CONFIG_PROPS, &args.changed_properties) => {
-                    return Some(NmChange::IP4ConfigChanged(path));
-                }
+                if Self::include_properties(IP_CONFIG_PROPS, &args.changed_properties) =>
+            {
+                return Some(NmChange::IP4ConfigChanged(path));
+            }
             "org.freedesktop.NetworkManager.IP6Config"
-                if Self::include_properties(IP_CONFIG_PROPS, &args.changed_properties) => {
-                    return Some(NmChange::IP6ConfigChanged(path));
-                }
+                if Self::include_properties(IP_CONFIG_PROPS, &args.changed_properties) =>
+            {
+                return Some(NmChange::IP6ConfigChanged(path));
+            }
             "org.freedesktop.NetworkManager.Device"
-                if Self::include_properties(DEVICE_PROPS, &args.changed_properties) => {
-                    return Some(NmChange::DeviceUpdated(path));
-                }
+                if Self::include_properties(DEVICE_PROPS, &args.changed_properties) =>
+            {
+                return Some(NmChange::DeviceUpdated(path));
+            }
             _ => {}
         };
         None
