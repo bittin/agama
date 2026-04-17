@@ -22,10 +22,12 @@ impl Security {
     }
 
     pub fn set_trusted_gpg_keys(&mut self, trusted_gpg_keys: Vec<RepoKey>) {
+        tracing::info!("Configured trusted GPG keys: {:?}", trusted_gpg_keys);
         self.trusted_gpg_keys = trusted_gpg_keys;
     }
 
     pub fn set_unsigned_repos(&mut self, unsigned_repos: Vec<String>) {
+        tracing::info!("Allowed unsigned repositories: {:?}", unsigned_repos);
         self.unsigned_repos = unsigned_repos;
     }
 }
