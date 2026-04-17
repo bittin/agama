@@ -91,7 +91,7 @@ impl MainServiceBuilder {
     /// * `service`: Service to mount on the given `path`.
     pub fn add_service<T>(self, path: &str, service: T) -> Self
     where
-        T: Service<Request, Error = Infallible> + Clone + Send + 'static,
+        T: Service<Request, Error = Infallible> + Clone + Send + Sync + 'static,
         T::Response: IntoResponse,
         T::Future: Send + 'static,
     {
@@ -121,9 +121,9 @@ impl MainServiceBuilder {
         let serve = ServeDir::new(self.public_dir).precompressed_gzip();
 
         Router::new()
-            .nest_service("/", serve)
             .route("/login", get(login_from_query))
             .nest("/api", api_router)
+            .fallback_service(serve)
             .layer(
                 TraceLayer::new_for_http()
                     .on_request(|request: &Request<Body>, span: &Span| {

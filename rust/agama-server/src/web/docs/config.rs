@@ -43,6 +43,7 @@ pub fn paths() -> Paths {
 /// Returns the components (schemas) for the configuration API.
 pub fn components() -> Components {
     ComponentsBuilder::new()
+        .schema_from::<crate::web::error::ErrorResponse>()
         .schema("IpAddr", schemas::ip_addr())
         .schema("IpInet", schemas::ip_inet())
         .schema("macaddr.MacAddr6", schemas::mac_addr6())
