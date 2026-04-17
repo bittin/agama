@@ -345,7 +345,13 @@ impl ZyppServer {
         // TODO: add information about the current registration state
         let old_state = self.read(zypp)?;
         if let Some(registration_config) = &state.registration {
-            self.update_registration(registration_config, zypp, security, &security_srv, &mut issues);
+            self.update_registration(
+                registration_config,
+                zypp,
+                security,
+                &security_srv,
+                &mut issues,
+            );
 
             if !issues.is_empty() {
                 return Self::send_issues_and_finish(issues, tx, progress);

@@ -35,8 +35,8 @@ use openssl::x509::X509;
 use suseconnect_agama::{self, ConnectParams, Credentials};
 use url::Url;
 
-use crate::state::Addon;
 use crate::callbacks;
+use crate::state::Addon;
 
 #[derive(thiserror::Error, Debug)]
 pub enum RegistrationError {
@@ -156,11 +156,8 @@ impl Registration {
         self.services.push(service.clone());
         zypp.refresh_service(&name)
             .map_err(|e| RegistrationError::RefreshService(name.clone(), e))?;
-        zypp.load_source(
-            zypp_agama::callbacks::empty_progress,
-            security,
-        )
-        .map_err(|e| RegistrationError::RefreshService(name, e))?;
+        zypp.load_source(zypp_agama::callbacks::empty_progress, security)
+            .map_err(|e| RegistrationError::RefreshService(name, e))?;
 
         // skip for the first service (base product), the base product is selected differently
         if self.services.len() > 1 {
