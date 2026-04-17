@@ -129,13 +129,13 @@ pub fn server_with_state(state: ServerState) -> Result<Router, ServiceError> {
             "/questions",
             get(get_questions).post(ask_question).patch(update_question),
         )
-        .route("/licenses/:id", get(get_license))
+        .route("/licenses/{id}", get(get_license))
         .route(
             "/private/storage_model",
             get(get_storage_model).put(set_storage_model),
         )
         .route("/private/solve_storage_model", get(solve_storage_model))
-        .route("/private/resolvables/:id", put(set_resolvables))
+        .route("/private/resolvables/{id}", put(set_resolvables))
         .route("/private/download_logs", get(download_logs))
         .route("/private/password_check", post(check_password))
         .with_state(state))
@@ -418,7 +418,7 @@ struct LicenseQuery {
 /// the license in English.
 #[utoipa::path(
     get,
-    path = "/licenses/:id",
+    path = "/licenses/{id}",
     context_path = "/api/software",
     params(LicenseQuery),
     responses(
@@ -550,7 +550,7 @@ async fn solve_storage_model(
 
 #[utoipa::path(
     put,
-    path = "/resolvables/:id",
+    path = "/resolvables/{id}",
     context_path = "/api/v2",
     responses(
         (status = 200, description = "The resolvables list was updated.")
