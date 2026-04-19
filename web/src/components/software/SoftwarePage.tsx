@@ -28,19 +28,19 @@ import {
   Alert,
   Button,
   Content,
-  DescriptionList,
-  DescriptionListDescription,
-  DescriptionListGroup,
-  DescriptionListTerm,
   EmptyState,
+  ExpandableSection,
   Flex,
   Grid,
   GridItem,
+  List,
+  ListItem,
   Spinner,
 } from "@patternfly/react-core";
 import IssuesAlert from "~/components/core/IssuesAlert";
 import Link from "~/components/core/Link";
 import Page from "~/components/core/Page";
+import SubtleContent from "~/components/core/SubtleContent";
 import Text from "~/components/core/Text";
 import { useIssues } from "~/hooks/model/issue";
 import { useProposal } from "~/hooks/model/proposal/software";
@@ -50,6 +50,7 @@ import { SOFTWARE as PATHS } from "~/routes/paths";
 import { N_, _ } from "~/i18n";
 
 import type { Pattern } from "~/model/system/software";
+import { NestedContent } from "../core";
 
 /**
  * List of selected patterns.
@@ -60,14 +61,25 @@ const SelectedPatternsList = ({ patterns }: { patterns: Pattern[] }): React.Reac
   }
 
   return (
-    <DescriptionList>
-      {patterns.map((pattern) => (
-        <DescriptionListGroup key={pattern.name}>
-          <DescriptionListTerm>{pattern.summary}</DescriptionListTerm>
-          <DescriptionListDescription>{pattern.description}</DescriptionListDescription>
-        </DescriptionListGroup>
-      ))}
-    </DescriptionList>
+    <NestedContent margin="mxSm">
+      <List isPlain>
+        {patterns.map((pattern) => (
+          <ListItem key={pattern.name}>
+            <Text isBold>{pattern.summary}</Text>
+            <NestedContent margin="mxXs">
+              <ExpandableSection
+                variant="truncate"
+                truncateMaxLines={2}
+                toggleTextCollapsed={_("Read more")}
+                toggleTextExpanded={_("Read less")}
+              >
+                <SubtleContent>{pattern.description}</SubtleContent>
+              </ExpandableSection>
+            </NestedContent>
+          </ListItem>
+        ))}
+      </List>
+    </NestedContent>
   );
 };
 
@@ -179,7 +191,7 @@ const SoftwareSection = ({
 );
 
 const NoPatterns = (): React.ReactNode => (
-  <Page.Section title={_("Selected patterns")}>
+  <Page.Section title={_("Patterns")}>
     <p>
       {_(
         "This product does not allow to select software patterns during installation. However, you can add additional software once the installation is finished.",
@@ -267,14 +279,14 @@ const PageContent = () => {
             <Grid hasGutter>
               <GridItem lg={6}>
                 <SoftwareSection
-                  title={_("Selected patterns")}
+                  title={_("Patterns")}
                   buttonText={_("Change patterns")}
                   patterns={otherPatterns}
                 />
               </GridItem>
               <GridItem lg={6}>
                 <SoftwareSection
-                  title={_("Selected desktop")}
+                  title={_("Desktop")}
                   buttonText={_("Change desktop")}
                   patterns={desktops}
                 />

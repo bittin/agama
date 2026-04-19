@@ -51,25 +51,27 @@ describe("SoftwarePage", () => {
 
   it("renders selected desktop", () => {
     installerRender(<SoftwarePage />);
-    screen.getByText("Selected desktop");
-    screen.getAllByText(/GNOME/);
-    expect(screen.queryByText(/KDE/)).toBeNull();
-    expect(screen.queryByText(/XFCE/)).toBeNull();
+    screen.getByText("Desktop");
+    screen.getByText("GNOME Desktop Environment (Wayland)");
+    expect(screen.queryByText("KDE Applications and Plasma 5 Desktop")).toBeNull();
+    expect(screen.queryByText("XFCE Desktop Environment")).toBeNull();
   });
 
   it("renders a list of selected patterns", () => {
     installerRender(<SoftwarePage />);
-    screen.getByText("Selected patterns");
+    screen.getByText("Patterns");
     screen.getByText("YaST Base Utilities");
     screen.getByText("YaST Desktop Utilities");
     screen.getByText("Multimedia");
-    screen.getAllByText(/Office software/);
+    screen.getByText("Office Software");
     expect(screen.queryByText("YaST Server Utilities")).toBeNull();
   });
 
   it("renders the summary", () => {
     installerRender(<SoftwarePage />);
-    screen.getByText(/About 4.60 GiB space needed with the current selection \(4 patterns and 1 desktops\)/);
+    screen.getByText(
+      /About 4.60 GiB space needed with the current selection \(4 patterns and 1 desktops\)/,
+    );
   });
 
   it("renders buttons for navigating to patterns selection", () => {
