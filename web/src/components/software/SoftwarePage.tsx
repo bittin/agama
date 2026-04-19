@@ -42,9 +42,10 @@ import { useSystem } from "~/hooks/model/system/software";
 import { N_, _ } from "~/i18n";
 import { SOFTWARE as PATHS } from "~/routes/paths";
 import xbytes from "xbytes";
-import { PatternsSelection, SelectedBy } from "~/model/proposal/software";
+import { PatternsSelection } from "~/model/proposal/software";
 import { Pattern } from "~/model/system/software";
 import { isEmpty } from "radashi";
+import { isPatternSelected } from "~/utils/software";
 
 /**
  * List of selected patterns.
@@ -56,7 +57,7 @@ const SelectedPatternsList = ({
   patterns: Pattern[];
   selection: PatternsSelection;
 }): React.ReactNode => {
-  const selected = patterns.filter((p) => selection[p.name] !== SelectedBy.NONE);
+  const selected = patterns.filter((p) => isPatternSelected(selection, p.name));
 
   if (selected.length === 0) {
     return <>{_("No additional software was selected.")}</>;

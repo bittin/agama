@@ -86,5 +86,6 @@ export function filterPatterns(patterns: Pattern[], searchValue = ""): Pattern[]
  * @returns True if the pattern is selected by USER or AUTO
  */
 export function isPatternSelected(selection: PatternsSelection, patternName: string): boolean {
-  return [SelectedBy.USER, SelectedBy.AUTO].includes(selection[patternName]);
+  const status = selection[patternName];
+  return status === SelectedBy.USER || status === SelectedBy.AUTO;
 }

@@ -71,6 +71,20 @@ describe("SoftwarePage", () => {
     screen.getByRole("link", { name: "Change selection" });
   });
 
+  it("does not render patterns marked as removed", () => {
+    const proposalWithRemovedPattern = {
+      ...testingProposal,
+      patterns: {
+        ...testingProposal.patterns,
+        multimedia: "removed",
+      },
+    };
+    mockProposal.mockReturnValue(proposalWithRemovedPattern);
+
+    installerRender(<SoftwarePage />);
+    expect(screen.queryByText("Multimedia")).toBeNull();
+  });
+
   describe("when there is no proposal yet", () => {
     beforeEach(() => {
       mockProposal.mockReturnValue(null);
