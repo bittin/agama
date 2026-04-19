@@ -22,7 +22,7 @@
 
 import React, { useState } from "react";
 import xbytes from "xbytes";
-import { isEmpty } from "radashi";
+import { fork, isEmpty } from "radashi";
 import { sprintf } from "sprintf-js";
 import {
   Alert,
@@ -34,6 +34,8 @@ import {
   DescriptionListTerm,
   EmptyState,
   Flex,
+  Grid,
+  GridItem,
   Spinner,
 } from "@patternfly/react-core";
 import IssuesAlert from "~/components/core/IssuesAlert";
@@ -69,26 +71,81 @@ const SelectedPatternsList = ({ patterns }: { patterns: Pattern[] }): React.Reac
   );
 };
 
+const SummaryNoSize = ({
+  desktopCount,
+  patternCount,
+}: {
+  desktopCount: number;
+  patternCount: number;
+}): React.ReactNode => {
+  let text = "";
+
+  if (patternCount > 0 && desktopCount > 0) {
+    text = sprintf(
+      // TRANSLATORS: %1$d is pattern count, %2$d is desktop count
+      _("%1$d patterns and %2$d desktop selected"),
+      patternCount,
+      desktopCount,
+    );
+  } else if (patternCount > 0) {
+    text = sprintf(_("%d patterns selected"), patternCount);
+  } else if (desktopCount > 0) {
+    text = sprintf(_("%d desktop selected"), desktopCount);
+  }
+
+  return (
+    <Flex direction={{ default: "column" }}>
+      <Content isEditorial>
+        <Text>{text}</Text>
+      </Content>
+    </Flex>
+  );
+};
+
 const Summary = ({
-  selectedCount,
+  desktopCount,
+  patternCount,
   usedSize,
 }: {
-  selectedCount: number;
+  desktopCount: number;
+  patternCount: number;
   usedSize?: string;
 }): React.ReactNode => {
-  const summaryText = usedSize
-    ? sprintf(
-        // TRANSLATORS: %1$d is the number of selected patterns, %2$s is the total installation size
-        // (e.g., "5 selected patterns, total size needed: 4.60 GiB")
-        _("%1$d selected patterns, total size needed: %2$s"),
-        selectedCount,
-        usedSize,
-      )
-    : sprintf(
-        // TRANSLATORS: %d is the number of selected patterns
-        _("%d selected patterns"),
-        selectedCount,
-      );
+  if (!usedSize) {
+    return <SummaryNoSize desktopCount={desktopCount} patternCount={patternCount} />;
+  }
+
+  let summaryText = "";
+
+  if (patternCount > 0 && desktopCount > 0) {
+    summaryText = sprintf(
+      // TRANSLATORS: %1$s is size, %2$d is pattern count, %3$d is desktop count
+      _("About %1$s space needed with the current selection (%2$d patterns and %3$d desktops)"),
+      usedSize,
+      patternCount,
+      desktopCount,
+    );
+  } else if (patternCount > 0) {
+    summaryText = sprintf(
+      // TRANSLATORS: %1$s is size, %2$d is pattern count
+      _("About %1$s space needed with the current selection (%2$d patterns)"),
+      usedSize,
+      patternCount,
+    );
+  } else if (desktopCount > 0) {
+    summaryText = sprintf(
+      // TRANSLATORS: %1$s is size, %2$d is desktop count
+      _("About %1$s space needed with the current selection (%2$d desktops)"),
+      usedSize,
+      desktopCount,
+    );
+  } else {
+    summaryText = sprintf(
+      // TRANSLATORS: %s is the required space
+      _("About %s space needed"),
+      usedSize,
+    );
+  }
 
   return (
     <Flex direction={{ default: "column" }}>
@@ -99,12 +156,21 @@ const Summary = ({
   );
 };
 
-const SelectedPatterns = ({ patterns }: { patterns: Pattern[] }): React.ReactNode => (
+const SoftwareSection = ({
+  title,
+  buttonText,
+  patterns,
+}: {
+  title: string;
+  buttonText: string;
+  patterns: Pattern[];
+}): React.ReactNode => (
   <Page.Section
-    title={_("Selected patterns")}
+    title={title}
+    pfCardProps={{ isFullHeight: false }}
     actions={
       <Link to={PATHS.patternsSelection} isPrimary>
-        {_("Change selection")}
+        {buttonText}
       </Link>
     }
   >
@@ -170,7 +236,12 @@ const PageContent = () => {
   const usedSize = proposal.usedSpace
     ? xbytes(proposal.usedSpace * 1024, { iec: true })
     : undefined;
+
   const selectedPatterns = patterns.filter((p) => isPatternSelected(proposal.patterns, p.name));
+  const [desktops, otherPatterns] = fork(
+    selectedPatterns,
+    (p) => p.category === "Graphical Environments",
+  );
 
   const startProbing = () => {
     setLoading(true);
@@ -188,8 +259,27 @@ const PageContent = () => {
           <NoPatterns />
         ) : (
           <>
-            <Summary selectedCount={selectedPatterns.length} usedSize={usedSize} />
-            <SelectedPatterns patterns={selectedPatterns} />
+            <Summary
+              desktopCount={desktops.length}
+              patternCount={otherPatterns.length}
+              usedSize={usedSize}
+            />
+            <Grid hasGutter>
+              <GridItem lg={6}>
+                <SoftwareSection
+                  title={_("Selected patterns")}
+                  buttonText={_("Change patterns")}
+                  patterns={otherPatterns}
+                />
+              </GridItem>
+              <GridItem lg={6}>
+                <SoftwareSection
+                  title={_("Selected desktop")}
+                  buttonText={_("Change desktop")}
+                  patterns={desktops}
+                />
+              </GridItem>
+            </Grid>
           </>
         )}
       </Page.Content>

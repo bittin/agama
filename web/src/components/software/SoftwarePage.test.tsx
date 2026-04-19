@@ -49,26 +49,33 @@ describe("SoftwarePage", () => {
     mockProposal.mockReturnValue(testingProposal);
   });
 
+  it("renders selected desktop", () => {
+    installerRender(<SoftwarePage />);
+    screen.getByText("Selected desktop");
+    screen.getAllByText(/GNOME/);
+    expect(screen.queryByText(/KDE/)).toBeNull();
+    expect(screen.queryByText(/XFCE/)).toBeNull();
+  });
+
   it("renders a list of selected patterns", () => {
     installerRender(<SoftwarePage />);
-    screen.getAllByText(/GNOME/);
+    screen.getByText("Selected patterns");
     screen.getByText("YaST Base Utilities");
     screen.getByText("YaST Desktop Utilities");
     screen.getByText("Multimedia");
     screen.getAllByText(/Office software/);
-    expect(screen.queryByText(/KDE/)).toBeNull();
-    expect(screen.queryByText(/XFCE/)).toBeNull();
     expect(screen.queryByText("YaST Server Utilities")).toBeNull();
   });
 
   it("renders the summary", () => {
     installerRender(<SoftwarePage />);
-    screen.getByText(/5 selected patterns, total size needed: 4.60 GiB/);
+    screen.getByText(/About 4.60 GiB space needed with the current selection \(4 patterns and 1 desktops\)/);
   });
 
-  it("renders a button for navigating to patterns selection", () => {
+  it("renders buttons for navigating to patterns selection", () => {
     installerRender(<SoftwarePage />);
-    screen.getByRole("link", { name: "Change selection" });
+    screen.getByRole("link", { name: "Change patterns" });
+    screen.getByRole("link", { name: "Change desktop" });
   });
 
   it("does not render patterns marked as removed", () => {
