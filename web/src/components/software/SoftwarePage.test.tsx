@@ -61,9 +61,9 @@ describe("SoftwarePage", () => {
     expect(screen.queryByText("YaST Server Utilities")).toBeNull();
   });
 
-  it("renders amount of size selected product and patterns will need", () => {
+  it("renders the summary", () => {
     installerRender(<SoftwarePage />);
-    screen.getByText("Installation will take 4.60 GiB.");
+    screen.getByText(/5 selected patterns, total size needed: 4.60 GiB/);
   });
 
   it("renders a button for navigating to patterns selection", () => {

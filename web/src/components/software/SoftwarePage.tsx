@@ -21,64 +21,85 @@
  */
 
 import React, { useState } from "react";
+import xbytes from "xbytes";
+import { isEmpty } from "radashi";
+import { sprintf } from "sprintf-js";
 import {
   Alert,
   Button,
+  Content,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
   EmptyState,
-  Grid,
-  GridItem,
+  Flex,
   Spinner,
-  Stack,
 } from "@patternfly/react-core";
-import { Link, Page, IssuesAlert } from "~/components/core";
-import UsedSize from "./UsedSize";
+import IssuesAlert from "~/components/core/IssuesAlert";
+import Link from "~/components/core/Link";
+import Page from "~/components/core/Page";
+import Text from "~/components/core/Text";
 import { useIssues } from "~/hooks/model/issue";
 import { useProposal } from "~/hooks/model/proposal/software";
 import { useSystem } from "~/hooks/model/system/software";
-import { N_, _ } from "~/i18n";
-import { SOFTWARE as PATHS } from "~/routes/paths";
-import xbytes from "xbytes";
-import { PatternsSelection } from "~/model/proposal/software";
-import { Pattern } from "~/model/system/software";
-import { isEmpty } from "radashi";
 import { isPatternSelected } from "~/utils/software";
+import { SOFTWARE as PATHS } from "~/routes/paths";
+import { N_, _ } from "~/i18n";
+
+import type { Pattern } from "~/model/system/software";
 
 /**
  * List of selected patterns.
  */
-const SelectedPatternsList = ({
-  patterns,
-  selection,
-}: {
-  patterns: Pattern[];
-  selection: PatternsSelection;
-}): React.ReactNode => {
-  const selected = patterns.filter((p) => isPatternSelected(selection, p.name));
-
-  if (selected.length === 0) {
+const SelectedPatternsList = ({ patterns }: { patterns: Pattern[] }): React.ReactNode => {
+  if (patterns.length === 0) {
     return <>{_("No additional software was selected.")}</>;
   }
 
   return (
-    <Stack hasGutter>
-      <p>{_("The following software patterns are selected for installation:")}</p>
-      <DescriptionList>
-        {selected.map((pattern) => (
-          <DescriptionListGroup key={pattern.name}>
-            <DescriptionListTerm>{pattern.summary}</DescriptionListTerm>
-            <DescriptionListDescription>{pattern.description}</DescriptionListDescription>
-          </DescriptionListGroup>
-        ))}
-      </DescriptionList>
-    </Stack>
+    <DescriptionList>
+      {patterns.map((pattern) => (
+        <DescriptionListGroup key={pattern.name}>
+          <DescriptionListTerm>{pattern.summary}</DescriptionListTerm>
+          <DescriptionListDescription>{pattern.description}</DescriptionListDescription>
+        </DescriptionListGroup>
+      ))}
+    </DescriptionList>
   );
 };
 
-const SelectedPatterns = ({ patterns, selection }): React.ReactNode => (
+const Summary = ({
+  selectedCount,
+  usedSize,
+}: {
+  selectedCount: number;
+  usedSize?: string;
+}): React.ReactNode => {
+  const summaryText = usedSize
+    ? sprintf(
+        // TRANSLATORS: %1$d is the number of selected patterns, %2$s is the total installation size
+        // (e.g., "5 selected patterns, total size needed: 4.60 GiB")
+        _("%1$d selected patterns, total size needed: %2$s"),
+        selectedCount,
+        usedSize,
+      )
+    : sprintf(
+        // TRANSLATORS: %d is the number of selected patterns
+        _("%d selected patterns"),
+        selectedCount,
+      );
+
+  return (
+    <Flex direction={{ default: "column" }}>
+      <Content isEditorial>
+        <Text>{summaryText}</Text>
+      </Content>
+    </Flex>
+  );
+};
+
+const SelectedPatterns = ({ patterns }: { patterns: Pattern[] }): React.ReactNode => (
   <Page.Section
     title={_("Selected patterns")}
     actions={
@@ -87,7 +108,7 @@ const SelectedPatterns = ({ patterns, selection }): React.ReactNode => (
       </Link>
     }
   >
-    <SelectedPatternsList patterns={patterns} selection={selection} />
+    <SelectedPatternsList patterns={patterns} />
   </Page.Section>
 );
 
@@ -134,7 +155,7 @@ const ReloadSection = ({
   </Alert>
 );
 
-const Content = () => {
+const PageContent = () => {
   const { patterns } = useSystem();
   const proposal = useProposal();
   const issues = useIssues("software");
@@ -146,13 +167,10 @@ const Content = () => {
 
   // FIXME: temporarily disabled, the API end point is not implemented yet
   const repos = []; // useRepositories();
-  const usedSpace = proposal.usedSpace
+  const usedSize = proposal.usedSpace
     ? xbytes(proposal.usedSpace * 1024, { iec: true })
     : undefined;
-
-  // Selected patterns section should fill the full width in big screen too when
-  // there is no information for rendering the Proposal Size section.
-  const selectedPatternsXlSize = usedSpace ? 6 : 12;
+  const selectedPatterns = patterns.filter((p) => isPatternSelected(proposal.patterns, p.name));
 
   const startProbing = () => {
     setLoading(true);
@@ -163,28 +181,18 @@ const Content = () => {
 
   return (
     <>
-      <IssuesAlert issues={issues} />
-      <Grid hasGutter>
-        {showReposAlert && (
-          <GridItem sm={12}>
-            <ReloadSection loading={loading} action={startProbing} />
-          </GridItem>
+      <Page.Content>
+        <IssuesAlert issues={issues} />
+        {showReposAlert && <ReloadSection loading={loading} action={startProbing} />}
+        {isEmpty(proposal.patterns) ? (
+          <NoPatterns />
+        ) : (
+          <>
+            <Summary selectedCount={selectedPatterns.length} usedSize={usedSize} />
+            <SelectedPatterns patterns={selectedPatterns} />
+          </>
         )}
-        <GridItem sm={12} xl={selectedPatternsXlSize}>
-          {isEmpty(proposal.patterns) ? (
-            <NoPatterns />
-          ) : (
-            <SelectedPatterns patterns={patterns} selection={proposal.patterns} />
-          )}
-        </GridItem>
-        {usedSpace && (
-          <GridItem sm={12} xl={6}>
-            <Page.Section aria-label={_("Used space")}>
-              <UsedSize size={usedSpace} />
-            </Page.Section>
-          </GridItem>
-        )}
-      </Grid>
+      </Page.Content>
     </>
   );
 };
@@ -195,9 +203,7 @@ const Content = () => {
 function SoftwarePage(): React.ReactNode {
   return (
     <Page breadcrumbs={[{ label: _("Software") }]} progress={{ scope: "software" }}>
-      <Page.Content>
-        <Content />
-      </Page.Content>
+      <PageContent />
     </Page>
   );
 }
