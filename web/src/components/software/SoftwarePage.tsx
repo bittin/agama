@@ -20,13 +20,11 @@
  * find current contact information at www.suse.com.
  */
 
-import React, { useState } from "react";
+import React from "react";
 import xbytes from "xbytes";
 import { fork, isEmpty } from "radashi";
 import { sprintf } from "sprintf-js";
 import {
-  Alert,
-  Button,
   Content,
   EmptyState,
   EmptyStateActions,
@@ -37,7 +35,6 @@ import {
   GridItem,
   List,
   ListItem,
-  Spinner,
 } from "@patternfly/react-core";
 import IssuesAlert from "~/components/core/IssuesAlert";
 import Link from "~/components/core/Link";
@@ -51,7 +48,7 @@ import { useProposal } from "~/hooks/model/proposal/software";
 import { useSystem } from "~/hooks/model/system/software";
 import { isDesktopPattern, isPatternSelected } from "~/utils/software";
 import { SOFTWARE as PATHS } from "~/routes/paths";
-import { N_, _, n_ } from "~/i18n";
+import { _, n_ } from "~/i18n";
 
 import type { Pattern } from "~/model/system/software";
 import type { PatternsSelection } from "~/model/proposal/software";
@@ -183,52 +180,16 @@ However, you can add additional software once the installation is finished.",
   </Page.Section>
 );
 
-const errorMsg = N_(
-  /* TRANSLATORS: error details followed by a "Try again" link*/
-  "Some installation repositories could not be loaded. \
-The system cannot be installed without them.",
-);
-
-// error message, allow reloading the repositories again
-const ReloadSection = ({
-  loading,
-  action,
-}: {
-  loading: boolean;
-  action: () => void;
-}): React.ReactNode => (
-  // TRANSLATORS: title for an error message box, at least one repository could not be loaded
-  <Alert variant="danger" isInline title={_("Repository load failed")}>
-    {loading ? (
-      <>
-        {/* TRANSLATORS: progress message */}
-        <Spinner size="md" /> {_("Loading the installation repositories...")}
-      </>
-    ) : (
-      <>
-        {_(errorMsg)}{" "}
-        <Button variant="link" isInline onClick={action}>
-          {/* TRANSLATORS: link for retrying failed repository load */}
-          {_("Try again")}
-        </Button>
-      </>
-    )}
-  </Alert>
-);
-
 const PageContent = () => {
   const { patterns } = useSystem();
   const proposal = useProposal();
   const issues = useIssues("software");
-  const [loading, setLoading] = useState(false);
 
   if (!proposal) {
     // TRANSLATORS: shown while the software proposal is not yet available
     return <EmptyState headingLevel="h2" titleText={_("No information available yet")} />;
   }
 
-  // FIXME: temporarily disabled, the API end point is not implemented yet
-  const repos = []; // useRepositories();
   const usedSize = proposal.usedSpace
     ? xbytes(proposal.usedSpace * 1024, { iec: true })
     : undefined;
@@ -237,20 +198,12 @@ const PageContent = () => {
   const selectedPatterns = patterns.filter((p) => isPatternSelected(proposal.patterns, p.name));
   const [desktops, otherPatterns] = fork(selectedPatterns, isDesktopPattern);
 
-  const startProbing = () => {
-    setLoading(true);
-    // TODO: probe();
-  };
-
-  const showReposAlert = repos.some((r) => !r.loaded);
-
   return (
     <Page.Content>
       <Content>
         <Summary usedSize={usedSize} />
       </Content>
       <IssuesAlert issues={issues} />
-      {showReposAlert && <ReloadSection loading={loading} action={startProbing} />}
       {isEmpty(proposal.patterns) ? (
         <NoPatterns />
       ) : (
