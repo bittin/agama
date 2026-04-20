@@ -1,4 +1,4 @@
-// Copyright (c) [2025] SUSE LLC
+// Copyright (c) [2025-2026] SUSE LLC
 //
 // All Rights Reserved.
 //
@@ -763,11 +763,19 @@ impl ZyppServer {
             .filter(|p| p.preselected())
             .map(|p| p.name())
             .collect();
+        let desktop_patterns: Vec<_> = product
+            .software
+            .user_patterns
+            .iter()
+            .filter(|p| p.desktop())
+            .map(|p| p.name())
+            .collect();
 
         let patterns = self
             .user_patterns(product, zypp)?
             .map(|p| {
                 let preselected = preselected_patterns.contains(&p.name.as_str());
+                let desktop = desktop_patterns.contains(&p.name.as_str());
                 Pattern {
                     name: p.name,
                     category: p.category,
@@ -776,6 +784,7 @@ impl ZyppServer {
                     summary: p.summary,
                     order: p.order,
                     preselected,
+                    desktop,
                 }
             })
             .collect();

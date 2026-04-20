@@ -320,7 +320,7 @@ pub struct SoftwareSpec {
     pub installation_labels: Vec<LabelSpec>,
     #[serde(default)]
     #[merge(strategy = merge::vec::append)]
-    pub user_patterns: Vec<UserPattern>,
+    pub user_patterns: Vec<UserPatternSpec>,
     #[serde(default)]
     #[merge(strategy = merge::vec::append)]
     pub mandatory_patterns: Vec<String>,
@@ -354,33 +354,44 @@ impl SoftwareSpec {
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 #[serde(untagged)]
-pub enum UserPattern {
+pub enum UserPatternSpec {
     Plain(String),
-    Preselected(PreselectedPattern),
+    Object(UserPattern),
 }
 
-impl UserPattern {
+impl UserPatternSpec {
     /// Pattern name.
     pub fn name(&self) -> &str {
         match self {
-            UserPattern::Plain(name) => name,
-            UserPattern::Preselected(pattern) => &pattern.name,
+            UserPatternSpec::Plain(name) => name,
+            UserPatternSpec::Object(pattern) => &pattern.name,
         }
     }
 
     /// Whether the pattern is preselected.
     pub fn preselected(&self) -> bool {
         match self {
-            UserPattern::Plain(_) => false,
-            UserPattern::Preselected(pattern) => pattern.selected,
+            UserPatternSpec::Plain(_) => false,
+            UserPatternSpec::Object(pattern) => pattern.selected,
+        }
+    }
+
+    /// Whether the pattern represents a desktop.
+    pub fn desktop(&self) -> bool {
+        match self {
+            UserPatternSpec::Plain(_) => false,
+            UserPatternSpec::Object(pattern) => pattern.desktop,
         }
     }
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub struct PreselectedPattern {
+pub struct UserPattern {
     pub name: String,
+    #[serde(default)]
     pub selected: bool,
+    #[serde(default)]
+    pub desktop: bool,
 }
 
 #[serde_as]
@@ -540,18 +551,24 @@ mod test {
         assert_eq!(software.base_product.as_ref().unwrap(), "openSUSE");
         assert_eq!(software.user_patterns.len(), 11);
 
-        let preselected = software
+        let selinux = software
             .user_patterns
             .iter()
-            .find(|p| matches!(p, UserPattern::Preselected(_)));
-        let expected_pattern = PreselectedPattern {
+            .find(|p| p.name() == "selinux");
+        let expected_pattern = UserPattern {
             name: "selinux".to_string(),
             selected: true,
+            desktop: false,
         };
-        assert_eq!(
-            preselected,
-            Some(&UserPattern::Preselected(expected_pattern))
-        );
+        assert_eq!(selinux, Some(&UserPatternSpec::Object(expected_pattern)));
+
+        let gnome = software.user_patterns.iter().find(|p| p.name() == "gnome");
+        let expected_pattern = UserPattern {
+            name: "gnome".to_string(),
+            selected: false,
+            desktop: true,
+        };
+        assert_eq!(gnome, Some(&UserPatternSpec::Object(expected_pattern)));
     }
 
     #[test_context(Context)]
