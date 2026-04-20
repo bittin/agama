@@ -49,17 +49,17 @@ describe("SoftwarePage", () => {
     mockProposal.mockReturnValue(testingProposal);
   });
 
-  it("renders selected desktop", () => {
+  it("renders the Desktops section with the selected desktop", () => {
     installerRender(<SoftwarePage />);
-    screen.getByText("Desktop");
+    screen.getByText("Desktops");
     screen.getByText("GNOME Desktop Environment (Wayland)");
     expect(screen.queryByText("KDE Applications and Plasma 5 Desktop")).toBeNull();
     expect(screen.queryByText("XFCE Desktop Environment")).toBeNull();
   });
 
-  it("renders a list of selected patterns", () => {
+  it("renders the Additional patterns section with selected patterns", () => {
     installerRender(<SoftwarePage />);
-    screen.getByText("Patterns");
+    screen.getByText("Additional patterns");
     screen.getByText("YaST Base Utilities");
     screen.getByText("YaST Desktop Utilities");
     screen.getByText("Multimedia");
@@ -69,15 +69,33 @@ describe("SoftwarePage", () => {
 
   it("renders the summary", () => {
     installerRender(<SoftwarePage />);
-    screen.getByText(
-      /About 4.60 GiB space needed with the current selection \(4 patterns and 1 desktops\)/,
-    );
+    screen.getByText(/About 4.60 GiB space required/);
   });
 
   it("renders buttons for navigating to patterns selection", () => {
     installerRender(<SoftwarePage />);
     screen.getByRole("link", { name: "Change patterns" });
+    // 1 desktop selected — singular form
     screen.getByRole("link", { name: "Change desktop" });
+  });
+
+  it("shows selection counter when patterns are selected", () => {
+    installerRender(<SoftwarePage />);
+    // 1 desktop selected out of 4 available
+    screen.getByText(/1 of 4 selected/);
+    // 4 other patterns selected out of 5 available
+    screen.getByText(/4 of 5 selected/);
+  });
+
+  it("hides selection counter when no patterns are selected", () => {
+    const proposalWithNoDesktop = {
+      ...testingProposal,
+      patterns: { ...testingProposal.patterns, gnome: "none" },
+    };
+    mockProposal.mockReturnValue(proposalWithNoDesktop);
+
+    installerRender(<SoftwarePage />);
+    expect(screen.queryByText(/0 of 4 selected/)).toBeNull();
   });
 
   it("shows auto selected label for automatically selected patterns", () => {
@@ -102,10 +120,7 @@ describe("SoftwarePage", () => {
   it("does not render patterns marked as removed", () => {
     const proposalWithRemovedPattern = {
       ...testingProposal,
-      patterns: {
-        ...testingProposal.patterns,
-        multimedia: "removed",
-      },
+      patterns: { ...testingProposal.patterns, multimedia: "removed" },
     };
     mockProposal.mockReturnValue(proposalWithRemovedPattern);
 
@@ -116,20 +131,17 @@ describe("SoftwarePage", () => {
   it("shows empty state when no desktop is selected", () => {
     const proposalWithNoDesktop = {
       ...testingProposal,
-      patterns: {
-        ...testingProposal.patterns,
-        gnome: "none",
-      },
+      patterns: { ...testingProposal.patterns, gnome: "none" },
     };
     mockProposal.mockReturnValue(proposalWithNoDesktop);
 
     installerRender(<SoftwarePage />);
     screen.getByText("None selected");
-    screen.getByText("Choose a desktop environment.");
-    screen.getByRole("link", { name: "Select desktop" });
+    screen.getByText("Select a desktop environment to get a graphical interface.");
+    screen.getByRole("link", { name: "Select a desktop" });
   });
 
-  it("shows empty state when no patterns are selected", () => {
+  it("shows empty state when no additional patterns are selected", () => {
     const proposalWithNoPatterns = {
       ...testingProposal,
       patterns: {
@@ -144,8 +156,19 @@ describe("SoftwarePage", () => {
 
     installerRender(<SoftwarePage />);
     screen.getByText("None selected");
-    screen.getByText("The product does not provide additional patterns.");
+    screen.getByText("Select one or more to extend the system.");
     screen.getByRole("link", { name: "Select patterns" });
+  });
+
+  it("uses plural button label when multiple desktops are selected", () => {
+    const proposalWithMultipleDesktops = {
+      ...testingProposal,
+      patterns: { ...testingProposal.patterns, kde: "user" },
+    };
+    mockProposal.mockReturnValue(proposalWithMultipleDesktops);
+
+    installerRender(<SoftwarePage />);
+    screen.getByRole("link", { name: "Change desktops" });
   });
 
   describe("when there is no proposal yet", () => {
@@ -153,7 +176,7 @@ describe("SoftwarePage", () => {
       mockProposal.mockReturnValue(null);
     });
 
-    it("renders an informative messsage", () => {
+    it("renders an informative message", () => {
       installerRender(<SoftwarePage />);
       screen.getByText("No information available yet");
     });

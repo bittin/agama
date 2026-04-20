@@ -33,7 +33,6 @@ import {
   EmptyStateBody,
   EmptyStateFooter,
   ExpandableSection,
-  Flex,
   Grid,
   GridItem,
   List,
@@ -52,7 +51,7 @@ import { useProposal } from "~/hooks/model/proposal/software";
 import { useSystem } from "~/hooks/model/system/software";
 import { isDesktopPattern, isPatternSelected } from "~/utils/software";
 import { SOFTWARE as PATHS } from "~/routes/paths";
-import { N_, _ } from "~/i18n";
+import { N_, _, n_ } from "~/i18n";
 
 import type { Pattern } from "~/model/system/software";
 import type { PatternsSelection } from "~/model/proposal/software";
@@ -62,11 +61,16 @@ import { SelectedBy } from "~/model/proposal/software";
  * Empty state for when no patterns are selected.
  */
 const NoPatternsSelected = (): React.ReactNode => (
+  // TRANSLATORS: empty state title for the additional software section
   <EmptyState headingLevel="h4" titleText={_("None selected")} variant="sm">
-    <EmptyStateBody>{_("The product does not provide additional patterns.")}</EmptyStateBody>
+    <EmptyStateBody>
+      {/* TRANSLATORS: hint shown when no additional software patterns have been chosen */}
+      {_("Select one or more to extend the system.")}
+    </EmptyStateBody>
     <EmptyStateFooter>
       <EmptyStateActions>
         <Link to={PATHS.patternsSelection} isPrimary>
+          {/* TRANSLATORS: button to go to the pattern selection page */}
           {_("Select patterns")}
         </Link>
       </EmptyStateActions>
@@ -78,12 +82,17 @@ const NoPatternsSelected = (): React.ReactNode => (
  * Empty state for when no desktop is selected.
  */
 const NoDesktopSelected = (): React.ReactNode => (
+  // TRANSLATORS: empty state title for the desktops section
   <EmptyState headingLevel="h4" titleText={_("None selected")} variant="sm">
-    <EmptyStateBody>{_("Choose a desktop environment.")}</EmptyStateBody>
+    <EmptyStateBody>
+      {/* TRANSLATORS: hint shown when no desktop environment has been chosen */}
+      {_("Select a desktop environment to get a graphical interface.")}
+    </EmptyStateBody>
     <EmptyStateFooter>
       <EmptyStateActions>
         <Link to={PATHS.patternsSelection} isPrimary>
-          {_("Select desktop")}
+          {/* TRANSLATORS: button to go to the desktop environment selection page */}
+          {_("Select a desktop")}
         </Link>
       </EmptyStateActions>
     </EmptyStateFooter>
@@ -107,144 +116,76 @@ const SelectedPatternsList = ({
   }
 
   return (
-    <NestedContent margin="mxSm">
-      <List isPlain>
-        {patterns.map((pattern) => (
-          <ListItem key={pattern.name}>
-            <Text>
-              <Text isBold>{pattern.summary} </Text>
-              {selection[pattern.name] === SelectedBy.AUTO && <AutoSelectedLabel />}
-            </Text>
-            <NestedContent margin="mxXs">
-              <ExpandableSection
-                variant="truncate"
-                truncateMaxLines={2}
-                // TRANSLATORS: button to expand truncated pattern description
-                toggleTextCollapsed={_("Read more")}
-                // TRANSLATORS: button to collapse expanded pattern description
-                toggleTextExpanded={_("Read less")}
-              >
-                <SubtleContent>{pattern.description}</SubtleContent>
-              </ExpandableSection>
-            </NestedContent>
-          </ListItem>
-        ))}
-      </List>
+    <NestedContent margin="myMd">
+      <NestedContent margin="mxSm">
+        <List isPlain>
+          {patterns.map((pattern) => (
+            <ListItem key={pattern.name}>
+              <Text>
+                <Text isBold>{pattern.summary} </Text>
+                {selection[pattern.name] === SelectedBy.AUTO && <AutoSelectedLabel />}
+              </Text>
+              <NestedContent margin="mxXs">
+                <ExpandableSection
+                  variant="truncate"
+                  truncateMaxLines={2}
+                  // TRANSLATORS: button to expand truncated pattern description
+                  toggleTextCollapsed={_("Read more")}
+                  // TRANSLATORS: button to collapse expanded pattern description
+                  toggleTextExpanded={_("Read less")}
+                >
+                  <SubtleContent>{pattern.description}</SubtleContent>
+                </ExpandableSection>
+              </NestedContent>
+            </ListItem>
+          ))}
+        </List>
+      </NestedContent>
     </NestedContent>
   );
 };
 
-const SummaryNoSize = ({
-  desktopCount,
-  patternCount,
-}: {
-  desktopCount: number;
-  patternCount: number;
-}): React.ReactNode => {
-  let text = "";
+const Summary = ({ usedSize }: { usedSize?: string }): React.ReactNode => {
+  if (!usedSize) return;
 
-  if (patternCount > 0 && desktopCount > 0) {
-    text = sprintf(
-      // TRANSLATORS: %1$d is pattern count, %2$d is desktop count
-      _("%1$d patterns and %2$d desktop selected"),
-      patternCount,
-      desktopCount,
-    );
-  } else if (patternCount > 0) {
-    text = sprintf(_("%d patterns selected"), patternCount);
-  } else if (desktopCount > 0) {
-    text = sprintf(_("%d desktop selected"), desktopCount);
-  }
+  // TRANSLATORS: %s is the required disk space
+  const text = sprintf(_("About %s space required"), usedSize);
 
-  return (
-    <Flex direction={{ default: "column" }}>
-      <Content isEditorial>
-        <Text>{text}</Text>
-      </Content>
-    </Flex>
-  );
-};
-
-const Summary = ({
-  desktopCount,
-  patternCount,
-  usedSize,
-}: {
-  desktopCount: number;
-  patternCount: number;
-  usedSize?: string;
-}): React.ReactNode => {
-  if (!usedSize) {
-    return <SummaryNoSize desktopCount={desktopCount} patternCount={patternCount} />;
-  }
-
-  let summaryText = "";
-
-  if (patternCount > 0 && desktopCount > 0) {
-    summaryText = sprintf(
-      // TRANSLATORS: %1$s is size, %2$d is pattern count, %3$d is desktop count
-      _("About %1$s space needed with the current selection (%2$d patterns and %3$d desktops)"),
-      usedSize,
-      patternCount,
-      desktopCount,
-    );
-  } else if (patternCount > 0) {
-    summaryText = sprintf(
-      // TRANSLATORS: %1$s is size, %2$d is pattern count
-      _("About %1$s space needed with the current selection (%2$d patterns)"),
-      usedSize,
-      patternCount,
-    );
-  } else if (desktopCount > 0) {
-    summaryText = sprintf(
-      // TRANSLATORS: %1$s is size, %2$d is desktop count
-      _("About %1$s space needed with the current selection (%2$d desktops)"),
-      usedSize,
-      desktopCount,
-    );
-  } else {
-    summaryText = sprintf(
-      // TRANSLATORS: %s is the required space
-      _("About %s space needed"),
-      usedSize,
-    );
-  }
-
-  return (
-    <Flex direction={{ default: "column" }}>
-      <Content isEditorial>
-        <Text>{summaryText}</Text>
-      </Content>
-    </Flex>
-  );
+  return <Text textStyle="fontSizeMd">{text}</Text>;
 };
 
 const SoftwareSection = ({
   title,
+  description,
   buttonText,
+  totalCount,
   patterns,
   selection,
   emptyContent,
 }: {
   title: string;
+  description?: React.ReactNode;
   buttonText: string;
+  totalCount: number;
   patterns: Pattern[];
   selection: PatternsSelection;
   emptyContent: React.ReactNode;
 }): React.ReactNode => {
   const isEmpty = patterns.length === 0;
+  // TRANSLATORS: %1$d is selected count, %2$d is total available count
+  const selected = !isEmpty && sprintf(_("%1$d of %2$d selected"), patterns.length, totalCount);
 
   return (
     <Page.Section
-      title={title}
-      pfCardProps={{ isFullHeight: false }}
-      actions={
-        !isEmpty && (
-          <Link to={PATHS.patternsSelection} isPrimary>
-            {buttonText}
-          </Link>
-        )
+      title={
+        <>
+          {title}{" "}
+          {selected && <Text textStyle={["fontSizeXs", "textColorSubtle"]}>{selected}</Text>}
+        </>
       }
+      description={description}
+      pfCardProps={{ isFullHeight: false }}
+      actions={!isEmpty && <Link to={PATHS.patternsSelection}>{buttonText}</Link>}
     >
       <SelectedPatternsList patterns={patterns} selection={selection} emptyContent={emptyContent} />
     </Page.Section>
@@ -254,8 +195,10 @@ const SoftwareSection = ({
 const NoPatterns = (): React.ReactNode => (
   <Page.Section title={_("Patterns")}>
     <p>
+      {/* TRANSLATORS: shown when the product does not support pattern selection at install time */}
       {_(
-        "This product does not allow to select software patterns during installation. However, you can add additional software once the installation is finished.",
+        "This product does not allow to select software patterns during installation. \
+However, you can add additional software once the installation is finished.",
       )}
     </p>
   </Page.Section>
@@ -301,6 +244,7 @@ const PageContent = () => {
   const [loading, setLoading] = useState(false);
 
   if (!proposal) {
+    // TRANSLATORS: shown while the software proposal is not yet available
     return <EmptyState headingLevel="h2" titleText={_("No information available yet")} />;
   }
 
@@ -310,6 +254,7 @@ const PageContent = () => {
     ? xbytes(proposal.usedSpace * 1024, { iec: true })
     : undefined;
 
+  const [allDesktops, allOtherPatterns] = fork(patterns, isDesktopPattern);
   const selectedPatterns = patterns.filter((p) => isPatternSelected(proposal.patterns, p.name));
   const [desktops, otherPatterns] = fork(selectedPatterns, isDesktopPattern);
 
@@ -321,43 +266,53 @@ const PageContent = () => {
   const showReposAlert = repos.some((r) => !r.loaded);
 
   return (
-    <>
-      <Page.Content>
-        <IssuesAlert issues={issues} />
-        {showReposAlert && <ReloadSection loading={loading} action={startProbing} />}
-        {isEmpty(proposal.patterns) ? (
-          <NoPatterns />
-        ) : (
-          <>
-            <Summary
-              desktopCount={desktops.length}
-              patternCount={otherPatterns.length}
-              usedSize={usedSize}
-            />
-            <Grid hasGutter>
-              <GridItem lg={6}>
-                <SoftwareSection
-                  title={_("Patterns")}
-                  buttonText={_("Change patterns")}
-                  patterns={otherPatterns}
-                  selection={proposal.patterns}
-                  emptyContent={<NoPatternsSelected />}
-                />
-              </GridItem>
-              <GridItem lg={6}>
-                <SoftwareSection
-                  title={_("Desktop")}
-                  buttonText={_("Change desktop")}
-                  patterns={desktops}
-                  selection={proposal.patterns}
-                  emptyContent={<NoDesktopSelected />}
-                />
-              </GridItem>
-            </Grid>
-          </>
-        )}
-      </Page.Content>
-    </>
+    <Page.Content>
+      <Content>
+        <Summary usedSize={usedSize} />
+      </Content>
+      <IssuesAlert issues={issues} />
+      {showReposAlert && <ReloadSection loading={loading} action={startProbing} />}
+      {isEmpty(proposal.patterns) ? (
+        <NoPatterns />
+      ) : (
+        <>
+          <Grid hasGutter>
+            <GridItem lg={6}>
+              <SoftwareSection
+                title={_("Desktops")}
+                description={_(
+                  // TRANSLATORS: description for the Desktops section
+                  "Graphical desktop environments for the system.",
+                )}
+                buttonText={
+                  // TRANSLATORS: button to change the desktop selection; singular when 1 is selected
+                  n_("Change desktop", "Change desktops", desktops.length)
+                }
+                totalCount={allDesktops.length}
+                patterns={desktops}
+                selection={proposal.patterns}
+                emptyContent={<NoDesktopSelected />}
+              />
+            </GridItem>
+            <GridItem lg={6}>
+              <SoftwareSection
+                title={_("Additional patterns")}
+                description={_(
+                  // TRANSLATORS: description for the Additional software section
+                  "Curated sets of packages for common use cases and features to extend the system.",
+                )}
+                // TRANSLATORS: button to change the additional software selection
+                buttonText={_("Change patterns")}
+                totalCount={allOtherPatterns.length}
+                patterns={otherPatterns}
+                selection={proposal.patterns}
+                emptyContent={<NoPatternsSelected />}
+              />
+            </GridItem>
+          </Grid>
+        </>
+      )}
+    </Page.Content>
   );
 };
 
