@@ -1,4 +1,4 @@
-// Copyright (c) [2025] SUSE LLC
+// Copyright (c) [2025-2026] SUSE LLC
 //
 // All Rights Reserved.
 //
@@ -69,6 +69,8 @@ pub struct Pattern {
     pub order: String,
     /// Whether the pattern is selected by default
     pub preselected: bool,
+    /// Whether the pattern represents a desktop (e.g., gnome).
+    pub desktop: bool,
 }
 
 #[skip_serializing_none]
