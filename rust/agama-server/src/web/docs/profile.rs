@@ -32,6 +32,7 @@ pub fn paths() -> Paths {
 /// Returns the components (schemas) for the profile API.
 pub fn components() -> Components {
     ComponentsBuilder::new()
+        .schema_from::<crate::web::error::ErrorResponse>()
         .schema_from::<agama_lib::profile::ValidationOutcome>()
         .build()
 }

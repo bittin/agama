@@ -22,7 +22,7 @@ use crate::{
     http::{BaseHTTPClient, BaseHTTPClientError},
     logs::LogsLists,
 };
-use agama_utils::api::{self, FinishMethod, Status};
+use agama_utils::api::{self, FinishMethod, IssueWithScope, Status};
 use reqwest::header::CONTENT_ENCODING;
 use std::path::{Path, PathBuf};
 use std::{fs, io::Cursor, os::unix::fs::OpenOptionsExt};
@@ -127,5 +127,11 @@ impl ManagerHTTPClient {
     pub async fn status(&self) -> Result<Status, ManagerHTTPClientError> {
         let status = self.client.get::<Status>("/v2/status").await?;
         Ok(status)
+    }
+
+    /// Returns the installer status.
+    pub async fn issues(&self) -> Result<Vec<IssueWithScope>, ManagerHTTPClientError> {
+        let issues: Vec<IssueWithScope> = self.client.get("/v2/issues").await?;
+        Ok(issues)
     }
 }

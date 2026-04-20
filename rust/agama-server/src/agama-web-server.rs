@@ -207,7 +207,7 @@ fn https_redirect() -> Router {
     Router::new()
         // the wildcard path below does not match an empty path, we need to match it explicitly
         .route_service("/", redirect_service)
-        .route_service("/*path", redirect_service)
+        .route_service("/{*path}", redirect_service)
 }
 
 /// handle the HTTPS connection

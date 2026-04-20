@@ -1,9 +1,16 @@
 -------------------------------------------------------------------
-Fri Apr 17 15:34:33 UTC 2026 - Ladislav Slezák <lslezak@suse.com>
+Mon Apr 20 07:40:54 UTC 2026 - Ladislav Slezák <lslezak@suse.com>
 
 - Properly initialize the GPG callbacks during registration so the
   PackageHub GPG key can be imported from the autoinstallation
   profile (bsc#1261351)
+
+-------------------------------------------------------------------
+Fri Apr 17 16:56:48 UTC 2026 - Josef Reidinger <jreidinger@suse.com>
+
+- CLI: improve `agama monitor` command to be able to show blocking
+  issues or waiting for questions. Also command now ends when
+  installation finishes. (gh#agama-project/agama#3377)
 
 -------------------------------------------------------------------
 Fri Apr 17 10:29:38 UTC 2026 - José Iván López González <jlopez@suse.com>
