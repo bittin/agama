@@ -26,7 +26,6 @@ import { SelectedBy } from "~/model/proposal/software";
 import {
   filterPatterns,
   groupPatterns,
-  isDesktopPattern,
   isPatternSelected,
   sortGroupNames,
 } from "./software";
@@ -41,6 +40,7 @@ describe("groupPatterns", () => {
       order: 2,
       icon: "icon1",
       preselected: false,
+      desktop: false,
     },
     {
       name: "pattern2",
@@ -50,6 +50,7 @@ describe("groupPatterns", () => {
       order: 1,
       icon: "icon2",
       preselected: false,
+      desktop: false,
     },
     {
       name: "pattern3",
@@ -59,6 +60,7 @@ describe("groupPatterns", () => {
       order: 2,
       icon: "icon3",
       preselected: false,
+      desktop: false,
     },
     {
       name: "pattern4",
@@ -68,6 +70,7 @@ describe("groupPatterns", () => {
       order: 1,
       icon: "icon4",
       preselected: false,
+      desktop: false,
     },
   ];
 
@@ -112,6 +115,7 @@ describe("filterPatterns", () => {
       order: 1,
       icon: "icon1",
       preselected: false,
+      desktop: false,
     },
     {
       name: "office",
@@ -121,6 +125,7 @@ describe("filterPatterns", () => {
       order: 2,
       icon: "icon2",
       preselected: false,
+      desktop: false,
     },
     {
       name: "development",
@@ -130,6 +135,7 @@ describe("filterPatterns", () => {
       order: 3,
       icon: "icon3",
       preselected: false,
+      desktop: false,
     },
   ];
 
@@ -197,88 +203,3 @@ describe("isPatternSelected", () => {
   });
 });
 
-describe("isDesktopPattern", () => {
-  it("returns true for standard Graphical Environments category", () => {
-    const pattern: Pattern = {
-      name: "gnome",
-      category: "Graphical Environments",
-      summary: "GNOME Desktop",
-      description: "GNOME desktop environment",
-      order: 1,
-      icon: "icon",
-      preselected: false,
-    };
-
-    expect(isDesktopPattern(pattern)).toBe(true);
-  });
-
-  it("returns true for lowercase category", () => {
-    const pattern: Pattern = {
-      name: "kde",
-      category: "graphical environments",
-      summary: "KDE Desktop",
-      description: "KDE desktop environment",
-      order: 1,
-      icon: "icon",
-      preselected: false,
-    };
-
-    expect(isDesktopPattern(pattern)).toBe(true);
-  });
-
-  it("returns true for uppercase category", () => {
-    const pattern: Pattern = {
-      name: "xfce",
-      category: "GRAPHICAL ENVIRONMENTS",
-      summary: "XFCE Desktop",
-      description: "XFCE desktop environment",
-      order: 1,
-      icon: "icon",
-      preselected: false,
-    };
-
-    expect(isDesktopPattern(pattern)).toBe(true);
-  });
-
-  it("returns true for category with extra whitespace", () => {
-    const pattern: Pattern = {
-      name: "basic_desktop",
-      category: "  Graphical Environments  ",
-      summary: "Basic Desktop",
-      description: "Basic desktop environment",
-      order: 1,
-      icon: "icon",
-      preselected: false,
-    };
-
-    expect(isDesktopPattern(pattern)).toBe(true);
-  });
-
-  it("returns false for non-desktop category", () => {
-    const pattern: Pattern = {
-      name: "office",
-      category: "Desktop Functions",
-      summary: "Office Software",
-      description: "Office applications",
-      order: 1,
-      icon: "icon",
-      preselected: false,
-    };
-
-    expect(isDesktopPattern(pattern)).toBe(false);
-  });
-
-  it("returns false for Base Technologies category", () => {
-    const pattern: Pattern = {
-      name: "yast2_basis",
-      category: "Base Technologies",
-      summary: "YaST Base",
-      description: "YaST tools",
-      order: 1,
-      icon: "icon",
-      preselected: false,
-    };
-
-    expect(isDesktopPattern(pattern)).toBe(false);
-  });
-});

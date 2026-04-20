@@ -46,7 +46,7 @@ import AutoSelectedLabel from "~/components/software/AutoSelectedLabel";
 import { useIssues } from "~/hooks/model/issue";
 import { useProposal } from "~/hooks/model/proposal/software";
 import { useSystem } from "~/hooks/model/system/software";
-import { isDesktopPattern, isPatternSelected } from "~/utils/software";
+import { isPatternSelected } from "~/utils/software";
 import { SOFTWARE as PATHS } from "~/routes/paths";
 import { _, n_ } from "~/i18n";
 
@@ -57,13 +57,21 @@ import { SelectedBy } from "~/model/proposal/software";
 /**
  * Empty state for a software section where nothing has been selected yet.
  */
-const NothingSelected = ({ body, buttonText }: { body: string; buttonText: string }) => (
+const NothingSelected = ({
+  to,
+  body,
+  buttonText,
+}: {
+  to: string;
+  body: string;
+  buttonText: string;
+}) => (
   // TRANSLATORS: empty state title for a software section with nothing selected
   <EmptyState headingLevel="h4" titleText={_("None selected")} variant="sm">
     <EmptyStateBody>{body}</EmptyStateBody>
     <EmptyStateFooter>
       <EmptyStateActions>
-        <Link to={PATHS.patternsSelection} isPrimary>
+        <Link to={to} isPrimary>
           {buttonText}
         </Link>
       </EmptyStateActions>
@@ -146,6 +154,8 @@ type SoftwareSectionProps = {
   selection: PatternsSelection;
   /** Content to show when no patterns are selected. */
   emptyContent: React.ReactNode;
+  /** Path to the selection page linked from the section action and empty state. */
+  selectionPath: string;
 };
 
 /**
@@ -163,6 +173,7 @@ const SoftwareSection = ({
   patterns,
   selection,
   emptyContent,
+  selectionPath,
 }: SoftwareSectionProps) => {
   const noneSelected = patterns.length === 0;
   // TRANSLATORS: %1$d is selected count, %2$d is total available count
@@ -179,7 +190,7 @@ const SoftwareSection = ({
       }
       description={description}
       pfCardProps={{ isFullHeight: false }}
-      actions={!noneSelected && <Link to={PATHS.patternsSelection}>{buttonText}</Link>}
+      actions={!noneSelected && <Link to={selectionPath}>{buttonText}</Link>}
     >
       <SelectedPatternsList patterns={patterns} selection={selection} emptyContent={emptyContent} />
     </Page.Section>
@@ -218,9 +229,9 @@ const SoftwarePageContent = () => {
     ? xbytes(proposal.usedSpace * 1024, { iec: true })
     : undefined;
 
-  const [allDesktops, allOtherPatterns] = fork(patterns, isDesktopPattern);
+  const [allDesktops, allOtherPatterns] = fork(patterns, (p) => p.desktop);
   const selectedPatterns = patterns.filter((p) => isPatternSelected(proposal.patterns, p.name));
-  const [desktops, otherPatterns] = fork(selectedPatterns, isDesktopPattern);
+  const [desktops, otherPatterns] = fork(selectedPatterns, (p) => p.desktop);
 
   return (
     <Page.Content>
@@ -246,8 +257,10 @@ const SoftwarePageContent = () => {
               totalCount={allDesktops.length}
               patterns={desktops}
               selection={proposal.patterns}
+              selectionPath={PATHS.desktopSelection}
               emptyContent={
                 <NothingSelected
+                  to={PATHS.desktopSelection}
                   // TRANSLATORS: hint shown when no desktop environment has been chosen
                   body={_("Select a desktop environment to get a graphical interface.")}
                   // TRANSLATORS: button to go to the desktop environment selection page
@@ -268,8 +281,10 @@ const SoftwarePageContent = () => {
               totalCount={allOtherPatterns.length}
               patterns={otherPatterns}
               selection={proposal.patterns}
+              selectionPath={PATHS.patternsSelection}
               emptyContent={
                 <NothingSelected
+                  to={PATHS.patternsSelection}
                   // TRANSLATORS: hint shown when no additional software patterns have been chosen
                   body={_("Select one or more to extend the system.")}
                   // TRANSLATORS: button to go to the pattern selection page

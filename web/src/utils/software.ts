@@ -25,10 +25,8 @@ import type { Pattern } from "~/model/system/software";
 import type { PatternsSelection } from "~/model/proposal/software";
 import { SelectedBy } from "~/model/proposal/software";
 
-/**
- * PatternGroups mapping "group name" => list of patterns
- */
-export type PatternsGroups = { [key: string]: Pattern[] };
+/** PatternGroups mapping "group name" => list of patterns */
+type PatternsGroups = { [key: string]: Pattern[] };
 
 /**
  * Groups patterns by category and sorts them by order within each group.
@@ -36,7 +34,7 @@ export type PatternsGroups = { [key: string]: Pattern[] };
  * @param patterns - Array of patterns to group
  * @returns Object mapping category names to sorted pattern arrays
  */
-export function groupPatterns(patterns: Pattern[]): PatternsGroups {
+function groupPatterns(patterns: Pattern[]): PatternsGroups {
   const groups = group(patterns, (p) => p.category);
 
   // Sort patterns within each group by order, then by name
@@ -56,7 +54,7 @@ export function groupPatterns(patterns: Pattern[]): PatternsGroups {
  * @param groups - Pattern groups to sort
  * @returns Array of sorted group names
  */
-export function sortGroupNames(groups: PatternsGroups): string[] {
+function sortGroupNames(groups: PatternsGroups): string[] {
   return sort(Object.keys(groups), (groupName) => groups[groupName][0].order);
 }
 
@@ -68,7 +66,7 @@ export function sortGroupNames(groups: PatternsGroups): string[] {
  * @param searchValue - Search string to filter by
  * @returns Filtered array of patterns
  */
-export function filterPatterns(patterns: Pattern[], searchValue = ""): Pattern[] {
+function filterPatterns(patterns: Pattern[], searchValue = ""): Pattern[] {
   if (searchValue.trim() === "") return patterns;
 
   const searchData = searchValue.toUpperCase();
@@ -85,17 +83,10 @@ export function filterPatterns(patterns: Pattern[], searchValue = ""): Pattern[]
  * @param patternName - Name of the pattern to check
  * @returns True if the pattern is selected by USER or AUTO
  */
-export function isPatternSelected(selection: PatternsSelection, patternName: string): boolean {
+function isPatternSelected(selection: PatternsSelection, patternName: string): boolean {
   const status = selection[patternName];
   return status === SelectedBy.USER || status === SelectedBy.AUTO;
 }
 
-/**
- * Checks if a pattern represents a desktop environment.
- *
- * @param pattern - Pattern to check
- * @returns True if the pattern is a desktop environment
- */
-export function isDesktopPattern(pattern: Pattern): boolean {
-  return pattern.category.trim().toLowerCase() === "graphical environments";
-}
+export type { PatternsGroups };
+export { groupPatterns, sortGroupNames, filterPatterns, isPatternSelected };

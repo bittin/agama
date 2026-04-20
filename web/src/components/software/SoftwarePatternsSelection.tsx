@@ -45,7 +45,7 @@ import { useProposal } from "~/hooks/model/proposal/software";
 import { usePristineSafeForm } from "~/hooks/form";
 import { filterPatterns, groupPatterns, isPatternSelected, sortGroupNames } from "~/utils/software";
 import { SOFTWARE } from "~/routes/paths";
-import { _ } from "~/i18n";
+import { N_, _ } from "~/i18n";
 
 import a11yStyles from "@patternfly/react-styles/css/utilities/Accessibility/accessibility";
 
@@ -60,11 +60,91 @@ const softwarePatternsFormOptions = formOptions({
 const NoMatches = (): React.ReactNode => <b>{_("None of the patterns match the filter.")}</b>;
 
 /**
- * Pattern selector component
+ * Controls which patterns the selection page shows.
+ * - "all": all available patterns
+ * - "desktops": only patterns representing desktop environments
+ * - "other": non-desktop patterns
  */
-function SoftwarePatternsSelection() {
+type Scope = "all" | "desktops" | "other";
+
+/**
+ * Whether a pattern should be added to the selection on submit.
+ *
+ * Visible patterns (inScope) are added only when checked AND there is clear
+ * user intent: the user just toggled it, or it was already their explicit
+ * choice. This avoids re-adding auto-selected patterns the user never touched.
+ *
+ * Hidden patterns (not inScope) are passed through unchanged to avoid losing
+ * selections made on a different scope. For example, when submitting the
+ * patterns scope ("other"), GNOME selected on the desktop scope must survive.
+ *
+ * @param inScope - Whether the pattern is visible to the user in the current scope
+ * @param isChecked - Current checkbox value in the form
+ * @param isDirty - Whether the user changed the checkbox from its initial value
+ * @param selectionStatus - Current backend selection status for this pattern
+ */
+const shouldAdd = (
+  inScope: boolean,
+  isChecked: boolean,
+  isDirty: boolean,
+  selectionStatus: SelectedBy | undefined,
+): boolean =>
+  inScope
+    ? isChecked && (isDirty || selectionStatus === SelectedBy.USER)
+    : selectionStatus === SelectedBy.USER;
+
+/**
+ * Whether a pattern should be removed from the selection on submit.
+ *
+ * Visible patterns (inScope) are removed when unchecked AND previously known
+ * to the selection: selected on load, a product default (preselected), or
+ * already explicitly removed. Patterns never seen before are simply ignored.
+ *
+ * Hidden patterns (not inScope) preserve their existing removed state to avoid
+ * undoing removals made on a different scope. For example, when submitting the
+ * patterns scope ("other"), a GNOME removal made on the desktop scope is kept.
+ *
+ * @param inScope - Whether the pattern is visible to the user in the current scope
+ * @param isChecked - Current checkbox value in the form
+ * @param isPreselected - Whether the pattern is selected by default in the product
+ * @param wasInitiallySelected - Whether the pattern was selected when the form loaded
+ * @param selectionStatus - Current backend selection status for this pattern
+ */
+const shouldRemove = (
+  inScope: boolean,
+  isChecked: boolean,
+  isPreselected: boolean,
+  wasInitiallySelected: boolean,
+  selectionStatus: SelectedBy | undefined,
+): boolean =>
+  inScope
+    ? !isChecked &&
+      (wasInitiallySelected || isPreselected || selectionStatus === SelectedBy.REMOVED)
+    : selectionStatus === SelectedBy.REMOVED;
+
+/** Values use `N_()` for extraction. Translate with `_()` at render time. */
+const PAGE_TITLE: Record<Scope, string> = {
+  // TRANSLATORS: page title when selecting all software patterns
+  all: N_("Patterns selection"),
+  // TRANSLATORS: page title when selecting desktop environments
+  desktops: N_("Desktop selection"),
+  // TRANSLATORS: page title when selecting non-desktop software patterns
+  other: N_("Patterns selection"),
+};
+
+/**
+ * Pattern selector component.
+ *
+ * @param scope - Which patterns to show: "all", "desktops", or "other" (non-desktop patterns).
+ *   Defaults to "all".
+ */
+function SoftwarePatternsSelection({ scope = "all" }: { scope?: Scope }) {
   const navigate = useNavigate();
-  const { patterns } = useSystem();
+  const { patterns: allPatterns } = useSystem();
+  const patterns =
+    scope === "all"
+      ? allPatterns
+      : allPatterns.filter((p) => (scope === "desktops" ? p.desktop : !p.desktop));
   const proposal = useProposal();
   const selection = proposal?.patterns || {};
   const [searchValue, setSearchValue] = useState("");
@@ -82,32 +162,23 @@ function SoftwarePatternsSelection() {
     ...softwarePatternsFormOptions,
     defaultValues: initialValues,
     onSubmit: async ({ value: formValues, formApi }) => {
-      // Add: selected patterns that user touched OR were already USER-selected
-      const add = patterns
-        .filter((p) => {
-          const isSelected = formValues[p.name];
-          if (!isSelected) return false;
-
-          const isDirty = formApi.getFieldMeta(p.name)?.isDirty;
-          const wasUserSelected = selection[p.name] === SelectedBy.USER;
-
-          // Add if user touched it OR it was already USER-selected
-          return isDirty || wasUserSelected;
-        })
-        .map((p) => p.name);
-
-      // Remove: unchecked patterns that were previously selected, preselected, or explicitly removed
-      const remove = patterns
-        .filter((p) => {
-          const isSelected = formValues[p.name];
-          if (isSelected) return false;
-
+      const { add, remove } = allPatterns.reduce(
+        (acc, p) => {
+          const inScope = p.name in initialValues;
+          const isChecked = formValues[p.name];
+          const isDirty = formApi.getFieldMeta(p.name)?.isDirty ?? false;
           const wasInitiallySelected = initialValues[p.name];
-          const wasExplicitlyRemoved = selection[p.name] === SelectedBy.REMOVED;
+          const selectionStatus = selection[p.name];
 
-          return wasInitiallySelected || p.preselected || wasExplicitlyRemoved;
-        })
-        .map((p) => p.name);
+          if (shouldAdd(inScope, isChecked, isDirty, selectionStatus)) acc.add.push(p.name);
+          if (
+            shouldRemove(inScope, isChecked, p.preselected, wasInitiallySelected, selectionStatus)
+          )
+            acc.remove.push(p.name);
+          return acc;
+        },
+        { add: [] as string[], remove: [] as string[] },
+      );
 
       await patchConfig({ software: { patterns: { add, remove } } });
     },
@@ -122,7 +193,14 @@ function SoftwarePatternsSelection() {
 
   return (
     <Page
-      breadcrumbs={[{ label: _("Software"), path: SOFTWARE.root }, { label: "Patterns selection" }]}
+      breadcrumbs={[
+        { label: _("Software"), path: SOFTWARE.root },
+        {
+          // TRANSLATORS: breadcrumb label for the pattern/desktop selection page
+          // eslint-disable-next-line agama-i18n/string-literals
+          label: _(PAGE_TITLE[scope]),
+        },
+      ]}
       progress={{ scope: "software" }}
     >
       <Page.Content>
