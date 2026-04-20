@@ -23,7 +23,13 @@
 import type { Pattern } from "~/model/system/software";
 import type { PatternsSelection } from "~/model/proposal/software";
 import { SelectedBy } from "~/model/proposal/software";
-import { filterPatterns, groupPatterns, isPatternSelected, sortGroupNames } from "./software";
+import {
+  filterPatterns,
+  groupPatterns,
+  isDesktopPattern,
+  isPatternSelected,
+  sortGroupNames,
+} from "./software";
 
 describe("groupPatterns", () => {
   const patterns: Pattern[] = [
@@ -188,5 +194,91 @@ describe("isPatternSelected", () => {
 
   it("returns false for unknown patterns", () => {
     expect(isPatternSelected(selection, "unknown")).toBe(false);
+  });
+});
+
+describe("isDesktopPattern", () => {
+  it("returns true for standard Graphical Environments category", () => {
+    const pattern: Pattern = {
+      name: "gnome",
+      category: "Graphical Environments",
+      summary: "GNOME Desktop",
+      description: "GNOME desktop environment",
+      order: 1,
+      icon: "icon",
+      preselected: false,
+    };
+
+    expect(isDesktopPattern(pattern)).toBe(true);
+  });
+
+  it("returns true for lowercase category", () => {
+    const pattern: Pattern = {
+      name: "kde",
+      category: "graphical environments",
+      summary: "KDE Desktop",
+      description: "KDE desktop environment",
+      order: 1,
+      icon: "icon",
+      preselected: false,
+    };
+
+    expect(isDesktopPattern(pattern)).toBe(true);
+  });
+
+  it("returns true for uppercase category", () => {
+    const pattern: Pattern = {
+      name: "xfce",
+      category: "GRAPHICAL ENVIRONMENTS",
+      summary: "XFCE Desktop",
+      description: "XFCE desktop environment",
+      order: 1,
+      icon: "icon",
+      preselected: false,
+    };
+
+    expect(isDesktopPattern(pattern)).toBe(true);
+  });
+
+  it("returns true for category with extra whitespace", () => {
+    const pattern: Pattern = {
+      name: "basic_desktop",
+      category: "  Graphical Environments  ",
+      summary: "Basic Desktop",
+      description: "Basic desktop environment",
+      order: 1,
+      icon: "icon",
+      preselected: false,
+    };
+
+    expect(isDesktopPattern(pattern)).toBe(true);
+  });
+
+  it("returns false for non-desktop category", () => {
+    const pattern: Pattern = {
+      name: "office",
+      category: "Desktop Functions",
+      summary: "Office Software",
+      description: "Office applications",
+      order: 1,
+      icon: "icon",
+      preselected: false,
+    };
+
+    expect(isDesktopPattern(pattern)).toBe(false);
+  });
+
+  it("returns false for Base Technologies category", () => {
+    const pattern: Pattern = {
+      name: "yast2_basis",
+      category: "Base Technologies",
+      summary: "YaST Base",
+      description: "YaST tools",
+      order: 1,
+      icon: "icon",
+      preselected: false,
+    };
+
+    expect(isDesktopPattern(pattern)).toBe(false);
   });
 });

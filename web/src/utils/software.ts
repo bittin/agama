@@ -89,3 +89,13 @@ export function isPatternSelected(selection: PatternsSelection, patternName: str
   const status = selection[patternName];
   return status === SelectedBy.USER || status === SelectedBy.AUTO;
 }
+
+/**
+ * Checks if a pattern represents a desktop environment.
+ *
+ * @param pattern - Pattern to check
+ * @returns True if the pattern is a desktop environment
+ */
+export function isDesktopPattern(pattern: Pattern): boolean {
+  return pattern.category.trim().toLowerCase() === "graphical environments";
+}

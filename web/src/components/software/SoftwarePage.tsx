@@ -50,7 +50,7 @@ import AutoSelectedLabel from "~/components/software/AutoSelectedLabel";
 import { useIssues } from "~/hooks/model/issue";
 import { useProposal } from "~/hooks/model/proposal/software";
 import { useSystem } from "~/hooks/model/system/software";
-import { isPatternSelected } from "~/utils/software";
+import { isDesktopPattern, isPatternSelected } from "~/utils/software";
 import { SOFTWARE as PATHS } from "~/routes/paths";
 import { N_, _ } from "~/i18n";
 
@@ -311,10 +311,7 @@ const PageContent = () => {
     : undefined;
 
   const selectedPatterns = patterns.filter((p) => isPatternSelected(proposal.patterns, p.name));
-  const [desktops, otherPatterns] = fork(
-    selectedPatterns,
-    (p) => p.category === "Graphical Environments",
-  );
+  const [desktops, otherPatterns] = fork(selectedPatterns, isDesktopPattern);
 
   const startProbing = () => {
     setLoading(true);
