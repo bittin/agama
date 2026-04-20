@@ -33,12 +33,14 @@ import {
   Flex,
   Grid,
   GridItem,
+  Label,
   List,
   ListItem,
   Spinner,
 } from "@patternfly/react-core";
 import IssuesAlert from "~/components/core/IssuesAlert";
 import Link from "~/components/core/Link";
+import NestedContent from "~/components/core/NestedContent";
 import Page from "~/components/core/Page";
 import SubtleContent from "~/components/core/SubtleContent";
 import Text from "~/components/core/Text";
@@ -50,12 +52,19 @@ import { SOFTWARE as PATHS } from "~/routes/paths";
 import { N_, _ } from "~/i18n";
 
 import type { Pattern } from "~/model/system/software";
-import { NestedContent } from "../core";
+import type { PatternsSelection } from "~/model/proposal/software";
+import { SelectedBy } from "~/model/proposal/software";
 
 /**
  * List of selected patterns.
  */
-const SelectedPatternsList = ({ patterns }: { patterns: Pattern[] }): React.ReactNode => {
+const SelectedPatternsList = ({
+  patterns,
+  selection,
+}: {
+  patterns: Pattern[];
+  selection: PatternsSelection;
+}): React.ReactNode => {
   if (patterns.length === 0) {
     return <>{_("No additional software was selected.")}</>;
   }
@@ -65,12 +74,22 @@ const SelectedPatternsList = ({ patterns }: { patterns: Pattern[] }): React.Reac
       <List isPlain>
         {patterns.map((pattern) => (
           <ListItem key={pattern.name}>
-            <Text isBold>{pattern.summary}</Text>
+            <Text>
+              <Text isBold>{pattern.summary} </Text>
+              {selection[pattern.name] === SelectedBy.AUTO && (
+                <Label color="blue" isCompact>
+                  {/* TRANSLATORS: label shown for patterns automatically selected as dependencies */}
+                  {_("auto selected")}
+                </Label>
+              )}
+            </Text>
             <NestedContent margin="mxXs">
               <ExpandableSection
                 variant="truncate"
                 truncateMaxLines={2}
+                // TRANSLATORS: button to expand truncated pattern description
                 toggleTextCollapsed={_("Read more")}
+                // TRANSLATORS: button to collapse expanded pattern description
                 toggleTextExpanded={_("Read less")}
               >
                 <SubtleContent>{pattern.description}</SubtleContent>
@@ -172,10 +191,12 @@ const SoftwareSection = ({
   title,
   buttonText,
   patterns,
+  selection,
 }: {
   title: string;
   buttonText: string;
   patterns: Pattern[];
+  selection: PatternsSelection;
 }): React.ReactNode => (
   <Page.Section
     title={title}
@@ -186,7 +207,7 @@ const SoftwareSection = ({
       </Link>
     }
   >
-    <SelectedPatternsList patterns={patterns} />
+    <SelectedPatternsList patterns={patterns} selection={selection} />
   </Page.Section>
 );
 
@@ -282,6 +303,7 @@ const PageContent = () => {
                   title={_("Patterns")}
                   buttonText={_("Change patterns")}
                   patterns={otherPatterns}
+                  selection={proposal.patterns}
                 />
               </GridItem>
               <GridItem lg={6}>
@@ -289,6 +311,7 @@ const PageContent = () => {
                   title={_("Desktop")}
                   buttonText={_("Change desktop")}
                   patterns={desktops}
+                  selection={proposal.patterns}
                 />
               </GridItem>
             </Grid>

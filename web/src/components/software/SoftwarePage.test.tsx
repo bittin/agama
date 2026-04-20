@@ -80,6 +80,25 @@ describe("SoftwarePage", () => {
     screen.getByRole("link", { name: "Change desktop" });
   });
 
+  it("shows auto selected label for automatically selected patterns", () => {
+    installerRender(<SoftwarePage />);
+    const yasTBaseUtilities = screen.getByText("YaST Base Utilities").closest("li");
+    const yasTDesktopUtilities = screen.getByText("YaST Desktop Utilities").closest("li");
+    const officeSoftware = screen.getByText("Office Software").closest("li");
+    const multimedia = screen.getByText("Multimedia").closest("li");
+
+    expect(yasTBaseUtilities).toHaveTextContent("auto selected");
+    expect(yasTDesktopUtilities).toHaveTextContent("auto selected");
+    expect(officeSoftware).toHaveTextContent("auto selected");
+    expect(multimedia).toHaveTextContent("auto selected");
+  });
+
+  it("does not show auto selected label for user-selected patterns", () => {
+    installerRender(<SoftwarePage />);
+    const gnomeDesktop = screen.getByText("GNOME Desktop Environment (Wayland)").closest("li");
+    expect(gnomeDesktop).not.toHaveTextContent("auto selected");
+  });
+
   it("does not render patterns marked as removed", () => {
     const proposalWithRemovedPattern = {
       ...testingProposal,
