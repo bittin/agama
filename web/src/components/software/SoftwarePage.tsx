@@ -54,13 +54,10 @@ import type { Pattern } from "~/model/system/software";
 import type { PatternsSelection } from "~/model/proposal/software";
 import { SelectedBy } from "~/model/proposal/software";
 
-const NoSelectionEmptyState = ({
-  body,
-  buttonText,
-}: {
-  body: string;
-  buttonText: string;
-}): React.ReactNode => (
+/**
+ * Empty state for a software section where nothing has been selected yet.
+ */
+const NothingSelected = ({ body, buttonText }: { body: string; buttonText: string }) => (
   // TRANSLATORS: empty state title for a software section with nothing selected
   <EmptyState headingLevel="h4" titleText={_("None selected")} variant="sm">
     <EmptyStateBody>{body}</EmptyStateBody>
@@ -85,7 +82,7 @@ const SelectedPatternsList = ({
   patterns: Pattern[];
   selection: PatternsSelection;
   emptyContent: React.ReactNode;
-}): React.ReactNode => {
+}) => {
   if (patterns.length === 0) {
     return emptyContent;
   }
@@ -120,7 +117,12 @@ const SelectedPatternsList = ({
   );
 };
 
-const Summary = ({ usedSize }: { usedSize?: string }): React.ReactNode => {
+/**
+ * Displays the estimated disk space required by the current software selection.
+ *
+ * Renders nothing when no size information is available.
+ */
+const SpaceRequirements = ({ usedSize }: { usedSize?: string }) => {
   if (!usedSize) return;
 
   // TRANSLATORS: %s is the required disk space
@@ -129,6 +131,30 @@ const Summary = ({ usedSize }: { usedSize?: string }): React.ReactNode => {
   return <Text textStyle="fontSizeMd">{text}</Text>;
 };
 
+type SoftwareSectionProps = {
+  /** Section heading. */
+  title: string;
+  /** Optional explanatory text rendered below the heading. */
+  description?: React.ReactNode;
+  /** Label for the link that opens the pattern selection page. */
+  buttonText: string;
+  /** Total number of patterns in this group, selected or not. */
+  totalCount: number;
+  /** Patterns in this group that are currently selected. */
+  patterns: Pattern[];
+  /** Full selection map, used to determine how each pattern was selected. */
+  selection: PatternsSelection;
+  /** Content to show when no patterns are selected. */
+  emptyContent: React.ReactNode;
+};
+
+/**
+ * A page section displaying a group of software patterns with a count of how
+ * many are selected, an optional description, and a link to change the
+ * selection.
+ *
+ * Shows `emptyContent` when no patterns in the group are selected.
+ */
 const SoftwareSection = ({
   title,
   description,
@@ -137,15 +163,7 @@ const SoftwareSection = ({
   patterns,
   selection,
   emptyContent,
-}: {
-  title: string;
-  description?: React.ReactNode;
-  buttonText: string;
-  totalCount: number;
-  patterns: Pattern[];
-  selection: PatternsSelection;
-  emptyContent: React.ReactNode;
-}): React.ReactNode => {
+}: SoftwareSectionProps) => {
   const noneSelected = patterns.length === 0;
   // TRANSLATORS: %1$d is selected count, %2$d is total available count
   const selected =
@@ -168,19 +186,25 @@ const SoftwareSection = ({
   );
 };
 
-const NoPatterns = (): React.ReactNode => (
+/**
+ * Fallback section shown when the product does not support pattern selection.
+ */
+const PatternSelectionUnavailable = () => (
   <Page.Section title={_("Patterns")}>
-    <p>
+    <Content component="p">
       {/* TRANSLATORS: shown when the product does not support pattern selection at install time */}
       {_(
         "This product does not allow to select software patterns during installation. \
 However, you can add additional software once the installation is finished.",
       )}
-    </p>
+    </Content>
   </Page.Section>
 );
 
-const PageContent = () => {
+/**
+ * Main content of the software page.
+ */
+const SoftwarePageContent = () => {
   const { patterns } = useSystem();
   const proposal = useProposal();
   const issues = useIssues("software");
@@ -201,11 +225,11 @@ const PageContent = () => {
   return (
     <Page.Content>
       <Content>
-        <Summary usedSize={usedSize} />
+        <SpaceRequirements usedSize={usedSize} />
       </Content>
       <IssuesAlert issues={issues} />
       {isEmpty(proposal.patterns) ? (
-        <NoPatterns />
+        <PatternSelectionUnavailable />
       ) : (
         <Grid hasGutter>
           <GridItem lg={6}>
@@ -223,7 +247,7 @@ const PageContent = () => {
               patterns={desktops}
               selection={proposal.patterns}
               emptyContent={
-                <NoSelectionEmptyState
+                <NothingSelected
                   // TRANSLATORS: hint shown when no desktop environment has been chosen
                   body={_("Select a desktop environment to get a graphical interface.")}
                   // TRANSLATORS: button to go to the desktop environment selection page
@@ -245,7 +269,7 @@ const PageContent = () => {
               patterns={otherPatterns}
               selection={proposal.patterns}
               emptyContent={
-                <NoSelectionEmptyState
+                <NothingSelected
                   // TRANSLATORS: hint shown when no additional software patterns have been chosen
                   body={_("Select one or more to extend the system.")}
                   // TRANSLATORS: button to go to the pattern selection page
@@ -263,10 +287,10 @@ const PageContent = () => {
 /**
  * Software page component
  */
-function SoftwarePage(): React.ReactNode {
+function SoftwarePage() {
   return (
     <Page breadcrumbs={[{ label: _("Software") }]} progress={{ scope: "software" }}>
-      <PageContent />
+      <SoftwarePageContent />
     </Page>
   );
 }
