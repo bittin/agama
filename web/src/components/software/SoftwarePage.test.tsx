@@ -113,6 +113,41 @@ describe("SoftwarePage", () => {
     expect(screen.queryByText("Multimedia")).toBeNull();
   });
 
+  it("shows empty state when no desktop is selected", () => {
+    const proposalWithNoDesktop = {
+      ...testingProposal,
+      patterns: {
+        ...testingProposal.patterns,
+        gnome: "none",
+      },
+    };
+    mockProposal.mockReturnValue(proposalWithNoDesktop);
+
+    installerRender(<SoftwarePage />);
+    screen.getByText("None selected");
+    screen.getByText("Choose a desktop environment.");
+    screen.getByRole("link", { name: "Select desktop" });
+  });
+
+  it("shows empty state when no patterns are selected", () => {
+    const proposalWithNoPatterns = {
+      ...testingProposal,
+      patterns: {
+        gnome: "user",
+        yast2_basis: "none",
+        yast2_desktop: "none",
+        multimedia: "none",
+        office: "none",
+      },
+    };
+    mockProposal.mockReturnValue(proposalWithNoPatterns);
+
+    installerRender(<SoftwarePage />);
+    screen.getByText("None selected");
+    screen.getByText("The product does not provide additional patterns.");
+    screen.getByRole("link", { name: "Select patterns" });
+  });
+
   describe("when there is no proposal yet", () => {
     beforeEach(() => {
       mockProposal.mockReturnValue(null);

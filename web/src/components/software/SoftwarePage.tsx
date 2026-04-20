@@ -29,6 +29,9 @@ import {
   Button,
   Content,
   EmptyState,
+  EmptyStateActions,
+  EmptyStateBody,
+  EmptyStateFooter,
   ExpandableSection,
   Flex,
   Grid,
@@ -56,17 +59,51 @@ import type { PatternsSelection } from "~/model/proposal/software";
 import { SelectedBy } from "~/model/proposal/software";
 
 /**
+ * Empty state for when no patterns are selected.
+ */
+const NoPatternsSelected = (): React.ReactNode => (
+  <EmptyState headingLevel="h4" titleText={_("None selected")} variant="sm">
+    <EmptyStateBody>{_("The product does not provide additional patterns.")}</EmptyStateBody>
+    <EmptyStateFooter>
+      <EmptyStateActions>
+        <Link to={PATHS.patternsSelection} isPrimary>
+          {_("Select patterns")}
+        </Link>
+      </EmptyStateActions>
+    </EmptyStateFooter>
+  </EmptyState>
+);
+
+/**
+ * Empty state for when no desktop is selected.
+ */
+const NoDesktopSelected = (): React.ReactNode => (
+  <EmptyState headingLevel="h4" titleText={_("None selected")} variant="sm">
+    <EmptyStateBody>{_("Choose a desktop environment.")}</EmptyStateBody>
+    <EmptyStateFooter>
+      <EmptyStateActions>
+        <Link to={PATHS.patternsSelection} isPrimary>
+          {_("Select desktop")}
+        </Link>
+      </EmptyStateActions>
+    </EmptyStateFooter>
+  </EmptyState>
+);
+
+/**
  * List of selected patterns.
  */
 const SelectedPatternsList = ({
   patterns,
   selection,
+  emptyContent,
 }: {
   patterns: Pattern[];
   selection: PatternsSelection;
+  emptyContent: React.ReactNode;
 }): React.ReactNode => {
   if (patterns.length === 0) {
-    return <>{_("No additional software was selected.")}</>;
+    return emptyContent;
   }
 
   return (
@@ -187,24 +224,32 @@ const SoftwareSection = ({
   buttonText,
   patterns,
   selection,
+  emptyContent,
 }: {
   title: string;
   buttonText: string;
   patterns: Pattern[];
   selection: PatternsSelection;
-}): React.ReactNode => (
-  <Page.Section
-    title={title}
-    pfCardProps={{ isFullHeight: false }}
-    actions={
-      <Link to={PATHS.patternsSelection} isPrimary>
-        {buttonText}
-      </Link>
-    }
-  >
-    <SelectedPatternsList patterns={patterns} selection={selection} />
-  </Page.Section>
-);
+  emptyContent: React.ReactNode;
+}): React.ReactNode => {
+  const isEmpty = patterns.length === 0;
+
+  return (
+    <Page.Section
+      title={title}
+      pfCardProps={{ isFullHeight: false }}
+      actions={
+        !isEmpty && (
+          <Link to={PATHS.patternsSelection} isPrimary>
+            {buttonText}
+          </Link>
+        )
+      }
+    >
+      <SelectedPatternsList patterns={patterns} selection={selection} emptyContent={emptyContent} />
+    </Page.Section>
+  );
+};
 
 const NoPatterns = (): React.ReactNode => (
   <Page.Section title={_("Patterns")}>
@@ -299,6 +344,7 @@ const PageContent = () => {
                   buttonText={_("Change patterns")}
                   patterns={otherPatterns}
                   selection={proposal.patterns}
+                  emptyContent={<NoPatternsSelected />}
                 />
               </GridItem>
               <GridItem lg={6}>
@@ -307,6 +353,7 @@ const PageContent = () => {
                   buttonText={_("Change desktop")}
                   patterns={desktops}
                   selection={proposal.patterns}
+                  emptyContent={<NoDesktopSelected />}
                 />
               </GridItem>
             </Grid>
