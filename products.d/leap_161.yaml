@@ -70,10 +70,14 @@ software:
     - enhanced_base # only pattern that is shared among all roles on Leap
   optional_patterns: [] # no optional pattern shared
   user_patterns:
-    - gnome
-    - kde
-    - xfce_wayland
-    - lxqt_wayland
+    - name: gnome
+      desktop: true
+    - name: kde
+      desktop: true
+    - name: xfce_wayland
+      desktop: true
+    - name: lxqt_wayland
+      desktop: true
     - openSUSEway
     - multimedia
     - office

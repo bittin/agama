@@ -180,7 +180,8 @@ software:
     - kvm_tools
     - lamp_server
     - mail_server
-    - gnome
+    - name: gnome
+      desktop: true
     - gnome_internet
     - devel_basis
     - devel_kernel
