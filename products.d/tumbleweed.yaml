@@ -132,11 +132,16 @@ software:
     - enhanced_base # only pattern that is shared among all roles on TW
   optional_patterns: [] # no optional pattern shared
   user_patterns:
-    - basic_desktop
-    - xfce_wayland
-    - kde
-    - gnome
-    - lxqt_wayland
+    - name: basic_desktop
+      desktop: true
+    - name: xfce_wayland
+      desktop: true
+    - name: kde
+      desktop: true
+    - name: gnome
+      desktop: true
+    - name: lxqt_wayland
+      desktop: true
     - openSUSEway
     - hyprland
     - multimedia
