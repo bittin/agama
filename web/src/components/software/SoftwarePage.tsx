@@ -57,42 +57,20 @@ import type { Pattern } from "~/model/system/software";
 import type { PatternsSelection } from "~/model/proposal/software";
 import { SelectedBy } from "~/model/proposal/software";
 
-/**
- * Empty state for when no patterns are selected.
- */
-const NoPatternsSelected = (): React.ReactNode => (
-  // TRANSLATORS: empty state title for the additional software section
+const NoSelectionEmptyState = ({
+  body,
+  buttonText,
+}: {
+  body: string;
+  buttonText: string;
+}): React.ReactNode => (
+  // TRANSLATORS: empty state title for a software section with nothing selected
   <EmptyState headingLevel="h4" titleText={_("None selected")} variant="sm">
-    <EmptyStateBody>
-      {/* TRANSLATORS: hint shown when no additional software patterns have been chosen */}
-      {_("Select one or more to extend the system.")}
-    </EmptyStateBody>
+    <EmptyStateBody>{body}</EmptyStateBody>
     <EmptyStateFooter>
       <EmptyStateActions>
         <Link to={PATHS.patternsSelection} isPrimary>
-          {/* TRANSLATORS: button to go to the pattern selection page */}
-          {_("Select patterns")}
-        </Link>
-      </EmptyStateActions>
-    </EmptyStateFooter>
-  </EmptyState>
-);
-
-/**
- * Empty state for when no desktop is selected.
- */
-const NoDesktopSelected = (): React.ReactNode => (
-  // TRANSLATORS: empty state title for the desktops section
-  <EmptyState headingLevel="h4" titleText={_("None selected")} variant="sm">
-    <EmptyStateBody>
-      {/* TRANSLATORS: hint shown when no desktop environment has been chosen */}
-      {_("Select a desktop environment to get a graphical interface.")}
-    </EmptyStateBody>
-    <EmptyStateFooter>
-      <EmptyStateActions>
-        <Link to={PATHS.patternsSelection} isPrimary>
-          {/* TRANSLATORS: button to go to the desktop environment selection page */}
-          {_("Select a desktop")}
+          {buttonText}
         </Link>
       </EmptyStateActions>
     </EmptyStateFooter>
@@ -171,9 +149,10 @@ const SoftwareSection = ({
   selection: PatternsSelection;
   emptyContent: React.ReactNode;
 }): React.ReactNode => {
-  const isEmpty = patterns.length === 0;
+  const noneSelected = patterns.length === 0;
   // TRANSLATORS: %1$d is selected count, %2$d is total available count
-  const selected = !isEmpty && sprintf(_("%1$d of %2$d selected"), patterns.length, totalCount);
+  const selected =
+    !noneSelected && sprintf(_("%1$d of %2$d selected"), patterns.length, totalCount);
 
   return (
     <Page.Section
@@ -185,7 +164,7 @@ const SoftwareSection = ({
       }
       description={description}
       pfCardProps={{ isFullHeight: false }}
-      actions={!isEmpty && <Link to={PATHS.patternsSelection}>{buttonText}</Link>}
+      actions={!noneSelected && <Link to={PATHS.patternsSelection}>{buttonText}</Link>}
     >
       <SelectedPatternsList patterns={patterns} selection={selection} emptyContent={emptyContent} />
     </Page.Section>
@@ -275,42 +254,54 @@ const PageContent = () => {
       {isEmpty(proposal.patterns) ? (
         <NoPatterns />
       ) : (
-        <>
-          <Grid hasGutter>
-            <GridItem lg={6}>
-              <SoftwareSection
-                title={_("Desktops")}
-                description={_(
-                  // TRANSLATORS: description for the Desktops section
-                  "Graphical desktop environments for the system.",
-                )}
-                buttonText={
-                  // TRANSLATORS: button to change the desktop selection; singular when 1 is selected
-                  n_("Change desktop", "Change desktops", desktops.length)
-                }
-                totalCount={allDesktops.length}
-                patterns={desktops}
-                selection={proposal.patterns}
-                emptyContent={<NoDesktopSelected />}
-              />
-            </GridItem>
-            <GridItem lg={6}>
-              <SoftwareSection
-                title={_("Additional patterns")}
-                description={_(
-                  // TRANSLATORS: description for the Additional software section
-                  "Curated sets of packages for common use cases and features to extend the system.",
-                )}
-                // TRANSLATORS: button to change the additional software selection
-                buttonText={_("Change patterns")}
-                totalCount={allOtherPatterns.length}
-                patterns={otherPatterns}
-                selection={proposal.patterns}
-                emptyContent={<NoPatternsSelected />}
-              />
-            </GridItem>
-          </Grid>
-        </>
+        <Grid hasGutter>
+          <GridItem lg={6}>
+            <SoftwareSection
+              title={_("Desktops")}
+              description={_(
+                // TRANSLATORS: description for the Desktops section
+                "Graphical desktop environments for the system.",
+              )}
+              buttonText={
+                // TRANSLATORS: button to change the desktop selection; singular when 1 is selected
+                n_("Change desktop", "Change desktops", desktops.length)
+              }
+              totalCount={allDesktops.length}
+              patterns={desktops}
+              selection={proposal.patterns}
+              emptyContent={
+                <NoSelectionEmptyState
+                  // TRANSLATORS: hint shown when no desktop environment has been chosen
+                  body={_("Select a desktop environment to get a graphical interface.")}
+                  // TRANSLATORS: button to go to the desktop environment selection page
+                  buttonText={_("Select a desktop")}
+                />
+              }
+            />
+          </GridItem>
+          <GridItem lg={6}>
+            <SoftwareSection
+              title={_("Additional patterns")}
+              description={_(
+                // TRANSLATORS: description for the Additional software section
+                "Curated sets of packages for common use cases and features to extend the system.",
+              )}
+              // TRANSLATORS: button to change the additional software selection
+              buttonText={_("Change patterns")}
+              totalCount={allOtherPatterns.length}
+              patterns={otherPatterns}
+              selection={proposal.patterns}
+              emptyContent={
+                <NoSelectionEmptyState
+                  // TRANSLATORS: hint shown when no additional software patterns have been chosen
+                  body={_("Select one or more to extend the system.")}
+                  // TRANSLATORS: button to go to the pattern selection page
+                  buttonText={_("Select patterns")}
+                />
+              }
+            />
+          </GridItem>
+        </Grid>
       )}
     </Page.Content>
   );
