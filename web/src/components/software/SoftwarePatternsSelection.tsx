@@ -22,7 +22,6 @@
 
 import React, { useState } from "react";
 import {
-  Label,
   DataList,
   DataListCell,
   DataListCheck,
@@ -37,16 +36,18 @@ import {
 } from "@patternfly/react-core";
 import { formOptions } from "@tanstack/react-form";
 import { useNavigate } from "react-router";
-import { Page } from "~/components/core";
-import { _ } from "~/i18n";
-import a11yStyles from "@patternfly/react-styles/css/utilities/Accessibility/accessibility";
-import { useSystem } from "~/hooks/model/system/software";
+import Page from "~/components/core/Page";
+import AutoSelectedLabel from "~/components/software/AutoSelectedLabel";
 import { SelectedBy } from "~/model/proposal/software";
-import { useProposal } from "~/hooks/model/proposal/software";
 import { patchConfig } from "~/api";
-import { SOFTWARE } from "~/routes/paths";
+import { useSystem } from "~/hooks/model/system/software";
+import { useProposal } from "~/hooks/model/proposal/software";
 import { usePristineSafeForm } from "~/hooks/form";
 import { filterPatterns, groupPatterns, isPatternSelected, sortGroupNames } from "~/utils/software";
+import { SOFTWARE } from "~/routes/paths";
+import { _ } from "~/i18n";
+
+import a11yStyles from "@patternfly/react-styles/css/utilities/Accessibility/accessibility";
 
 /**
  * Form options for pattern selection.
@@ -171,9 +172,7 @@ function SoftwarePatternsSelection() {
                                           <div>
                                             <b id={titleId}>{option.summary}</b>{" "}
                                             {selection[option.name] === SelectedBy.AUTO && (
-                                              <Label color="blue" isCompact>
-                                                {_("auto selected")}
-                                              </Label>
+                                              <AutoSelectedLabel />
                                             )}
                                             <span id={nextActionId} className={a11yStyles.hidden}>
                                               {selected ? _("Unselect") : _("Select")}

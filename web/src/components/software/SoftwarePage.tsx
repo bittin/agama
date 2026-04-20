@@ -33,7 +33,6 @@ import {
   Flex,
   Grid,
   GridItem,
-  Label,
   List,
   ListItem,
   Spinner,
@@ -44,6 +43,7 @@ import NestedContent from "~/components/core/NestedContent";
 import Page from "~/components/core/Page";
 import SubtleContent from "~/components/core/SubtleContent";
 import Text from "~/components/core/Text";
+import AutoSelectedLabel from "~/components/software/AutoSelectedLabel";
 import { useIssues } from "~/hooks/model/issue";
 import { useProposal } from "~/hooks/model/proposal/software";
 import { useSystem } from "~/hooks/model/system/software";
@@ -76,12 +76,7 @@ const SelectedPatternsList = ({
           <ListItem key={pattern.name}>
             <Text>
               <Text isBold>{pattern.summary} </Text>
-              {selection[pattern.name] === SelectedBy.AUTO && (
-                <Label color="blue" isCompact>
-                  {/* TRANSLATORS: label shown for patterns automatically selected as dependencies */}
-                  {_("auto selected")}
-                </Label>
-              )}
+              {selection[pattern.name] === SelectedBy.AUTO && <AutoSelectedLabel />}
             </Text>
             <NestedContent margin="mxXs">
               <ExpandableSection
