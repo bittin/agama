@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-23 06:09+0000\n"
-"PO-Revision-Date: 2026-03-20 01:04+0000\n"
+"POT-Creation-Date: 2026-04-17 16:58+0000\n"
+"PO-Revision-Date: 2026-04-18 11:04+0000\n"
 "Last-Translator: Yasuhiko Kamata <belphegor@belbel.or.jp>\n"
 "Language-Team: Japanese <https://l10n.opensuse.org/projects/agama/agama-rust-"
 "master/ja/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 5.17\n"
 
 #: agama-autoinstall/src/questions.rs:41 agama-utils/src/api/question.rs:293
 #: agama-utils/src/question/start.rs:54
@@ -28,6 +28,102 @@ msgstr "いいえ"
 #: agama-utils/src/question/start.rs:54
 msgid "Yes"
 msgstr "はい"
+
+#: agama-cli/src/progress.rs:116
+msgid "Calculating the installation proposal:"
+msgstr "インストールの提案内容を作成しています:"
+
+#: agama-cli/src/progress.rs:118
+msgid "Installing the system:"
+msgstr "システムをインストールしています:"
+
+#: agama-cli/src/progress.rs:217
+msgid "Installation is ready to start."
+msgstr "インストールの開始準備ができています。"
+
+#: agama-cli/src/progress.rs:220
+msgid "Waiting to start installation"
+msgstr "インストールの開始を待っています"
+
+#: agama-cli/src/progress.rs:228
+msgid "Installation successfully finished"
+msgstr "インストールが成功しました"
+
+#: agama-cli/src/progress.rs:229
+msgid "Installation failed"
+msgstr "インストールが失敗しました"
+
+#: agama-cli/src/progress.rs:242
+msgid ""
+"There are unanswered questions. Please use `agama questions` command or web "
+"interface to answer them:"
+msgstr ""
+"未回答の質問が残っています。 agama questions` コマンドを利用するか、もしくは "
+"Web インターフェイスを利用して回答してください:"
+
+#: agama-cli/src/progress.rs:254
+msgid "Installer is failed to calculate the installation proposal."
+msgstr "インストーラは提案内容の作成に失敗しました。"
+
+#: agama-cli/src/progress.rs:258
+msgid "There are these issues blocking installation:"
+msgstr "下記の問題点がインストールを妨げています:"
+
+#: agama-cli/src/progress.rs:271
+msgid "Details"
+msgstr "詳細"
+
+#: agama-cli/src/progress.rs:281
+msgid "Manager"
+msgstr "マネージャ"
+
+#: agama-cli/src/progress.rs:282
+msgid "Network"
+msgstr "ネットワーク"
+
+#: agama-cli/src/progress.rs:283
+msgid "Hostname"
+msgstr "ホスト名"
+
+#: agama-cli/src/progress.rs:284
+msgid "Localization"
+msgstr "ローカライゼーション"
+
+#: agama-cli/src/progress.rs:285
+msgid "Product"
+msgstr "製品"
+
+#: agama-cli/src/progress.rs:286
+msgid "Software"
+msgstr "ソフトウエア"
+
+#: agama-cli/src/progress.rs:287
+msgid "Storage"
+msgstr "ストレージ"
+
+#: agama-cli/src/progress.rs:288
+msgid "Files"
+msgstr "ファイル"
+
+#: agama-cli/src/progress.rs:289
+msgid "iSCSI"
+msgstr "iSCSI"
+
+#: agama-cli/src/progress.rs:290
+msgid "DASD"
+msgstr "DASD"
+
+#: agama-cli/src/progress.rs:291
+msgid "zFCP"
+msgstr "zFCP"
+
+#: agama-cli/src/progress.rs:292
+msgid "Users"
+msgstr "ユーザ"
+
+#: agama-cli/src/progress.rs:342
+msgid "Current step"
+msgstr "現在のステップ"
 
 #. TRANSLATORS: %s is replaced by the script name.
 #: agama-files/src/service.rs:198

@@ -54,6 +54,24 @@ export default {
   "%d devices available": [
     "%d пристроїв доступно"
   ],
+  "%d duplicates skipped.": [
+    ""
+  ],
+  "%d entries added, %d duplicates skipped.": [
+    ""
+  ],
+  "%d entries added, %d invalid, %d duplicates skipped.": [
+    ""
+  ],
+  "%d entries added, %d invalid.": [
+    ""
+  ],
+  "%d entries added.": [
+    ""
+  ],
+  "%d invalid entries removed.": [
+    ""
+  ],
   "%d mode available": [
     "Доступний %d режим",
     "Доступно %d режими",
@@ -67,6 +85,15 @@ export default {
   "%s - %s": [
     "%s - %s"
   ],
+  "%s added but is invalid: %s. Select to edit.": [
+    ""
+  ],
+  "%s added.": [
+    ""
+  ],
+  "%s already exists, skipped.": [
+    ""
+  ],
   "%s and %d others": [
     "%s та %d інший/х"
   ],
@@ -79,11 +106,23 @@ export default {
   "%s disk": [
     "Диск %s"
   ],
+  "%s entries": [
+    ""
+  ],
   "%s has been registered with below information.": [
     "%s було зареєстровано з наведеною нижче інформацією."
   ],
+  "%s is invalid: %s": [
+    ""
+  ],
   "%s logo": [
     "Логотип %s"
+  ],
+  "%s moved to input for editing.": [
+    ""
+  ],
+  "%s removed.": [
+    ""
   ],
   "%s task active": [
     "%s завдання активне",
@@ -101,14 +140,14 @@ export default {
   "%s with %d partitions": [
     "%s з %d розділами"
   ],
-  "(bind by name)": [
-    "(прив'язати за назвами)"
-  ],
   "(bound by MAC)": [
     "(прив'язаний до MAC-адреси)"
   ],
   "(bound by name)": [
     "(прив'язаний за назвою)"
+  ],
+  "(optional)": [
+    "(не обов'язково)"
   ],
   "(step %s of %s)": [
     "(крок %s з %s)"
@@ -143,11 +182,6 @@ export default {
     "Для %s буде створено новий розділ",
     "Для %s будуть створені нові розділи",
     "Для %s будуть створені нові розділи"
-  ],
-  "A new volume will be created for %s": [
-    "Для %s буде створено новий том",
-    "Для %s будуть створені нові томи",
-    "Для %s будуть створені нові томи"
   ],
   "A partition may be deleted": [
     "Розділ може бути видалений"
@@ -199,26 +233,11 @@ export default {
   "Add": [
     "Додати"
   ],
-  "Add DNS": [
-    "Додати DNS"
-  ],
   "Add LVM volume group": [
     "Додати групу томів LVM"
   ],
   "Add a partition or mount an existing one": [
     "Додати розділ або змонтувати наявний"
-  ],
-  "Add an address": [
-    "Додати адресу"
-  ],
-  "Add another DNS": [
-    "Додати інший DNS"
-  ],
-  "Add another address": [
-    "Додати іншу адресу"
-  ],
-  "Add another search domain": [
-    "Додати ще один домен для пошуку"
   ],
   "Add connection": [
     "Додати з'єднання"
@@ -232,20 +251,14 @@ export default {
   "Add or use partition": [
     "Створити або використати розділ"
   ],
-  "Add search domain": [
-    "Додати домен для пошуку"
-  ],
   "Additional CHAP authentication performed by the initiator": [
     "Додаткова аутентифікація CHAP, що виконується ініціатором"
   ],
   "Address": [
     "Адреса"
   ],
-  "Addresses": [
-    "Адреси"
-  ],
-  "Addresses data list": [
-    "Список даних адрес"
+  "Address and gateway assigned from the network": [
+    ""
   ],
   "Adjust the settings below to make the new system fit into the available space.": [
     "Відрегулюйте наведені нижче налаштування, щоб нова система вписувалася в наявний простір."
@@ -288,6 +301,9 @@ export default {
     "Для %s будуть використані наявні розділи",
     "Для %s будуть використані наявні розділи"
   ],
+  "Any": [
+    ""
+  ],
   "Any existing partition will be removed and all data in the disk will be lost.": [
     "Всі розділи буде видалено, а всі дані на диску буде втрачено."
   ],
@@ -297,8 +313,8 @@ export default {
   "As a new partition on %s": [
     "Як новий розділ на %s"
   ],
-  "At least one address must be provided for selected mode": [
-    "Для обраного режиму має бути вказана принаймні одна адреса"
+  "At least one DNS search domain is required": [
+    ""
   ],
   "At least one partition will be deleted": [
     "Принаймні один розділ буде видалено"
@@ -317,9 +333,6 @@ export default {
   ],
   "Automatic": [
     "Автоматично"
-  ],
-  "Automatic (DHCP)": [
-    "Автоматично (DHCP)"
   ],
   "Automatic LUN scan is disabled": [
     "Автоматичне сканування LUN вимкнено"
@@ -444,18 +457,6 @@ export default {
   "Change selection": [
     "Змінити вибір"
   ],
-  "Change the disk to configure": [
-    "Змініть диск для налаштування"
-  ],
-  "Change the disk to create %s": [
-    "Змініть диск для створення %s"
-  ],
-  "Change the disk to format as %s": [
-    "Змініть диск для форматування на %s"
-  ],
-  "Change the disk to install the system": [
-    "Змініть диск для встановлення системи"
-  ],
   "Change the file system or mount point": [
     "Змінити файлову систему або точку монтування"
   ],
@@ -485,6 +486,9 @@ export default {
     "Виберіть із %d доступних продуктів",
     "Виберіть із %d доступних продуктів"
   ],
+  "Choose a volume group to define logical volumes": [
+    ""
+  ],
   "Choose device to bind by MAC": [
     "Виберіть пристрій для прив'язки за MAC-адресою"
   ],
@@ -508,6 +512,9 @@ export default {
   ],
   "Close": [
     "Закрити"
+  ],
+  "Configuration from the network plus static addresses and gateway": [
+    ""
   ],
   "Configuration read from the iSCSI Boot Firmware Table (iBFT). Initiator cannot be changed.": [
     "Конфігурація зчитана з таблиці iSCSI Boot Firmware Table (iBFT). Ініціатор не може бути змінений."
@@ -688,9 +695,6 @@ export default {
   "Default file system for %s": [
     "Типова файлова система для %s"
   ],
-  "Default file system for generic logical volumes": [
-    "Типова файлова система для звичайних логічних томів"
-  ],
   "Default file system for generic mount paths": [
     "Типова файлова система для звичайних шляхів монтування"
   ],
@@ -796,9 +800,6 @@ export default {
   "Do not use": [
     "Не використовувати"
   ],
-  "Domain": [
-    "Домен"
-  ],
   "Down": [
     "Вниз"
   ],
@@ -810,6 +811,24 @@ export default {
   ],
   "Download logs to troubleshoot or share with support.": [
     "Завантажте журнали для усунення несправностей або надсилання до служби підтримки."
+  ],
+  "E.g., 192.168.1.1": [
+    ""
+  ],
+  "E.g., 192.168.1.1 or 192.168.1.1/24. Prefix auto-added if omitted.": [
+    ""
+  ],
+  "E.g., 2001:db8::1": [
+    ""
+  ],
+  "E.g., 2001:db8::1 or 2001:db8::1/64. Prefix auto-added if omitted.": [
+    ""
+  ],
+  "E.g., 8.8.8.8 or 2001:4860:4860::8888": [
+    ""
+  ],
+  "E.g., example.com": [
+    ""
   ],
   "Edit": [
     "Редагувати"
@@ -873,6 +892,9 @@ export default {
   ],
   "Enter a name for the volume group.": [
     "Введіть назву групи томів."
+  ],
+  "Enter or Tab to add; arrow keys to navigate entries, Ctrl+arrows to reorder, Escape to exit; Backspace or Delete to remove.": [
+    ""
   ],
   "Ethernet": [
     "Ethernet"
@@ -1001,9 +1023,6 @@ export default {
   "Gateway": [
     "Шлюз"
   ],
-  "Gateway can be defined only in 'Manual' mode": [
-    "Шлюз можна вказати тільки в ручному режимі"
-  ],
   "GiB": [
     "ГіБ"
   ],
@@ -1039,9 +1058,6 @@ export default {
   "I have read and accept the [license] for %s": [
     "Я прочитав і приймаю [license] на %s"
   ],
-  "IP Address": [
-    "IP-адреса"
-  ],
   "IP Addresses": [
     "IP-адреси"
   ],
@@ -1056,6 +1072,12 @@ export default {
   ],
   "IPv6": [
     "IPv6"
+  ],
+  "Identify the connection device by its name in the system": [
+    ""
+  ],
+  "Identify the connection device by its physical address": [
+    ""
   ],
   "If a local media was used to run this installer, remove it before the next boot.": [
     "Якщо для запуску цієї програми використовувався локальний носій, витягніть його перед наступним завантаженням."
@@ -1126,6 +1148,12 @@ export default {
   "Interface": [
     "Інтерфейс"
   ],
+  "Invalid IPv4 gateway": [
+    ""
+  ],
+  "Invalid IPv6 gateway": [
+    ""
+  ],
   "Invalid [zFCP] settings": [
     "Неправильні налаштування [zFCP]"
   ],
@@ -1137,9 +1165,6 @@ export default {
   ],
   "Invalid storage settings": [
     "Неправильні налаштування сховища"
-  ],
-  "Ip prefix or netmask": [
-    "Ip префікс або маска мережі"
   ],
   "Issue date": [
     "Дата видачі"
@@ -1180,6 +1205,9 @@ export default {
   "JFS": [
     "JFS"
   ],
+  "Keep %s": [
+    ""
+  ],
   "Keyboard": [
     "Клавіатура"
   ],
@@ -1212,6 +1240,9 @@ export default {
   ],
   "Let the installer propose a sensible size": [
     "Дозволити інсталятору запропонувати розумний розмір"
+  ],
+  "Level": [
+    ""
   ],
   "License acceptance is required to continue.": [
     "Для продовження необхідно прийняти ліцензію."
@@ -1394,6 +1425,9 @@ export default {
   "No DASD devices found in this machine.": [
     "У цій машині не знайдено пристроїв DASD."
   ],
+  "No LVM volume groups are available for selection.": [
+    ""
+  ],
   "No Wi-Fi networks were found": [
     "Мережі Wi-Fi не знайдені"
   ],
@@ -1442,14 +1476,14 @@ export default {
   "No information available yet": [
     "Інформація ще не доступна"
   ],
-  "No logical volumes are defined yet": [
-    "Логічні томи ще не задано"
-  ],
   "No partitions will be automatically configured for booting.": [
     "Для завантаження автоматично не буде налаштовано жодних розділів."
   ],
   "No partitions will be automatically configured for booting. Use with caution.": [
     "Жоден розділ не буде автоматично налаштовано для завантаження. Використовуйте з обережністю."
+  ],
+  "No software RAID devices are available for selection.": [
+    ""
   ],
   "No support is planned.": [
     "Підтримки немає у планах."
@@ -1625,9 +1659,6 @@ export default {
   "Potential data loss affecting at least %s": [
     "Потенційна втрата даних, що впливає щонайменше на %s"
   ],
-  "Prefix length or netmask": [
-    "Довжина префікса або маска мережі"
-  ],
   "Proceeding may result in data loss": [
     "Процедура може призвести до втрати даних"
   ],
@@ -1666,6 +1697,9 @@ export default {
   ],
   "Question": [
     "Питання"
+  ],
+  "RAID": [
+    ""
   ],
   "Read only": [
     "Тільки читання"
@@ -1714,9 +1748,6 @@ export default {
   ],
   "Reload": [
     "Оновити"
-  ],
-  "Remove": [
-    "Видалити"
   ],
   "Remove the configuration for this disk": [
     "Видалити конфігурацію для цього диска"
@@ -1816,14 +1847,8 @@ export default {
   "Select %s": [
     "Вибір %s"
   ],
-  "Select a device to define partitions or to mount": [
-    "Виберіть пристрій для визначення розділів або монтування"
-  ],
   "Select a disk": [
     "Оберіть диск"
-  ],
-  "Select a disk to define partitions or to mount": [
-    "Виберіть диск для визначення розділів або монтування"
   ],
   "Select a mode": [
     "Оберіть режим"
@@ -1845,12 +1870,6 @@ export default {
   "Select a product to continue.": [
     "Виберіть продукт для продовження."
   ],
-  "Select another device to define partitions or to mount": [
-    "Виберіть інший пристрій для створення розділів або монтування"
-  ],
-  "Select another disk to define partitions or to mount": [
-    "Виберіть інший диск для створення розділів або монтування"
-  ],
   "Select at least one disk.": [
     "Оберіть хоча б один диск."
   ],
@@ -1859,6 +1878,9 @@ export default {
   ],
   "Select devices to perform bulk actions": [
     "Виберіть пристрої для виконання масових дій"
+  ],
+  "Select entries to edit or remove them. Or [remove all invalid entries.]": [
+    ""
   ],
   "Select or enter a mount point": [
     "Виберіть або введіть точку монтування"
@@ -1886,9 +1908,6 @@ export default {
   ],
   "Selected patterns": [
     "Обрані шаблони"
-  ],
-  "Server IP": [
-    "IP сервера"
   ],
   "Server URL": [
     "URL сервера"
@@ -1940,9 +1959,6 @@ export default {
   "Size limits must be numbers followed by a unit like GiB or GB": [
     "Обмеження розміру повинні бути числами, до яких потрібно додати одиницю виміру, наприклад, GiB або GB"
   ],
-  "Size limits must be numbers optionally followed by a unit like GiB or GB": [
-    "Обмеження розміру повинні бути числами, до яких можна додати одиницю виміру, наприклад, GiB або GB"
-  ],
   "Size mode": [
     "Режим розміру"
   ],
@@ -1957,6 +1973,18 @@ export default {
   ],
   "Software %s": [
     "Програмне забезпечення %s"
+  ],
+  "Some DNS search domains are invalid": [
+    ""
+  ],
+  "Some DNS server addresses are invalid": [
+    ""
+  ],
+  "Some IPv4 addresses are invalid": [
+    ""
+  ],
+  "Some IPv6 addresses are invalid": [
+    ""
   ],
   "Some existing partitions may be shrunk": [
     "Деякі наявні розділи можуть бути зменшені"
@@ -1984,6 +2012,9 @@ export default {
   ],
   "Startup": [
     "Запуск"
+  ],
+  "Static addresses and gateway": [
+    ""
   ],
   "Static hostname": [
     "Статичне ім'я хоста"
@@ -2166,17 +2197,11 @@ export default {
   "The maximum must be a number followed by a unit like GiB or GB": [
     "Максимальне значення повинно бути числом, за яким слідує одиниця виміру, наприклад, GiB або GB"
   ],
-  "The maximum must be a number optionally followed by a unit like GiB or GB": [
-    "Максимальне значення повинно бути числом, за яким може слідувати одиниця виміру, наприклад, GiB або GB"
-  ],
   "The minimum cannot be greater than the maximum": [
     "Мінімум не може бути більшим за максимум"
   ],
   "The minimum must be a number followed by a unit like GiB or GB": [
     "Мінімальне значення повинно бути числом, за яким слідує одиниця виміру, наприклад, GiB або GB"
-  ],
-  "The minimum must be a number optionally followed by a unit like GiB or GB": [
-    "Мінімальне значення повинно бути числом, за яким може слідувати одиниця виміру, наприклад, GiB або GB"
   ],
   "The modal selector offers a simplified interface designed for quick and straightforward use, without overwhelming the user.": [
     "Модальний селектор пропонує спрощений інтерфейс, розроблений для швидкого і прямого використання, не перевантажуючи користувача."
@@ -2425,6 +2450,9 @@ export default {
   "Use available space": [
     "Використати вільний простір"
   ],
+  "Use custom DNS servers": [
+    ""
+  ],
   "Use device %s": [
     "Використати пристрій %s"
   ],
@@ -2494,6 +2522,9 @@ export default {
   "Use the disk without partitions": [
     "Використати диск без розділів"
   ],
+  "Use the tabs to browse disks, RAID devices and LVM volume groups.": [
+    ""
+  ],
   "Use these same settings for the selected product": [
     "Використовувати ці ж налаштування для обраного продукту"
   ],
@@ -2541,6 +2572,9 @@ export default {
   ],
   "Volume group '%s' already exists. Enter a different name.": [
     "Група томів „%s“ вже існує. Введіть іншу назву."
+  ],
+  "Volume groups cannot be formatted": [
+    ""
   ],
   "WPA & WPA2 Personal": [
     "WPA і WPA2 Personal"
@@ -2643,9 +2677,6 @@ export default {
   ],
   "partition": [
     "розділ"
-  ],
-  "proposal.Device": [
-    "proposal.Device"
   ],
   "reset to defaults": [
     "скинути до типових налаштувань"

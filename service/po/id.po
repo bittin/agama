@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 10:53+0000\n"
-"PO-Revision-Date: 2026-02-23 12:04+0000\n"
+"POT-Creation-Date: 2026-04-14 10:21+0000\n"
+"PO-Revision-Date: 2026-04-15 07:04+0000\n"
 "Last-Translator: Arif Budiman <arifpedia@gmail.com>\n"
 "Language-Team: Indonesian <https://l10n.opensuse.org/projects/agama/agama-"
 "service-master/id/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.16\n"
+"X-Generator: Weblate 5.16.2\n"
 
 #. Reports the problems and decide whether to continue or not.
 #.
@@ -211,13 +211,13 @@ msgid "The file system type '%{filesystem}' is not suitable for '%{path}'"
 msgstr "Tipe sistem berkas '%{filesystem}' tidak cocok untuk '%{path}'"
 
 #. TRANSLATORS: %s is the replaced by a device alias (e.g., "pv1").
-#: service/lib/agama/storage/config_checkers/logical_volume.rb:82
+#: service/lib/agama/storage/config_checkers/logical_volume.rb:93
 #, c-format
 msgid "There is no LVM thin pool volume with alias '%s'"
 msgstr "Tidak ada volume pool tipis LVM dengan alias '%s'"
 
 #. TRANSLATORS: %s is the replaced by a device alias (e.g., "md1").
-#: service/lib/agama/storage/config_checkers/md_raid.rb:98
+#: service/lib/agama/storage/config_checkers/md_raid.rb:97
 #, c-format
 msgid "There is no MD RAID member device with alias '%s'"
 msgstr "Tidak ada perangkat member MD RAID dengan alias '%s'"
@@ -225,95 +225,17 @@ msgstr "Tidak ada perangkat member MD RAID dengan alias '%s'"
 #. Issue if the MD RAID level is missing and the device is not reused.
 #.
 #. @return [Issue, nil]
-#: service/lib/agama/storage/config_checkers/md_raid.rb:111
+#: service/lib/agama/storage/config_checkers/md_raid.rb:110
 msgid "There is a MD RAID without level"
 msgstr "Ada MD RAID tanpa tingkat"
 
 #. Issue if the MD RAID does not contain enough member devices.
 #.
 #. @return [Issue, nil]
-#: service/lib/agama/storage/config_checkers/md_raid.rb:124
+#: service/lib/agama/storage/config_checkers/md_raid.rb:123
 #, c-format
 msgid "At least %s devices are required for %s"
 msgstr "Setidaknya %s perangkat diperlukan untuk %s"
-
-#. Issue if the device member is deleted.
-#.
-#. @param member_config [#search]
-#. @return [Issue, nil]
-#: service/lib/agama/storage/config_checkers/md_raid.rb:171
-#, perl-brace-format
-msgid ""
-"The device '%{member}' cannot be deleted because it is part of the MD RAID %"
-"{md_raid}"
-msgstr ""
-"Perangkat ‘%{member}’ tidak dapat dihapus karena merupakan bagian dari MD "
-"RAID %{md_raid}"
-
-#. Issue if the device member is resized.
-#.
-#. @param member_config [#search]
-#. @return [Issue, nil]
-#: service/lib/agama/storage/config_checkers/md_raid.rb:194
-#, perl-brace-format
-msgid ""
-"The device '%{member}' cannot be resized because it is part of the MD RAID %"
-"{md_raid}"
-msgstr ""
-"Perangkat ‘%{member}’ tidak dapat diubah ukurannya karena merupakan bagian "
-"dari MD RAID %{md_raid}"
-
-#. Issue if the device member is formatted.
-#.
-#. @param member_config [#search]
-#. @return [Issue, nil]
-#: service/lib/agama/storage/config_checkers/md_raid.rb:217
-#, perl-brace-format
-msgid ""
-"The device '%{member}' cannot be formatted because it is part of the MD RAID "
-"%{md_raid}"
-msgstr ""
-"Perangkat ‘%{member}’ tidak dapat diformat karena merupakan bagian dari MD "
-"RAID %{md_raid}"
-
-#. Issue if the device member is partitioned.
-#.
-#. @param member_config [#search]
-#. @return [Issue, nil]
-#: service/lib/agama/storage/config_checkers/md_raid.rb:240
-#, perl-brace-format
-msgid ""
-"The device '%{member}' cannot be partitioned because it is part of the MD "
-"RAID %{md_raid}"
-msgstr ""
-"Perangkat ‘%{member}’ tidak dapat dipartisi karena merupakan bagian dari MD "
-"RAID %{md_raid}"
-
-#. Issue if the device member is used by other device (e.g., as target for physical volumes).
-#.
-#. @param member_config [#search]
-#. @return [Issue, nil]
-#: service/lib/agama/storage/config_checkers/md_raid.rb:262
-#, perl-brace-format
-msgid ""
-"The device '%{member}' cannot be used because it is part of the MD RAID %"
-"{md_raid}"
-msgstr ""
-"Perangkat ‘%{member}’ tidak dapat digunakan karena merupakan bagian dari MD "
-"RAID %{md_raid}"
-
-#. Issue if the parent of the device member is formatted.
-#.
-#. @param device [Y2Storage::BlkDevice]
-#. @return [Issue, nil]
-#: service/lib/agama/storage/config_checkers/md_raid.rb:287
-#, perl-brace-format
-msgid ""
-"The device '%{device}' cannot be formatted because it is part of the MD RAID "
-"%{md_raid}"
-msgstr ""
-"Perangkat ‘%{device}’ tidak dapat diformat karena merupakan bagian dari MD "
-"RAID %{md_raid}"
 
 #. TRANSLATORS: 'method' is the identifier of the method to encrypt the device
 #. (e.g., 'luks1').
@@ -324,53 +246,201 @@ msgstr ""
 "'%{method}' bukanlah metode yang sesuai untuk mengenkripsi volume fisik."
 
 #. TRANSLATORS: %s is replaced by a device name (e.g., "/dev/vda").
-#: service/lib/agama/storage/config_checkers/search.rb:74
+#: service/lib/agama/storage/config_checkers/search.rb:76
 #, c-format
 msgid "Mandatory device %s not found"
 msgstr "Perangkat wajib %s tidak ditemukan"
 
 #. TRANSLATORS: %s is replaced by a device type (e.g., "drive").
-#: service/lib/agama/storage/config_checkers/search.rb:77
+#: service/lib/agama/storage/config_checkers/search.rb:82
 #, c-format
 msgid "Mandatory %s not found"
 msgstr "Wajib %s tidak ditemukan"
 
+#. Issue if the parent of the member device is formatted.
+#.
+#. @param device [Y2Storage::BlkDevice] Parent of the member device.
+#. @return [Issue, nil]
+#: service/lib/agama/storage/config_checkers/search.rb:126
+#, fuzzy, perl-brace-format
+msgid ""
+"The device '%{parent_name}' cannot be formatted because it is part of the "
+"reused MD RAID '%{reused_name}'"
+msgstr ""
+"Perangkat ‘%{member}’ tidak dapat diformat karena merupakan bagian dari MD "
+"RAID %{md_raid}"
+
+#. TRANSLATORS: %{parent_name} and %{reused_name} are replaced by device names (e.g.,
+#. "/dev/vda", "/dev/md0").
+#: service/lib/agama/storage/config_checkers/search.rb:136
+#, fuzzy, perl-brace-format
+msgid ""
+"The device '%{parent_name}' cannot be formatted because it is a physical "
+"volume of the reused LVM volume group '%{reused_name}'"
+msgstr ""
+"Perangkat ‘%{member}’ tidak dapat diformat karena merupakan bagian dari MD "
+"RAID %{md_raid}"
+
+#. Issue if the member device is deleted.
+#.
+#. @param member_config [#search]
+#. @return [Issue, nil]
+#: service/lib/agama/storage/config_checkers/search.rb:166
+#, fuzzy, perl-brace-format
+msgid ""
+"The device '%{member_name}' cannot be deleted because it is part of the "
+"reused MD RAID '%{reused_name}'"
+msgstr ""
+"Perangkat ‘%{member}’ tidak dapat dihapus karena merupakan bagian dari MD "
+"RAID %{md_raid}"
+
+#. TRANSLATORS: %{member_name} and %{reused_name} are replaced by device names (e.g.,
+#. "/dev/vda", "/dev/md0").
+#: service/lib/agama/storage/config_checkers/search.rb:176
+#, fuzzy, perl-brace-format
+msgid ""
+"The device '%{member_name}' cannot be deleted because it is a physical "
+"volume of the reused LVM volume group '%{reused_name}'"
+msgstr ""
+"Perangkat ‘%{member}’ tidak dapat dihapus karena merupakan bagian dari MD "
+"RAID %{md_raid}"
+
+#. Issue if the device member is resized.
+#.
+#. @param member_config [#search]
+#. @return [Issue, nil]
+#: service/lib/agama/storage/config_checkers/search.rb:206
+#, fuzzy, perl-brace-format
+msgid ""
+"The device '%{member_name}' cannot be resized because it is part of the "
+"reused MD RAID '%{reused_name}'"
+msgstr ""
+"Perangkat ‘%{member}’ tidak dapat diubah ukurannya karena merupakan bagian "
+"dari MD RAID %{md_raid}"
+
+#. TRANSLATORS: %{member_name} and %{reused_name} are replaced by device names (e.g.,
+#. "/dev/vda", "/dev/md0").
+#: service/lib/agama/storage/config_checkers/search.rb:216
+#, fuzzy, perl-brace-format
+msgid ""
+"The device '%{member_name}' cannot be resized because it is a physical "
+"volume of the reused LVM volume group '%{reused_name}'"
+msgstr ""
+"Perangkat ‘%{member}’ tidak dapat diubah ukurannya karena merupakan bagian "
+"dari MD RAID %{md_raid}"
+
+#. Issue if the device member is formatted.
+#.
+#. @param member_config [#search]
+#. @return [Issue, nil]
+#: service/lib/agama/storage/config_checkers/search.rb:246
+#, fuzzy, perl-brace-format
+msgid ""
+"The device '%{member_name}' cannot be formatted because it is part of the "
+"reused MD RAID '%{reused_name}'"
+msgstr ""
+"Perangkat ‘%{member}’ tidak dapat diformat karena merupakan bagian dari MD "
+"RAID %{md_raid}"
+
+#. TRANSLATORS: %{member_name} and %{reused_name} are replaced by device names (e.g.,
+#. "/dev/vda", "/dev/md0").
+#: service/lib/agama/storage/config_checkers/search.rb:256
+#, fuzzy, perl-brace-format
+msgid ""
+"The device '%{member_name}' cannot be formatted because it is a physical "
+"volume of the reused LVM volume group '%{reused_name}'"
+msgstr ""
+"Perangkat ‘%{member}’ tidak dapat diformat karena merupakan bagian dari MD "
+"RAID %{md_raid}"
+
+#. Issue if the device member is partitioned.
+#.
+#. @param member_config [#search]
+#. @return [Issue, nil]
+#: service/lib/agama/storage/config_checkers/search.rb:286
+#, fuzzy, perl-brace-format
+msgid ""
+"The device '%{member_name}' cannot be partitioned because it is part of the "
+"reused MD RAID '%{reused_name}'"
+msgstr ""
+"Perangkat ‘%{member}’ tidak dapat dipartisi karena merupakan bagian dari MD "
+"RAID %{md_raid}"
+
+#. TRANSLATORS: %{member_name} and %{reused_name} are replaced by device names (e.g.,
+#. "/dev/vda", "/dev/md0").
+#: service/lib/agama/storage/config_checkers/search.rb:296
+#, fuzzy, perl-brace-format
+msgid ""
+"The device '%{member_name}' cannot be partitioned because it is a physical "
+"volume of the reused LVM volume group '%{reused_name}'"
+msgstr ""
+"Perangkat ‘%{member}’ tidak dapat dipartisi karena merupakan bagian dari MD "
+"RAID %{md_raid}"
+
+#. Issue if the device member is used by other device (e.g., as target for physical volumes).
+#.
+#. @param member_config [#search]
+#. @return [Issue, nil]
+#: service/lib/agama/storage/config_checkers/search.rb:325
+#, fuzzy, perl-brace-format
+msgid ""
+"The device '%{member_name}' cannot be used because it is part of the reused "
+"MD RAID '%{reused_name}'"
+msgstr ""
+"Perangkat ‘%{member}’ tidak dapat digunakan karena merupakan bagian dari MD "
+"RAID %{md_raid}"
+
+#. TRANSLATORS: %{member_name} and %{reused_name} are replaced by device names (e.g.,
+#. "/dev/vda", "/dev/md0").
+#: service/lib/agama/storage/config_checkers/search.rb:335
+#, fuzzy, perl-brace-format
+msgid ""
+"The device '%{member_name}' cannot be used because it is a physical volume "
+"of the reused LVM volume group '%{reused_name}'"
+msgstr ""
+"Perangkat ‘%{member}’ tidak dapat digunakan karena merupakan bagian dari MD "
+"RAID %{md_raid}"
+
 #. @return [String]
-#: service/lib/agama/storage/config_checkers/search.rb:85
+#: service/lib/agama/storage/config_checkers/search.rb:383
 msgid "drive"
 msgstr "drive"
 
-#: service/lib/agama/storage/config_checkers/search.rb:87
+#: service/lib/agama/storage/config_checkers/search.rb:385
 msgid "MD RAID"
 msgstr "MD RAID"
 
-#: service/lib/agama/storage/config_checkers/search.rb:89
+#: service/lib/agama/storage/config_checkers/search.rb:387
 msgid "partition"
 msgstr "partisi"
 
-#: service/lib/agama/storage/config_checkers/search.rb:91
+#: service/lib/agama/storage/config_checkers/search.rb:389
 msgid "LVM logical volume"
 msgstr "Volume logis LVM"
 
-#: service/lib/agama/storage/config_checkers/search.rb:93
+#: service/lib/agama/storage/config_checkers/search.rb:391
+msgid "LVM volume group"
+msgstr "Grup volume LVM"
+
+#: service/lib/agama/storage/config_checkers/search.rb:393
 msgid "device"
 msgstr "perangkat"
 
 #. Issue if the volume group name is missing.
 #.
 #. @return [Issue, nil]
-#: service/lib/agama/storage/config_checkers/volume_group.rb:77
+#: service/lib/agama/storage/config_checkers/volume_group.rb:80
 msgid "There is a volume group without name"
 msgstr "Ada grup volume tanpa nama"
 
 #. TRANSLATORS: %s is the replaced by a device alias (e.g., "pv1").
-#: service/lib/agama/storage/config_checkers/volume_group.rb:109
+#: service/lib/agama/storage/config_checkers/volume_group.rb:112
 #, c-format
 msgid "There is no LVM physical volume with alias '%s'"
 msgstr "Tidak ada volume fisik LVM dengan alias '%s'"
 
 #. TRANSLATORS: %s is the replaced by a device alias (e.g., "pv1").
-#: service/lib/agama/storage/config_checkers/volume_group.rb:136
+#: service/lib/agama/storage/config_checkers/volume_group.rb:139
 #, c-format
 msgid ""
 "The list of target devices for the volume group '%s' is mixing reused "
@@ -380,7 +450,7 @@ msgstr ""
 "digunakan kembali dan perangkat baru"
 
 #. TRANSLATORS: %s is the replaced by a device alias (e.g., "disk1").
-#: service/lib/agama/storage/config_checkers/volume_group.rb:156
+#: service/lib/agama/storage/config_checkers/volume_group.rb:159
 #, c-format
 msgid "There is no target device for LVM physical volumes with alias '%s'"
 msgstr "Tidak ada perangkat target untuk volume fisik LVM dengan alias '%s'"
@@ -444,9 +514,8 @@ msgstr "Konfigurasi snapshot sistem berkas"
 #.
 #. @return [Issue, nil]
 #: service/lib/agama/storage/manager.rb:251
-#, fuzzy
 msgid "There is no suitable device for installation"
-msgstr "Tidak ada perangkat yang dipilih untuk pemasangan"
+msgstr "Tidak ada perangkat yang sesuai untuk instalasi"
 
 #. Issue representing the proposal is not valid.
 #.
@@ -461,7 +530,6 @@ msgstr ""
 #.
 #. @return [Issue]
 #: service/lib/agama/storage/proposal.rb:315
-#, fuzzy
 msgid "A problem occurred while calculating the storage setup"
 msgstr "Terjadi masalah saat menghitung pengaturan penyimpanan"
 
@@ -484,16 +552,16 @@ msgstr "Melepas perangkat penyimpanan"
 #: service/lib/agama/storage/zfcp/manager.rb:206
 #, c-format
 msgid "The zFCP controller %s cannot be activated"
-msgstr ""
+msgstr "Pengontrol zFCP %s tidak dapat diaktifkan"
 
 #. Activates a device if it is not active yet.
 #.
 #. @param device [Device]
 #. @return [Boolean] Whether the device was activated.
 #: service/lib/agama/storage/zfcp/manager.rb:239
-#, fuzzy, c-format
+#, c-format
 msgid "The zFCP device %s cannot be activated"
-msgstr "Perangkat boot tidak dapat dipilih secara otomatis"
+msgstr "Perangkat zFCP %s tidak dapat diaktifkan"
 
 #. Deactivates a device if it is active.
 #.
@@ -502,9 +570,9 @@ msgstr "Perangkat boot tidak dapat dipilih secara otomatis"
 #. @param device [Device]
 #. @return [Boolean] Whether the device was deactivated.
 #: service/lib/agama/storage/zfcp/manager.rb:277
-#, fuzzy, c-format
+#, c-format
 msgid "The zFCP device %s cannot be deactivated"
-msgstr "Perangkat boot tidak dapat dipilih secara otomatis"
+msgstr "Perangkat zFCP %s tidak dapat dinonaktifkan"
 
 #. Issue if the controller is missing.
 #.
@@ -513,7 +581,7 @@ msgstr "Perangkat boot tidak dapat dipilih secara otomatis"
 #: service/lib/agama/storage/zfcp/manager.rb:307
 #, c-format
 msgid "Unknown zFCP controller %s"
-msgstr ""
+msgstr "Pengontrol zFCP %s tidak dikenal"
 
 #. Issue if the device is missing.
 #.
@@ -522,7 +590,15 @@ msgstr ""
 #: service/lib/agama/storage/zfcp/manager.rb:326
 #, c-format
 msgid "Unknown zFCP LUN %s"
-msgstr ""
+msgstr "LUN zFCP %s tidak dikenal"
+
+#, perl-brace-format
+#~ msgid ""
+#~ "The device '%{device}' cannot be formatted because it is part of the MD "
+#~ "RAID %{md_raid}"
+#~ msgstr ""
+#~ "Perangkat ‘%{device}’ tidak dapat diformat karena merupakan bagian dari "
+#~ "MD RAID %{md_raid}"
 
 #~ msgid "Logout iSCSI targets"
 #~ msgstr "Keluar dari target iSCSI"

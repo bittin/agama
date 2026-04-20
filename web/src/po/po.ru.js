@@ -42,6 +42,24 @@ export default {
     "%1$s, %2$s и [ещё %3$d]",
     "%1$s, %2$s и [ещё %3$d]"
   ],
+  "%d duplicates skipped.": [
+    ""
+  ],
+  "%d entries added, %d duplicates skipped.": [
+    ""
+  ],
+  "%d entries added, %d invalid, %d duplicates skipped.": [
+    ""
+  ],
+  "%d entries added, %d invalid.": [
+    ""
+  ],
+  "%d entries added.": [
+    ""
+  ],
+  "%d invalid entries removed.": [
+    ""
+  ],
   "%d mode available": [
     "Доступен %d режим",
     "Доступны %d режима",
@@ -55,6 +73,15 @@ export default {
   "%s - %s": [
     "%s - %s"
   ],
+  "%s added but is invalid: %s. Select to edit.": [
+    ""
+  ],
+  "%s added.": [
+    ""
+  ],
+  "%s already exists, skipped.": [
+    ""
+  ],
   "%s and %d others": [
     "%s и %d других"
   ],
@@ -67,11 +94,23 @@ export default {
   "%s disk": [
     "Диск %s"
   ],
+  "%s entries": [
+    ""
+  ],
   "%s has been registered with below information.": [
     "Регистрация %s была выполнена с указанной ниже информацией."
   ],
+  "%s is invalid: %s": [
+    ""
+  ],
   "%s logo": [
     "Логотип %s"
+  ],
+  "%s moved to input for editing.": [
+    ""
+  ],
+  "%s removed.": [
+    ""
   ],
   "%s task active": [
     "%s задача активна",
@@ -89,13 +128,13 @@ export default {
   "%s with %d partitions": [
     "%s с %d разделами"
   ],
-  "(bind by name)": [
-    ""
-  ],
   "(bound by MAC)": [
     ""
   ],
   "(bound by name)": [
+    ""
+  ],
+  "(optional)": [
     ""
   ],
   "(step %s of %s)": [
@@ -131,11 +170,6 @@ export default {
     "Для %s будет создан новый раздел",
     "Для %s будут созданы новые разделы",
     "Для %s будут созданы новые разделы"
-  ],
-  "A new volume will be created for %s": [
-    "Для %s будет создан новый том",
-    "Для %s будут созданы новые тома",
-    "Для %s будут созданы новые тома"
   ],
   "A partition may be deleted": [
     "Раздел может быть удален"
@@ -173,23 +207,11 @@ export default {
   "Add": [
     "Добавить"
   ],
-  "Add DNS": [
-    "Добавить DNS"
-  ],
   "Add LVM volume group": [
     "Добавить группу томов LVM"
   ],
   "Add a partition or mount an existing one": [
     "Добавьте раздел или смонтируйте существующий"
-  ],
-  "Add an address": [
-    "Добавить адрес"
-  ],
-  "Add another DNS": [
-    "Добавить другой DNS"
-  ],
-  "Add another address": [
-    "Добавить другой адрес"
   ],
   "Add device menu": [
     "Меню добавления устройств"
@@ -200,20 +222,14 @@ export default {
   "Add or use partition": [
     "Добавить или использовать раздел"
   ],
-  "Add search domain": [
-    ""
-  ],
   "Additional CHAP authentication performed by the initiator": [
     "Дополнительная аутентификация CHAP, выполняемая инициатором"
   ],
   "Address": [
     "Адрес"
   ],
-  "Addresses": [
-    "Адреса"
-  ],
-  "Addresses data list": [
-    "Список данных адресов"
+  "Address and gateway assigned from the network": [
+    ""
   ],
   "Adjust the settings below to make the new system fit into the available space.": [
     "Измените приведенные ниже параметры, чтобы новая система вписалась в свободное пространство."
@@ -256,6 +272,9 @@ export default {
     "Для %s будут использованы существующие разделы",
     "Для %s будут использованы существующие разделы"
   ],
+  "Any": [
+    ""
+  ],
   "Any existing partition will be removed and all data in the disk will be lost.": [
     "Все существующие разделы будут удалены, а все данные на диске будут потеряны."
   ],
@@ -265,8 +284,8 @@ export default {
   "As a new partition on %s": [
     "Как новый раздел на %s"
   ],
-  "At least one address must be provided for selected mode": [
-    "Для выбранного режима необходимо предоставить не менее одного адреса"
+  "At least one DNS search domain is required": [
+    ""
   ],
   "At least one partition will be deleted": [
     "По крайней мере один раздел будет удален"
@@ -282,9 +301,6 @@ export default {
   ],
   "Automatic": [
     "Автоматически"
-  ],
-  "Automatic (DHCP)": [
-    "Автоматически (DHCP)"
   ],
   "Automatic LUN scan is disabled": [
     ""
@@ -409,18 +425,6 @@ export default {
   "Change selection": [
     "Изменить выбор"
   ],
-  "Change the disk to configure": [
-    "Измените диск для настройки"
-  ],
-  "Change the disk to create %s": [
-    "Измените диск для создания %s"
-  ],
-  "Change the disk to format as %s": [
-    "Измените диск для форматирования как %s"
-  ],
-  "Change the disk to install the system": [
-    "Измените диск для установки системы"
-  ],
   "Change the file system or mount point": [
     "Изменить файловую систему или точку монтирования"
   ],
@@ -447,6 +451,9 @@ export default {
     "Выберите из %d доступных продуктов",
     "Выберите из %d доступных продуктов"
   ],
+  "Choose a volume group to define logical volumes": [
+    ""
+  ],
   "Choose device to bind by MAC": [
     "Выберите устройство для привязки по MAC-адресу"
   ],
@@ -470,6 +477,9 @@ export default {
   ],
   "Close": [
     "Закрыть"
+  ],
+  "Configuration from the network plus static addresses and gateway": [
+    ""
   ],
   "Configuration read from the iSCSI Boot Firmware Table (iBFT). Initiator cannot be changed.": [
     "Конфигурация, считываемая из таблицы прошивки iSCSI Boot Firmware Table (iBFT). Инициатор не может быть изменен."
@@ -647,9 +657,6 @@ export default {
   "Default file system for %s": [
     "Файловая система по умолчанию для %s"
   ],
-  "Default file system for generic logical volumes": [
-    "Файловая система по умолчанию для общих логических томов"
-  ],
   "Default file system for generic mount paths": [
     "Файловая система по умолчанию для общих путей монтирования"
   ],
@@ -746,9 +753,6 @@ export default {
   "Do not use": [
     "Не использовать"
   ],
-  "Domain": [
-    ""
-  ],
   "Down": [
     ""
   ],
@@ -757,6 +761,24 @@ export default {
   ],
   "Download logs to troubleshoot or share with support.": [
     "Загрузите журналы для устранения неполадок или отправки в службу поддержки."
+  ],
+  "E.g., 192.168.1.1": [
+    ""
+  ],
+  "E.g., 192.168.1.1 or 192.168.1.1/24. Prefix auto-added if omitted.": [
+    ""
+  ],
+  "E.g., 2001:db8::1": [
+    ""
+  ],
+  "E.g., 2001:db8::1 or 2001:db8::1/64. Prefix auto-added if omitted.": [
+    ""
+  ],
+  "E.g., 8.8.8.8 or 2001:4860:4860::8888": [
+    ""
+  ],
+  "E.g., example.com": [
+    ""
   ],
   "Edit": [
     "Изменить"
@@ -817,6 +839,9 @@ export default {
   ],
   "Enter a name for the volume group.": [
     "Введите имя для группы томов."
+  ],
+  "Enter or Tab to add; arrow keys to navigate entries, Ctrl+arrows to reorder, Escape to exit; Backspace or Delete to remove.": [
+    ""
   ],
   "ExFAT": [
     "ExFAT"
@@ -939,9 +964,6 @@ export default {
   "Gateway": [
     "Шлюз"
   ],
-  "Gateway can be defined only in 'Manual' mode": [
-    "Шлюз можно указать только в ручном режиме"
-  ],
   "GiB": [
     "ГиБ"
   ],
@@ -977,9 +999,6 @@ export default {
   "I have read and accept the [license] for %s": [
     "Я прочитал(-а) и принимаю [лицензию] для %s"
   ],
-  "IP Address": [
-    "IP-адрес"
-  ],
   "IP Addresses": [
     "IP-адреса"
   ],
@@ -994,6 +1013,12 @@ export default {
   ],
   "IPv6": [
     "IPv6"
+  ],
+  "Identify the connection device by its name in the system": [
+    ""
+  ],
+  "Identify the connection device by its physical address": [
+    ""
   ],
   "If a local media was used to run this installer, remove it before the next boot.": [
     "Если для запуска этой программы установки использовался локальный носитель, извлеките его перед следующей загрузкой."
@@ -1064,6 +1089,12 @@ export default {
   "Interface": [
     "Интерфейс"
   ],
+  "Invalid IPv4 gateway": [
+    ""
+  ],
+  "Invalid IPv6 gateway": [
+    ""
+  ],
   "Invalid settings": [
     "Неверные параметры"
   ],
@@ -1072,9 +1103,6 @@ export default {
   ],
   "Invalid storage settings": [
     "Неверные настройки хранилища"
-  ],
-  "Ip prefix or netmask": [
-    "Ip префикс или маска сети"
   ],
   "Issue date": [
     "Дата выдачи"
@@ -1115,6 +1143,9 @@ export default {
   "JFS": [
     "JFS"
   ],
+  "Keep %s": [
+    ""
+  ],
   "Keyboard": [
     "Клавиатура"
   ],
@@ -1144,6 +1175,9 @@ export default {
   ],
   "Let the installer propose a sensible size": [
     "Программа установки предложит разумный размер"
+  ],
+  "Level": [
+    ""
   ],
   "License acceptance is required to continue.": [
     "Для продолжения необходимо принять условия лицензии."
@@ -1317,6 +1351,9 @@ export default {
   "No": [
     "Нет"
   ],
+  "No LVM volume groups are available for selection.": [
+    ""
+  ],
   "No Wi-Fi networks were found": [
     "Сети WiFi не найдены"
   ],
@@ -1350,14 +1387,14 @@ export default {
   "No iSCSI Boot Firmware Table (iBFT) found. The initiator can be [configured manually.]": [
     "Таблица прошивки iSCSI Boot (iBFT) не найдена. Инициатор можно [настроить вручную.]"
   ],
-  "No logical volumes are defined yet": [
-    "Логические тома еще не определены"
-  ],
   "No partitions will be automatically configured for booting.": [
     "Ни один раздел не будет автоматически настроен для загрузки."
   ],
   "No partitions will be automatically configured for booting. Use with caution.": [
     "Ни один раздел не будет автоматически настроен для загрузки. Используйте с осторожностью."
+  ],
+  "No software RAID devices are available for selection.": [
+    ""
   ],
   "No support is planned.": [
     "Поддержка не планируется."
@@ -1518,9 +1555,6 @@ export default {
   "Potential data loss affecting at least %s": [
     "Существует риск потери данных, затрагивающий %s"
   ],
-  "Prefix length or netmask": [
-    "Длина префикса или маска сети"
-  ],
   "Proceeding may result in data loss": [
     "При продолжении есть риск потери данных"
   ],
@@ -1556,6 +1590,9 @@ export default {
   ],
   "Question": [
     "Вопрос"
+  ],
+  "RAID": [
+    ""
   ],
   "Reboot": [
     "Перезагрузить"
@@ -1601,9 +1638,6 @@ export default {
   ],
   "Reload": [
     "Обновить"
-  ],
-  "Remove": [
-    "Удалить"
   ],
   "Remove the configuration for this disk": [
     "Удалить конфигурацию для этого диска"
@@ -1700,14 +1734,8 @@ export default {
   "Select %s": [
     "Выбрать %s"
   ],
-  "Select a device to define partitions or to mount": [
-    "Выберите устройство для определения разделов или монтирования"
-  ],
   "Select a disk": [
     "Выберите диск"
-  ],
-  "Select a disk to define partitions or to mount": [
-    "Выберите диск для определения разделов или монтирования"
   ],
   "Select a mode": [
     "Выберите режим"
@@ -1729,17 +1757,14 @@ export default {
   "Select a product to continue.": [
     "Выберите продукт, чтобы продолжить."
   ],
-  "Select another device to define partitions or to mount": [
-    "Выберите другое устройство для определения разделов или монтирования"
-  ],
-  "Select another disk to define partitions or to mount": [
-    "Выберите другой диск для определения разделов или монтирования"
-  ],
   "Select at least one disk.": [
     "Выберите хотя бы один диск."
   ],
   "Select device": [
     "Выберите устройство"
+  ],
+  "Select entries to edit or remove them. Or [remove all invalid entries.]": [
+    ""
   ],
   "Select or enter a mount point": [
     "Выберите или введите точку монтирования"
@@ -1764,9 +1789,6 @@ export default {
   ],
   "Selected patterns": [
     "Выбранные шаблоны"
-  ],
-  "Server IP": [
-    "IP сервера"
   ],
   "Server URL": [
     "URL сервера"
@@ -1818,9 +1840,6 @@ export default {
   "Size limits must be numbers followed by a unit like GiB or GB": [
     "Ограничения на размер должны быть числами, за которыми следуют единицы измерения, например GiB или GB"
   ],
-  "Size limits must be numbers optionally followed by a unit like GiB or GB": [
-    "Ограничения на размер должны быть числами, за которыми могут следовать единицы измерения, например GiB или GB"
-  ],
   "Size mode": [
     "Режим размера"
   ],
@@ -1835,6 +1854,18 @@ export default {
   ],
   "Software %s": [
     "Программное обеспечение %s"
+  ],
+  "Some DNS search domains are invalid": [
+    ""
+  ],
+  "Some DNS server addresses are invalid": [
+    ""
+  ],
+  "Some IPv4 addresses are invalid": [
+    ""
+  ],
+  "Some IPv6 addresses are invalid": [
+    ""
   ],
   "Some existing partitions may be shrunk": [
     "Некоторые существующие разделы могут быть уменьшены"
@@ -1862,6 +1893,9 @@ export default {
   ],
   "Startup": [
     "Запуск"
+  ],
+  "Static addresses and gateway": [
+    ""
   ],
   "Static hostname": [
     "Статическое имя узла"
@@ -2044,17 +2078,11 @@ export default {
   "The maximum must be a number followed by a unit like GiB or GB": [
     "Максимальное значение должно быть числом, за которым следует единица измерения, например GiB или GB"
   ],
-  "The maximum must be a number optionally followed by a unit like GiB or GB": [
-    "Максимальное значение должно быть числом, за которым может следовать единица измерения, например GiB или GB"
-  ],
   "The minimum cannot be greater than the maximum": [
     "Минимальное значение не может быть больше максимального"
   ],
   "The minimum must be a number followed by a unit like GiB or GB": [
     "Минимальное значение должно быть числом, за которым следует единица измерения, например GiB или GB"
-  ],
-  "The minimum must be a number optionally followed by a unit like GiB or GB": [
-    "Минимальное значение должно быть числом, за которым может следовать единица измерения, например GiB или GB"
   ],
   "The modal selector offers a simplified interface designed for quick and straightforward use, without overwhelming the user.": [
     "Модальный селектор предлагает упрощенный интерфейс, разработанный для быстрого и прямого использования, не перегружая пользователя."
@@ -2288,6 +2316,12 @@ export default {
   "Use available space": [
     "Использовать свободное пространство"
   ],
+  "Use custom DNS search domains": [
+    ""
+  ],
+  "Use custom DNS servers": [
+    ""
+  ],
   "Use device %s": [
     "Исп. устройство %s"
   ],
@@ -2357,6 +2391,9 @@ export default {
   "Use the disk without partitions": [
     "Использовать диск без разделов"
   ],
+  "Use the tabs to browse disks, RAID devices and LVM volume groups.": [
+    ""
+  ],
   "Use these same settings for the selected product": [
     "Исп. эти же настройки для выбранного продукта"
   ],
@@ -2404,6 +2441,9 @@ export default {
   ],
   "Volume group '%s' already exists. Enter a different name.": [
     "Группа томов „%s“ уже существует. Введите другое имя."
+  ],
+  "Volume groups cannot be formatted": [
+    ""
   ],
   "WPA & WPA2 Personal": [
     "WPA и WPA2 Personal"
@@ -2506,9 +2546,6 @@ export default {
   ],
   "partition": [
     "раздел"
-  ],
-  "proposal.Device": [
-    "предложение.Устройство"
   ],
   "reset to defaults": [
     "сброс настроек по умолчанию"
