@@ -36,6 +36,7 @@ import {
   List,
   ListItem,
 } from "@patternfly/react-core";
+import Interpolate from "~/components/core/Interpolate";
 import IssuesAlert from "~/components/core/IssuesAlert";
 import Link from "~/components/core/Link";
 import NestedContent from "~/components/core/NestedContent";
@@ -80,6 +81,63 @@ const NothingSelected = ({
 );
 
 /**
+ * A single pattern entry with its name, optional auto-selected label, and an
+ * expandable description.
+ *
+ * Uses a controlled ExpandableSection with `toggleContent` (ReactNode) rather
+ * than `toggleTextCollapsed`/`toggleTextExpanded` (string-only) so the toggle
+ * button can carry both a visible label and a screen-reader-only label that
+ * includes the pattern name for context when navigating by button.
+ *
+ * TODO: revert to uncontrolled once
+ * https://github.com/patternfly/patternfly-react/pull/12063 lands, which will
+ * allow `toggleContent` to accept a function receiving `isExpanded`.
+ */
+const PatternListItem = ({
+  pattern,
+  selection,
+}: {
+  pattern: Pattern;
+  selection: PatternsSelection;
+}) => {
+  const [isExpanded, setIsExpanded] = React.useState(false);
+
+  const toggleContent = isExpanded ? (
+    <>
+      <Text srHidden>{_("Read less")}</Text>
+      {/* TRANSLATORS: accessible label for the collapse button; %s is the pattern name */}
+      <Text srOnly>{sprintf(_("Read less about %s"), pattern.summary)}</Text>
+    </>
+  ) : (
+    <>
+      <Text srHidden>{_("Read more")}</Text>
+      {/* TRANSLATORS: accessible label for the expand button; %s is the pattern name */}
+      <Text srOnly>{sprintf(_("Read more about %s"), pattern.summary)}</Text>
+    </>
+  );
+
+  return (
+    <ListItem>
+      <Text>
+        <Text isBold>{pattern.summary} </Text>
+        {selection[pattern.name] === SelectedBy.AUTO && <AutoSelectedLabel />}
+      </Text>
+      <NestedContent margin="mxXs">
+        <ExpandableSection
+          variant="truncate"
+          truncateMaxLines={2}
+          isExpanded={isExpanded}
+          onToggle={(_event, value) => setIsExpanded(value)}
+          toggleContent={toggleContent}
+        >
+          <SubtleContent>{pattern.description}</SubtleContent>
+        </ExpandableSection>
+      </NestedContent>
+    </ListItem>
+  );
+};
+
+/**
  * List of selected patterns.
  */
 const SelectedPatternsList = ({
@@ -100,24 +158,7 @@ const SelectedPatternsList = ({
       <NestedContent margin="mxSm">
         <List isPlain>
           {patterns.map((pattern) => (
-            <ListItem key={pattern.name}>
-              <Text>
-                <Text isBold>{pattern.summary} </Text>
-                {selection[pattern.name] === SelectedBy.AUTO && <AutoSelectedLabel />}
-              </Text>
-              <NestedContent margin="mxXs">
-                <ExpandableSection
-                  variant="truncate"
-                  truncateMaxLines={2}
-                  // TRANSLATORS: button to expand truncated pattern description
-                  toggleTextCollapsed={_("Read more")}
-                  // TRANSLATORS: button to collapse expanded pattern description
-                  toggleTextExpanded={_("Read less")}
-                >
-                  <SubtleContent>{pattern.description}</SubtleContent>
-                </ExpandableSection>
-              </NestedContent>
-            </ListItem>
+            <PatternListItem key={pattern.name} pattern={pattern} selection={selection} />
           ))}
         </List>
       </NestedContent>
@@ -130,13 +171,26 @@ const SelectedPatternsList = ({
  *
  * Renders nothing when no size information is available.
  */
-const SpaceRequirements = ({ usedSize }: { usedSize?: string }) => {
+const SpaceRequirements = ({
+  usedSize,
+  hasSelection,
+}: {
+  usedSize?: string;
+  hasSelection: boolean;
+}) => {
   if (!usedSize) return;
 
-  // TRANSLATORS: %s is the required disk space
-  const text = sprintf(_("About %s space required"), usedSize);
+  const text = hasSelection
+    ? // TRANSLATORS: %s is the required disk space. Keep the [brackets]: they mark the value to be displayed in bold.
+      sprintf(_("Required space with current selection: [%s]"), usedSize)
+    : // TRANSLATORS: %s is the required disk space. Keep the [brackets]: they mark the value to be displayed in bold.
+      sprintf(_("Required space: [%s]"), usedSize);
 
-  return <Text textStyle="fontSizeMd">{text}</Text>;
+  return (
+    <Text textStyle="fontSizeMd">
+      <Interpolate sentence={text}>{(size) => <Text isBold>{size}</Text>}</Interpolate>
+    </Text>
+  );
 };
 
 type SoftwareSectionProps = {
@@ -236,7 +290,7 @@ const SoftwarePageContent = () => {
   return (
     <Page.Content>
       <Content>
-        <SpaceRequirements usedSize={usedSize} />
+        <SpaceRequirements usedSize={usedSize} hasSelection={selectedPatterns.length > 0} />
       </Content>
       <IssuesAlert issues={issues} />
       {isEmpty(proposal.patterns) ? (

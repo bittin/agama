@@ -67,9 +67,22 @@ describe("SoftwarePage", () => {
     expect(screen.queryByText("YaST Server Utilities")).toBeNull();
   });
 
-  it("renders the summary", () => {
+  it("renders the summary including the selection context", () => {
     installerRender(<SoftwarePage />);
-    screen.getByText(/About 4.60 GiB space required/);
+    screen.getByText(/Required space with current selection/);
+    screen.getByText("4.60 GiB");
+  });
+
+  it("renders the summary without selection context when nothing is selected", () => {
+    const proposalWithNoPatterns = {
+      ...testingProposal,
+      patterns: Object.fromEntries(Object.keys(testingProposal.patterns).map((k) => [k, "none"])),
+    };
+    mockProposal.mockReturnValue(proposalWithNoPatterns);
+
+    installerRender(<SoftwarePage />);
+    screen.getByText(/Required space:/);
+    expect(screen.queryByText(/with current selection/)).toBeNull();
   });
 
   it("renders buttons for navigating to patterns selection", () => {
