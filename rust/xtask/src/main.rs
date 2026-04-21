@@ -66,6 +66,22 @@ mod tasks {
         println!("Generate the OpenAPI specification at {}.", path.display());
         Ok(())
     }
+
+    /// Generate Agama's OpenAPI specification using aide (migration).
+    pub fn generate_openapi_aide() -> std::io::Result<()> {
+        use agama_server::web::docs_aide;
+
+        let openapi = docs_aide::build();
+        let json = serde_json::to_string_pretty(&openapi)?;
+        let path = output_dir()?.join("openapi-aide.json");
+        let mut file = File::create(&path)?;
+        file.write_all(json.as_bytes())?;
+        println!(
+            "Generate the OpenAPI specification (aide) at {}.",
+            path.display()
+        );
+        Ok(())
+    }
 }
 
 fn output_dir() -> std::io::Result<PathBuf> {
@@ -87,6 +103,7 @@ fn main() -> std::io::Result<()> {
         "markdown" => tasks::generate_markdown(),
         "manpages" => tasks::generate_manpages(),
         "openapi" => tasks::generate_openapi(),
+        "openapi-aide" => tasks::generate_openapi_aide(),
         other => {
             eprintln!("Unknown task '{}'", other);
             std::process::exit(1);

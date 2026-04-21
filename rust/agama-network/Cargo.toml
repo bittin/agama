@@ -21,6 +21,8 @@ tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread"] }
 tokio-stream = "0.1.17"
 tracing = "0.1.41"
 utoipa = { version = "5.3.1", features = ["uuid"] }
+# aide dependencies for migration (will replace utoipa)
+schemars = { version = "1.2.1", features = ["uuid1"] }
 uuid = { version = "1.16.0", features = ["v4", "serde"] }
 zbus = { version = "5", default-features = false, features = ["tokio"] }
 semver = "1.0.26"

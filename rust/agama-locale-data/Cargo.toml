@@ -13,3 +13,5 @@ chrono-tz = "0.10.3"
 regex = "1"
 thiserror = "2.0.12"
 utoipa = "5.2.0"
+# aide dependencies for migration (will replace utoipa)
+schemars = "1.2.1"

@@ -34,6 +34,9 @@ tracing = "0.1.40"
 clap = { version = "4.5.19", features = ["derive", "wrap_help"] }
 tower = { version = "0.5.2", features = ["util"] }
 utoipa = { version = "5.2.0", features = ["axum_extras", "uuid"] }
+# aide dependencies for migration (will replace utoipa)
+aide = { version = "0.16.0-alpha.4", features = ["axum", "axum-extra", "axum-json", "scalar"] }
+schemars = { version = "1.2.1", features = ["uuid1", "url2"] }
 config = "0.15.11"
 rand = "0.9.1"
 axum-extra = { version = "0.12.6", features = ["cookie", "typed-header"] }

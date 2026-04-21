@@ -31,6 +31,7 @@ use axum::Router;
 mod auth;
 mod config;
 pub mod docs;
+pub mod docs_aide; // Parallel OpenAPI generation using aide (migration)
 pub mod error;
 mod http;
 mod service;
