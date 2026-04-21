@@ -42,7 +42,6 @@ import { SelectedBy } from "~/model/proposal/software";
 import { patchConfig } from "~/api";
 import { useSystem } from "~/hooks/model/system/software";
 import { useProposal } from "~/hooks/model/proposal/software";
-import { useExtendedConfig } from "~/hooks/model/config";
 import { usePristineSafeForm } from "~/hooks/form";
 import { filterPatterns, groupPatterns, isPatternSelected, sortGroupNames } from "~/utils/software";
 import { SOFTWARE } from "~/routes/paths";
@@ -50,7 +49,6 @@ import { N_, _ } from "~/i18n";
 
 import a11yStyles from "@patternfly/react-styles/css/utilities/Accessibility/accessibility";
 import type { Pattern } from "~/model/system/software";
-import type { PatternsObject } from "~/openapi/config/software";
 
 /**
  * Form options for pattern selection.
@@ -81,8 +79,10 @@ type Scope = "all" | "desktops" | "other";
  *   default, or already explicitly removed. Patterns never seen before are ignored.
  * - null otherwise.
  *
- * Hidden patterns (not inScope) pass through their existing config state unchanged,
- * to avoid losing selections or removals made on a different scope.
+ * Hidden patterns (not inScope) pass through their existing user selection unchanged,
+ * preserving choices made on a different scope. The proposal's selection status is
+ * the source of truth: USER means the user explicitly added it, REMOVED means the
+ * user explicitly removed it.
  *
  * @param inScope - Whether the pattern is visible in the current scope
  * @param isChecked - Current checkbox value in the form
@@ -90,8 +90,6 @@ type Scope = "all" | "desktops" | "other";
  * @param isPreselected - Whether the pattern is selected by default in the product
  * @param wasInitiallySelected - Whether the pattern was selected when the form loaded
  * @param selectionStatus - Current backend selection status for this pattern
- * @param inConfigAdd - Whether the pattern is in the config's add list (out-of-scope preservation)
- * @param inConfigRemove - Whether the pattern is in the config's remove list (out-of-scope preservation)
  */
 const resolvePatternAction = (
   inScope: boolean,
@@ -100,12 +98,10 @@ const resolvePatternAction = (
   isPreselected: boolean,
   wasInitiallySelected: boolean,
   selectionStatus: SelectedBy | undefined,
-  inConfigAdd: boolean,
-  inConfigRemove: boolean,
 ): "add" | "remove" | undefined => {
   if (!inScope) {
-    if (inConfigAdd) return "add";
-    if (inConfigRemove) return "remove";
+    if (selectionStatus === SelectedBy.USER) return "add";
+    if (selectionStatus === SelectedBy.REMOVED) return "remove";
     return;
   }
   if (isChecked && (isDirty || selectionStatus === SelectedBy.USER)) return "add";
@@ -136,17 +132,8 @@ function SoftwarePatternsSelection({ scope = "all" }: { scope?: Scope }) {
   const navigate = useNavigate();
   const { patterns: systemPatterns } = useSystem();
   const proposal = useProposal();
-  const config = useExtendedConfig();
   const selection = proposal?.patterns || {};
   const [searchValue, setSearchValue] = useState("");
-
-  // NOTE: patterns is typed as PatternsArray | PatternsObject, but a flat array
-  // makes little sense here. It may be a design issue in the openapi spec worth
-  // revisiting. In any case, cast is safe: accessing .add/.remove on an array
-  // returns undefined, handled by ?? []
-  const patternConfig = (config?.software?.patterns ?? {}) as PatternsObject;
-  const userAddedPatterns = patternConfig.add ?? [];
-  const userRemovedPatterns = patternConfig.remove ?? [];
 
   let scopedPatterns: Pattern[];
   switch (scope) {
@@ -185,8 +172,6 @@ function SoftwarePatternsSelection({ scope = "all" }: { scope?: Scope }) {
             p.preselected,
             wasInitiallySelected,
             selectionStatus,
-            userAddedPatterns.includes(p.name),
-            userRemovedPatterns.includes(p.name),
           );
 
           if (action) acc[action].push(p.name);

@@ -56,17 +56,6 @@ jest.mock("~/hooks/model/proposal/software", () => ({
   }),
 }));
 
-jest.mock("~/hooks/model/config", () => ({
-  useExtendedConfig: () => ({
-    software: {
-      patterns: {
-        add: ["gnome"],
-        remove: ["kde"],
-      },
-    },
-  }),
-}));
-
 jest.mock("~/api", () => ({
   patchConfig: jest.fn(),
 }));
