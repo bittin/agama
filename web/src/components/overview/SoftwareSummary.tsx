@@ -27,19 +27,29 @@ import { sprintf } from "sprintf-js";
 
 import Summary from "~/components/core/Summary";
 import Link from "~/components/core/Link";
+import Text from "~/components/core/Text";
 import { useProposal } from "~/hooks/model/proposal/software";
 import { useProgressTracking } from "~/hooks/use-progress-tracking";
-import { useSelectedPatterns } from "~/hooks/model/system/software";
+import { useIsDesktopMissing, useSelectedPatterns } from "~/hooks/model/system/software";
 import { useIssues } from "~/hooks/model/issue";
 import { SOFTWARE } from "~/routes/paths";
 import { _, n_ } from "~/i18n";
 
 /**
  * Renders a summary text describing the software selection.
+ *
+ * Hints about a missing desktop when the product suggests one, taking
+ * precedence over the patterns count.
  */
 const Value = () => {
   const patterns = useSelectedPatterns();
+  const isDesktopMissing = useIsDesktopMissing();
   const patternsQty = patterns.length;
+
+  if (isDesktopMissing) {
+    // TRANSLATORS: shown in the software summary when no desktop is selected.
+    return <Text isBold>{_("No desktop selected")}</Text>;
+  }
 
   if (patternsQty === 0) {
     return _("Required packages");

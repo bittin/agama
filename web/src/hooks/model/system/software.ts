@@ -24,6 +24,7 @@ import { shake } from "radashi";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { systemQuery } from "~/hooks/model/system";
 import { useProposal } from "~/hooks/model/proposal/software";
+import { useProductInfo } from "~/hooks/model/config/product";
 import { SelectedBy } from "~/model/proposal/software";
 import type { System, Software } from "~/model/system";
 
@@ -53,4 +54,22 @@ function useSelectedPatterns() {
   return patterns.filter((p) => selectedPatternsKeys.includes(p.name));
 }
 
-export { useSystem, useSelectedPatterns };
+/**
+ * Whether the product suggests picking a desktop environment but none is
+ * currently selected.
+ *
+ * Use this to decide whether to hint the user in UI surfaces such as the
+ * software summary or the installation confirmation. Returns `false` for
+ * products that do not declare `desktopSelection` or declare it as
+ * `"optional"`.
+ */
+function useIsDesktopMissing(): boolean {
+  const product = useProductInfo();
+  const selectedPatterns = useSelectedPatterns();
+
+  if (product?.desktopSelection !== "suggested") return false;
+
+  return !selectedPatterns.some((p) => p.desktop);
+}
+
+export { useSystem, useSelectedPatterns, useIsDesktopMissing };

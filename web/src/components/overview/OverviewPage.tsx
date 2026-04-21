@@ -25,6 +25,7 @@ import { isEmpty } from "radashi";
 import { sprintf } from "sprintf-js";
 import { Navigate } from "react-router";
 import {
+  Alert,
   Button,
   Content,
   Divider,
@@ -50,12 +51,15 @@ import ProductLogo from "~/components/product/ProductLogo";
 import { startInstallation } from "~/api";
 import { useProductInfo } from "~/hooks/model/config/product";
 import { useIssues } from "~/hooks/model/issue";
+import { useIsDesktopMissing } from "~/hooks/model/system/software";
 import { PRODUCT } from "~/routes/paths";
 import { useDestructiveActions } from "~/hooks/use-destructive-actions";
-import { _ } from "~/i18n";
-import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import { useProgressTracking } from "~/hooks/use-progress-tracking";
+import { _ } from "~/i18n";
+
 import type { Product } from "~/model/system";
+
+import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 
 type ConfirmationPopupProps = {
   product: Product;
@@ -63,12 +67,31 @@ type ConfirmationPopupProps = {
   onCancel: () => void;
   onConfirm: () => void;
 };
+const NoDesktopAlert = () => (
+  <Alert
+    isInline
+    variant="custom"
+    // TRANSLATORS: alert title shown in the install confirmation dialog when no desktop is selected.
+    title={_("No desktop selected")}
+  >
+    <Content component="p" isEditorial>
+      {/* TRANSLATORS: explains the consequence of installing without a desktop. */}
+      {_("The system will boot to a command-line interface.")}
+    </Content>
+    <Content component="p">
+      {/* TRANSLATORS: suggests the action to take if a desktop is wanted. */}
+      {_("If that is not intended, cancel and select a desktop in the software settings.")}
+    </Content>
+  </Alert>
+);
+
 const ConfirmationPopup = ({
   product,
   isDangerous,
   onCancel,
   onConfirm,
 }: ConfirmationPopupProps) => {
+  const isDesktopMissing = useIsDesktopMissing();
   const title = sprintf(
     // TRANSLATORS: Confirmation dialog title. %s is replaced with the product name (e.g., "openSUSE Leap")
     isDangerous ? _("Delete existing data and install %s?") : _("Install %s?"),
@@ -79,15 +102,16 @@ const ConfirmationPopup = ({
 
   return (
     <Popup isOpen title={title}>
-      {isDangerous ? (
-        // TRANSLATORS: Warning shown when installation will delete existing data
-        <PotentialDataLossAlert hint={_("If unsure, cancel and review storage settings.")} />
-      ) : (
+      <Stack hasGutter>
         <Content isEditorial>
-          {/* TRANSLATORS: Information message confirming installation will proceed with current settings */}
-          {_("By proceeding, the installation will begin with defined settings.")}
+          {/* TRANSLATORS: shown at the top of the install confirmation dialog. */}
+          {_("Confirming starts the installation immediately with the defined settings.")}
         </Content>
-      )}
+        {isDesktopMissing && <NoDesktopAlert />}
+        {isDangerous && (
+          <PotentialDataLossAlert hint={_("If unsure, cancel and review storage settings.")} />
+        )}
+      </Stack>
       <Popup.Actions>
         {/* TRANSLATORS: Button to confirm and start the installation */}
         <ConfirmButton onClick={onConfirm}>{_("Confirm and install")}</ConfirmButton>

@@ -23,7 +23,7 @@ import React from "react";
 import { screen, within } from "@testing-library/react";
 import { installerRender, mockProgresses } from "~/test-utils";
 import { useProposal } from "~/hooks/model/proposal/software";
-import { useSelectedPatterns } from "~/hooks/model/system/software";
+import { useIsDesktopMissing, useSelectedPatterns } from "~/hooks/model/system/software";
 import { useIssues } from "~/hooks/model/issue";
 import { SOFTWARE } from "~/routes/paths";
 import { SelectedBy } from "~/model/proposal/software";
@@ -31,6 +31,7 @@ import SoftwareSummary from "./SoftwareSummary";
 
 const mockUseProposalFn: jest.Mock<ReturnType<typeof useProposal>> = jest.fn();
 const mockUseSelectedPatternsFn: jest.Mock<ReturnType<typeof useSelectedPatterns>> = jest.fn();
+const mockUseIsDesktopMissingFn: jest.Mock<ReturnType<typeof useIsDesktopMissing>> = jest.fn();
 const mockUseIssuesFn: jest.Mock<ReturnType<typeof useIssues>> = jest.fn();
 
 jest.mock("~/hooks/model/proposal/software", () => ({
@@ -39,6 +40,7 @@ jest.mock("~/hooks/model/proposal/software", () => ({
 
 jest.mock("~/hooks/model/system/software", () => ({
   useSelectedPatterns: () => mockUseSelectedPatternsFn(),
+  useIsDesktopMissing: () => mockUseIsDesktopMissingFn(),
 }));
 
 jest.mock("~/hooks/model/issue", () => ({
@@ -52,6 +54,7 @@ describe("SoftwareSummary", () => {
     mockUseIssuesFn.mockReturnValue([]);
     mockUseProposalFn.mockReturnValue({ usedSpace: 6291456, patterns: {} }); // 6 GiB
     mockUseSelectedPatternsFn.mockReturnValue([]);
+    mockUseIsDesktopMissingFn.mockReturnValue(false);
   });
 
   afterEach(() => {
@@ -186,6 +189,43 @@ describe("SoftwareSummary", () => {
       // Plural
       screen.getByText("Required packages and 2 patterns");
       screen.getByText(/Needs about 5\.95 GiB/);
+    });
+
+    describe("and the missing-desktop hint is active", () => {
+      beforeEach(() => {
+        mockUseIsDesktopMissingFn.mockReturnValue(true);
+      });
+
+      it("renders 'No desktop selected' instead of the patterns summary", () => {
+        mockUseProposalFn.mockReturnValue({ usedSpace: 6239191, patterns: {} });
+        mockUseSelectedPatternsFn.mockReturnValue([]);
+
+        installerRender(<SoftwareSummary />);
+
+        screen.getByText("No desktop selected");
+        screen.getByText(/Needs about 5\.95 GiB/);
+        expect(screen.queryByText("Required packages")).toBeNull();
+      });
+
+      it("takes precedence over the patterns count", () => {
+        mockUseSelectedPatternsFn.mockReturnValue([
+          {
+            name: "yast2_basis",
+            category: "Base Technologies",
+            icon: "./yast",
+            description: "YaST tools for basic system administration.",
+            summary: "YaST Base Utilities",
+            order: 1220,
+            preselected: false,
+            desktop: false,
+          },
+        ]);
+
+        installerRender(<SoftwareSummary />);
+
+        screen.getByText("No desktop selected");
+        expect(screen.queryByText(/Required packages and/)).toBeNull();
+      });
     });
   });
 });
