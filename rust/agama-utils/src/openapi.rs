@@ -18,9 +18,14 @@
 // To contact SUSE LLC about this file by physical or electronic mail, you may
 // find current contact information at www.suse.com.
 
-//! OpenAPI utility functions.
+//! OpenAPI utility struct and functions.
 
 pub mod schemas {
+    use std::borrow::Cow;
+
+    use cidr::IpInet;
+    use schemars::{JsonSchema, Schema, SchemaGenerator};
+    use serde::{Deserialize, Serialize};
     use serde_json::json;
     use utoipa::openapi::{
         schema::{self, SchemaType},
@@ -77,5 +82,40 @@ pub mod schemas {
     /// MAC address 6 schema reference.
     pub fn mac_addr6_ref() -> schema::Ref {
         schema::Ref::from_schema_name("macaddr.MacAddr6")
+    }
+
+    /// Newtype wrapper for IpInet with JsonSchema implementation
+    ///
+    /// Use this when you want to derive JsonSchema on structs containing IpInet fields.
+    ///
+    /// Example:
+    /// ```
+    /// #[derive(schemars::JsonSchema)]
+    /// struct NetworkConfig {
+    ///     #[schemars(with = "IpInetSchema")]
+    ///     address: IpInet,
+    /// }
+    /// ```
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    #[serde(transparent)]
+    pub struct IpInetSchema(pub IpInet);
+
+    impl JsonSchema for IpInetSchema {
+        fn schema_name() -> Cow<'static, str> {
+            Cow::Borrowed("IpInet")
+        }
+
+        fn json_schema(gen: &mut SchemaGenerator) -> Schema {
+            let mut schema = String::json_schema(gen);
+            schema.insert(
+                "description".into(),
+                "An IP address (IPv4 or IPv6) with prefix length in CIDR notation".into(),
+            );
+            schema.insert(
+                "examples".into(),
+                serde_json::json!(["192.168.1.254/24", "2001:db8::/32"]),
+            );
+            schema
+        }
     }
 }

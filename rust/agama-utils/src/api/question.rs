@@ -21,6 +21,7 @@
 use crate::gettext_noop;
 use gettextrs::gettext;
 use merge::Merge;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt};
 
@@ -32,7 +33,7 @@ pub enum Error {
 }
 
 /// Questions configuration.
-#[derive(Clone, Debug, Default, Serialize, Deserialize, Merge, utoipa::ToSchema)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, Merge, utoipa::ToSchema, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 #[schema(as = questions::Config)]
 pub struct Config {
@@ -44,7 +45,7 @@ pub struct Config {
     pub answers: Option<Vec<AnswerRule>>,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, utoipa::ToSchema)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, utoipa::ToSchema, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub enum Policy {
     /// Automatically answer questions.
@@ -57,7 +58,7 @@ pub enum Policy {
 ///
 /// If the rule matches with the question ([class](Self::class),
 /// [text](Self::text) or [data](Self::data), it applies the specified `answer`).
-#[derive(Clone, Serialize, Deserialize, Debug, utoipa::ToSchema, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Debug, utoipa::ToSchema, JsonSchema, PartialEq)]
 pub struct AnswerRule {
     /// Question class (see [QuestionSpec::class]).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -106,7 +107,7 @@ impl AnswerRule {
 }
 
 /// Represents a question including its [specification](QuestionSpec) and [answer](QuestionAnswer).
-#[derive(Clone, Serialize, Deserialize, PartialEq, utoipa::ToSchema)]
+#[derive(Clone, Serialize, Deserialize, PartialEq, utoipa::ToSchema, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct Question {
     /// Question ID.
@@ -165,7 +166,7 @@ impl Question {
 /// * a password field.
 ///
 /// In other cases, like a simple "yes/no" questions, the field would not be needed.
-#[derive(Clone, Debug, Serialize, Deserialize, utoipa::ToSchema, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, utoipa::ToSchema, JsonSchema, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct QuestionSpec {
     /// Question text.
@@ -317,7 +318,9 @@ impl QuestionSpec {
 /// from a string to a selector.
 ///
 /// The field is usually presented as a control in a form.
-#[derive(Clone, Debug, Default, Serialize, Deserialize, utoipa::ToSchema, PartialEq)]
+#[derive(
+    Clone, Debug, Default, Serialize, Deserialize, utoipa::ToSchema, JsonSchema, PartialEq,
+)]
 #[serde(rename_all = "camelCase", tag = "type")]
 pub enum QuestionField {
     /// No field.
@@ -332,7 +335,9 @@ pub enum QuestionField {
 }
 
 /// Selector option.
-#[derive(Clone, Debug, Default, Serialize, Deserialize, utoipa::ToSchema, PartialEq)]
+#[derive(
+    Clone, Debug, Default, Serialize, Deserialize, utoipa::ToSchema, JsonSchema, PartialEq,
+)]
 pub struct SelectionOption {
     id: String,
     label: String,
@@ -350,7 +355,7 @@ impl SelectionOption {
 /// Question action.
 ///
 /// They are usually presented as the button in a form.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, utoipa::ToSchema)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, utoipa::ToSchema, JsonSchema)]
 pub struct Action {
     /// Action value.
     pub id: String,
@@ -371,7 +376,7 @@ impl Action {
 ///
 /// It includes the action and, optionally, and additional value which depends
 /// on the question field.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, utoipa::ToSchema)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, utoipa::ToSchema, JsonSchema)]
 pub struct Answer {
     #[serde(alias = "answer")]
     pub action: String,
@@ -398,7 +403,7 @@ impl Answer {
 /// Represents an update operation over the list of questions.
 ///
 /// It is used by the HTTP layer only.
-#[derive(Serialize, Deserialize, utoipa::ToSchema)]
+#[derive(Serialize, Deserialize, utoipa::ToSchema, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub enum UpdateQuestion {
     /// Answer the question with the given answer.

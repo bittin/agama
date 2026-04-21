@@ -22,11 +22,12 @@
 
 use crate::api::network::{NetworkConnectionsCollection, StateSettings};
 use merge::Merge;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::default::Default;
 
 /// Network config settings for installation
-#[derive(Clone, Debug, Default, Serialize, Deserialize, Merge, utoipa::ToSchema)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, Merge, utoipa::ToSchema, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 #[schema(as = network::Config)]
 pub struct Config {

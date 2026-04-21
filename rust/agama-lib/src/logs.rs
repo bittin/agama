@@ -20,6 +20,7 @@
 
 use fs_extra::copy_items;
 use fs_extra::dir::CopyOptions;
+use schemars::JsonSchema;
 use serde::Serialize;
 use std::fs;
 use std::fs::File;
@@ -330,7 +331,7 @@ pub fn store() -> Result<PathBuf, LogsError> {
     Ok(PathBuf::from(result))
 }
 
-#[derive(Serialize, serde::Deserialize, ToSchema)]
+#[derive(Serialize, serde::Deserialize, ToSchema, JsonSchema)]
 pub struct LogsLists {
     pub commands: Vec<String>,
     pub files: Vec<String>,

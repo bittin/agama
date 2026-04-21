@@ -20,10 +20,11 @@
 //! Implements a data model for Bootloader configuration.
 
 use merge::Merge;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 /// Bootloader configuration.
-#[derive(Clone, Debug, Serialize, Deserialize, Default, Merge, utoipa::ToSchema)]
+#[derive(Clone, Debug, Serialize, Deserialize, Default, Merge, utoipa::ToSchema, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 #[merge(strategy = merge::option::overwrite_none)]
 #[schema(as = bootloader::Config)]

@@ -47,6 +47,7 @@ use axum::{
     Json, Router,
 };
 use hyper::{header, HeaderMap, StatusCode};
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tokio_util::io::ReaderStream;
@@ -632,7 +633,7 @@ async fn download_logs() -> impl IntoResponse {
     }
 }
 
-#[derive(Deserialize, utoipa::ToSchema)]
+#[derive(Deserialize, utoipa::ToSchema, JsonSchema)]
 pub struct PasswordParams {
     password: String,
 }

@@ -19,10 +19,13 @@
 // find current contact information at www.suse.com.
 
 use merge::Merge;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 /// Localization config.
-#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Merge, utoipa::ToSchema)]
+#[derive(
+    Clone, Debug, Default, Serialize, Deserialize, PartialEq, Merge, utoipa::ToSchema, JsonSchema,
+)]
 #[serde(rename_all = "camelCase")]
 #[schema(as = l10n::Config)]
 pub struct Config {

@@ -19,11 +19,12 @@
 // find current contact information at www.suse.com.
 
 use crate::api::config::Config;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 /// Patch for the config.
-#[derive(Deserialize, Serialize, utoipa::ToSchema)]
+#[derive(Deserialize, Serialize, utoipa::ToSchema, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct Patch {
     /// Update for the current config.

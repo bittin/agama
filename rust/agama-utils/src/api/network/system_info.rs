@@ -21,11 +21,12 @@
 //! Representation of the network settings
 
 use crate::api::network::{AccessPoint, Device, NetworkConnectionsCollection, StateSettings};
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::default::Default;
 
 /// Network settings for installation
-#[derive(Clone, Debug, Default, Serialize, Deserialize, utoipa::ToSchema)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, utoipa::ToSchema, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 #[schema(as = network::SystemInfo)]
 pub struct SystemInfo {

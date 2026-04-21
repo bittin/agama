@@ -21,12 +21,13 @@
 //! Defines useful types to deal with localization values
 
 use regex::Regex;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::sync::OnceLock;
 use std::{fmt::Display, str::FromStr};
 use thiserror::Error;
 
-#[derive(Debug, Clone, Serialize, PartialEq, Eq, PartialOrd, Ord, utoipa::ToSchema)]
+#[derive(Debug, Clone, Serialize, PartialEq, Eq, PartialOrd, Ord, utoipa::ToSchema, JsonSchema)]
 pub struct TimezoneId(String);
 
 impl Default for TimezoneId {
@@ -61,7 +62,16 @@ impl FromStr for TimezoneId {
 }
 
 #[derive(
-    Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize, utoipa::ToSchema,
+    Clone,
+    Debug,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Deserialize,
+    Serialize,
+    utoipa::ToSchema,
+    JsonSchema,
 )]
 pub struct LocaleId {
     // ISO-639
@@ -137,7 +147,16 @@ static KEYMAP_ID_REGEX: OnceLock<Regex> = OnceLock::new();
 /// assert_eq!(id, id_with_dashes);
 /// ```
 #[derive(
-    Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize, utoipa::ToSchema,
+    Clone,
+    Debug,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Deserialize,
+    Serialize,
+    utoipa::ToSchema,
+    JsonSchema,
 )]
 pub struct KeymapId {
     /// Keyboard layout (e.g., "es" in "es(ast)")

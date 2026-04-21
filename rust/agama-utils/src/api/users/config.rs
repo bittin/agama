@@ -19,12 +19,15 @@
 // find current contact information at www.suse.com.
 
 use merge::Merge;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 /// User settings
 ///
 /// Holds the user settings for the installation.
-#[derive(Clone, Debug, Default, Merge, Serialize, Deserialize, PartialEq, utoipa::ToSchema)]
+#[derive(
+    Clone, Debug, Default, Merge, Serialize, Deserialize, PartialEq, utoipa::ToSchema, JsonSchema,
+)]
 #[serde(rename_all = "camelCase")]
 #[schema(as = users::Config)]
 pub struct Config {
@@ -69,7 +72,9 @@ impl Config {
 /// First user settings
 ///
 /// Holds the settings for the first user.
-#[derive(Clone, Debug, Default, Merge, Serialize, Deserialize, PartialEq, utoipa::ToSchema)]
+#[derive(
+    Clone, Debug, Default, Merge, Serialize, Deserialize, PartialEq, utoipa::ToSchema, JsonSchema,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct FirstUserConfig {
     /// First user's full name
@@ -106,7 +111,7 @@ impl FirstUserConfig {
 /// Represents a user password.
 ///
 /// It holds the password and whether it is a hashed or a plain text password.
-#[derive(Clone, Debug, Merge, Serialize, Deserialize, PartialEq, utoipa::ToSchema)]
+#[derive(Clone, Debug, Merge, Serialize, Deserialize, PartialEq, utoipa::ToSchema, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct UserPassword {
     /// User password
@@ -130,7 +135,7 @@ fn overwrite_if_not_empty(old: &mut String, new: String) {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, utoipa::ToSchema)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, utoipa::ToSchema, JsonSchema)]
 #[schema(as = StringOrList)]
 #[serde(untagged)]
 pub enum StringOrList {
@@ -157,7 +162,9 @@ impl StringOrList {
 /// Root user settings
 ///
 /// Holds the settings for the root user.
-#[derive(Clone, Debug, Default, Merge, Serialize, Deserialize, PartialEq, utoipa::ToSchema)]
+#[derive(
+    Clone, Debug, Default, Merge, Serialize, Deserialize, PartialEq, utoipa::ToSchema, JsonSchema,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct RootUserConfig {
     /// Root user password

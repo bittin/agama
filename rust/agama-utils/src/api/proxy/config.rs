@@ -19,10 +19,13 @@
 // find current contact information at www.suse.com.
 
 use merge::Merge;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 /// Proxy config.
-#[derive(Clone, Debug, Default, Merge, Serialize, Deserialize, PartialEq, utoipa::ToSchema)]
+#[derive(
+    Clone, Debug, Default, Merge, Serialize, Deserialize, PartialEq, utoipa::ToSchema, JsonSchema,
+)]
 #[serde(rename_all = "camelCase")]
 #[schema(as = proxy::Config)]
 pub struct Config {

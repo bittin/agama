@@ -20,6 +20,7 @@
 
 use fluent_uri::Uri;
 use merge::Merge;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 use crate::api::files::{
@@ -28,7 +29,7 @@ use crate::api::files::{
     FileSourceError, WithFileSource,
 };
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize, Merge, utoipa::ToSchema)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, Merge, utoipa::ToSchema, JsonSchema)]
 #[schema(as = files::Config)]
 pub struct Config {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -51,7 +52,9 @@ impl Config {
     }
 }
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize, Merge, utoipa::ToSchema, PartialEq)]
+#[derive(
+    Clone, Debug, Default, Serialize, Deserialize, Merge, utoipa::ToSchema, JsonSchema, PartialEq,
+)]
 #[serde(rename_all = "camelCase")]
 #[merge(strategy = merge::option::overwrite_none)]
 pub struct ScriptsConfig {

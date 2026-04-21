@@ -20,6 +20,7 @@
 
 use agama_transfer::{Error as TransferError, Transfer};
 use fluent_uri::{resolve::ResolveError, Uri, UriRef};
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::{fs::OpenOptions, io::Write, os::unix::fs::OpenOptionsExt, path::Path};
 
@@ -33,7 +34,7 @@ pub enum FileSourceError {
     IO(#[from] std::io::Error),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, utoipa::ToSchema, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, utoipa::ToSchema, PartialEq, JsonSchema)]
 #[serde(untagged)]
 /// Text or URL Reference of a config file or a script
 pub enum FileSource {
@@ -42,6 +43,7 @@ pub enum FileSource {
     /// URI or relative reference to get the script from.
     Remote {
         #[schema(value_type = String, examples("http://example.com/script.sh", "/file.txt"))]
+        #[schemars(with = "String", example = &"http://example.com/script.sh", example = &"/file.txt")]
         url: UriRef<String>,
     },
 }

@@ -20,13 +20,14 @@
 
 use std::fmt;
 
+use schemars::JsonSchema;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 
 /// Software-related information of the system where the installer
 /// is running.
 #[skip_serializing_none]
-#[derive(Clone, Debug, Default, Serialize, utoipa::ToSchema)]
+#[derive(Clone, Debug, Default, Serialize, utoipa::ToSchema, JsonSchema)]
 #[schema(as = software::SystemInfo)]
 pub struct SystemInfo {
     /// List of known patterns.
@@ -38,7 +39,7 @@ pub struct SystemInfo {
 }
 
 /// Repository specification.
-#[derive(Clone, Debug, Serialize, utoipa::ToSchema)]
+#[derive(Clone, Debug, Serialize, utoipa::ToSchema, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct Repository {
     /// Repository alias. It has to be unique.
@@ -53,7 +54,7 @@ pub struct Repository {
     pub predefined: bool,
 }
 
-#[derive(Clone, Debug, Serialize, utoipa::ToSchema)]
+#[derive(Clone, Debug, Serialize, utoipa::ToSchema, JsonSchema)]
 pub struct Pattern {
     /// Pattern name (eg., "aaa_base", "gnome")
     pub name: String,
@@ -72,7 +73,7 @@ pub struct Pattern {
 }
 
 #[skip_serializing_none]
-#[derive(Clone, Default, Serialize, utoipa::ToSchema)]
+#[derive(Clone, Default, Serialize, utoipa::ToSchema, JsonSchema)]
 pub struct RegistrationInfo {
     /// Registration code.
     pub code: Option<String>,
@@ -96,7 +97,7 @@ impl fmt::Debug for RegistrationInfo {
 }
 
 /// Addon registration
-#[derive(Clone, Debug, Serialize, utoipa::ToSchema)]
+#[derive(Clone, Debug, Serialize, utoipa::ToSchema, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct AddonInfo {
     /// Addon identifier
@@ -119,7 +120,7 @@ pub struct AddonInfo {
     pub registration: AddonRegistration,
 }
 
-#[derive(Clone, Debug, Serialize, utoipa::ToSchema)]
+#[derive(Clone, Debug, Serialize, utoipa::ToSchema, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 #[serde(tag = "status")]
 pub enum AddonRegistration {

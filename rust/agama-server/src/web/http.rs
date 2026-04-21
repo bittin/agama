@@ -29,10 +29,11 @@ use axum::{
     Json,
 };
 use pam::Client;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
-#[derive(Serialize, ToSchema)]
+#[derive(Serialize, ToSchema, JsonSchema)]
 pub struct PingResponse {
     /// API status
     status: String,
@@ -52,13 +53,13 @@ pub async fn ping() -> Json<PingResponse> {
     })
 }
 
-#[derive(Serialize, utoipa::ToSchema)]
+#[derive(Serialize, utoipa::ToSchema, JsonSchema)]
 pub struct AuthResponse {
     /// Bearer token to use on subsequent calls
     token: String,
 }
 
-#[derive(Deserialize, utoipa::ToSchema)]
+#[derive(Deserialize, utoipa::ToSchema, JsonSchema)]
 pub struct LoginRequest {
     /// User password
     pub password: String,
@@ -96,7 +97,7 @@ pub async fn login(
     Ok((headers, content))
 }
 
-#[derive(Clone, Deserialize, utoipa::ToSchema)]
+#[derive(Clone, Deserialize, utoipa::ToSchema, JsonSchema)]
 pub struct LoginFromQueryParams {
     /// Token to use for authentication.
     token: String,

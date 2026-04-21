@@ -19,10 +19,13 @@
 // find current contact information at www.suse.com.
 
 use merge::Merge;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq, utoipa::ToSchema)]
+#[derive(
+    Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq, utoipa::ToSchema, JsonSchema,
+)]
 #[serde(transparent)]
 pub struct RawConfig(pub Value);
 

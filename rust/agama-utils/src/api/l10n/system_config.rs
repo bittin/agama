@@ -18,9 +18,10 @@
 // To contact SUSE LLC about this file by physical or electronic mail, you may
 // find current contact information at www.suse.com.
 
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Serialize, Deserialize, utoipa::ToSchema)]
+#[derive(Clone, Debug, Serialize, Deserialize, utoipa::ToSchema, JsonSchema)]
 #[schema(as = l10n::SystemConfig)]
 pub struct SystemConfig {
     pub locale: Option<String>,

@@ -19,10 +19,13 @@
 // find current contact information at www.suse.com.
 
 use merge::Merge;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 /// Hostname config.
-#[derive(Clone, Debug, Default, Merge, Serialize, Deserialize, PartialEq, utoipa::ToSchema)]
+#[derive(
+    Clone, Debug, Default, Merge, Serialize, Deserialize, PartialEq, utoipa::ToSchema, JsonSchema,
+)]
 #[serde(rename_all = "camelCase")]
 #[schema(as = hostname::Config)]
 pub struct Config {
