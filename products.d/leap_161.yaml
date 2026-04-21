@@ -78,7 +78,8 @@ software:
       desktop: true
     - name: lxqt_wayland
       desktop: true
-    - openSUSEway
+    - name: openSUSEway
+      desktop: true
     - multimedia
     - office
     - cockpit

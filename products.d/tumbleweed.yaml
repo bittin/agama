@@ -142,8 +142,10 @@ software:
       desktop: true
     - name: lxqt_wayland
       desktop: true
-    - openSUSEway
-    - hyprland
+    - name: openSUSEway
+      desktop: true
+    - name: hyprland
+      desktop: true
     - multimedia
     - office
     - name: selinux
