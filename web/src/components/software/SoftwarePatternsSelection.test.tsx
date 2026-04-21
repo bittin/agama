@@ -343,7 +343,7 @@ describe("SoftwarePatternsSelection scope", () => {
     expect(screen.queryByRole("checkbox", { name: /KDE/ })).not.toBeInTheDocument();
   });
 
-  it("ppreserves REMOVED desktop patterns in remove when submitting with scope 'otherereserves USER-selected desktop patterns (in the 'add' key) when submitting with scope 'other'", async () => {
+  it("preserves REMOVED desktop patterns (in the 'remove' key) when submitting with scope 'other'", async () => {
     const { user } = installerRender(<SoftwarePatternsSelection scope="other" />);
 
     // Touch a non-desktop pattern to make the form dirty
