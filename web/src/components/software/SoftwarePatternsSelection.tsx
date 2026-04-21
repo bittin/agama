@@ -71,66 +71,49 @@ const NoMatches = (): React.ReactNode => <b>{_("None of the patterns match the f
 type Scope = "all" | "desktops" | "other";
 
 /**
- * Whether a pattern should be added to the selection on submit.
+ * Resolves what action, if any, a pattern should produce on submit.
  *
- * Visible patterns (inScope) are added only when checked AND there is clear
- * user intent: the user just toggled it, or it was already their explicit
- * choice. This avoids re-adding auto-selected patterns the user never touched.
+ * Visible patterns (inScope):
+ * - "add" when checked AND there is clear user intent: the user just toggled it,
+ *   or it was already their explicit choice. Avoids re-adding auto-selected patterns
+ *   the user never touched.
+ * - "remove" when unchecked AND previously relevant: selected on load, a product
+ *   default, or already explicitly removed. Patterns never seen before are ignored.
+ * - null otherwise.
  *
- * Hidden patterns (not inScope) are passed through unchanged to avoid losing
- * selections made on a different scope. For example, when submitting the
- * patterns scope ("other"), GNOME selected on the desktop scope must survive.
+ * Hidden patterns (not inScope) pass through their existing config state unchanged,
+ * to avoid losing selections or removals made on a different scope.
  *
- * @param inScope - Whether the pattern is visible to the user in the current scope
+ * @param inScope - Whether the pattern is visible in the current scope
  * @param isChecked - Current checkbox value in the form
  * @param isDirty - Whether the user changed the checkbox from its initial value
- * @param selectionStatus - Current backend selection status for this pattern
- * @param inConfig - Whether the pattern is in the config's add list
- *   (for out-of-scope preservation)
- */
-const shouldAdd = (
-  inScope: boolean,
-  isChecked: boolean,
-  isDirty: boolean,
-  selectionStatus: SelectedBy | undefined,
-  inConfig: boolean,
-): boolean => {
-  if (!inScope && inConfig) return true;
-  if (!inScope) return false;
-  return isChecked && (isDirty || selectionStatus === SelectedBy.USER);
-};
-
-/**
- * Whether a pattern should be removed from the selection on submit.
- *
- * Visible patterns (inScope) are removed when unchecked AND previously known
- * to the selection: selected on load, a product default (preselected), or
- * already explicitly removed. Patterns never seen before are simply ignored.
- *
- * Hidden patterns (not inScope) preserve their existing removed state to avoid
- * undoing removals made on a different scope. For example, when submitting the
- * patterns scope ("other"), a GNOME removal made on the desktop scope is kept.
- *
- * @param inScope - Whether the pattern is visible to the user in the current scope
- * @param isChecked - Current checkbox value in the form
  * @param isPreselected - Whether the pattern is selected by default in the product
  * @param wasInitiallySelected - Whether the pattern was selected when the form loaded
  * @param selectionStatus - Current backend selection status for this pattern
- * @param inConfig - Whether the pattern is in the config's remove list (for out-of-scope preservation)
+ * @param inConfigAdd - Whether the pattern is in the config's add list (out-of-scope preservation)
+ * @param inConfigRemove - Whether the pattern is in the config's remove list (out-of-scope preservation)
  */
-const shouldRemove = (
+const resolvePatternAction = (
   inScope: boolean,
   isChecked: boolean,
+  isDirty: boolean,
   isPreselected: boolean,
   wasInitiallySelected: boolean,
   selectionStatus: SelectedBy | undefined,
-  inConfig: boolean,
-): boolean => {
-  if (!inScope && inConfig) return true;
-  if (!inScope) return false;
-  return (
-    !isChecked && (wasInitiallySelected || isPreselected || selectionStatus === SelectedBy.REMOVED)
-  );
+  inConfigAdd: boolean,
+  inConfigRemove: boolean,
+): "add" | "remove" | undefined => {
+  if (!inScope) {
+    if (inConfigAdd) return "add";
+    if (inConfigRemove) return "remove";
+    return;
+  }
+  if (isChecked && (isDirty || selectionStatus === SelectedBy.USER)) return "add";
+  if (
+    !isChecked &&
+    (wasInitiallySelected || isPreselected || selectionStatus === SelectedBy.REMOVED)
+  )
+    return "remove";
 };
 
 /** Values use `N_()` for extraction. Translate with `_()` at render time. */
@@ -195,28 +178,18 @@ function SoftwarePatternsSelection({ scope = "all" }: { scope?: Scope }) {
           const wasInitiallySelected = initialValues[p.name];
           const selectionStatus = selection[p.name];
 
-          if (
-            shouldAdd(
-              inScope,
-              isChecked,
-              isDirty,
-              selectionStatus,
-              userAddedPatterns.includes(p.name),
-            )
-          ) {
-            acc.add.push(p.name);
-          } else if (
-            shouldRemove(
-              inScope,
-              isChecked,
-              p.preselected,
-              wasInitiallySelected,
-              selectionStatus,
-              userRemovedPatterns.includes(p.name),
-            )
-          ) {
-            acc.remove.push(p.name);
-          }
+          const action = resolvePatternAction(
+            inScope,
+            isChecked,
+            isDirty,
+            p.preselected,
+            wasInitiallySelected,
+            selectionStatus,
+            userAddedPatterns.includes(p.name),
+            userRemovedPatterns.includes(p.name),
+          );
+
+          if (action) acc[action].push(p.name);
           return acc;
         },
         { add: [], remove: [] },
