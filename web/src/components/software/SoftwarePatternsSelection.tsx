@@ -49,13 +49,15 @@ import { SOFTWARE } from "~/routes/paths";
 import { N_, _ } from "~/i18n";
 
 import a11yStyles from "@patternfly/react-styles/css/utilities/Accessibility/accessibility";
+import type { Pattern } from "~/model/system/software";
+import type { PatternsObject } from "~/openapi/config/software";
 
 /**
  * Form options for pattern selection.
  * Each pattern is a boolean field (pattern name -> selected state).
  */
 const softwarePatternsFormOptions = formOptions({
-  defaultValues: {} as Record<string, boolean>,
+  defaultValues: {},
 });
 
 const NoMatches = (): React.ReactNode => <b>{_("None of the patterns match the filter.")}</b>;
@@ -83,7 +85,8 @@ type Scope = "all" | "desktops" | "other";
  * @param isChecked - Current checkbox value in the form
  * @param isDirty - Whether the user changed the checkbox from its initial value
  * @param selectionStatus - Current backend selection status for this pattern
- * @param inConfig - Whether the pattern is in the config's add list (for out-of-scope preservation)
+ * @param inConfig - Whether the pattern is in the config's add list
+ *   (for out-of-scope preservation)
  */
 const shouldAdd = (
   inScope: boolean,
@@ -148,39 +151,43 @@ const PAGE_TITLE: Record<Scope, string> = {
  */
 function SoftwarePatternsSelection({ scope = "all" }: { scope?: Scope }) {
   const navigate = useNavigate();
-  const { patterns: allPatterns } = useSystem();
-  const patterns =
-    scope === "all"
-      ? allPatterns
-      : allPatterns.filter((p) => (scope === "desktops" ? p.desktop : !p.desktop));
+  const { patterns: systemPatterns } = useSystem();
   const proposal = useProposal();
   const config = useExtendedConfig();
   const selection = proposal?.patterns || {};
   const [searchValue, setSearchValue] = useState("");
 
-  // Extract current user's explicit add/remove choices from config
-  const configPatterns = config?.software?.patterns;
-  const currentAdd =
-    typeof configPatterns === "object" && "add" in configPatterns ? configPatterns.add || [] : [];
-  const currentRemove =
-    typeof configPatterns === "object" && "remove" in configPatterns
-      ? configPatterns.remove || []
-      : [];
+  // NOTE: patterns is typed as PatternsArray | PatternsObject, but a flat array
+  // makes little sense here. It may be a design issue in the openapi spec worth
+  // revisiting. In any case, cast is safe: accessing .add/.remove on an array
+  // returns undefined, handled by ?? []
+  const patternConfig = (config?.software?.patterns ?? {}) as PatternsObject;
+  const userAddedPatterns = patternConfig.add ?? [];
+  const userRemovedPatterns = patternConfig.remove ?? [];
+
+  let scopedPatterns: Pattern[];
+  switch (scope) {
+    case "desktops":
+      scopedPatterns = systemPatterns.filter((p) => p.desktop);
+      break;
+    case "other":
+      scopedPatterns = systemPatterns.filter((p) => !p.desktop);
+      break;
+    default:
+      scopedPatterns = systemPatterns;
+  }
 
   // Build initial form values: each pattern name -> selected boolean
-  const initialValues = patterns.reduce(
-    (acc, pattern) => {
-      acc[pattern.name] = isPatternSelected(selection, pattern.name);
-      return acc;
-    },
-    {} as Record<string, boolean>,
-  );
+  const initialValues = scopedPatterns.reduce((acc, pattern) => {
+    acc[pattern.name] = isPatternSelected(selection, pattern.name);
+    return acc;
+  }, {});
 
   const form = usePristineSafeForm({
     ...softwarePatternsFormOptions,
     defaultValues: initialValues,
     onSubmit: async ({ value: formValues, formApi }) => {
-      const { add, remove } = allPatterns.reduce(
+      const { add, remove } = systemPatterns.reduce(
         (acc, p) => {
           const inScope = p.name in initialValues;
           const isChecked = formValues[p.name];
@@ -188,22 +195,31 @@ function SoftwarePatternsSelection({ scope = "all" }: { scope?: Scope }) {
           const wasInitiallySelected = initialValues[p.name];
           const selectionStatus = selection[p.name];
 
-          if (shouldAdd(inScope, isChecked, isDirty, selectionStatus, currentAdd.includes(p.name)))
-            acc.add.push(p.name);
           if (
+            shouldAdd(
+              inScope,
+              isChecked,
+              isDirty,
+              selectionStatus,
+              userAddedPatterns.includes(p.name),
+            )
+          ) {
+            acc.add.push(p.name);
+          } else if (
             shouldRemove(
               inScope,
               isChecked,
               p.preselected,
               wasInitiallySelected,
               selectionStatus,
-              currentRemove.includes(p.name),
+              userRemovedPatterns.includes(p.name),
             )
-          )
+          ) {
             acc.remove.push(p.name);
+          }
           return acc;
         },
-        { add: [] as string[], remove: [] as string[] },
+        { add: [], remove: [] },
       );
 
       await patchConfig({ software: { patterns: { add, remove } } });
@@ -212,7 +228,7 @@ function SoftwarePatternsSelection({ scope = "all" }: { scope?: Scope }) {
   });
 
   // initial empty screen, the patterns are loaded very quickly, no need for any progress
-  const visiblePatterns = filterPatterns(patterns, searchValue);
+  const visiblePatterns = filterPatterns(scopedPatterns, searchValue);
   if (visiblePatterns.length === 0 && searchValue === "") return null;
 
   const groups = groupPatterns(visiblePatterns);

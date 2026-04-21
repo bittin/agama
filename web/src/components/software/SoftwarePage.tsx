@@ -305,7 +305,7 @@ const SoftwarePageContent = () => {
                 "Graphical desktop environments for the system.",
               )}
               buttonText={
-                // TRANSLATORS: button to change the desktop selection; singular when 1 is selected
+                // TRANSLATORS: button to change the desktop selection
                 n_("Change desktop", "Change desktops", desktops.length)
               }
               totalCount={allDesktops.length}
