@@ -42,6 +42,7 @@ import { SelectedBy } from "~/model/proposal/software";
 import { patchConfig } from "~/api";
 import { useSystem } from "~/hooks/model/system/software";
 import { useProposal } from "~/hooks/model/proposal/software";
+import { useExtendedConfig } from "~/hooks/model/config";
 import { usePristineSafeForm } from "~/hooks/form";
 import { filterPatterns, groupPatterns, isPatternSelected, sortGroupNames } from "~/utils/software";
 import { SOFTWARE } from "~/routes/paths";
@@ -82,16 +83,19 @@ type Scope = "all" | "desktops" | "other";
  * @param isChecked - Current checkbox value in the form
  * @param isDirty - Whether the user changed the checkbox from its initial value
  * @param selectionStatus - Current backend selection status for this pattern
+ * @param inConfig - Whether the pattern is in the config's add list (for out-of-scope preservation)
  */
 const shouldAdd = (
   inScope: boolean,
   isChecked: boolean,
   isDirty: boolean,
   selectionStatus: SelectedBy | undefined,
-): boolean =>
-  inScope
-    ? isChecked && (isDirty || selectionStatus === SelectedBy.USER)
-    : selectionStatus === SelectedBy.USER;
+  inConfig: boolean,
+): boolean => {
+  if (!inScope && inConfig) return true;
+  if (!inScope) return false;
+  return isChecked && (isDirty || selectionStatus === SelectedBy.USER);
+};
 
 /**
  * Whether a pattern should be removed from the selection on submit.
@@ -109,6 +113,7 @@ const shouldAdd = (
  * @param isPreselected - Whether the pattern is selected by default in the product
  * @param wasInitiallySelected - Whether the pattern was selected when the form loaded
  * @param selectionStatus - Current backend selection status for this pattern
+ * @param inConfig - Whether the pattern is in the config's remove list (for out-of-scope preservation)
  */
 const shouldRemove = (
   inScope: boolean,
@@ -116,11 +121,14 @@ const shouldRemove = (
   isPreselected: boolean,
   wasInitiallySelected: boolean,
   selectionStatus: SelectedBy | undefined,
-): boolean =>
-  inScope
-    ? !isChecked &&
-      (wasInitiallySelected || isPreselected || selectionStatus === SelectedBy.REMOVED)
-    : selectionStatus === SelectedBy.REMOVED;
+  inConfig: boolean,
+): boolean => {
+  if (!inScope && inConfig) return true;
+  if (!inScope) return false;
+  return (
+    !isChecked && (wasInitiallySelected || isPreselected || selectionStatus === SelectedBy.REMOVED)
+  );
+};
 
 /** Values use `N_()` for extraction. Translate with `_()` at render time. */
 const PAGE_TITLE: Record<Scope, string> = {
@@ -146,8 +154,18 @@ function SoftwarePatternsSelection({ scope = "all" }: { scope?: Scope }) {
       ? allPatterns
       : allPatterns.filter((p) => (scope === "desktops" ? p.desktop : !p.desktop));
   const proposal = useProposal();
+  const config = useExtendedConfig();
   const selection = proposal?.patterns || {};
   const [searchValue, setSearchValue] = useState("");
+
+  // Extract current user's explicit add/remove choices from config
+  const configPatterns = config?.software?.patterns;
+  const currentAdd =
+    typeof configPatterns === "object" && "add" in configPatterns ? configPatterns.add || [] : [];
+  const currentRemove =
+    typeof configPatterns === "object" && "remove" in configPatterns
+      ? configPatterns.remove || []
+      : [];
 
   // Build initial form values: each pattern name -> selected boolean
   const initialValues = patterns.reduce(
@@ -170,9 +188,17 @@ function SoftwarePatternsSelection({ scope = "all" }: { scope?: Scope }) {
           const wasInitiallySelected = initialValues[p.name];
           const selectionStatus = selection[p.name];
 
-          if (shouldAdd(inScope, isChecked, isDirty, selectionStatus)) acc.add.push(p.name);
+          if (shouldAdd(inScope, isChecked, isDirty, selectionStatus, currentAdd.includes(p.name)))
+            acc.add.push(p.name);
           if (
-            shouldRemove(inScope, isChecked, p.preselected, wasInitiallySelected, selectionStatus)
+            shouldRemove(
+              inScope,
+              isChecked,
+              p.preselected,
+              wasInitiallySelected,
+              selectionStatus,
+              currentRemove.includes(p.name),
+            )
           )
             acc.remove.push(p.name);
           return acc;
