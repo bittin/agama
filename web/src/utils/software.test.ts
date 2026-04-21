@@ -35,6 +35,7 @@ describe("groupPatterns", () => {
       order: 2,
       icon: "icon1",
       preselected: false,
+      desktop: false,
     },
     {
       name: "pattern2",
@@ -44,6 +45,7 @@ describe("groupPatterns", () => {
       order: 1,
       icon: "icon2",
       preselected: false,
+      desktop: false,
     },
     {
       name: "pattern3",
@@ -53,6 +55,7 @@ describe("groupPatterns", () => {
       order: 2,
       icon: "icon3",
       preselected: false,
+      desktop: false,
     },
     {
       name: "pattern4",
@@ -62,6 +65,7 @@ describe("groupPatterns", () => {
       order: 1,
       icon: "icon4",
       preselected: false,
+      desktop: false,
     },
   ];
 
@@ -106,6 +110,7 @@ describe("filterPatterns", () => {
       order: 1,
       icon: "icon1",
       preselected: false,
+      desktop: false,
     },
     {
       name: "office",
@@ -115,6 +120,7 @@ describe("filterPatterns", () => {
       order: 2,
       icon: "icon2",
       preselected: false,
+      desktop: false,
     },
     {
       name: "development",
@@ -124,6 +130,7 @@ describe("filterPatterns", () => {
       order: 3,
       icon: "icon3",
       preselected: false,
+      desktop: false,
     },
   ];
 

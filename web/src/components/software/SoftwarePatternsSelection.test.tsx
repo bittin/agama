@@ -38,6 +38,7 @@ const patternsWithPreselected = [
     summary: "Preselected Pattern",
     order: "1225",
     preselected: true,
+    desktop: false,
   },
 ];
 
@@ -51,6 +52,17 @@ jest.mock("~/hooks/model/proposal/software", () => ({
       ...testingProposal.patterns,
       preselected_pattern: "auto",
       kde: "removed",
+    },
+  }),
+}));
+
+jest.mock("~/hooks/model/config", () => ({
+  useExtendedConfig: () => ({
+    software: {
+      patterns: {
+        add: ["gnome"],
+        remove: ["kde"],
+      },
     },
   }),
 }));
@@ -304,6 +316,99 @@ describe("SoftwarePatternsSelection", () => {
           },
         },
       });
+    });
+  });
+});
+
+describe("SoftwarePatternsSelection scope", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("shows only desktop patterns when scope is 'desktops'", async () => {
+    installerRender(<SoftwarePatternsSelection scope="desktops" />);
+
+    expect(await screen.findByRole("checkbox", { name: /GNOME/ })).toBeInTheDocument();
+    expect(await screen.findByRole("checkbox", { name: /KDE/ })).toBeInTheDocument();
+    expect(screen.queryByRole("checkbox", { name: /YaST Base/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("checkbox", { name: /Multimedia/ })).not.toBeInTheDocument();
+  });
+
+  it("shows only non-desktop patterns when scope is 'other'", async () => {
+    installerRender(<SoftwarePatternsSelection scope="other" />);
+
+    expect(await screen.findByRole("checkbox", { name: /YaST Base/ })).toBeInTheDocument();
+    expect(await screen.findByRole("checkbox", { name: /Multimedia/ })).toBeInTheDocument();
+    expect(screen.queryByRole("checkbox", { name: /GNOME/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("checkbox", { name: /KDE/ })).not.toBeInTheDocument();
+  });
+
+  it("preserves REMOVED desktop patterns (in the 'remove' key) when submitting with scope 'other'", async () => {
+    const { user } = installerRender(<SoftwarePatternsSelection scope="other" />);
+
+    // Touch a non-desktop pattern to make the form dirty
+    const serverCheckbox = await screen.findByRole("checkbox", { name: /Select YaST Server/ });
+    await user.click(serverCheckbox);
+
+    const acceptButton = screen.getByRole("button", { name: "Accept" });
+    await user.click(acceptButton);
+
+    // GNOME was USER-selected on the desktop scope and must survive submission here
+    expect(patchConfig).toHaveBeenCalledWith({
+      software: {
+        patterns: {
+          add: expect.arrayContaining(["gnome", "yast2_server"]),
+          remove: expect.not.arrayContaining(["gnome"]),
+        },
+      },
+    });
+  });
+
+  it("does not alter non-desktop patterns when submitting with scope 'desktops'", async () => {
+    const { user } = installerRender(<SoftwarePatternsSelection scope="desktops" />);
+
+    // Touch a desktop pattern to make the form dirty
+    const kdeCheckbox = await screen.findByRole("checkbox", { name: /Select KDE/ });
+    await user.click(kdeCheckbox);
+
+    const acceptButton = screen.getByRole("button", { name: "Accept" });
+    await user.click(acceptButton);
+
+    const nonDesktopPatterns = [
+      "yast2_basis",
+      "yast2_desktop",
+      "yast2_server",
+      "multimedia",
+      "office",
+    ];
+    expect(patchConfig).toHaveBeenCalledWith({
+      software: {
+        patterns: {
+          add: expect.not.arrayContaining(nonDesktopPatterns),
+          remove: expect.not.arrayContaining(nonDesktopPatterns),
+        },
+      },
+    });
+  });
+
+  it("preserves REMOVED desktop patterns (in the 'remove' key) when submitting with scope 'other'", async () => {
+    const { user } = installerRender(<SoftwarePatternsSelection scope="other" />);
+
+    // Touch a non-desktop pattern to make the form dirty
+    const serverCheckbox = await screen.findByRole("checkbox", { name: /Select YaST Server/ });
+    await user.click(serverCheckbox);
+
+    const acceptButton = screen.getByRole("button", { name: "Accept" });
+    await user.click(acceptButton);
+
+    // kde was REMOVED and must remain in remove even though it is not shown here
+    expect(patchConfig).toHaveBeenCalledWith({
+      software: {
+        patterns: {
+          add: expect.not.arrayContaining(["kde"]),
+          remove: expect.arrayContaining(["kde"]),
+        },
+      },
     });
   });
 });

@@ -149,6 +149,7 @@ describe("SoftwareSummary", () => {
           summary: "GNOME Desktop Environment (Wayland)",
           order: 1010,
           preselected: false,
+          desktop: true,
         },
       ]);
 
@@ -167,6 +168,7 @@ describe("SoftwareSummary", () => {
           summary: "GNOME Desktop Environment (Wayland)",
           order: 1010,
           preselected: false,
+          desktop: true,
         },
         {
           name: "yast2_basis",
@@ -176,6 +178,7 @@ describe("SoftwareSummary", () => {
           summary: "YaST Base Utilities",
           order: 1220,
           preselected: false,
+          desktop: false,
         },
       ]);
       rerender(<SoftwareSummary />);

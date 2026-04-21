@@ -22,7 +22,6 @@
 
 import React, { useState } from "react";
 import {
-  Label,
   DataList,
   DataListCell,
   DataListCheck,
@@ -37,76 +36,164 @@ import {
 } from "@patternfly/react-core";
 import { formOptions } from "@tanstack/react-form";
 import { useNavigate } from "react-router";
-import { Page } from "~/components/core";
-import { _ } from "~/i18n";
-import a11yStyles from "@patternfly/react-styles/css/utilities/Accessibility/accessibility";
-import { useSystem } from "~/hooks/model/system/software";
+import Page from "~/components/core/Page";
+import AutoSelectedLabel from "~/components/software/AutoSelectedLabel";
 import { SelectedBy } from "~/model/proposal/software";
-import { useProposal } from "~/hooks/model/proposal/software";
 import { patchConfig } from "~/api";
-import { SOFTWARE } from "~/routes/paths";
+import { useSystem } from "~/hooks/model/system/software";
+import { useProposal } from "~/hooks/model/proposal/software";
+import { useExtendedConfig } from "~/hooks/model/config";
 import { usePristineSafeForm } from "~/hooks/form";
 import { filterPatterns, groupPatterns, isPatternSelected, sortGroupNames } from "~/utils/software";
+import { SOFTWARE } from "~/routes/paths";
+import { N_, _ } from "~/i18n";
+
+import a11yStyles from "@patternfly/react-styles/css/utilities/Accessibility/accessibility";
+import type { Pattern } from "~/model/system/software";
+import type { PatternsObject } from "~/openapi/config/software";
 
 /**
  * Form options for pattern selection.
  * Each pattern is a boolean field (pattern name -> selected state).
  */
 const softwarePatternsFormOptions = formOptions({
-  defaultValues: {} as Record<string, boolean>,
+  defaultValues: {},
 });
 
 const NoMatches = (): React.ReactNode => <b>{_("None of the patterns match the filter.")}</b>;
 
 /**
- * Pattern selector component
+ * Controls which patterns the selection page shows.
+ * - "all": all available patterns
+ * - "desktops": only patterns representing desktop environments
+ * - "other": non-desktop patterns
  */
-function SoftwarePatternsSelection() {
+type Scope = "all" | "desktops" | "other";
+
+/**
+ * Resolves what action, if any, a pattern should produce on submit.
+ *
+ * Visible patterns (inScope):
+ * - "add" when checked AND there is clear user intent: the user just toggled it,
+ *   or it was already their explicit choice. Avoids re-adding auto-selected patterns
+ *   the user never touched.
+ * - "remove" when unchecked AND previously relevant: selected on load, a product
+ *   default, or already explicitly removed. Patterns never seen before are ignored.
+ * - null otherwise.
+ *
+ * Hidden patterns (not inScope) pass through their existing config state unchanged,
+ * to avoid losing selections or removals made on a different scope.
+ *
+ * @param inScope - Whether the pattern is visible in the current scope
+ * @param isChecked - Current checkbox value in the form
+ * @param isDirty - Whether the user changed the checkbox from its initial value
+ * @param isPreselected - Whether the pattern is selected by default in the product
+ * @param wasInitiallySelected - Whether the pattern was selected when the form loaded
+ * @param selectionStatus - Current backend selection status for this pattern
+ * @param inConfigAdd - Whether the pattern is in the config's add list (out-of-scope preservation)
+ * @param inConfigRemove - Whether the pattern is in the config's remove list (out-of-scope preservation)
+ */
+const resolvePatternAction = (
+  inScope: boolean,
+  isChecked: boolean,
+  isDirty: boolean,
+  isPreselected: boolean,
+  wasInitiallySelected: boolean,
+  selectionStatus: SelectedBy | undefined,
+  inConfigAdd: boolean,
+  inConfigRemove: boolean,
+): "add" | "remove" | undefined => {
+  if (!inScope) {
+    if (inConfigAdd) return "add";
+    if (inConfigRemove) return "remove";
+    return;
+  }
+  if (isChecked && (isDirty || selectionStatus === SelectedBy.USER)) return "add";
+  if (
+    !isChecked &&
+    (wasInitiallySelected || isPreselected || selectionStatus === SelectedBy.REMOVED)
+  )
+    return "remove";
+};
+
+/** Values use `N_()` for extraction. Translate with `_()` at render time. */
+const PAGE_TITLE: Record<Scope, string> = {
+  // TRANSLATORS: page title when selecting all software patterns
+  all: N_("Patterns selection"),
+  // TRANSLATORS: page title when selecting desktop environments
+  desktops: N_("Desktop selection"),
+  // TRANSLATORS: page title when selecting non-desktop software patterns
+  other: N_("Patterns selection"),
+};
+
+/**
+ * Pattern selector component.
+ *
+ * @param scope - Which patterns to show: "all", "desktops", or "other" (non-desktop patterns).
+ *   Defaults to "all".
+ */
+function SoftwarePatternsSelection({ scope = "all" }: { scope?: Scope }) {
   const navigate = useNavigate();
-  const { patterns } = useSystem();
+  const { patterns: systemPatterns } = useSystem();
   const proposal = useProposal();
+  const config = useExtendedConfig();
   const selection = proposal?.patterns || {};
   const [searchValue, setSearchValue] = useState("");
 
+  // NOTE: patterns is typed as PatternsArray | PatternsObject, but a flat array
+  // makes little sense here. It may be a design issue in the openapi spec worth
+  // revisiting. In any case, cast is safe: accessing .add/.remove on an array
+  // returns undefined, handled by ?? []
+  const patternConfig = (config?.software?.patterns ?? {}) as PatternsObject;
+  const userAddedPatterns = patternConfig.add ?? [];
+  const userRemovedPatterns = patternConfig.remove ?? [];
+
+  let scopedPatterns: Pattern[];
+  switch (scope) {
+    case "desktops":
+      scopedPatterns = systemPatterns.filter((p) => p.desktop);
+      break;
+    case "other":
+      scopedPatterns = systemPatterns.filter((p) => !p.desktop);
+      break;
+    default:
+      scopedPatterns = systemPatterns;
+  }
+
   // Build initial form values: each pattern name -> selected boolean
-  const initialValues = patterns.reduce(
-    (acc, pattern) => {
-      acc[pattern.name] = isPatternSelected(selection, pattern.name);
-      return acc;
-    },
-    {} as Record<string, boolean>,
-  );
+  const initialValues = scopedPatterns.reduce((acc, pattern) => {
+    acc[pattern.name] = isPatternSelected(selection, pattern.name);
+    return acc;
+  }, {});
 
   const form = usePristineSafeForm({
     ...softwarePatternsFormOptions,
     defaultValues: initialValues,
     onSubmit: async ({ value: formValues, formApi }) => {
-      // Add: selected patterns that user touched OR were already USER-selected
-      const add = patterns
-        .filter((p) => {
-          const isSelected = formValues[p.name];
-          if (!isSelected) return false;
-
-          const isDirty = formApi.getFieldMeta(p.name)?.isDirty;
-          const wasUserSelected = selection[p.name] === SelectedBy.USER;
-
-          // Add if user touched it OR it was already USER-selected
-          return isDirty || wasUserSelected;
-        })
-        .map((p) => p.name);
-
-      // Remove: unchecked patterns that were previously selected, preselected, or explicitly removed
-      const remove = patterns
-        .filter((p) => {
-          const isSelected = formValues[p.name];
-          if (isSelected) return false;
-
+      const { add, remove } = systemPatterns.reduce(
+        (acc, p) => {
+          const inScope = p.name in initialValues;
+          const isChecked = formValues[p.name];
+          const isDirty = formApi.getFieldMeta(p.name)?.isDirty ?? false;
           const wasInitiallySelected = initialValues[p.name];
-          const wasExplicitlyRemoved = selection[p.name] === SelectedBy.REMOVED;
+          const selectionStatus = selection[p.name];
 
-          return wasInitiallySelected || p.preselected || wasExplicitlyRemoved;
-        })
-        .map((p) => p.name);
+          const action = resolvePatternAction(
+            inScope,
+            isChecked,
+            isDirty,
+            p.preselected,
+            wasInitiallySelected,
+            selectionStatus,
+            userAddedPatterns.includes(p.name),
+            userRemovedPatterns.includes(p.name),
+          );
+
+          if (action) acc[action].push(p.name);
+          return acc;
+        },
+        { add: [], remove: [] },
+      );
 
       await patchConfig({ software: { patterns: { add, remove } } });
     },
@@ -114,14 +201,21 @@ function SoftwarePatternsSelection() {
   });
 
   // initial empty screen, the patterns are loaded very quickly, no need for any progress
-  const visiblePatterns = filterPatterns(patterns, searchValue);
+  const visiblePatterns = filterPatterns(scopedPatterns, searchValue);
   if (visiblePatterns.length === 0 && searchValue === "") return null;
 
   const groups = groupPatterns(visiblePatterns);
 
   return (
     <Page
-      breadcrumbs={[{ label: _("Software"), path: SOFTWARE.root }, { label: "Patterns selection" }]}
+      breadcrumbs={[
+        { label: _("Software"), path: SOFTWARE.root },
+        {
+          // TRANSLATORS: breadcrumb label for the pattern/desktop selection page
+          // eslint-disable-next-line agama-i18n/string-literals
+          label: _(PAGE_TITLE[scope]),
+        },
+      ]}
       progress={{ scope: "software" }}
     >
       <Page.Content>
@@ -171,9 +265,7 @@ function SoftwarePatternsSelection() {
                                           <div>
                                             <b id={titleId}>{option.summary}</b>{" "}
                                             {selection[option.name] === SelectedBy.AUTO && (
-                                              <Label color="blue" isCompact>
-                                                {_("auto selected")}
-                                              </Label>
+                                              <AutoSelectedLabel />
                                             )}
                                             <span id={nextActionId} className={a11yStyles.hidden}>
                                               {selected ? _("Unselect") : _("Select")}

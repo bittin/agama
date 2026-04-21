@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2024-2026] SUSE LLC
+ * Copyright (c) [2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -21,33 +21,17 @@
  */
 
 import React from "react";
-import SoftwarePage from "~/components/software/SoftwarePage";
-import SoftwarePatternsSelection from "~/components/software/SoftwarePatternsSelection";
-import { Route } from "~/types/routes";
-import { SOFTWARE as PATHS } from "~/routes/paths";
-import { N_ } from "~/i18n";
+import { Label } from "@patternfly/react-core";
+import { _ } from "~/i18n";
 
-const routes = (): Route => ({
-  path: PATHS.root,
-  handle: {
-    name: N_("Software"),
-    icon: "apps",
-  },
-  children: [
-    {
-      index: true,
-      element: <SoftwarePage />,
-    },
-    {
-      path: PATHS.desktopSelection,
-      element: <SoftwarePatternsSelection scope="desktops" />,
-    },
-    {
-      path: PATHS.patternsSelection,
-      element: <SoftwarePatternsSelection scope="other" />,
-    },
-  ],
-});
-
-export default routes;
-export { PATHS };
+/**
+ * Label indicating a pattern was automatically selected as a dependency.
+ */
+export default function AutoSelectedLabel(): React.ReactNode {
+  return (
+    <Label color="blue" isCompact>
+      {/* TRANSLATORS: label shown for patterns automatically selected as dependencies */}
+      {_("auto selected")}
+    </Label>
+  );
+}
