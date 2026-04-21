@@ -363,7 +363,13 @@ describe("SoftwarePatternsSelection scope", () => {
     const acceptButton = screen.getByRole("button", { name: "Accept" });
     await user.click(acceptButton);
 
-    const nonDesktopPatterns = ["yast2_basis", "yast2_desktop", "yast2_server", "multimedia", "office"];
+    const nonDesktopPatterns = [
+      "yast2_basis",
+      "yast2_desktop",
+      "yast2_server",
+      "multimedia",
+      "office",
+    ];
     expect(patchConfig).toHaveBeenCalledWith({
       software: {
         patterns: {

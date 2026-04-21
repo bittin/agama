@@ -23,12 +23,7 @@
 import type { Pattern } from "~/model/system/software";
 import type { PatternsSelection } from "~/model/proposal/software";
 import { SelectedBy } from "~/model/proposal/software";
-import {
-  filterPatterns,
-  groupPatterns,
-  isPatternSelected,
-  sortGroupNames,
-} from "./software";
+import { filterPatterns, groupPatterns, isPatternSelected, sortGroupNames } from "./software";
 
 describe("groupPatterns", () => {
   const patterns: Pattern[] = [
@@ -202,4 +197,3 @@ describe("isPatternSelected", () => {
     expect(isPatternSelected(selection, "unknown")).toBe(false);
   });
 });
-
