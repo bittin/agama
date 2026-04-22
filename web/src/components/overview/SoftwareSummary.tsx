@@ -55,23 +55,40 @@ const patternsCount = (qty: number): string =>
  * Priority order:
  *   1. "No desktop selected" hint when the product suggests one and none is
  *      selected.
- *   2. The selected desktop's summary when one is present.
- *   3. "Using N additional patterns" when the user picked non-desktop
+ *   2. The selected desktop's summary when exactly one is selected.
+ *   3. "N desktops selected" when more than one desktop is selected.
+ *   4. "Using N additional patterns" when the user picked non-desktop
  *      patterns on a product not suggesting a desktop.
- *   4. "Default selection" when nothing is selected.
+ *   5. "Default selection" when nothing is selected.
  */
 const Value = () => {
   const patterns = useSelectedPatterns();
   const isDesktopMissing = useIsDesktopMissing();
-  const [headlineDesktop] = patterns.filter((p) => p.desktop);
+  const desktops = patterns.filter((p) => p.desktop);
 
   if (isDesktopMissing) {
     // TRANSLATORS: shown in the software summary when no desktop is selected.
     return <Text isBold>{_("No desktop selected")}</Text>;
   }
 
-  if (headlineDesktop) {
-    return <Text>{headlineDesktop.summary}</Text>;
+  if (desktops.length === 1) {
+    return <Text>{desktops[0].summary}</Text>;
+  }
+
+  if (desktops.length > 1) {
+    // NOTE: n_() is needed even though desktops.length > 1 because some
+    // languages have multiple plural forms (e.g., Russian: 2-4 vs 5+).
+    //
+    // TRANSLATORS: shown in the software summary when multiple desktops are
+    // selected. %d is the number of desktops.
+    return (
+      <Text>
+        {sprintf(
+          n_("%d desktop selected", "%d desktops selected", desktops.length),
+          desktops.length,
+        )}
+      </Text>
+    );
   }
 
   if (patterns.length === 0) {
@@ -111,11 +128,7 @@ const Description = () => {
       // selected patterns with the required install size. %1$d is a number
       // of selected patterns; %2$s is a human-readable disk size
       // (e.g. "5.95 GiB").
-      n_(
-        "Using %1$d additional pattern. Requires %2$s",
-        "Using %1$d additional patterns. Requires %2$s",
-        qty,
-      ),
+      n_("Includes %1$d pattern. Requires %2$s", "Includes %1$d patterns. Requires %2$s", qty),
       qty,
       size,
     );

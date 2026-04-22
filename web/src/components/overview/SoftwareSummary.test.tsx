@@ -184,10 +184,10 @@ describe("SoftwareSummary", () => {
         installerRender(<SoftwareSummary />);
 
         screen.getByText("GNOME Desktop");
-        screen.getByText("Using 1 additional pattern. Requires 5.95 GiB");
+        screen.getByText("Includes 1 pattern. Requires 5.95 GiB");
       });
 
-      it("shows only the first desktop when several are selected", () => {
+      it("shows the desktop count when several are selected", () => {
         mockUseSelectedPatternsFn.mockReturnValue([
           gnome,
           { ...gnome, name: "kde", summary: "KDE Plasma" },
@@ -195,9 +195,10 @@ describe("SoftwareSummary", () => {
 
         installerRender(<SoftwareSummary />);
 
-        screen.getByText("GNOME Desktop");
+        screen.getByText("2 desktops selected");
+        expect(screen.queryByText("GNOME Desktop")).toBeNull();
         expect(screen.queryByText("KDE Plasma")).toBeNull();
-        screen.getByText("Using 2 additional patterns. Requires 5.95 GiB");
+        screen.getByText("Includes 2 patterns. Requires 5.95 GiB");
       });
     });
 
@@ -221,7 +222,7 @@ describe("SoftwareSummary", () => {
         installerRender(<SoftwareSummary />);
 
         expect(screen.getByText("No desktop selected")).toHaveClass(textStyles.fontWeightBold);
-        screen.getByText("Using 1 additional pattern. Requires 5.95 GiB");
+        screen.getByText("Includes 1 pattern. Requires 5.95 GiB");
       });
     });
   });
