@@ -100,11 +100,12 @@ describe("ConnectionForm", () => {
     await user.click(screen.getByLabelText("Type"));
     await user.click(screen.getByRole("option", { name: "Bond" }));
     expect(screen.getByLabelText("Name")).toHaveValue("Bond");
+  });
 
-    // Switch to Wi-Fi
+  it("does not show WIFI in the connection type selector for new connections", async () => {
+    const { user } = installerRender(<ConnectionForm />);
     await user.click(screen.getByLabelText("Type"));
-    await user.click(screen.getByRole("option", { name: "WIFI" }));
-    expect(screen.getByLabelText("Name")).toHaveValue("Wireless");
+    expect(screen.queryByRole("option", { name: "WIFI" })).not.toBeInTheDocument();
   });
 
   describe("Bond connection", () => {
@@ -484,6 +485,16 @@ describe("ConnectionForm", () => {
 
     it("disables the connection type selector", () => {
       installerRender(<ConnectionForm />);
+      expect(screen.getByLabelText("Type")).toBeDisabled();
+    });
+
+    it("shows WIFI as the selected type when editing a WIFI connection", () => {
+      mockUseSystem.mockReturnValue({
+        connections: [buildConnection("wlan0", { wireless: { ssid: "test-wifi" } })],
+      });
+      mockParams({ id: "wlan0" });
+      installerRender(<ConnectionForm />);
+      expect(screen.getByLabelText("Type")).toHaveTextContent("WIFI");
       expect(screen.getByLabelText("Type")).toBeDisabled();
     });
 

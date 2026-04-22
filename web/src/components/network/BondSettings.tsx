@@ -116,9 +116,7 @@ const BondSettings = withForm({
                     }
                     displayValue={(name) => {
                       const device = devices.find((d) => d.name === name);
-                      return device
-                        ? sprintf(_("%s - %s"), device.name, device.macAddress)
-                        : name;
+                      return device ? sprintf(_("%s - %s"), device.name, device.macAddress) : name;
                     }}
                     validateOnChange={(v) =>
                       devices.some((d) => d.name === v)

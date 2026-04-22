@@ -483,23 +483,27 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
     listeners: isEditing ? undefined : { onMount: ({ formApi }) => syncName(formApi) },
   });
 
-  const typeOptions = () => [
-    {
-      value: ConnectionType.BOND,
-      label: N_("Bond"),
-      description: "Bond",
-    },
-    {
-      value: ConnectionType.WIFI,
-      label: N_("WIFI"),
-      description: "Wireless",
-    },
-    {
-      value: ConnectionType.ETHERNET,
-      label: N_("Ethernet"),
-      description: "Ethernet",
-    },
-  ];
+  const typeOptions = () => {
+    const options = [
+      {
+        value: ConnectionType.BOND,
+        label: N_("Bond"),
+        description: "Bond",
+      },
+      {
+        value: ConnectionType.WIFI,
+        label: N_("WIFI"),
+        description: "Wireless",
+      },
+      {
+        value: ConnectionType.ETHERNET,
+        label: N_("Ethernet"),
+        description: "Ethernet",
+      },
+    ];
+
+    return isEditing ? options : options.filter((o) => o.value !== ConnectionType.WIFI);
+  };
 
   return (
     <form.AppForm>
