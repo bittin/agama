@@ -38,13 +38,16 @@ use agama_utils::{
     },
     progress, question,
 };
+use aide::axum::routing::get_with;
+use aide::axum::ApiRouter;
+use aide::transform::TransformOperation;
 use axum::{
     body::Body,
     extract::{Path, Query, State},
     http::HeaderValue,
     response::{IntoResponse, Response},
     routing::{get, post, put},
-    Json, Router,
+    Json,
 };
 use hyper::{header, HeaderMap, StatusCode};
 use schemars::JsonSchema;
@@ -105,7 +108,7 @@ impl ServerState {
 pub async fn server_service(
     events: event::Sender,
     dbus: zbus::Connection,
-) -> Result<Router, ServiceError> {
+) -> Result<ApiRouter, ServiceError> {
     let questions = question::start(events.clone())
         .await
         .map_err(anyhow::Error::msg)?;
@@ -116,8 +119,9 @@ pub async fn server_service(
     let state = ServerState::new(manager, questions);
     server_with_state(state)
 }
-pub fn server_with_state(state: ServerState) -> Result<Router, ServiceError> {
-    Ok(Router::new()
+
+pub fn server_with_state(state: ServerState) -> Result<ApiRouter, ServiceError> {
+    Ok(ApiRouter::new()
         .route("/status", get(get_status))
         .route("/system", get(get_system))
         .route("/extended_config", get(get_extended_config))

@@ -18,14 +18,20 @@
 // To contact SUSE LLC about this file by physical or electronic mail, you may
 // find current contact information at www.suse.com.
 
+use std::path::PathBuf;
+
+use agama_utils::{api::Event, test};
 use aide::openapi::{Info, OpenApi, Server};
+use tokio::sync::broadcast;
+
+use crate::test_utils;
 
 /// Builds the unified OpenAPI specification for the Agama HTTP API using aide.
 ///
-/// This function will eventually replace the utoipa-based `docs::build()`.
-/// Currently used for parallel generation during migration.
-pub fn build() -> OpenApi {
-    let api = OpenApi {
+/// Instantiates an ApiRouter using the test_utils::router function and generates
+/// the API from there.
+pub async fn build() -> OpenApi {
+    let mut api = OpenApi {
         openapi: "3.1.0".into(),
         info: Info {
             title: "Agama HTTP API".to_string(),
@@ -45,7 +51,6 @@ pub fn build() -> OpenApi {
                 description: Some("Local development server".to_string()),
                 ..Default::default()
             },
-            // TODO Phase 1: Simplified - add server variables later
             Server {
                 url: "https://agama.local".to_string(),
                 description: Some("Agama server (default hostname)".to_string()),
@@ -55,9 +60,15 @@ pub fn build() -> OpenApi {
         ..Default::default()
     };
 
-    // TODO: Add paths and components from handlers
-    // This is a placeholder structure for Phase 1
-    // Paths and components will be added in Phase 4 when migrating endpoints
+    let share_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../share");
+    std::env::set_var("AGAMA_SHARE_DIR", share_dir.display().to_string());
+
+    let (events_tx, _events_rx) = broadcast::channel::<Event>(16);
+    let dbus = test::dbus::connection().await.unwrap();
+    let app = test_utils::router(events_tx.clone(), dbus.clone())
+        .await
+        .expect("Failed to build the router to build the OpenAPI specification");
+    _ = app.finish_api(&mut api);
 
     api
 }

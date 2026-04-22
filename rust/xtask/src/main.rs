@@ -68,10 +68,10 @@ mod tasks {
     }
 
     /// Generate Agama's OpenAPI specification using aide (migration).
-    pub fn generate_openapi_aide() -> std::io::Result<()> {
+    pub async fn generate_openapi_aide() -> std::io::Result<()> {
         use agama_server::web::docs_aide;
 
-        let openapi = docs_aide::build();
+        let openapi = docs_aide::build().await;
         let json = serde_json::to_string_pretty(&openapi)?;
         let path = output_dir()?.join("openapi-aide.json");
         let mut file = File::create(&path)?;
@@ -92,7 +92,8 @@ fn output_dir() -> std::io::Result<PathBuf> {
     Ok(out_dir)
 }
 
-fn main() -> std::io::Result<()> {
+#[tokio::main]
+async fn main() -> std::io::Result<()> {
     let Some(task) = env::args().nth(1) else {
         eprintln!("You must specify a xtask");
         std::process::exit(1);
@@ -103,7 +104,7 @@ fn main() -> std::io::Result<()> {
         "markdown" => tasks::generate_markdown(),
         "manpages" => tasks::generate_manpages(),
         "openapi" => tasks::generate_openapi(),
-        "openapi-aide" => tasks::generate_openapi_aide(),
+        "openapi-aide" => tasks::generate_openapi_aide().await,
         other => {
             eprintln!("Unknown task '{}'", other);
             std::process::exit(1);

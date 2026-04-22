@@ -76,13 +76,13 @@ impl DBusServer<Stopped> {
     }
 
     async fn start(self) -> Result<DBusServer<Started>, zbus::Error> {
+        let share_dir = std::env::var("AGAMA_SHARE_DIR").unwrap_or("../share".to_string());
+        let conf_file = std::path::PathBuf::from(share_dir).join("dbus-test.conf");
+
         let mut child = Command::new("/usr/bin/dbus-daemon")
-            .args([
-                "--config-file",
-                "../share/dbus-test.conf",
-                "--address",
-                &self.address,
-            ])
+            .arg("--config-file")
+            .arg(conf_file.as_path())
+            .args(["--address", &self.address])
             .spawn()
             .expect("to start the testing D-Bus daemon");
 
