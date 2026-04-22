@@ -38,7 +38,7 @@ use agama_utils::{
     },
     progress, question,
 };
-use aide::axum::routing::get_with;
+use aide::axum::routing::{get_with, post_with, put_with};
 use aide::axum::ApiRouter;
 use aide::transform::TransformOperation;
 use axum::{
@@ -46,7 +46,7 @@ use axum::{
     extract::{Path, Query, State},
     http::HeaderValue,
     response::{IntoResponse, Response},
-    routing::{get, post, put},
+    routing::{get, post},
     Json,
 };
 use hyper::{header, HeaderMap, StatusCode};
@@ -127,25 +127,35 @@ pub fn server_with_state(state: ServerState) -> Result<ApiRouter, ServiceError> 
     Ok(ApiRouter::new()
         .api_route("/status", get_with(get_status, get_status_docs))
         .api_route("/system", get_with(get_system, get_system_docs))
-        .route("/extended_config", get(get_extended_config))
-        .route(
-            "/config",
-            get(get_config).put(put_config).patch(patch_config),
+        .api_route(
+            "/extended_config",
+            get_with(get_extended_config, get_extended_config_docs),
         )
-        .route("/proposal", get(get_proposal))
-        .route("/action", post(run_action))
-        .route("/issues", get(get_issues))
-        .route(
+        .api_route(
+            "/config",
+            get_with(get_config, get_config_docs)
+                .put_with(put_config, put_config_docs)
+                .patch_with(patch_config, patch_config_docs),
+        )
+        .api_route("/proposal", get_with(get_proposal, get_proposal_docs))
+        .api_route("/action", post_with(run_action, run_action_docs))
+        .api_route("/issues", get_with(get_issues, get_issues_docs))
+        .api_route(
             "/questions",
-            get(get_questions).post(ask_question).patch(update_question),
+            get_with(get_questions, get_questions_docs)
+                .post_with(ask_question, ask_question_docs)
+                .patch_with(update_question, update_question_docs),
         )
         .route("/licenses/{id}", get(get_license))
+        .api_route(
+            "/resolvables/{id}",
+            put_with(set_resolvables, set_resolvables_docs),
+        )
         .route(
             "/private/storage_model",
             get(get_storage_model).put(set_storage_model),
         )
         .route("/private/solve_storage_model", get(solve_storage_model))
-        .route("/private/resolvables/{id}", put(set_resolvables))
         .route("/private/download_logs", get(download_logs))
         .route("/private/password_check", post(check_password))
         .with_state(state))
@@ -223,6 +233,14 @@ async fn get_extended_config(State(state): State<ServerState>) -> Result<Json<Co
     Ok(Json(config))
 }
 
+fn get_extended_config_docs(op: TransformOperation) -> TransformOperation {
+    op.description("Returns the extended configuration.")
+        .response_with::<200, Json<Config>, _>(|res| res.description("Extended configuration"))
+        .response_with::<500, Json<ErrorResponse>, _>(|res| {
+            res.description("Internal server error")
+        })
+}
+
 /// Returns the configuration.
 #[utoipa::path(
     get,
@@ -240,6 +258,14 @@ async fn get_config(State(state): State<ServerState>) -> Result<Json<Config>, Re
         .await
         .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(Json(config))
+}
+
+fn get_config_docs(op: TransformOperation) -> TransformOperation {
+    op.description("Returns the configuration.")
+        .response_with::<200, Json<Config>, _>(|res| res.description("Configuration."))
+        .response_with::<500, Json<ErrorResponse>, _>(|res| {
+            res.description("Internal server error")
+        })
 }
 
 /// Updates the configuration.
@@ -270,6 +296,17 @@ async fn put_config(
         .await
         .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(())
+}
+
+fn put_config_docs(op: TransformOperation) -> TransformOperation {
+    op.description("Updates the configuration.\n\nReplaces the whole configuration. If some value is missing, it will be removed.")
+        .response::<200, ()>()
+        .response_with::<400, Json<ErrorResponse>, _>(|res| {
+            res.description("Invalid configuration schema or malformed JSON.")
+        })
+        .response_with::<500, Json<ErrorResponse>, _>(|res| {
+            res.description("Internal server error")
+        })
 }
 
 /// Patches the configuration.
@@ -304,6 +341,17 @@ async fn patch_config(
     Ok(())
 }
 
+fn patch_config_docs(op: TransformOperation) -> TransformOperation {
+    op.description("Patches the configuration.\n\nIt only changes the specified values, keeping the rest as they are.")
+        .response::<200, ()>()
+        .response_with::<400, Json<ErrorResponse>, _>(|res| {
+            res.description("Invalid configuration schema or malformed JSON.")
+        })
+        .response_with::<500, Json<ErrorResponse>, _>(|res| {
+            res.description("Internal server error")
+        })
+}
+
 /// Returns how the target system is configured (proposal).
 #[utoipa::path(
     get,
@@ -322,6 +370,17 @@ async fn get_proposal(State(state): State<ServerState>) -> Result<Response, Resp
         .await
         .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(to_option_response(proposal))
+}
+
+fn get_proposal_docs(op: TransformOperation) -> TransformOperation {
+    op.description("Returns how the target system is configured (proposal).")
+        .response_with::<200, Json<Proposal>, _>(|res| {
+            res.description("Proposal successfully retrieved.")
+        })
+        .response::<404, ()>()
+        .response_with::<500, Json<ErrorResponse>, _>(|res| {
+            res.description("Internal server error")
+        })
 }
 
 /// Returns the list of issues.
@@ -356,6 +415,14 @@ async fn get_issues(
     Ok(Json(issues))
 }
 
+fn get_issues_docs(op: TransformOperation) -> TransformOperation {
+    op.description("Returns the list of issues.")
+        .response_with::<200, Json<Vec<IssueWithScope>>, _>(|res| res.description("Agama issues"))
+        .response_with::<500, Json<ErrorResponse>, _>(|res| {
+            res.description("Internal server error")
+        })
+}
+
 /// Returns the issues for each scope.
 #[utoipa::path(
     get,
@@ -373,6 +440,14 @@ async fn get_questions(State(state): State<ServerState>) -> Result<Json<Vec<Ques
         .await
         .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(Json(questions))
+}
+
+fn get_questions_docs(op: TransformOperation) -> TransformOperation {
+    op.description("Returns the issues for each scope.")
+        .response_with::<200, Json<Vec<Question>>, _>(|res| res.description("Agama questions"))
+        .response_with::<500, Json<ErrorResponse>, _>(|res| {
+            res.description("Internal server error")
+        })
 }
 
 /// Registers a new question.
@@ -396,6 +471,15 @@ async fn ask_question(
         .await
         .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(Json(question))
+}
+
+fn ask_question_docs(op: TransformOperation) -> TransformOperation {
+    op.description("Registers a new question.")
+        .response_with::<200, Json<Question>, _>(|res| res.description("New question's ID"))
+        .response_with::<400, Json<ErrorResponse>, _>(|res| res.description("Malformed JSON."))
+        .response_with::<500, Json<ErrorResponse>, _>(|res| {
+            res.description("Internal server error")
+        })
 }
 
 /// Updates the question collection by answering or removing a question.
@@ -431,6 +515,15 @@ async fn update_question(
         }
     }
     Ok(())
+}
+
+fn update_question_docs(op: TransformOperation) -> TransformOperation {
+    op.description("Updates the question collection by answering or removing a question.")
+        .response::<200, ()>()
+        .response_with::<400, Json<ErrorResponse>, _>(|res| res.description("Malformed JSON."))
+        .response_with::<500, Json<ErrorResponse>, _>(|res| {
+            res.description("Internal server error")
+        })
 }
 
 #[derive(Deserialize, utoipa::IntoParams)]
@@ -477,6 +570,21 @@ async fn get_license(
     }
 }
 
+#[allow(dead_code)]
+fn get_license_docs(op: TransformOperation) -> TransformOperation {
+    op.description("Returns the license content.\n\nOptionally it can receive a language tag (RFC 5646). Otherwise, it returns the license in English.")
+        .response_with::<200, Json<LicenseContent>, _>(|res| {
+            res.description("License with the given ID")
+        })
+        .response_with::<400, Json<ErrorResponse>, _>(|res| {
+            res.description("The specified language tag is not valid")
+        })
+        .response::<404, ()>()
+        .response_with::<500, Json<ErrorResponse>, _>(|res| {
+            res.description("Internal server error")
+        })
+}
+
 #[utoipa::path(
     post,
     path = "/action",
@@ -504,6 +612,17 @@ async fn run_action(
             _ => Error::from(error).internal_server_error(),
         })?;
     Ok(())
+}
+
+fn run_action_docs(op: TransformOperation) -> TransformOperation {
+    op.description("Run an action")
+        .response::<200, ()>()
+        .response_with::<422, Json<ErrorResponse>, _>(|res| {
+            res.description("Action blocked by backend state")
+        })
+        .response_with::<500, Json<ErrorResponse>, _>(|res| {
+            res.description("Internal server error")
+        })
 }
 
 /// Returns how the target system is configured (proposal).
@@ -594,6 +713,11 @@ async fn set_resolvables(
         ))
         .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(())
+}
+
+fn set_resolvables_docs(op: TransformOperation) -> TransformOperation {
+    op.description("Update the resolvables list")
+        .response::<200, ()>()
 }
 
 fn to_option_response<T: Serialize>(value: Option<T>) -> Response {
