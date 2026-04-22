@@ -68,6 +68,16 @@ enum ApSecurityFlags {
  */
 type ConnectionBindingMode = "none" | "iface" | "mac";
 
+enum BondMode {
+  BALANCE_ROUND_ROBIN = "balance-rr",
+  ACTIVE_BACKUP = "active-backup",
+  BALANCE_XOR = "balance-xor",
+  BROADCAST = "broadcast",
+  LACP = "802.3ad",
+  BALANCE_TLB = "balance-tlb",
+  BALANCE_ALB = "balance-alb",
+}
+
 enum ConnectionType {
   ETHERNET = "ethernet",
   WIFI = "wireless",
@@ -290,6 +300,12 @@ class Wireless {
   }
 }
 
+type Bond = {
+  mode: BondMode;
+  options: string;
+  ports: string[];
+};
+
 type ConnectionOptions = {
   iface?: string;
   macAddress?: string;
@@ -301,6 +317,7 @@ type ConnectionOptions = {
   method4?: ConnectionMethod;
   method6?: ConnectionMethod;
   wireless?: Wireless;
+  bond?: Bond;
   status?: ConnectionStatus;
   state?: ConnectionState;
   persistent?: boolean;
@@ -330,6 +347,7 @@ class Connection {
   gateway6?: string = "";
   method4?: ConnectionMethod;
   method6?: ConnectionMethod;
+  bond?: Bond;
   wireless?: Wireless;
   persistent: boolean;
 
@@ -340,6 +358,17 @@ class Connection {
 
     for (const [key, value] of Object.entries(options)) {
       if (isBoolean(value) || !isEmpty(value)) this[key] = value;
+    }
+  }
+
+  type() {
+    const { wireless, bond } = this;
+    if (wireless) {
+      return ConnectionType.WIFI;
+    } else if (bond) {
+      return ConnectionType.BOND;
+    } else {
+      return ConnectionType.ETHERNET;
     }
   }
 
@@ -545,6 +574,7 @@ export {
   AccessPoint,
   ApFlags,
   ApSecurityFlags,
+  BondMode,
   Connection,
   ConnectionState,
   ConnectionStatus,

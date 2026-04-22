@@ -24,6 +24,7 @@ import React from "react";
 import { formOptions } from "@tanstack/react-form";
 import { useNavigate, useParams } from "react-router";
 import { isEmpty, shake, unique } from "radashi";
+import { sprintf } from "sprintf-js";
 import { Alert, ActionGroup, Flex, Form } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
 import NestedContent from "~/components/core/NestedContent";
@@ -32,6 +33,7 @@ import IpSettings from "~/components/network/IpSettings";
 import BindingModeSelector from "~/components/network/BindingModeSelector";
 import DeviceSelector from "~/components/network/DeviceSelector";
 import {
+  BondMode,
   Connection,
   ConnectionBindingMode,
   ConnectionMethod,
@@ -55,7 +57,7 @@ import {
   isValidNameserver,
   isValidDNSSearchDomain,
 } from "~/utils/network";
-import { _ } from "~/i18n";
+import { _, N_ } from "~/i18n";
 
 /**
  * Form IP mode values.
@@ -103,6 +105,7 @@ const MODE_TO_METHOD: Record<FormIpMode, ConnectionMethod> = {
 export const connectionFormOptions = formOptions({
   defaultValues: {
     name: "",
+    type: ConnectionType.ETHERNET,
     iface: "",
     ifaceMac: "",
     ipv4Mode: FormIpMode.AUTO as FormIpMode,
@@ -116,6 +119,9 @@ export const connectionFormOptions = formOptions({
     customDns: false,
     customDnsSearch: false,
     bindingMode: "none" as ConnectionBindingMode,
+    bondMode: BondMode.BALANCE_ROUND_ROBIN as BondMode,
+    bondOptions: "",
+    bondPorts: [] as string[],
   },
 });
 
@@ -160,6 +166,7 @@ function connectionToFormValues(connection: Connection): Partial<FormValues> {
 
   return {
     name: connection.id,
+    type: connection.type(),
     iface: connection.iface ?? "",
     ifaceMac: connection.macAddress ?? "",
     bindingMode: connectionBindingMode(connection),
@@ -173,6 +180,9 @@ function connectionToFormValues(connection: Connection): Partial<FormValues> {
     dnsSearchList: unique(connection.dnsSearchList),
     customDns: connection.nameservers.length > 0,
     customDnsSearch: connection.dnsSearchList.length > 0,
+    bondMode: connection.bond?.mode ?? BondMode.BALANCE_ROUND_ROBIN,
+    bondOptions: connection.bond?.options ?? "",
+    bondPorts: connection.bond?.ports ?? [],
   };
 }
 
@@ -315,6 +325,21 @@ function validateConnectionForm(formValues: FormValues): FormFieldErrors | undef
       // TRANSLATORS: validation error for the DNS search domains field.
       _("Some DNS search domains are invalid"),
     ),
+    bondMode:
+      formValues.type === ConnectionType.BOND && !formValues.bondMode.trim()
+        ? // TRANSLATORS: validation error for the bond mode field.
+          _("Bond mode is required")
+        : undefined,
+    bondPorts:
+      formValues.type === ConnectionType.BOND && formValues.bondPorts.length === 0
+        ? // TRANSLATORS: validation error for the bond ports field.
+          _("At least one bond port is required")
+        : undefined,
+    iface:
+      formValues.type === ConnectionType.BOND && !formValues.iface.trim()
+        ? // TRANSLATORS: validation error for the bond device name field.
+          _("Device name is required")
+        : undefined,
   });
 
   if (!isEmpty(fieldErrors)) return fieldErrors;
@@ -344,6 +369,14 @@ function buildConnection(formValues: FormValues): Connection {
     addresses: [...ipv4Addresses, ...ipv6Addresses],
     nameservers: formValues.customDns ? formValues.nameservers : [],
     dnsSearchList: formValues.customDnsSearch ? formValues.dnsSearchList : [],
+    bond:
+      formValues.type === ConnectionType.BOND
+        ? {
+            mode: formValues.bondMode,
+            options: formValues.bondOptions,
+            ports: formValues.bondPorts,
+          }
+        : undefined,
   });
 }
 
@@ -379,16 +412,43 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
   // prevents the name update from re-triggering this listener.
   //
   // @see https://tanstack.com/form/latest/docs/framework/react/guides/listeners#form-listeners
-  const syncName = ({ formApi }) => {
-    if (formApi.getFieldMeta("name")?.isDirty) return;
-    const existingIds = new Set(systemConns.map((c) => c.id));
-    formApi.setFieldValue("name", generateConnectionName(ConnectionType.ETHERNET, existingIds), {
-      dontUpdateMeta: true,
-      dontRunListeners: true,
-    });
-  };
+  const syncName = (formApi) => {
+    const type = formApi.getFieldValue("type");
 
-  const syncNameListeners = { onMount: syncName };
+    if (!formApi.getFieldMeta("name")?.isDirty) {
+      const existingIds = new Set(systemConns.map((c) => c.id));
+      formApi.setFieldValue("name", generateConnectionName(type, existingIds), {
+        dontUpdateMeta: true,
+        dontRunListeners: true,
+      });
+    }
+
+    if (type === ConnectionType.BOND && !isEditing) {
+      if (!formApi.getFieldValue("iface") || formApi.getFieldValue("iface") === devices[0]?.name) {
+        formApi.setFieldValue("iface", "bond0", {
+          dontUpdateMeta: true,
+          dontRunListeners: true,
+        });
+      }
+      formApi.setFieldValue("bindingMode", "iface", {
+        dontUpdateMeta: true,
+        dontRunListeners: true,
+      });
+    } else if (!isEditing) {
+      if (formApi.getFieldValue("iface") === "bond0") {
+        formApi.setFieldValue("iface", devices[0]?.name ?? "", {
+          dontUpdateMeta: true,
+          dontRunListeners: true,
+        });
+      }
+      if (formApi.getFieldValue("bindingMode") === "iface") {
+        formApi.setFieldValue("bindingMode", "none", {
+          dontUpdateMeta: true,
+          dontRunListeners: true,
+        });
+      }
+    }
+  };
 
   const form = useAppForm({
     ...mergeFormDefaults(connectionFormOptions, {
@@ -409,8 +469,32 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
       },
     },
     onSubmit: () => navigate(-1),
-    listeners: isEditing ? undefined : syncNameListeners,
+    listeners: isEditing ? undefined : { onMount: ({ formApi }) => syncName(formApi) },
   });
+
+  const typeOptions = () => [
+    {
+      value: ConnectionType.BOND,
+      label: N_("Bond"),
+      description: "Bond",
+    },
+    {
+      value: ConnectionType.WIFI,
+      label: N_("WIFI"),
+      description: "Wireless",
+    },
+    {
+      value: ConnectionType.ETHERNET,
+      label: N_("Ethernet"),
+      description: "Ethernet",
+    },
+  ];
+
+  const bondModeOptions = () =>
+    Object.values(BondMode).map((m) => ({
+      value: m,
+      label: m,
+    }));
 
   return (
     <form.AppForm>
@@ -450,30 +534,22 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
           }
         </form.Subscribe>
 
-        <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
-          <BindingModeSelector form={form} />
-
-          <form.Subscribe selector={(s) => s.values.bindingMode}>
-            {(bindingMode) => (
-              <>
-                {bindingMode === "iface" && (
-                  <DeviceSelector
-                    form={form}
-                    by="iface"
-                    sync={{ field: "ifaceMac", with: (d) => d.macAddress }}
-                  />
-                )}
-                {bindingMode === "mac" && (
-                  <DeviceSelector
-                    form={form}
-                    by="mac"
-                    sync={{ field: "iface", with: (d) => d.name }}
-                  />
-                )}
-              </>
-            )}
-          </form.Subscribe>
-        </Flex>
+        <form.AppField name="type" listeners={{ onChange: () => syncName(form) }}>
+          {(field) => (
+            <field.DropdownField
+              isDisabled={isEditing}
+              label={
+                // TRANSLATORS: checkbox label for custom DNS server configuration.
+                _("Type")
+              }
+              options={typeOptions().map(({ value, label }) => ({
+                value,
+                // eslint-disable-next-line agama-i18n/string-literals
+                label: _(label),
+              }))}
+            />
+          )}
+        </form.AppField>
 
         {!isEditing && (
           <form.AppField name="name">
@@ -487,6 +563,117 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
             )}
           </form.AppField>
         )}
+
+        <form.Subscribe selector={(s) => s.values.type}>
+          {(type) => {
+            if (![ConnectionType.BOND, ConnectionType.BRIDGE, ConnectionType.VLAN].includes(type)) {
+              return (
+                <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
+                  <BindingModeSelector form={form} />
+
+                  <form.Subscribe selector={(s) => s.values.bindingMode}>
+                    {(bindingMode) => (
+                      <>
+                        {bindingMode === "iface" && (
+                          <DeviceSelector
+                            form={form}
+                            by="iface"
+                            sync={{ field: "ifaceMac", with: (d) => d.macAddress }}
+                          />
+                        )}
+                        {bindingMode === "mac" && (
+                          <DeviceSelector
+                            form={form}
+                            by="mac"
+                            sync={{ field: "iface", with: (d) => d.name }}
+                          />
+                        )}
+                      </>
+                    )}
+                  </form.Subscribe>
+                </Flex>
+              );
+            }
+
+            if (type === ConnectionType.BOND && !isEditing) {
+              return (
+                <form.AppField name="iface">
+                  {(field) => (
+                    <field.TextField
+                      label={
+                        // TRANSLATORS: label for the network interface name field.
+                        _("Device name")
+                      }
+                      helperText={
+                        // TRANSLATORS: helper text for the bond device name field.
+                        _("E.g., bond0")
+                      }
+                    />
+                  )}
+                </form.AppField>
+              );
+            }
+
+            return null;
+          }}
+        </form.Subscribe>
+
+        <form.Subscribe selector={(s) => s.values.type}>
+          {(type) =>
+            type === ConnectionType.BOND && (
+              <>
+                <form.AppField name="bondMode">
+                  {(field) => (
+                    <field.DropdownField
+                      label={
+                        // TRANSLATORS: label for the bond mode field.
+                        _("Bond mode")
+                      }
+                      options={bondModeOptions()}
+                    />
+                  )}
+                </form.AppField>
+                <form.AppField name="bondOptions">
+                  {(field) => (
+                    <field.TextField
+                      label={
+                        // TRANSLATORS: label for the bond options field.
+                        _("Bond options")
+                      }
+                    />
+                  )}
+                </form.AppField>
+                <form.AppField name="bondPorts">
+                  {(field) => (
+                    <field.ArrayField
+                      label={
+                        // TRANSLATORS: label for the bond ports field.
+                        _("Bond ports")
+                      }
+                      helperText={
+                        // TRANSLATORS: helper text for the bond ports field. %s is a list of available devices.
+                        sprintf(_("Available devices: %s"), devices.map((d) => d.name).join(", "))
+                      }
+                      displayValue={(name) => {
+                        const device = devices.find((d) => d.name === name);
+                        return device
+                          ? sprintf(_("%s - %s"), device.name, device.macAddress)
+                          : name;
+                      }}
+                      validateOnChange={(v) =>
+                        devices.some((d) => d.name === v)
+                          ? undefined
+                          : // TRANSLATORS: validation error for an invalid bond port entry.
+                            _("Invalid device name")
+                      }
+                      skipDuplicates
+                    />
+                  )}
+                </form.AppField>
+              </>
+            )
+          }
+        </form.Subscribe>
 
         <IpSettings form={form} protocol="ipv4" />
 
@@ -613,7 +800,9 @@ function EditConnectionForm() {
 
   if (!connection) return <ConnectionNotFound />;
 
-  return <ConnectionFormContent defaults={connectionToFormValues(connection)} isEditing />;
+  const connectionInstance = new Connection(connection.id, connection);
+
+  return <ConnectionFormContent defaults={connectionToFormValues(connectionInstance)} isEditing />;
 }
 
 /**

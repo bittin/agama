@@ -47,7 +47,7 @@ import { useDevices, useSystem } from "~/hooks/model/system/network";
 import { sortCollection } from "~/utils";
 import { formatIp } from "~/utils/network";
 import { _ } from "~/i18n";
-import { Connection, ConnectionStatus, Device } from "~/types/network";
+import { Connection, ConnectionStatus, ConnectionType, Device } from "~/types/network";
 import { NETWORK } from "~/routes/paths";
 
 /**
@@ -56,7 +56,7 @@ import { NETWORK } from "~/routes/paths";
 type ConnectionsFilters = {
   name?: string;
   device?: string;
-  type?: "all" | "wifi" | "ethernet";
+  type?: "all" | "wifi" | "ethernet" | "bond";
   status?: "all" | "up" | "down";
 };
 
@@ -116,9 +116,10 @@ const filterConnections = (
     }
 
     if (type && type !== "all") {
-      const isWifi = !!c.wireless;
-      if (type === "wifi" && !isWifi) return false;
-      if (type === "ethernet" && isWifi) return false;
+      const connType = c.type();
+      if (type === "wifi" && connType !== ConnectionType.WIFI) return false;
+      if (type === "ethernet" && connType !== ConnectionType.ETHERNET) return false;
+      if (type === "bond" && connType !== ConnectionType.BOND) return false;
     }
 
     if (status && status !== "all") {
@@ -153,8 +154,13 @@ const createColumns = (devices: Device[]) => [
   },
   {
     name: _("Type"),
-    value: (c: Connection) => (c.wireless ? _("Wi-Fi") : _("Ethernet")),
-    sortingKey: (c: Connection) => (c.wireless ? "wifi" : "ethernet"),
+    value: (c: Connection) => {
+      const type = c.type();
+      if (type === ConnectionType.WIFI) return _("Wi-Fi");
+      if (type === ConnectionType.BOND) return _("Bond");
+      return _("Ethernet");
+    },
+    sortingKey: (c: Connection) => c.type(),
   },
   {
     name: _("Status"),
@@ -285,6 +291,7 @@ export default function ConnectionsTable() {
                   all: _("All"),
                   wifi: _("Wi-Fi"),
                   ethernet: _("Ethernet"),
+                  bond: _("Bond"),
                 }}
                 onChange={(_, v) => onFilterChange("type", v)}
               />
@@ -329,6 +336,7 @@ export default function ConnectionsTable() {
         updateSorting={onSortingChange}
         itemActions={(c: Connection) => {
           const isWifi = !!c.wireless;
+          const isBond = !!c.bond;
           const isConnected = c.status === ConnectionStatus.UP;
           const isDisconnected = c.status === ConnectionStatus.DOWN;
           const canConnect = !isWifi || systemState.wirelessEnabled;
@@ -347,7 +355,7 @@ export default function ConnectionsTable() {
               title: _("Edit connection"),
               onClick: () => navigate(generatePath(NETWORK.editConnection, { id: c.id })),
             },
-            !isWifi && {
+            !(isWifi || isBond) && {
               id: "editBinding",
               title: _("Edit binding"),
               onClick: () => navigate(generatePath(NETWORK.editBindingSettings, { id: c.id })),

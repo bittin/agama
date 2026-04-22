@@ -90,6 +90,121 @@ describe("ConnectionForm", () => {
     screen.getByText("Use custom DNS search domains");
   });
 
+  it("prefills the name based on the selected type", async () => {
+    const { user } = installerRender(<ConnectionForm />);
+
+    // Default is Ethernet
+    expect(screen.getByLabelText("Name")).toHaveValue("Ethernet");
+
+    // Switch to Bond
+    await user.click(screen.getByLabelText("Type"));
+    await user.click(screen.getByRole("option", { name: "Bond" }));
+    expect(screen.getByLabelText("Name")).toHaveValue("Bond");
+
+    // Switch to Wi-Fi
+    await user.click(screen.getByLabelText("Type"));
+    await user.click(screen.getByRole("option", { name: "WIFI" }));
+    expect(screen.getByLabelText("Name")).toHaveValue("Wireless");
+  });
+
+  describe("Bond connection", () => {
+    it("shows bond fields when type is Bond", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+
+      await user.click(screen.getByLabelText("Type"));
+      await user.click(screen.getByText("Bond"));
+      await waitFor(() => expect(screen.queryByLabelText("Bond mode")).toBeInTheDocument());
+      screen.getByLabelText("Bond mode");
+      screen.getByLabelText("Bond options");
+      screen.getByText("Bond ports");
+      screen.getByRole("textbox", { name: "Bond ports" });
+      screen.getByText(/Available devices: enp1s0, enp2s0/);
+    });
+
+    it("submits with bond configuration", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+
+      await user.click(screen.getByLabelText("Type"));
+      await user.click(screen.getByText("Bond"));
+      await waitFor(() => expect(screen.queryByLabelText("Bond mode")).toBeInTheDocument());
+
+      await user.click(screen.getByLabelText("Bond mode"));
+      await user.click(screen.getByRole("option", { name: "balance-rr" }));
+      await user.type(screen.getByLabelText("Bond options"), "miimon=100");
+
+      await user.type(screen.getByRole("textbox", { name: "Bond ports" }), "enp1s0{enter}");
+
+      await user.click(screen.getByRole("button", { name: "Accept" }));
+
+      await waitFor(() => {
+        expect(mockMutateAsync).toHaveBeenCalledWith(
+          expect.objectContaining({
+            bond: {
+              mode: "balance-rr",
+              options: "miimon=100",
+              ports: ["enp1s0"],
+            },
+          }),
+        );
+      });
+    });
+
+    it("shows an error when no bond ports are selected", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+
+      await user.click(screen.getByLabelText("Type"));
+      await user.click(screen.getByText("Bond"));
+      await waitFor(() => expect(screen.queryByLabelText("Bond mode")).toBeInTheDocument());
+
+      await user.click(screen.getByRole("button", { name: "Accept" }));
+
+      await screen.findByText("At least one bond port is required");
+      expect(mockMutateAsync).not.toHaveBeenCalled();
+    });
+
+    it("allows defining the device name for a new bond connection", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+
+      await user.click(screen.getByLabelText("Type"));
+      await user.click(screen.getByText("Bond"));
+      await waitFor(() => expect(screen.queryByLabelText("Bond mode")).toBeInTheDocument());
+
+      const ifaceField = screen.getByLabelText("Device name");
+      await user.clear(ifaceField);
+      await user.type(ifaceField, "bond0");
+
+      await user.type(screen.getByRole("textbox", { name: "Bond ports" }), "enp1s0{enter}");
+
+      await user.click(screen.getByRole("button", { name: "Accept" }));
+
+      await waitFor(() => {
+        expect(mockMutateAsync).toHaveBeenCalledWith(
+          expect.objectContaining({
+            iface: "bond0",
+          }),
+        );
+      });
+    });
+
+    it("resets the device name when switching from Bond back to Ethernet", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+
+      // Switch to Bond
+      await user.click(screen.getByLabelText("Type"));
+      await user.click(screen.getByText("Bond"));
+      await waitFor(() => expect(screen.getByLabelText("Device name")).toHaveValue("bond0"));
+
+      // Switch back to Ethernet
+      await user.click(screen.getByLabelText("Type"));
+      await user.click(screen.getByText("Ethernet"));
+
+      // It should not show the Bond's device name field anymore
+      expect(screen.queryByDisplayValue("bond0")).not.toBeInTheDocument();
+      // Binding mode should be back to "Any" (default)
+      expect(screen.getByLabelText("Device")).toHaveTextContent("Any");
+    });
+  });
+
   describe("Device binding", () => {
     it("does not show device or MAC fields when mode is Any", () => {
       installerRender(<ConnectionForm />);
@@ -317,6 +432,11 @@ describe("ConnectionForm", () => {
     it("does not show the name field since it cannot be changed", () => {
       installerRender(<ConnectionForm />);
       expect(screen.queryByLabelText("Name")).not.toBeInTheDocument();
+    });
+
+    it("disables the connection type selector", () => {
+      installerRender(<ConnectionForm />);
+      expect(screen.getByLabelText("Type")).toBeDisabled();
     });
 
     it("pre-selects Manual IPv4 when the connection uses manual IPv4 addressing", () => {

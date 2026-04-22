@@ -126,6 +126,23 @@ const NetworkDetails = ({ connection }: { connection: Connection }) => {
   );
 };
 
+const BondDetails = ({ connection }: { connection: Connection }) => {
+  return (
+    <Page.Section title={_("Bond")} pfCardProps={{ isPlain: false, isFullHeight: false }}>
+      <DescriptionList aria-label={_("Bond details")} isHorizontal>
+        <DescriptionListGroup>
+          <DescriptionListTerm>{_("Bond mode")}</DescriptionListTerm>
+          <DescriptionListDescription>{connection.bond?.mode}</DescriptionListDescription>
+        </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>{_("Bond options")}</DescriptionListTerm>
+          <DescriptionListDescription>{connection.bond?.options}</DescriptionListDescription>
+        </DescriptionListGroup>
+      </DescriptionList>
+    </Page.Section>
+  );
+};
+
 const DeviceDetails = ({ device }: { device: Device }) => {
   return (
     <DescriptionList
@@ -338,6 +355,8 @@ export default function WiredConnectionDetails({ connection }: { connection: Con
         <Stack hasGutter>
           {connection.wireless ? (
             <NetworkDetails connection={connection} />
+          ) : connection.bond ? (
+            <BondDetails connection={connection} />
           ) : (
             <BindingSettings connection={connection} />
           )}
