@@ -146,7 +146,7 @@ pub fn server_with_state(state: ServerState) -> Result<ApiRouter, ServiceError> 
                 .post_with(ask_question, ask_question_docs)
                 .patch_with(update_question, update_question_docs),
         )
-        .route("/licenses/{id}", get(get_license))
+        .api_route("/licenses/{id}", get_with(get_license, get_license_docs))
         .api_route(
             "/resolvables/{id}",
             put_with(set_resolvables, set_resolvables_docs),
@@ -419,7 +419,7 @@ fn update_question_docs(op: TransformOperation) -> TransformOperation {
         })
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, JsonSchema)]
 struct LicenseQuery {
     lang: Option<String>,
 }
