@@ -29,6 +29,7 @@ use serde_with::skip_serializing_none;
 #[serde(rename_all = "camelCase")]
 #[merge(strategy = merge::option::recurse)]
 #[schema(as = s390::Config)]
+#[schemars(rename = "s390::Config")]
 /// s390 configuration.
 pub struct Config {
     /// Configuration of the DASD devices.

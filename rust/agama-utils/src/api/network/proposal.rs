@@ -29,6 +29,7 @@ use std::default::Default;
 #[derive(Clone, Debug, Default, Serialize, Deserialize, utoipa::ToSchema, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 #[schema(as = network::Proposal)]
+#[schemars(rename = "network.Proposal")]
 pub struct Proposal {
     /// Connections to use in the installation
     pub connections: NetworkConnectionsCollection,

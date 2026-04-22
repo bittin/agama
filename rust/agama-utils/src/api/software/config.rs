@@ -34,6 +34,7 @@ use url::Url;
     Clone, Debug, Default, Serialize, Deserialize, PartialEq, Merge, utoipa::ToSchema, JsonSchema,
 )]
 #[schema(as = software::UserConfig)]
+#[schemars(rename = "software.UserConfig")]
 #[serde(rename_all = "camelCase")]
 #[merge(strategy = merge::option::recurse)]
 pub struct Config {

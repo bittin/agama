@@ -28,6 +28,7 @@ use serde::{Deserialize, Serialize};
 )]
 #[serde(rename_all = "camelCase")]
 #[schema(as = l10n::Config)]
+#[schemars(rename = "l10n.Config")]
 pub struct Config {
     /// Locale (e.g., "en_US.UTF-8").
     #[serde(skip_serializing_if = "Option::is_none")]

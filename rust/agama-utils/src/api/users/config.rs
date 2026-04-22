@@ -30,6 +30,7 @@ use serde::{Deserialize, Serialize};
 )]
 #[serde(rename_all = "camelCase")]
 #[schema(as = users::Config)]
+#[schemars(rename = "users.Config")]
 pub struct Config {
     #[merge(strategy = merge::option::overwrite_none)]
     #[serde(rename = "user")]
@@ -137,6 +138,7 @@ fn overwrite_if_not_empty(old: &mut String, new: String) {
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, utoipa::ToSchema, JsonSchema)]
 #[schema(as = StringOrList)]
+#[schemars(rename = "StringOrList")]
 #[serde(untagged)]
 pub enum StringOrList {
     Single(String),

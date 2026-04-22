@@ -25,6 +25,7 @@ use serde::Serialize;
 /// Global information of the system where the installer is running.
 #[derive(Clone, Debug, Default, Serialize, utoipa::ToSchema, JsonSchema)]
 #[schema(as = manager::SystemInfo)]
+#[schemars(rename = "manager.SystemInfo")]
 pub struct SystemInfo {
     /// List of known products.
     pub products: Vec<Product>,

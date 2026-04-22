@@ -51,6 +51,7 @@ pub struct SoftwareProposal {
 #[derive(Clone, Default, Debug, Deserialize, Serialize, utoipa::ToSchema, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 #[schema(as = software::Proposal)]
+#[schemars(rename = "software.Proposal")]
 pub struct Proposal {
     /// Software specific proposal
     #[serde(flatten, skip_serializing_if = "Option::is_none")]

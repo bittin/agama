@@ -28,6 +28,7 @@ use serde_json::Value;
 )]
 #[serde(transparent)]
 #[schema(as = iscsi::Config)]
+#[schemars(rename = "iscsi.Config")]
 pub struct Config(pub Value);
 
 impl Merge for Config {

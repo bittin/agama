@@ -36,6 +36,7 @@ pub enum Error {
 #[derive(Clone, Debug, Default, Serialize, Deserialize, Merge, utoipa::ToSchema, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 #[schema(as = questions::Config)]
+#[schemars(rename = "questions.Config")]
 pub struct Config {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[merge(strategy = merge::option::overwrite_none)]

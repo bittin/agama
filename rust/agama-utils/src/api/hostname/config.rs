@@ -28,6 +28,7 @@ use serde::{Deserialize, Serialize};
 )]
 #[serde(rename_all = "camelCase")]
 #[schema(as = hostname::Config)]
+#[schemars(rename = "hostname.Config")]
 pub struct Config {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[merge(strategy = merge::option::overwrite_none)]

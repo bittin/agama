@@ -30,6 +30,7 @@ use std::default::Default;
 #[derive(Clone, Debug, Default, Serialize, Deserialize, Merge, utoipa::ToSchema, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 #[schema(as = network::Config)]
+#[schemars(rename = "network.Config")]
 pub struct Config {
     /// Connections to use in the installation
     #[serde(skip_serializing_if = "Option::is_none")]

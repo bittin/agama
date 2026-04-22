@@ -23,6 +23,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize, utoipa::ToSchema, JsonSchema)]
 #[schema(as = l10n::SystemConfig)]
+#[schemars(rename = "l10n::SystemConfig")]
 pub struct SystemConfig {
     pub locale: Option<String>,
     pub keymap: Option<String>,

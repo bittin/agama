@@ -27,6 +27,7 @@ use serde_with::{serde_as, DisplayFromStr};
 #[serde_as]
 #[derive(Clone, Debug, Deserialize, Serialize, utoipa::ToSchema, JsonSchema)]
 #[schema(as = l10n::Proposal)]
+#[schemars(rename = "l10n::Proposal")]
 pub struct Proposal {
     /// Keymap (e.g., "us", "cz(qwerty)", etc.).
     #[serde_as(as = "DisplayFromStr")]
