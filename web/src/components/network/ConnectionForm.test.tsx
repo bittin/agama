@@ -162,6 +162,54 @@ describe("ConnectionForm", () => {
       expect(mockMutateAsync).not.toHaveBeenCalled();
     });
 
+    it("shows an error when 'primary' option is used with an invalid bond mode", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+
+      await user.click(screen.getByLabelText("Type"));
+      await user.click(screen.getByText("Bond"));
+      await waitFor(() => expect(screen.queryByLabelText("Bond mode")).toBeInTheDocument());
+
+      await user.click(screen.getByLabelText("Bond mode"));
+      await user.click(screen.getByRole("option", { name: "balance-rr" }));
+      await user.type(screen.getByLabelText("Bond options"), "primary=enp1s0{enter}");
+
+      await user.type(screen.getByRole("textbox", { name: "Bond ports" }), "enp1s0{enter}");
+
+      await user.click(screen.getByRole("button", { name: "Accept" }));
+
+      await screen.findByText(
+        "The 'primary' option is only valid for 'active-backup', 'balance-tlb', and 'balance-alb' modes",
+      );
+      expect(mockMutateAsync).not.toHaveBeenCalled();
+    });
+
+    it("allows the 'primary' option for 'active-backup' mode", async () => {
+      const { user } = installerRender(<ConnectionForm />);
+
+      await user.click(screen.getByLabelText("Type"));
+      await user.click(screen.getByText("Bond"));
+      await waitFor(() => expect(screen.queryByLabelText("Bond mode")).toBeInTheDocument());
+
+      await user.click(screen.getByLabelText("Bond mode"));
+      await user.click(screen.getByRole("option", { name: "active-backup" }));
+      await user.type(screen.getByLabelText("Bond options"), "primary=enp1s0{enter}");
+
+      await user.type(screen.getByRole("textbox", { name: "Bond ports" }), "enp1s0{enter}");
+
+      await user.click(screen.getByRole("button", { name: "Accept" }));
+
+      await waitFor(() => {
+        expect(mockMutateAsync).toHaveBeenCalledWith(
+          expect.objectContaining({
+            bond: expect.objectContaining({
+              mode: "active-backup",
+              options: "primary=enp1s0",
+            }),
+          }),
+        );
+      });
+    });
+
     it("allows defining the device name for a new bond connection", async () => {
       const { user } = installerRender(<ConnectionForm />);
 

@@ -335,6 +335,17 @@ function validateConnectionForm(formValues: FormValues): FormFieldErrors | undef
         ? // TRANSLATORS: validation error for the bond ports field.
           _("At least one bond port is required")
         : undefined,
+    bondOptions:
+      formValues.type === ConnectionType.BOND &&
+      ![BondMode.ACTIVE_BACKUP, BondMode.BALANCE_TLB, BondMode.BALANCE_ALB].includes(
+        formValues.bondMode,
+      ) &&
+      formValues.bondOptions.some((o) => o.startsWith("primary="))
+        ? // TRANSLATORS: validation error for the bond options field when the 'primary' option is used in an invalid mode.
+          _(
+            "The 'primary' option is only valid for 'active-backup', 'balance-tlb', and 'balance-alb' modes",
+          )
+        : undefined,
     iface:
       formValues.type === ConnectionType.BOND && !formValues.iface.trim()
         ? // TRANSLATORS: validation error for the bond device name field.
