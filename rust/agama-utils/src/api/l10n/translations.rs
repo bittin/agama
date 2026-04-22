@@ -23,7 +23,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Represents a set of translations for a given entry.
-#[derive(Clone, Default, Debug, Deserialize, Serialize, utoipa::ToSchema, JsonSchema)]
+#[derive(Clone, Default, Debug, Deserialize, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct Translations {
     /// Translated descriptions, by locale.

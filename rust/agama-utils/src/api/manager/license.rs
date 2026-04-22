@@ -32,7 +32,7 @@ use thiserror::Error;
 ///
 /// It contains the license ID and the list of languages that with a translation.
 #[serde_as]
-#[derive(Clone, Debug, Serialize, utoipa::ToSchema, JsonSchema)]
+#[derive(Clone, Debug, Serialize, JsonSchema)]
 pub struct License {
     /// License ID.
     pub id: String,
@@ -48,7 +48,7 @@ pub struct License {
 ///
 /// TODO: in the future it might contain a title, extracted from the text.
 #[serde_as]
-#[derive(Clone, Debug, Serialize, utoipa::ToSchema, JsonSchema)]
+#[derive(Clone, Debug, Serialize, JsonSchema)]
 pub struct LicenseContent {
     /// License ID.
     pub id: String,
@@ -63,7 +63,7 @@ pub struct LicenseContent {
 /// Simplified representation of the RFC 5646 language code.
 ///
 /// It only considers xx and xx-XX formats.
-#[derive(Clone, Debug, Serialize, PartialEq, utoipa::ToSchema, JsonSchema)]
+#[derive(Clone, Debug, Serialize, PartialEq, JsonSchema)]
 pub struct LanguageTag {
     // ISO-639
     pub language: String,

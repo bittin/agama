@@ -23,11 +23,11 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Deserialize, Serialize, utoipa::ToSchema, JsonSchema)]
+#[derive(Clone, Debug, Deserialize, Serialize, JsonSchema)]
 #[serde(transparent)]
 pub struct FormatSummary(Vec<FormatInfo>);
 
-#[derive(Clone, Debug, Deserialize, Serialize, utoipa::ToSchema, JsonSchema)]
+#[derive(Clone, Debug, Deserialize, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 struct FormatInfo {
     /// DASD channel.

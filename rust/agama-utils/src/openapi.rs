@@ -26,63 +26,6 @@ pub mod schemas {
     use cidr::IpInet;
     use schemars::{JsonSchema, Schema, SchemaGenerator};
     use serde::{Deserialize, Serialize};
-    use serde_json::json;
-    use utoipa::openapi::{
-        schema::{self, SchemaType},
-        Object, ObjectBuilder, Type,
-    };
-
-    /// Returns the IPAddr schema.
-    pub fn ip_addr() -> Object {
-        ObjectBuilder::new()
-            .schema_type(SchemaType::new(Type::String))
-            .description(Some("An IP address (IPv4 or IPv6)".to_string()))
-            .examples(vec![json!("192.168.1.100")])
-            .build()
-    }
-
-    /// Reference to IPAddr schema reference.
-    pub fn ip_addr_ref() -> schema::Ref {
-        schema::Ref::from_schema_name("IpAddr")
-    }
-
-    /// Array of IPAddr schema references.
-    pub fn ip_addr_array() -> schema::Array {
-        schema::Array::new(ip_addr_ref())
-    }
-
-    /// Returns the IpInet schema.
-    pub fn ip_inet() -> Object {
-        ObjectBuilder::new()
-            .schema_type(SchemaType::new(Type::String))
-            .description(Some(
-                "An IP address (IPv4 or IPv6) including the prefix".to_string(),
-            ))
-            .examples(vec![json!("192.168.1.254/24")])
-            .build()
-    }
-
-    /// Reference to IpInet schema reference.
-    pub fn ip_inet_ref() -> schema::Ref {
-        schema::Ref::from_schema_name("IpInet")
-    }
-
-    /// Array of IpInet schema references.
-    pub fn ip_inet_array() -> schema::Array {
-        schema::Array::new(ip_inet_ref())
-    }
-
-    /// MAC address 6 schema.
-    pub fn mac_addr6() -> Object {
-        ObjectBuilder::new()
-            .description(Some("MAC address in EUI-48 format"))
-            .build()
-    }
-
-    /// MAC address 6 schema reference.
-    pub fn mac_addr6_ref() -> schema::Ref {
-        schema::Ref::from_schema_name("macaddr.MacAddr6")
-    }
 
     /// Newtype wrapper for IpInet with JsonSchema implementation
     ///

@@ -26,9 +26,8 @@ use serde::{Deserialize, Serialize};
 use std::default::Default;
 
 /// Network settings for installation
-#[derive(Clone, Debug, Default, Serialize, Deserialize, utoipa::ToSchema, JsonSchema)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-#[schema(as = network::SystemInfo)]
 #[schemars(rename = "network.SystemInfo")]
 pub struct SystemInfo {
     pub access_points: Vec<AccessPoint>, // networks or access_points shold be returned

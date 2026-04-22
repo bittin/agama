@@ -40,7 +40,7 @@ pub enum Error {
 }
 
 #[skip_serializing_none]
-#[derive(Clone, Debug, Default, Deserialize, Serialize, Merge, utoipa::ToSchema, JsonSchema)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, Merge, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 #[merge(strategy = merge::option::recurse)]
 pub struct Config {

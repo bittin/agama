@@ -22,8 +22,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 /// Describes the current system hostname information
-#[derive(Clone, Debug, PartialEq, Deserialize, Serialize, utoipa::ToSchema, JsonSchema)]
-#[schema(as = hostname::SystemInfo)]
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize, JsonSchema)]
 #[schemars(rename = "hostname.SystemInfo")]
 pub struct SystemInfo {
     #[serde(skip_serializing_if = "Option::is_none")]

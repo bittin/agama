@@ -23,8 +23,7 @@ use schemars::JsonSchema;
 use serde::Serialize;
 
 /// Global information of the system where the installer is running.
-#[derive(Clone, Debug, Default, Serialize, utoipa::ToSchema, JsonSchema)]
-#[schema(as = manager::SystemInfo)]
+#[derive(Clone, Debug, Default, Serialize, JsonSchema)]
 #[schemars(rename = "manager.SystemInfo")]
 pub struct SystemInfo {
     /// List of known products.
@@ -36,7 +35,7 @@ pub struct SystemInfo {
 }
 
 /// Represents a software product
-#[derive(Clone, Default, Debug, Serialize, utoipa::ToSchema, JsonSchema)]
+#[derive(Clone, Default, Debug, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct Product {
     /// Product ID (eg., "ALP", "Tumbleweed", etc.)
@@ -59,7 +58,7 @@ pub struct Product {
     pub modes: Vec<ProductMode>,
 }
 
-#[derive(Clone, Default, Debug, Serialize, utoipa::ToSchema, JsonSchema)]
+#[derive(Clone, Default, Debug, Serialize, JsonSchema)]
 pub struct ProductMode {
     pub id: String,
     pub name: String,
@@ -67,7 +66,7 @@ pub struct ProductMode {
 }
 
 /// Represents the hardware information of the underlying system.
-#[derive(Clone, Default, Debug, Serialize, utoipa::ToSchema, JsonSchema)]
+#[derive(Clone, Default, Debug, Serialize, JsonSchema)]
 pub struct HardwareInfo {
     /// CPU description.
     pub cpu: Option<String>,

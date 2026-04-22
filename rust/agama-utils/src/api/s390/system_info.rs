@@ -24,9 +24,8 @@ use serde_json::Value;
 use serde_with::skip_serializing_none;
 
 #[skip_serializing_none]
-#[derive(Clone, Debug, Serialize, utoipa::ToSchema, JsonSchema)]
+#[derive(Clone, Debug, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-#[schema(as = s390::SystemInfo)]
 #[schemars(rename = "s390::SystemInfo")]
 pub struct SystemInfo {
     pub dasd: Option<Value>,

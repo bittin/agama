@@ -22,8 +22,6 @@ tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread"] }
 tokio-stream = "0.1.16"
 tracing = "0.1.44"
 url = { version = "2.5.2", features = ["serde"] }
-utoipa = { version = "5.2.0", features = ["url"] }
-# aide dependencies for migration (will replace utoipa)
 schemars = { version = "1.2.1", features = ["url2"] }
 zbus = { version = "5", default-features = false, features = ["tokio"] }
 jsonwebtoken = "9.3.0"

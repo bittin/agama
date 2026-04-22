@@ -23,9 +23,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 // Information about the status of the installation.
-#[derive(
-    Clone, Debug, Default, Deserialize, Serialize, utoipa::ToSchema, PartialEq, JsonSchema,
-)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct Status {
     /// Stage of the installation
@@ -36,16 +34,7 @@ pub struct Status {
 
 /// Represents the current state of the installation process.
 #[derive(
-    Clone,
-    Copy,
-    Debug,
-    Default,
-    Deserialize,
-    Serialize,
-    PartialEq,
-    strum::Display,
-    utoipa::ToSchema,
-    JsonSchema,
+    Clone, Copy, Debug, Default, Deserialize, Serialize, PartialEq, strum::Display, JsonSchema,
 )]
 #[serde(rename_all = "camelCase")]
 pub enum Stage {

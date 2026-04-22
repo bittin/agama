@@ -22,8 +22,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 /// Describes what Agama proposes for the target system.
-#[derive(Clone, Debug, Deserialize, Serialize, utoipa::ToSchema, JsonSchema)]
-#[schema(as = hostname::Proposal)]
+#[derive(Clone, Debug, Deserialize, Serialize, JsonSchema)]
 #[schemars(rename = "hostname.Proposal")]
 pub struct Proposal {
     #[serde(skip_serializing_if = "Option::is_none")]

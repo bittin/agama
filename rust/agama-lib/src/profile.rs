@@ -87,7 +87,7 @@ impl AutoyastProfileImporter {
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, utoipa::ToSchema, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
 pub enum ValidationOutcome {
     Valid,
     NotValid(Vec<String>),

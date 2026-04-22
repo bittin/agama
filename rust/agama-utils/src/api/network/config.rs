@@ -27,9 +27,8 @@ use serde::{Deserialize, Serialize};
 use std::default::Default;
 
 /// Network config settings for installation
-#[derive(Clone, Debug, Default, Serialize, Deserialize, Merge, utoipa::ToSchema, JsonSchema)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, Merge, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-#[schema(as = network::Config)]
 #[schemars(rename = "network.Config")]
 pub struct Config {
     /// Connections to use in the installation

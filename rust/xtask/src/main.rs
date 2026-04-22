@@ -4,7 +4,6 @@ mod tasks {
     use std::{fs::File, io::Write};
 
     use agama_cli::Cli;
-    use agama_server::web::docs;
     use clap::CommandFactory;
     use clap_complete::aot;
     use clap_markdown::MarkdownOptions;
@@ -57,29 +56,15 @@ mod tasks {
     }
 
     /// Generate Agama's OpenAPI specification.
-    pub fn generate_openapi() -> std::io::Result<()> {
-        let openapi = docs::build();
-        let json = openapi.to_pretty_json()?;
-        let path = output_dir()?.join("openapi.json");
-        let mut file = File::create(&path)?;
-        file.write_all(json.as_bytes())?;
-        println!("Generate the OpenAPI specification at {}.", path.display());
-        Ok(())
-    }
-
-    /// Generate Agama's OpenAPI specification using aide (migration).
-    pub async fn generate_openapi_aide() -> std::io::Result<()> {
+    pub async fn generate_openapi() -> std::io::Result<()> {
         use agama_server::web::docs_aide;
 
         let openapi = docs_aide::build().await;
         let json = serde_json::to_string_pretty(&openapi)?;
-        let path = output_dir()?.join("openapi-aide.json");
+        let path = output_dir()?.join("openapi.json");
         let mut file = File::create(&path)?;
         file.write_all(json.as_bytes())?;
-        println!(
-            "Generate the OpenAPI specification (aide) at {}.",
-            path.display()
-        );
+        println!("Generate the OpenAPI specification at {}.", path.display());
         Ok(())
     }
 }
@@ -103,8 +88,7 @@ async fn main() -> std::io::Result<()> {
         "completions" => tasks::generate_completions(),
         "markdown" => tasks::generate_markdown(),
         "manpages" => tasks::generate_manpages(),
-        "openapi" => tasks::generate_openapi(),
-        "openapi-aide" => tasks::generate_openapi_aide().await,
+        "openapi" => tasks::generate_openapi().await,
         other => {
             eprintln!("Unknown task '{}'", other);
             std::process::exit(1);

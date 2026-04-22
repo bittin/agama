@@ -26,9 +26,8 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Deserializer, Serialize};
 
 /// Security settings for installation
-#[derive(Clone, Debug, Default, Serialize, Deserialize, Merge, utoipa::ToSchema, JsonSchema)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, Merge, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-#[schema(as = security::Config)]
 #[schemars(rename = "security.Config")]
 pub struct Config {
     /// List of user selected patterns to install.
@@ -39,9 +38,7 @@ pub struct Config {
     pub ssl_certificates: Option<Vec<SSLFingerprint>>,
 }
 
-#[derive(
-    Default, Clone, Copy, Debug, Serialize, Deserialize, PartialEq, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Default, Clone, Copy, Debug, Serialize, Deserialize, PartialEq, JsonSchema)]
 pub enum SSLFingerprintAlgorithm {
     #[serde(alias = "sha1", alias = "SHA1")]
     SHA1,
@@ -50,7 +47,7 @@ pub enum SSLFingerprintAlgorithm {
     SHA256,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, utoipa::ToSchema, JsonSchema)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, JsonSchema)]
 pub struct SSLFingerprint {
     /// The string value for SSL certificate fingerprint.
     /// Example value is "F6:7A:ED:BB:BC:94:CF:55:9D:B3:BA:74:7A:87:05:EF:67:4E:C2:DB"

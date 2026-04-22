@@ -23,9 +23,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-#[derive(
-    Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
 #[serde(transparent)]
 pub struct RawConfig(pub Value);
 

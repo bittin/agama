@@ -12,8 +12,6 @@ gettext-rs = { version = "0.7.2", features = ["gettext-system"] }
 tokio = { version = "1.47.1", features = ["macros", "rt-multi-thread", "sync"] }
 async-trait = "0.1.89"
 serde = { version = "1.0.228", features = ["derive"] }
-utoipa = "5.4.0"
-# aide dependencies for migration (will replace utoipa)
 schemars = "1.2.1"
 
 [dev-dependencies]

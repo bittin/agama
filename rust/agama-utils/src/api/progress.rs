@@ -30,7 +30,7 @@ pub enum Error {
     MissingStep(Scope),
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize, utoipa::ToSchema, PartialEq, JsonSchema)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct Progress {
     /// Scope of the progress

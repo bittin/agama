@@ -161,15 +161,6 @@ pub fn server_with_state(state: ServerState) -> Result<ApiRouter, ServiceError> 
         .with_state(state))
 }
 
-#[utoipa::path(
-    get,
-    path = "/status",
-    context_path = "/api/v2",
-    responses(
-        (status = 200, description = "Status of the installation.", body = Status),
-        (status = 500, description = "Internal server error.", body = ErrorResponse)
-    )
-)]
 async fn get_status(State(state): State<ServerState>) -> Result<Json<Status>, Response> {
     let status = state
         .manager
@@ -188,15 +179,6 @@ fn get_status_docs(op: TransformOperation) -> TransformOperation {
 }
 
 /// Returns the information about the system.
-#[utoipa::path(
-    get,
-    path = "/system",
-    context_path = "/api/v2",
-    responses(
-        (status = 200, description = "System information.", body = SystemInfo),
-        (status = 500, description = "Internal server error.", body = ErrorResponse)
-    )
-)]
 async fn get_system(State(state): State<ServerState>) -> Result<Json<SystemInfo>, Response> {
     let system = state
         .manager
@@ -215,15 +197,6 @@ fn get_system_docs(op: TransformOperation) -> TransformOperation {
 }
 
 /// Returns the extended configuration.
-#[utoipa::path(
-    get,
-    path = "/extended_config",
-    context_path = "/api/v2",
-    responses(
-        (status = 200, description = "Extended configuration", body = Config),
-        (status = 500, description = "Internal server error.", body = ErrorResponse)
-    )
-)]
 async fn get_extended_config(State(state): State<ServerState>) -> Result<Json<Config>, Response> {
     let config = state
         .manager
@@ -242,15 +215,6 @@ fn get_extended_config_docs(op: TransformOperation) -> TransformOperation {
 }
 
 /// Returns the configuration.
-#[utoipa::path(
-    get,
-    path = "/config",
-    context_path = "/api/v2",
-    responses(
-        (status = 200, description = "Configuration.", body = Config),
-        (status = 500, description = "Internal server error.", body = ErrorResponse)
-    )
-)]
 async fn get_config(State(state): State<ServerState>) -> Result<Json<Config>, Response> {
     let config = state
         .manager
@@ -271,17 +235,6 @@ fn get_config_docs(op: TransformOperation) -> TransformOperation {
 /// Updates the configuration.
 ///
 /// Replaces the whole configuration. If some value is missing, it will be removed.
-#[utoipa::path(
-    put,
-    path = "/config",
-    context_path = "/api/v2",
-    request_body(content = Value, description = "Configuration to apply."),
-    responses(
-        (status = 200, description = "The configuration was replaced. Other operations can be running in background."),
-        (status = 400, description = "Invalid configuration schema or malformed JSON.", body = ErrorResponse),
-        (status = 500, description = "Internal server error.", body = ErrorResponse)
-    )
-)]
 async fn put_config(
     State(state): State<ServerState>,
     Json(json): Json<Value>,
@@ -312,17 +265,6 @@ fn put_config_docs(op: TransformOperation) -> TransformOperation {
 /// Patches the configuration.
 ///
 /// It only changes the specified values, keeping the rest as they are.
-#[utoipa::path(
-    patch,
-    path = "/config",
-    context_path = "/api/v2",
-    request_body(content = Patch, description = "Changes in the configuration."),
-    responses(
-        (status = 200, description = "The configuration was patched. Other operations can be running in background."),
-        (status = 400, description = "Invalid configuration schema or malformed JSON.", body = ErrorResponse),
-        (status = 500, description = "Internal server error.", body = ErrorResponse)
-    )
-)]
 async fn patch_config(
     State(state): State<ServerState>,
     Json(patch): Json<Patch>,
@@ -353,16 +295,6 @@ fn patch_config_docs(op: TransformOperation) -> TransformOperation {
 }
 
 /// Returns how the target system is configured (proposal).
-#[utoipa::path(
-    get,
-    path = "/proposal",
-    context_path = "/api/v2",
-    responses(
-        (status = 200, description = "Proposal successfully retrieved.", body = Proposal),
-        (status = 404, description = "Proposal not available yet."),
-        (status = 500, description = "Internal server error.", body = ErrorResponse)
-    )
-)]
 async fn get_proposal(State(state): State<ServerState>) -> Result<Response, Response> {
     let proposal = state
         .manager
@@ -384,15 +316,6 @@ fn get_proposal_docs(op: TransformOperation) -> TransformOperation {
 }
 
 /// Returns the list of issues.
-#[utoipa::path(
-    get,
-    path = "/issues",
-    context_path = "/api/v2",
-    responses(
-        (status = 200, description = "Agama issues", body = Vec<IssueWithScope>),
-        (status = 500, description = "Internal server error.", body = ErrorResponse)
-    )
-)]
 async fn get_issues(
     State(state): State<ServerState>,
 ) -> Result<Json<Vec<IssueWithScope>>, Response> {
@@ -424,15 +347,6 @@ fn get_issues_docs(op: TransformOperation) -> TransformOperation {
 }
 
 /// Returns the issues for each scope.
-#[utoipa::path(
-    get,
-    path = "/questions",
-    context_path = "/api/v2",
-    responses(
-        (status = 200, description = "Agama questions", body = HashMap<u32, QuestionSpec>),
-        (status = 500, description = "Internal server error.", body = ErrorResponse)
-    )
-)]
 async fn get_questions(State(state): State<ServerState>) -> Result<Json<Vec<Question>>, Response> {
     let questions = state
         .questions
@@ -451,16 +365,6 @@ fn get_questions_docs(op: TransformOperation) -> TransformOperation {
 }
 
 /// Registers a new question.
-#[utoipa::path(
-    post,
-    path = "/questions",
-    context_path = "/api/v2",
-    responses(
-        (status = 200, description = "New question's ID", body = u32),
-        (status = 400, description = "Malformed JSON.", body = ErrorResponse),
-        (status = 500, description = "Internal server error.", body = ErrorResponse)
-    )
-)]
 async fn ask_question(
     State(state): State<ServerState>,
     Json(question): Json<QuestionSpec>,
@@ -483,17 +387,6 @@ fn ask_question_docs(op: TransformOperation) -> TransformOperation {
 }
 
 /// Updates the question collection by answering or removing a question.
-#[utoipa::path(
-    patch,
-    path = "/questions",
-    context_path = "/api/v2",
-    request_body = UpdateQuestion,
-    responses(
-        (status = 200, description = "The question was answered or deleted"),
-        (status = 400, description = "Malformed JSON.", body = ErrorResponse),
-        (status = 500, description = "Internal server error.", body = ErrorResponse)
-    )
-)]
 async fn update_question(
     State(state): State<ServerState>,
     Json(operation): Json<UpdateQuestion>,
@@ -526,7 +419,7 @@ fn update_question_docs(op: TransformOperation) -> TransformOperation {
         })
 }
 
-#[derive(Deserialize, utoipa::IntoParams)]
+#[derive(Deserialize)]
 struct LicenseQuery {
     lang: Option<String>,
 }
@@ -535,18 +428,6 @@ struct LicenseQuery {
 ///
 /// Optionally it can receive a language tag (RFC 5646). Otherwise, it returns
 /// the license in English.
-#[utoipa::path(
-    get,
-    path = "/licenses/{id}",
-    context_path = "/api/software",
-    params(LicenseQuery),
-    responses(
-        (status = 200, description = "License with the given ID", body = LicenseContent),
-        (status = 400, description = "The specified language tag is not valid", body = ErrorResponse),
-        (status = 404, description = "There is not license with the given ID"),
-        (status = 500, description = "Internal server error.", body = ErrorResponse)
-    )
-)]
 async fn get_license(
     State(state): State<ServerState>,
     Path(id): Path<String>,
@@ -585,17 +466,6 @@ fn get_license_docs(op: TransformOperation) -> TransformOperation {
         })
 }
 
-#[utoipa::path(
-    post,
-    path = "/action",
-    context_path = "/api/v2",
-    request_body(content = Action, description = "Description of the action to run."),
-    responses(
-        (status = 200, description = "Action successfully ran."),
-        (status = 422, description = "Action blocked by backend state", body = ErrorResponse),
-        (status = 500, description = "Internal server error.", body = ErrorResponse)
-    )
-)]
 async fn run_action(
     State(state): State<ServerState>,
     Json(action): Json<Action>,
@@ -626,15 +496,6 @@ fn run_action_docs(op: TransformOperation) -> TransformOperation {
 }
 
 /// Returns how the target system is configured (proposal).
-#[utoipa::path(
-    get,
-    path = "/private/storage_model",
-    context_path = "/api/v2",
-    responses(
-        (status = 200, description = "Storage model was successfully retrieved."),
-        (status = 500, description = "Internal server error.", body = ErrorResponse)
-    )
-)]
 async fn get_storage_model(
     State(state): State<ServerState>,
 ) -> Result<Json<Option<Value>>, Response> {
@@ -646,17 +507,6 @@ async fn get_storage_model(
     Ok(Json(model))
 }
 
-#[utoipa::path(
-    put,
-    request_body = String,
-    path = "/private/storage_model",
-    context_path = "/api/v2",
-    responses(
-        (status = 200, description = "Set the storage model"),
-        (status = 400, description = "Malformed JSON.", body = ErrorResponse),
-        (status = 500, description = "Internal server error.", body = ErrorResponse)
-    )
-)]
 async fn set_storage_model(
     State(state): State<ServerState>,
     Json(model): Json<Value>,
@@ -670,16 +520,6 @@ async fn set_storage_model(
 }
 
 /// Solves a storage config model.
-#[utoipa::path(
-    get,
-    path = "/private/solve_storage_model",
-    context_path = "/api/v2",
-    params(query::SolveStorageModel),
-    responses(
-        (status = 200, description = "Solve the storage model", body = String),
-        (status = 500, description = "Internal server error.", body = ErrorResponse)
-    )
-)]
 async fn solve_storage_model(
     State(state): State<ServerState>,
     Query(params): Query<query::SolveStorageModel>,
@@ -692,14 +532,6 @@ async fn solve_storage_model(
     Ok(Json(solved_model))
 }
 
-#[utoipa::path(
-    put,
-    path = "/resolvables/{id}",
-    context_path = "/api/v2",
-    responses(
-        (status = 200, description = "The resolvables list was updated.")
-    )
-)]
 async fn set_resolvables(
     State(state): State<ServerState>,
     Path(id): Path<String>,
@@ -728,17 +560,6 @@ fn to_option_response<T: Serialize>(value: Option<T>) -> Response {
 }
 
 /// Solves a storage config model.
-#[utoipa::path(
-    get,
-    path = "/private/download_logs",
-    context_path = "/api/v2",
-    params(query::SolveStorageModel),
-    responses(
-        (status = 200, description = "Compressed Agama logs", content_type="application/octet-stream", body = String),
-        (status = 500, description = "Cannot collect the logs"),
-        (status = 507, description = "Server is probably out of space"),
-    )
-)]
 async fn download_logs() -> impl IntoResponse {
     let mut headers = HeaderMap::new();
     let err_response = (headers.clone(), Body::empty());
@@ -780,22 +601,11 @@ async fn download_logs() -> impl IntoResponse {
     }
 }
 
-#[derive(Deserialize, utoipa::ToSchema, JsonSchema)]
+#[derive(Deserialize, JsonSchema)]
 pub struct PasswordParams {
     password: String,
 }
 
-#[utoipa::path(
-    post,
-    path = "/private/password_check",
-    context_path = "/api/v2",
-    description = "Performs a quality check on a given password",
-    responses(
-        (status = 200, description = "The password was checked", body = String),
-        (status = 400, description = "Malformed JSON.", body = ErrorResponse),
-        (status = 500, description = "Internal server error.", body = ErrorResponse)
-    )
-)]
 async fn check_password(
     State(state): State<ServerState>,
     Json(password): Json<PasswordParams>,

@@ -29,8 +29,7 @@ use crate::api::files::{
     FileSourceError, WithFileSource,
 };
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize, Merge, utoipa::ToSchema, JsonSchema)]
-#[schema(as = files::Config)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, Merge, JsonSchema)]
 #[schemars(rename = "files.Config")]
 pub struct Config {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -53,9 +52,7 @@ impl Config {
     }
 }
 
-#[derive(
-    Clone, Debug, Default, Serialize, Deserialize, Merge, utoipa::ToSchema, JsonSchema, PartialEq,
-)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, Merge, JsonSchema, PartialEq)]
 #[serde(rename_all = "camelCase")]
 #[merge(strategy = merge::option::overwrite_none)]
 pub struct ScriptsConfig {

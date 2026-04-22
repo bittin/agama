@@ -23,11 +23,8 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 /// Proxy config.
-#[derive(
-    Clone, Debug, Default, Merge, Serialize, Deserialize, PartialEq, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Clone, Debug, Default, Merge, Serialize, Deserialize, PartialEq, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-#[schema(as = proxy::Config)]
 #[schemars(rename = "proxy.Config")]
 pub struct Config {
     #[serde(skip_serializing_if = "Option::is_none")]

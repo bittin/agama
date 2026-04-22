@@ -34,7 +34,7 @@ pub enum FileSourceError {
     IO(#[from] std::io::Error),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, utoipa::ToSchema, PartialEq, JsonSchema)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, JsonSchema)]
 #[serde(untagged)]
 /// Text or URL Reference of a config file or a script
 pub enum FileSource {
@@ -42,8 +42,7 @@ pub enum FileSource {
     Text { content: String },
     /// URI or relative reference to get the script from.
     Remote {
-        #[schema(value_type = String, examples("http://example.com/script.sh", "/file.txt"))]
-        #[schemars(with = "String", example = &"http://example.com/script.sh", example = &"/file.txt")]
+        #[schemars(with = "String")]
         url: UriRef<String>,
     },
 }

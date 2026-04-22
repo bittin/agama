@@ -36,7 +36,6 @@ use serde::{Deserialize, Serialize};
     strum::Display,
     Deserialize,
     Serialize,
-    utoipa::ToSchema,
     JsonSchema,
     PartialEq,
 )]

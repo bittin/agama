@@ -25,10 +25,9 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 #[skip_serializing_none]
-#[derive(Clone, Debug, Default, Deserialize, Serialize, Merge, utoipa::ToSchema, JsonSchema)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, Merge, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 #[merge(strategy = merge::option::recurse)]
-#[schema(as = s390::Config)]
 #[schemars(rename = "s390::Config")]
 /// s390 configuration.
 pub struct Config {

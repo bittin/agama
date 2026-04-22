@@ -34,9 +34,7 @@ use zbus::zvariant::Value;
 
 /// Access Point
 #[serde_as]
-#[derive(
-    Default, Debug, Clone, PartialEq, Deserialize, Serialize, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct AccessPoint {
     pub device: String,
@@ -53,9 +51,7 @@ pub struct AccessPoint {
 /// Network device
 #[serde_as]
 #[skip_serializing_none]
-#[derive(
-    Default, Debug, Clone, PartialEq, Deserialize, Serialize, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct Device {
     pub name: String,
@@ -70,10 +66,9 @@ pub struct Device {
     pub state: DeviceState,
 }
 
-#[derive(Debug, Default, Clone, PartialEq, Serialize, utoipa::ToSchema, JsonSchema)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, JsonSchema)]
 pub enum MacAddress {
-    #[schema(value_type = String, format = "MAC address in EUI-48 format")]
-    #[schemars(with = "String", description = "MAC address in EUI-48 format")]
+    #[schemars(with = "String")]
     MacAddress(macaddr::MacAddr6),
     Preserve,
     Permanent,
@@ -136,9 +131,7 @@ impl From<InvalidMacAddress> for zbus::fdo::Error {
     }
 }
 
-#[derive(
-    Debug, Default, Copy, Clone, PartialEq, Deserialize, Serialize, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Debug, Default, Copy, Clone, PartialEq, Deserialize, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub enum LinkLocal {
     #[default]
@@ -169,19 +162,15 @@ impl TryFrom<i32> for LinkLocal {
 }
 
 #[skip_serializing_none]
-#[derive(
-    Default, Debug, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Default, Debug, PartialEq, Clone, Deserialize, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct IpConfig {
     pub method4: Ipv4Method,
     pub method6: Ipv6Method,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    #[schema(schema_with = schemas::ip_inet_array)]
     #[schemars(with = "Vec<schemas::IpInetSchema>")]
     pub addresses: Vec<IpInet>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    #[schema(schema_with = schemas::ip_addr_array)]
     pub nameservers: Vec<IpAddr>,
     #[serde(
         default,
@@ -191,9 +180,7 @@ pub struct IpConfig {
     )]
     pub dns_searchlist: Vec<String>,
     pub ignore_auto_dns: bool,
-    #[schema(schema_with = schemas::ip_addr)]
     pub gateway4: Option<IpAddr>,
-    #[schema(schema_with = schemas::ip_addr)]
     pub gateway6: Option<IpAddr>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub routes4: Vec<IpRoute>,
@@ -208,9 +195,7 @@ pub struct IpConfig {
 }
 
 #[skip_serializing_none]
-#[derive(
-    Debug, Default, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, JsonSchema)]
 pub struct Dhcp4Settings {
     pub send_hostname: Option<bool>,
     pub hostname: Option<String>,
@@ -220,9 +205,7 @@ pub struct Dhcp4Settings {
 }
 
 #[skip_serializing_none]
-#[derive(
-    Debug, Default, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, JsonSchema)]
 pub struct Dhcp6Settings {
     pub send_hostname: Option<bool>,
     pub hostname: Option<String>,
@@ -230,9 +213,7 @@ pub struct Dhcp6Settings {
     pub duid: DhcpDuid,
     pub iaid: DhcpIaid,
 }
-#[derive(
-    Debug, Default, Clone, PartialEq, Deserialize, Serialize, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize, JsonSchema)]
 pub enum DhcpClientId {
     Id(String),
     Mac,
@@ -285,9 +266,7 @@ impl fmt::Display for DhcpClientId {
     }
 }
 
-#[derive(
-    Debug, Default, Clone, PartialEq, Deserialize, Serialize, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize, JsonSchema)]
 pub enum DhcpDuid {
     Id(String),
     Lease,
@@ -340,9 +319,7 @@ impl fmt::Display for DhcpDuid {
     }
 }
 
-#[derive(
-    Debug, Default, Clone, PartialEq, Deserialize, Serialize, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize, JsonSchema)]
 pub enum DhcpIaid {
     Id(String),
     Mac,
@@ -389,14 +366,12 @@ impl fmt::Display for DhcpIaid {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Deserialize, Serialize, utoipa::ToSchema, JsonSchema)]
+#[derive(Debug, PartialEq, Clone, Deserialize, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct IpRoute {
-    #[schema(schema_with = schemas::ip_inet_ref)]
     #[schemars(with = "schemas::IpInetSchema")]
     pub destination: IpInet,
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[schema(schema_with = schemas::ip_addr)]
     #[schemars(with = "Option<String>")]
     pub next_hop: Option<IpAddr>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -426,9 +401,7 @@ impl From<&IpRoute> for HashMap<&str, Value<'_>> {
 #[error("Unknown IP configuration method name: {0}")]
 pub struct UnknownIpMethod(String);
 
-#[derive(
-    Debug, Default, Copy, Clone, PartialEq, Deserialize, Serialize, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Debug, Default, Copy, Clone, PartialEq, Deserialize, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub enum Ipv4Method {
     Disabled = 0,
@@ -464,9 +437,7 @@ impl FromStr for Ipv4Method {
     }
 }
 
-#[derive(
-    Debug, Default, Copy, Clone, PartialEq, Deserialize, Serialize, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Debug, Default, Copy, Clone, PartialEq, Deserialize, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub enum Ipv6Method {
     Disabled = 0,
@@ -513,9 +484,7 @@ impl From<UnknownIpMethod> for zbus::fdo::Error {
         zbus::fdo::Error::Failed(value.to_string())
     }
 }
-#[derive(
-    Debug, Default, PartialEq, Clone, Serialize, Deserialize, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct SSID(pub Vec<u8>);
 
 impl SSID {
@@ -544,9 +513,7 @@ impl From<SSID> for Vec<u8> {
     }
 }
 
-#[derive(
-    Default, Debug, PartialEq, Copy, Clone, Serialize, Deserialize, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Default, Debug, PartialEq, Copy, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub enum DeviceType {
     Loopback = 0,
@@ -571,7 +538,6 @@ pub enum DeviceType {
     Copy,
     strum::Display,
     strum::EnumString,
-    utoipa::ToSchema,
     JsonSchema,
 )]
 #[strum(serialize_all = "camelCase")]
@@ -607,7 +573,6 @@ pub enum DeviceState {
     Copy,
     strum::Display,
     strum::EnumString,
-    utoipa::ToSchema,
     JsonSchema,
 )]
 #[strum(serialize_all = "camelCase")]
@@ -624,9 +589,7 @@ pub enum ConnectionState {
     Deactivated,
 }
 
-#[derive(
-    Debug, Default, Clone, Copy, PartialEq, Serialize, Deserialize, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub enum Status {
     #[default]
@@ -668,9 +631,7 @@ impl TryFrom<&str> for Status {
 }
 
 /// Bond mode
-#[derive(
-    Serialize, Deserialize, Debug, Default, PartialEq, Eq, Clone, Copy, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Serialize, Deserialize, Debug, Default, PartialEq, Eq, Clone, Copy, JsonSchema)]
 pub enum BondMode {
     #[serde(rename = "balance-rr")]
     #[default]

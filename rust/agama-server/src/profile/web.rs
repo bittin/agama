@@ -102,7 +102,7 @@ pub async fn profile_service() -> Result<ApiRouter, ServiceError> {
 /// 1. request body
 /// 2. pathname (server side)
 /// 3. URL
-#[derive(Deserialize, utoipa::IntoParams, Debug)]
+#[derive(Deserialize, Debug)]
 struct ProfileBody {
     path: Option<String>,
     url: Option<String>,
@@ -152,15 +152,6 @@ impl ProfileBody {
     }
 }
 
-#[utoipa::path(
-    post,
-    path = "/validate",
-    context_path = "/api/profile",
-    responses(
-        (status = 200, description = "Validation result", body = ValidationOutcome),
-        (status = 400, description = "Some error has occurred", body = ErrorResponse)
-    )
-)]
 async fn validate(body: String) -> Result<Json<ValidationOutcome>, ProfileError> {
     let profile = ProfileBody::from_string(body);
     let profile_string = match profile.retrieve_profile()? {
@@ -176,15 +167,6 @@ async fn validate(body: String) -> Result<Json<ValidationOutcome>, ProfileError>
     Ok(Json(result))
 }
 
-#[utoipa::path(
-    post,
-    path = "/evaluate",
-    context_path = "/api/profile",
-    responses(
-        (status = 200, description = "Evaluated profile", body = String, content_type = "application/json"),
-        (status = 400, description = "Some error has occurred", body = ErrorResponse)
-    )
-)]
 async fn evaluate(body: String) -> Result<String, ProfileError> {
     let profile = ProfileBody::from_string(body);
     let profile_string = match profile.retrieve_profile()? {
@@ -199,16 +181,6 @@ async fn evaluate(body: String) -> Result<String, ProfileError> {
     Ok(output)
 }
 
-#[utoipa::path(
-    post,
-    path = "/autoyast",
-    context_path = "/api/profile",
-    responses(
-        (status = 200, description = "AutoYaST profile conversion", body = String, content_type = "application/json"),
-        (status = 400, description = "Some error has occurred", body = ErrorResponse),
-        (status = 500, description = "Internal server error", body = ErrorResponse)
-    )
-)]
 async fn autoyast(body: String) -> Result<String, ProfileError> {
     let profile = ProfileBody::from_string(body);
     if profile.url.is_none() || profile.path.is_some() || profile.json.is_some() {

@@ -28,10 +28,9 @@ use axum::{
 };
 use schemars::JsonSchema;
 use serde::Serialize;
-use utoipa::ToSchema;
 
 /// Error response returned by API endpoints
-#[derive(Serialize, ToSchema, JsonSchema, OperationIo)]
+#[derive(Serialize, JsonSchema, OperationIo)]
 #[aide(output)]
 pub struct ErrorResponse {
     /// Error message

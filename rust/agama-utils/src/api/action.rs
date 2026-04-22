@@ -27,7 +27,7 @@ use crate::{
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, utoipa::ToSchema, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
 pub enum Action {
     /// Performs an iSCSI discovery, finding nodes from the given portal.
     #[serde(rename = "discoverISCSI")]
@@ -58,7 +58,6 @@ pub enum Action {
     Copy,
     strum::Display,
     strum::EnumString,
-    utoipa::ToSchema,
     JsonSchema,
 )]
 #[strum(serialize_all = "camelCase")]

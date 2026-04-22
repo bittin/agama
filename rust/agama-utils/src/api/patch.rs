@@ -24,11 +24,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 /// Patch for the config.
-#[derive(Deserialize, Serialize, utoipa::ToSchema, JsonSchema)]
+#[derive(Deserialize, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct Patch {
     /// Update for the current config.
-    #[schema(value_type = Option<Config>)]
     pub update: Option<Value>,
 }
 

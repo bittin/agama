@@ -24,10 +24,9 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 /// Bootloader configuration.
-#[derive(Clone, Debug, Serialize, Deserialize, Default, Merge, utoipa::ToSchema, JsonSchema)]
+#[derive(Clone, Debug, Serialize, Deserialize, Default, Merge, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 #[merge(strategy = merge::option::overwrite_none)]
-#[schema(as = bootloader::Config)]
 #[schemars(rename = "bootloader.Config")]
 pub struct Config {
     /// Whether bootloader should stop on boot menu.

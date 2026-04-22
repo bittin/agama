@@ -21,8 +21,7 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Serialize, Deserialize, utoipa::ToSchema, JsonSchema)]
-#[schema(as = l10n::SystemConfig)]
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[schemars(rename = "l10n::SystemConfig")]
 pub struct SystemConfig {
     pub locale: Option<String>,

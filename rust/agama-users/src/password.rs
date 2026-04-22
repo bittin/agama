@@ -47,7 +47,7 @@ pub enum PasswordCheckerError {
 ///
 /// * If the check passes, it returns the score (a number from 0 to 100).
 /// * If it does not passes, it returns the reason (e.g., it is based on a dictionary word).
-#[derive(Serialize, utoipa::ToSchema, JsonSchema)]
+#[derive(Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub enum PasswordCheckResult {
     Success(i32),

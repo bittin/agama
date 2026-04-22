@@ -24,7 +24,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Represents a software resolvable.
-#[derive(Clone, Debug, Deserialize, PartialEq, utoipa::ToSchema, JsonSchema)]
+#[derive(Clone, Debug, Deserialize, PartialEq, JsonSchema)]
 pub struct Resolvable {
     pub name: String,
     #[serde(rename = "type")]
@@ -41,9 +41,7 @@ impl Resolvable {
 }
 
 /// Software resolvable type (package or pattern).
-#[derive(
-    Clone, Copy, Debug, Deserialize, Serialize, utoipa::ToSchema, JsonSchema, PartialEq, Eq, Hash,
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize, JsonSchema, PartialEq, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub enum ResolvableType {
     Package = 0,

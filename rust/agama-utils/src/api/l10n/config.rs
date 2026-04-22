@@ -23,11 +23,8 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 /// Localization config.
-#[derive(
-    Clone, Debug, Default, Serialize, Deserialize, PartialEq, Merge, utoipa::ToSchema, JsonSchema,
-)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Merge, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-#[schema(as = l10n::Config)]
 #[schemars(rename = "l10n.Config")]
 pub struct Config {
     /// Locale (e.g., "en_US.UTF-8").
