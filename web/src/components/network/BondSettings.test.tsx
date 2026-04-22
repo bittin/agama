@@ -74,7 +74,11 @@ function TestForm({
       <BondSettings form={form} isEditing={isEditing} />
       <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
         {([canSubmit, isSubmitting]) => (
-          <button type="submit" disabled={!canSubmit || isSubmitting} onClick={() => form.handleSubmit()}>
+          <button
+            type="submit"
+            disabled={!canSubmit || isSubmitting}
+            onClick={() => form.handleSubmit()}
+          >
             Accept
           </button>
         )}
@@ -102,7 +106,7 @@ describe("BondSettings", () => {
   });
 
   it("does not allow defining the device name when editing", () => {
-    installerRender(<TestForm isEditing={true} />);
+    installerRender(<TestForm isEditing />);
 
     expect(screen.queryByLabelText("Device name")).not.toBeInTheDocument();
   });
