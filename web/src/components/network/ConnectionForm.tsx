@@ -24,12 +24,12 @@ import React from "react";
 import { formOptions } from "@tanstack/react-form";
 import { useNavigate, useParams } from "react-router";
 import { isEmpty, shake, unique } from "radashi";
-import { sprintf } from "sprintf-js";
 import { Alert, ActionGroup, Flex, Form } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
 import NestedContent from "~/components/core/NestedContent";
 import ResourceNotFound from "~/components/core/ResourceNotFound";
 import IpSettings from "~/components/network/IpSettings";
+import BondSettings from "~/components/network/BondSettings";
 import BindingModeSelector from "~/components/network/BindingModeSelector";
 import DeviceSelector from "~/components/network/DeviceSelector";
 import {
@@ -501,12 +501,6 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
     },
   ];
 
-  const bondModeOptions = () =>
-    Object.values(BondMode).map((m) => ({
-      value: m,
-      label: m,
-    }));
-
   return (
     <form.AppForm>
       <Form
@@ -576,119 +570,37 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
         )}
 
         <form.Subscribe selector={(s) => s.values.type}>
-          {(type) => {
-            if (![ConnectionType.BOND, ConnectionType.BRIDGE, ConnectionType.VLAN].includes(type)) {
-              return (
-                <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
-                  <BindingModeSelector form={form} />
-
-                  <form.Subscribe selector={(s) => s.values.bindingMode}>
-                    {(bindingMode) => (
-                      <>
-                        {bindingMode === "iface" && (
-                          <DeviceSelector
-                            form={form}
-                            by="iface"
-                            sync={{ field: "ifaceMac", with: (d) => d.macAddress }}
-                          />
-                        )}
-                        {bindingMode === "mac" && (
-                          <DeviceSelector
-                            form={form}
-                            by="mac"
-                            sync={{ field: "iface", with: (d) => d.name }}
-                          />
-                        )}
-                      </>
-                    )}
-                  </form.Subscribe>
-                </Flex>
-              );
-            }
-
-            if (type === ConnectionType.BOND && !isEditing) {
-              return (
-                <form.AppField name="iface">
-                  {(field) => (
-                    <field.TextField
-                      label={
-                        // TRANSLATORS: label for the network interface name field.
-                        _("Device name")
-                      }
-                      helperText={
-                        // TRANSLATORS: helper text for the bond device name field.
-                        _("E.g., bond0")
-                      }
-                    />
-                  )}
-                </form.AppField>
-              );
-            }
-
-            return null;
-          }}
-        </form.Subscribe>
-
-        <form.Subscribe selector={(s) => s.values.type}>
           {(type) =>
-            type === ConnectionType.BOND && (
-              <>
-                <form.AppField name="bondMode">
-                  {(field) => (
-                    <field.DropdownField
-                      label={
-                        // TRANSLATORS: label for the bond mode field.
-                        _("Bond mode")
-                      }
-                      options={bondModeOptions()}
-                    />
+            ![ConnectionType.BOND, ConnectionType.BRIDGE, ConnectionType.VLAN].includes(type) && (
+              <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
+                <BindingModeSelector form={form} />
+
+                <form.Subscribe selector={(s) => s.values.bindingMode}>
+                  {(bindingMode) => (
+                    <>
+                      {bindingMode === "iface" && (
+                        <DeviceSelector
+                          form={form}
+                          by="iface"
+                          sync={{ field: "ifaceMac", with: (d) => d.macAddress }}
+                        />
+                      )}
+                      {bindingMode === "mac" && (
+                        <DeviceSelector
+                          form={form}
+                          by="mac"
+                          sync={{ field: "iface", with: (d) => d.name }}
+                        />
+                      )}
+                    </>
                   )}
-                </form.AppField>
-                <form.AppField name="bondOptions">
-                  {(field) => (
-                    <field.ArrayField
-                      label={
-                        // TRANSLATORS: label for the bond options field.
-                        _("Bond options")
-                      }
-                      helperText={
-                        // TRANSLATORS: helper text for the bond options field.
-                        _("E.g., primary=eth1")
-                      }
-                    />
-                  )}
-                </form.AppField>
-                <form.AppField name="bondPorts">
-                  {(field) => (
-                    <field.ArrayField
-                      label={
-                        // TRANSLATORS: label for the bond ports field.
-                        _("Bond ports")
-                      }
-                      helperText={
-                        // TRANSLATORS: helper text for the bond ports field. %s is a list of available devices.
-                        sprintf(_("Available devices: %s"), devices.map((d) => d.name).join(", "))
-                      }
-                      displayValue={(name) => {
-                        const device = devices.find((d) => d.name === name);
-                        return device
-                          ? sprintf(_("%s - %s"), device.name, device.macAddress)
-                          : name;
-                      }}
-                      validateOnChange={(v) =>
-                        devices.some((d) => d.name === v)
-                          ? undefined
-                          : // TRANSLATORS: validation error for an invalid bond port entry.
-                            _("Invalid device name")
-                      }
-                      skipDuplicates
-                    />
-                  )}
-                </form.AppField>
-              </>
+                </form.Subscribe>
+              </Flex>
             )
           }
         </form.Subscribe>
+
+        <BondSettings form={form} isEditing={isEditing} />
 
         <IpSettings form={form} protocol="ipv4" />
 
