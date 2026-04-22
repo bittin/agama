@@ -26,7 +26,7 @@ import { useProposal } from "~/hooks/model/proposal/software";
 import { useIsDesktopMissing, useSelectedPatterns } from "~/hooks/model/system/software";
 import { useIssues } from "~/hooks/model/issue";
 import { SOFTWARE } from "~/routes/paths";
-import { SelectedBy } from "~/model/proposal/software";
+import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import SoftwareSummary from "./SoftwareSummary";
 
 const mockUseProposalFn: jest.Mock<ReturnType<typeof useProposal>> = jest.fn();
@@ -48,11 +48,33 @@ jest.mock("~/hooks/model/issue", () => ({
   useIssues: () => mockUseIssuesFn(),
 }));
 
+const gnome = {
+  name: "gnome",
+  category: "Graphical Environments",
+  icon: "./pattern-gnome-wayland",
+  description: "The GNOME desktop environment ...",
+  summary: "GNOME Desktop",
+  order: 1010,
+  preselected: false,
+  desktop: true,
+};
+
+const yast2Basis = {
+  name: "yast2_basis",
+  category: "Base Technologies",
+  icon: "./yast",
+  description: "YaST tools for basic system administration.",
+  summary: "YaST Base Utilities",
+  order: 1220,
+  preselected: false,
+  desktop: false,
+};
+
 describe("SoftwareSummary", () => {
   beforeEach(() => {
     mockProgresses([]);
     mockUseIssuesFn.mockReturnValue([]);
-    mockUseProposalFn.mockReturnValue({ usedSpace: 6291456, patterns: {} }); // 6 GiB
+    mockUseProposalFn.mockReturnValue({ usedSpace: 6239191, patterns: {} }); // ~5.95 GiB
     mockUseSelectedPatternsFn.mockReturnValue([]);
     mockUseIsDesktopMissingFn.mockReturnValue(false);
   });
@@ -88,8 +110,7 @@ describe("SoftwareSummary", () => {
     it("renders skeleton instead of content", () => {
       installerRender(<SoftwareSummary />);
       screen.getByLabelText("Waiting for proposal");
-      expect(screen.queryByText(/Required packages/)).not.toBeInTheDocument();
-      expect(screen.queryByText(/Needs about/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Requires/)).not.toBeInTheDocument();
     });
   });
 
@@ -110,85 +131,74 @@ describe("SoftwareSummary", () => {
         installerRender(<SoftwareSummary />);
 
         screen.getByText("Invalid software selection");
-        expect(screen.queryByText("Required packages")).toBeNull();
-        expect(screen.queryByText(/Needs about/)).toBeNull();
+        expect(screen.queryByText(/Requires/)).toBeNull();
       });
     });
 
-    it("renders 'Required packages' without patterns count when no none is selected", () => {
-      mockUseProposalFn.mockReturnValue({ usedSpace: 1955420, patterns: {} });
-      mockUseSelectedPatternsFn.mockReturnValue([]);
+    describe("and no desktop context applies", () => {
+      it("shows 'Default selection' as the headline when nothing is selected", () => {
+        mockUseProposalFn.mockReturnValue({ usedSpace: 1955420, patterns: {} });
+        mockUseSelectedPatternsFn.mockReturnValue([]);
 
-      installerRender(<SoftwareSummary />);
+        installerRender(<SoftwareSummary />);
 
-      screen.getByText("Required packages");
-      screen.getByText(/Needs about 1\.86 GiB/);
-    });
-
-    it("renders 'Required packages' and the patterns count with correct pluralization when some is selected", () => {
-      mockUseProposalFn.mockReturnValue({
-        usedSpace: 6239191,
-        patterns: {
-          yast2_server: SelectedBy.NONE,
-          basic_desktop: SelectedBy.NONE,
-          xfce: SelectedBy.NONE,
-          gnome: SelectedBy.USER,
-          yast2_desktop: SelectedBy.NONE,
-          kde: SelectedBy.NONE,
-          multimedia: SelectedBy.NONE,
-          office: SelectedBy.NONE,
-          yast2_basis: SelectedBy.AUTO,
-          selinux: SelectedBy.NONE,
-          apparmor: SelectedBy.NONE,
-        },
+        screen.getByText("Default selection");
+        screen.getByText("Requires 1.86 GiB");
       });
 
-      mockUseSelectedPatternsFn.mockReturnValue([
-        {
-          name: "gnome",
-          category: "Graphical Environments",
-          icon: "./pattern-gnome-wayland",
-          description: "The GNOME desktop environment ...",
-          summary: "GNOME Desktop Environment (Wayland)",
-          order: 1010,
-          preselected: false,
-          desktop: true,
-        },
-      ]);
+      it("shows the patterns count as the headline when patterns are selected", () => {
+        mockUseSelectedPatternsFn.mockReturnValue([yast2Basis]);
 
-      const { rerender } = installerRender(<SoftwareSummary />);
+        const { rerender } = installerRender(<SoftwareSummary />);
 
-      // Singular
-      screen.getByText("Required packages and 1 pattern");
-      screen.getByText(/Needs about 5\.95 GiB/);
+        // Singular
+        screen.getByText("Using 1 additional pattern");
+        screen.getByText("Requires 5.95 GiB");
 
-      mockUseSelectedPatternsFn.mockReturnValue([
-        {
-          name: "gnome",
-          category: "Graphical Environments",
-          icon: "./pattern-gnome-wayland",
-          description: "The GNOME desktop environment ...",
-          summary: "GNOME Desktop Environment (Wayland)",
-          order: 1010,
-          preselected: false,
-          desktop: true,
-        },
-        {
-          name: "yast2_basis",
-          category: "Base Technologies",
-          icon: "./yast",
-          description: "YaST tools for basic system administration.",
-          summary: "YaST Base Utilities",
-          order: 1220,
-          preselected: false,
-          desktop: false,
-        },
-      ]);
-      rerender(<SoftwareSummary />);
+        mockUseSelectedPatternsFn.mockReturnValue([
+          yast2Basis,
+          { ...yast2Basis, name: "selinux", summary: "SELinux" },
+        ]);
+        rerender(<SoftwareSummary />);
 
-      // Plural
-      screen.getByText("Required packages and 2 patterns");
-      screen.getByText(/Needs about 5\.95 GiB/);
+        // Plural
+        screen.getByText("Using 2 additional patterns");
+        screen.getByText("Requires 5.95 GiB");
+      });
+
+      it("falls back to 'Default selection' without a sub-line when the proposal size is not available", () => {
+        mockUseProposalFn.mockReturnValue({ usedSpace: 0, patterns: {} });
+        mockUseSelectedPatternsFn.mockReturnValue([]);
+
+        installerRender(<SoftwareSummary />);
+
+        screen.getByText("Default selection");
+        expect(screen.queryByText(/Requires/)).toBeNull();
+      });
+    });
+
+    describe("and a desktop is selected", () => {
+      it("shows the desktop as the headline and size as the sub-line", () => {
+        mockUseSelectedPatternsFn.mockReturnValue([gnome]);
+
+        installerRender(<SoftwareSummary />);
+
+        screen.getByText("GNOME Desktop");
+        screen.getByText("Using 1 additional pattern. Requires 5.95 GiB");
+      });
+
+      it("shows only the first desktop when several are selected", () => {
+        mockUseSelectedPatternsFn.mockReturnValue([
+          gnome,
+          { ...gnome, name: "kde", summary: "KDE Plasma" },
+        ]);
+
+        installerRender(<SoftwareSummary />);
+
+        screen.getByText("GNOME Desktop");
+        expect(screen.queryByText("KDE Plasma")).toBeNull();
+        screen.getByText("Using 2 additional patterns. Requires 5.95 GiB");
+      });
     });
 
     describe("and the missing-desktop hint is active", () => {
@@ -196,35 +206,22 @@ describe("SoftwareSummary", () => {
         mockUseIsDesktopMissingFn.mockReturnValue(true);
       });
 
-      it("renders 'No desktop selected' instead of the patterns summary", () => {
-        mockUseProposalFn.mockReturnValue({ usedSpace: 6239191, patterns: {} });
+      it("shows 'No desktop selected' as the headline and size as the sub-line", () => {
         mockUseSelectedPatternsFn.mockReturnValue([]);
 
         installerRender(<SoftwareSummary />);
 
-        screen.getByText("No desktop selected");
-        screen.getByText(/Needs about 5\.95 GiB/);
-        expect(screen.queryByText("Required packages")).toBeNull();
+        expect(screen.getByText("No desktop selected")).toHaveClass(textStyles.fontWeightBold);
+        screen.getByText("Requires 5.95 GiB");
       });
 
-      it("takes precedence over the patterns count", () => {
-        mockUseSelectedPatternsFn.mockReturnValue([
-          {
-            name: "yast2_basis",
-            category: "Base Technologies",
-            icon: "./yast",
-            description: "YaST tools for basic system administration.",
-            summary: "YaST Base Utilities",
-            order: 1220,
-            preselected: false,
-            desktop: false,
-          },
-        ]);
+      it("takes precedence over any other non-desktop selection", () => {
+        mockUseSelectedPatternsFn.mockReturnValue([yast2Basis]);
 
         installerRender(<SoftwareSummary />);
 
-        screen.getByText("No desktop selected");
-        expect(screen.queryByText(/Required packages and/)).toBeNull();
+        expect(screen.getByText("No desktop selected")).toHaveClass(textStyles.fontWeightBold);
+        screen.getByText("Using 1 additional pattern. Requires 5.95 GiB");
       });
     });
   });

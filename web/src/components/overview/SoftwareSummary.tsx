@@ -36,45 +36,94 @@ import { SOFTWARE } from "~/routes/paths";
 import { _, n_ } from "~/i18n";
 
 /**
- * Renders a summary text describing the software selection.
+ * Formats the pattern-count line used as the headline when the user picked
+ * non-desktop patterns on a product without desktop context, e.g.
+ *   "Using 1 additional pattern"
+ *   "Using 3 additional patterns"
+ */
+const patternsCount = (qty: number): string =>
+  sprintf(
+    // TRANSLATORS: count of patterns picked on top of the default selection.
+    // %d is a number.
+    n_("Using %d additional pattern", "Using %d additional patterns", qty),
+    qty,
+  );
+
+/**
+ * Renders the headline text for the software summary.
  *
- * Hints about a missing desktop when the product suggests one, taking
- * precedence over the patterns count.
+ * Priority order:
+ *   1. "No desktop selected" hint when the product suggests one and none is
+ *      selected.
+ *   2. The selected desktop's summary when one is present.
+ *   3. "Using N additional patterns" when the user picked non-desktop
+ *      patterns on a product not suggesting a desktop.
+ *   4. "Default selection" when nothing is selected.
  */
 const Value = () => {
   const patterns = useSelectedPatterns();
   const isDesktopMissing = useIsDesktopMissing();
-  const patternsQty = patterns.length;
+  const [headlineDesktop] = patterns.filter((p) => p.desktop);
 
   if (isDesktopMissing) {
     // TRANSLATORS: shown in the software summary when no desktop is selected.
     return <Text isBold>{_("No desktop selected")}</Text>;
   }
 
-  if (patternsQty === 0) {
-    return _("Required packages");
+  if (headlineDesktop) {
+    return <Text>{headlineDesktop.summary}</Text>;
   }
 
-  return sprintf(
-    // TRANSLATORS: %s will be replaced with amount of selected patterns.
-    n_("Required packages and %s pattern", "Required packages and %s patterns", patternsQty),
-    patternsQty,
-  );
+  if (patterns.length === 0) {
+    // TRANSLATORS: shown in the software summary when the user hasn't picked
+    // anything on top of the product's default selection.
+    return <Text>{_("Default selection")}</Text>;
+  }
+
+  return <Text>{patternsCount(patterns.length)}</Text>;
 };
 
 /**
- * Renders the estimated disk space required for the installation.
+ * Renders the sub-line of the software summary.
+ *
+ * When the headline is a desktop or the missing-desktop hint, the sub-line
+ * combines the pattern count (if any) with the required install size in a
+ * single translatable sentence so translators can adjust punctuation and
+ * order. When the headline already conveys the count, only the required
+ * size is shown.
+ *
+ * Returns `null` while the proposal size is still unavailable.
  */
 const Description = () => {
   const proposal = useProposal();
-  if (!proposal?.usedSpace) return;
+  const patterns = useSelectedPatterns();
+  const isDesktopMissing = useIsDesktopMissing();
 
-  return sprintf(
-    // TRANSLATORS: %s will be replaced with a human-readable installation size
-    // (e.g. 5.95 GiB).
-    _("Needs about %s"),
-    xbytes(proposal.usedSpace * 1024, { iec: true }),
-  );
+  if (!proposal?.usedSpace) return null;
+
+  const size = xbytes(proposal.usedSpace * 1024, { iec: true });
+  const hasDesktopContext = isDesktopMissing || patterns.some((p) => p.desktop);
+  const qty = patterns.length;
+
+  if (hasDesktopContext && qty > 0) {
+    return sprintf(
+      // TRANSLATORS: software summary sub-line combining the count of
+      // selected patterns with the required install size. %1$d is a number
+      // of selected patterns; %2$s is a human-readable disk size
+      // (e.g. "5.95 GiB").
+      n_(
+        "Using %1$d additional pattern. Requires %2$s",
+        "Using %1$d additional patterns. Requires %2$s",
+        qty,
+      ),
+      qty,
+      size,
+    );
+  }
+
+  // TRANSLATORS: total installation size shown in the software summary.
+  // %s is a human-readable disk size (e.g. "5.95 GiB").
+  return sprintf(_("Requires %s"), size);
 };
 
 /**
