@@ -120,10 +120,13 @@ pub async fn server_service(
     server_with_state(state)
 }
 
+/// Sets up and returns the axum service for the manager module with the given state
+///
+/// * `state`: server state.
 pub fn server_with_state(state: ServerState) -> Result<ApiRouter, ServiceError> {
     Ok(ApiRouter::new()
-        .route("/status", get(get_status))
-        .route("/system", get(get_system))
+        .api_route("/status", get_with(get_status, get_status_docs))
+        .api_route("/system", get_with(get_system, get_system_docs))
         .route("/extended_config", get(get_extended_config))
         .route(
             "/config",
@@ -166,6 +169,14 @@ async fn get_status(State(state): State<ServerState>) -> Result<Json<Status>, Re
     Ok(Json(status))
 }
 
+fn get_status_docs(op: TransformOperation) -> TransformOperation {
+    op.description("Get the installer status")
+        .response_with::<200, Json<Status>, _>(|res| res.description("Status of the installation"))
+        .response_with::<500, Json<ErrorResponse>, _>(|res| {
+            res.description("Internal server error")
+        })
+}
+
 /// Returns the information about the system.
 #[utoipa::path(
     get,
@@ -183,6 +194,14 @@ async fn get_system(State(state): State<ServerState>) -> Result<Json<SystemInfo>
         .await
         .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(Json(system))
+}
+
+fn get_system_docs(op: TransformOperation) -> TransformOperation {
+    op.description("Get the installer status")
+        .response_with::<200, Json<SystemInfo>, _>(|res| res.description("Get system information."))
+        .response_with::<500, Json<ErrorResponse>, _>(|res| {
+            res.description("Internal server error")
+        })
 }
 
 /// Returns the extended configuration.
