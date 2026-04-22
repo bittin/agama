@@ -130,7 +130,7 @@ describe("ConnectionForm", () => {
 
       await user.click(screen.getByLabelText("Bond mode"));
       await user.click(screen.getByRole("option", { name: "balance-rr" }));
-      await user.type(screen.getByLabelText("Bond options"), "miimon=100");
+      await user.type(screen.getByLabelText("Bond options"), "miimon=100{enter}");
 
       await user.type(screen.getByRole("textbox", { name: "Bond ports" }), "enp1s0{enter}");
 

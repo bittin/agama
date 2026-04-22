@@ -120,7 +120,7 @@ export const connectionFormOptions = formOptions({
     customDnsSearch: false,
     bindingMode: "none" as ConnectionBindingMode,
     bondMode: BondMode.BALANCE_ROUND_ROBIN as BondMode,
-    bondOptions: "",
+    bondOptions: [] as string[],
     bondPorts: [] as string[],
   },
 });
@@ -181,7 +181,7 @@ function connectionToFormValues(connection: Connection): Partial<FormValues> {
     customDns: connection.nameservers.length > 0,
     customDnsSearch: connection.dnsSearchList.length > 0,
     bondMode: connection.bond?.mode ?? BondMode.BALANCE_ROUND_ROBIN,
-    bondOptions: connection.bond?.options ?? "",
+    bondOptions: connection.bond?.options ? connection.bond.options.split(" ") : [],
     bondPorts: connection.bond?.ports ?? [],
   };
 }
@@ -373,7 +373,7 @@ function buildConnection(formValues: FormValues): Connection {
       formValues.type === ConnectionType.BOND
         ? {
             mode: formValues.bondMode,
-            options: formValues.bondOptions,
+            options: formValues.bondOptions.join(" "),
             ports: formValues.bondPorts,
           }
         : undefined,
@@ -635,10 +635,14 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
                 </form.AppField>
                 <form.AppField name="bondOptions">
                   {(field) => (
-                    <field.TextField
+                    <field.ArrayField
                       label={
                         // TRANSLATORS: label for the bond options field.
                         _("Bond options")
+                      }
+                      helperText={
+                        // TRANSLATORS: helper text for the bond options field.
+                        _("E.g., primary=eth1")
                       }
                     />
                   )}
