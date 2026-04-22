@@ -25,7 +25,6 @@ import { isEmpty } from "radashi";
 import { sprintf } from "sprintf-js";
 import { Navigate } from "react-router";
 import {
-  Alert,
   Button,
   Content,
   Divider,
@@ -42,6 +41,7 @@ import {
 import Page from "~/components/core/Page";
 import Text from "~/components/core/Text";
 import Popup from "~/components/core/Popup";
+import NoDesktopAlert from "~/components/software/NoDesktopAlert";
 import PotentialDataLossAlert from "~/components/storage/PotentialDataLossAlert";
 import InstallerL10nOptions from "~/components/core/InstallerL10nOptions";
 import InstallerOptionsMenu from "~/components/core/InstallerOptionsMenu";
@@ -67,24 +67,6 @@ type ConfirmationPopupProps = {
   onCancel: () => void;
   onConfirm: () => void;
 };
-const NoDesktopAlert = () => (
-  <Alert
-    isInline
-    variant="custom"
-    // TRANSLATORS: alert title shown in the install confirmation dialog when no desktop is selected.
-    title={_("No desktop selected")}
-  >
-    <Content component="p" isEditorial>
-      {/* TRANSLATORS: explains the consequence of installing without a desktop. */}
-      {_("The system will boot to a command-line interface.")}
-    </Content>
-    <Content component="p">
-      {/* TRANSLATORS: suggests the action to take if a desktop is wanted. */}
-      {_("If that is not intended, cancel and select a desktop in the software settings.")}
-    </Content>
-  </Alert>
-);
-
 const ConfirmationPopup = ({
   product,
   isDangerous,
@@ -108,9 +90,7 @@ const ConfirmationPopup = ({
           {_("Confirming starts the installation immediately with the defined settings.")}
         </Content>
         {isDesktopMissing && <NoDesktopAlert />}
-        {isDangerous && (
-          <PotentialDataLossAlert hint={_("If unsure, cancel and review storage settings.")} />
-        )}
+        {isDangerous && <PotentialDataLossAlert />}
       </Stack>
       <Popup.Actions>
         {/* TRANSLATORS: Button to confirm and start the installation */}
