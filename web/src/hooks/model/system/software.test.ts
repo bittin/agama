@@ -25,7 +25,7 @@ import { renderHook } from "@testing-library/react";
 import { clearMockedQueries, mockQuery, mockSystemQuery } from "~/test-utils/tanstack-query";
 import { SelectedBy } from "~/model/proposal/software";
 import type { Product, Software } from "~/model/system";
-import { useIsDesktopMissing } from "~/hooks/model/system/software";
+import { useIsDesktopMissing, useSelectedPatterns } from "~/hooks/model/system/software";
 
 const gnomePattern: Software.Pattern = {
   name: "gnome",
@@ -131,5 +131,61 @@ describe("useIsDesktopMissing", () => {
 
       expect(result.current).toBe(false);
     });
+  });
+});
+
+describe("useSelectedPatterns", () => {
+  beforeEach(() => {
+    clearMockedQueries();
+  });
+
+  it("returns an empty list when no pattern is selected", () => {
+    mockScenario(tumbleweed, [gnomePattern, basePattern], {});
+
+    const { result } = renderHook(() => useSelectedPatterns());
+
+    expect(result.current).toEqual([]);
+  });
+
+  it("returns patterns selected by the user", () => {
+    mockScenario(tumbleweed, [gnomePattern, basePattern], {
+      gnome: SelectedBy.USER,
+    });
+
+    const { result } = renderHook(() => useSelectedPatterns());
+
+    expect(result.current).toEqual([gnomePattern]);
+  });
+
+  it("returns patterns auto-pulled as dependencies", () => {
+    mockScenario(tumbleweed, [gnomePattern, basePattern], {
+      yast2_basis: SelectedBy.AUTO,
+    });
+
+    const { result } = renderHook(() => useSelectedPatterns());
+
+    expect(result.current).toEqual([basePattern]);
+  });
+
+  it("excludes patterns explicitly marked as removed", () => {
+    mockScenario(tumbleweed, [gnomePattern, basePattern], {
+      gnome: SelectedBy.USER,
+      yast2_basis: SelectedBy.REMOVED,
+    });
+
+    const { result } = renderHook(() => useSelectedPatterns());
+
+    expect(result.current).toEqual([gnomePattern]);
+  });
+
+  it("excludes patterns marked as not selected", () => {
+    mockScenario(tumbleweed, [gnomePattern, basePattern], {
+      gnome: SelectedBy.USER,
+      yast2_basis: SelectedBy.NONE,
+    });
+
+    const { result } = renderHook(() => useSelectedPatterns());
+
+    expect(result.current).toEqual([gnomePattern]);
   });
 });

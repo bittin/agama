@@ -20,12 +20,11 @@
  * find current contact information at www.suse.com.
  */
 
-import { shake } from "radashi";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { systemQuery } from "~/hooks/model/system";
 import { useProposal } from "~/hooks/model/proposal/software";
 import { useProductInfo } from "~/hooks/model/config/product";
-import { SelectedBy } from "~/model/proposal/software";
+import { isPatternSelected } from "~/utils/software";
 import type { System, Software } from "~/model/system";
 
 const selectSystem = (data: System | null): Software.System => data?.software;
@@ -40,6 +39,9 @@ function useSystem(): Software.System | null {
 
 /**
  * Retrieves the list of patterns currently selected in the active proposal.
+ *
+ * Only patterns selected by the user or auto-pulled are included; patterns
+ * explicitly removed or not selected at all are excluded.
  */
 function useSelectedPatterns() {
   const proposal = useProposal();
@@ -47,11 +49,7 @@ function useSelectedPatterns() {
 
   if (!proposal) return [];
 
-  const selectedPatternsKeys = Object.keys(
-    shake(proposal.patterns, (value) => value === SelectedBy.NONE),
-  );
-
-  return patterns.filter((p) => selectedPatternsKeys.includes(p.name));
+  return patterns.filter((p) => isPatternSelected(proposal.patterns, p.name));
 }
 
 /**
