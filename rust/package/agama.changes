@@ -1,4 +1,29 @@
 -------------------------------------------------------------------
+Mon Apr 20 11:00:37 UTC 2026 - Ladislav Slezák <lslezak@suse.com>
+
+- Properly initialize the GPG callbacks during registration so the
+  PackageHub GPG key can be imported from the autoinstallation
+  profile (bsc#1261351)
+
+-------------------------------------------------------------------
+Mon Apr 20 09:35:34 UTC 2026 - José Iván López González <jlopez@suse.com>
+
+- Drop dead code (gh#agama-project/agama#3402).
+
+-------------------------------------------------------------------
+Fri Apr 17 16:56:48 UTC 2026 - Josef Reidinger <jreidinger@suse.com>
+
+- CLI: improve `agama monitor` command to be able to show blocking
+  issues or waiting for questions. Also command now ends when
+  installation finishes. (gh#agama-project/agama#3377)
+
+-------------------------------------------------------------------
+Fri Apr 17 10:29:38 UTC 2026 - José Iván López González <jlopez@suse.com>
+
+- Add support for pervasive encryption options in storage
+  configuration schema (gh#agama-project/agama#3384).
+
+-------------------------------------------------------------------
 Wed Apr 15 07:25:18 UTC 2026 - Knut Anderssen <kanderssen@suse.com>
 
 - Copy the Agama systemd network link files for renaming devices

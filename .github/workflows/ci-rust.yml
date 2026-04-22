@@ -297,5 +297,5 @@ jobs:
       working-directory: ./rust
 
     - name: Validate the OpenAPI specification
-      run: openapi-spec-validator out/openapi/*
+      run: openapi-spec-validator out/openapi.json
       working-directory: ./rust

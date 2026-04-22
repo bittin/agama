@@ -21,6 +21,7 @@
 //! This module implements Agama's HTTP API.
 
 use crate::server::config_schema;
+use crate::web::error::ErrorResponse;
 use agama_lib::{error::ServiceError, logs};
 use agama_manager::service::Error as ManagerError;
 use agama_manager::users::PasswordCheckResult;
@@ -33,7 +34,7 @@ use agama_utils::{
         manager::LicenseContent,
         query,
         question::{Question, QuestionSpec, UpdateQuestion},
-        Action, Config, IssueWithScope, Patch, Status, SystemInfo,
+        Action, Config, IssueWithScope, Patch, Proposal, Status, SystemInfo,
     },
     progress, question,
 };
@@ -47,7 +48,7 @@ use axum::{
 };
 use hyper::{header, HeaderMap, StatusCode};
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::Value;
 use tokio_util::io::ReaderStream;
 
 #[derive(thiserror::Error, Debug)]
@@ -60,26 +61,24 @@ pub enum Error {
     ConfigSchema(#[from] config_schema::Error),
     #[error(transparent)]
     Json(#[from] serde_json::Error),
+    #[error("Missing language tag")]
+    MissingLanguageTag,
 }
 
-impl IntoResponse for Error {
-    fn into_response(self) -> Response {
-        tracing::warn!("Server return error {}", self);
-        let body = json!({
-            "error": self.to_string()
-        });
+impl Error {
+    /// Creates a BAD_REQUEST (400) response from this error.
+    fn bad_request(self) -> Response {
+        ErrorResponse::bad_request(self)
+    }
 
-        let mut status = StatusCode::BAD_REQUEST;
+    /// Creates an INTERNAL_SERVER_ERROR (500) response from this error.
+    fn internal_server_error(self) -> Response {
+        ErrorResponse::internal_server_error(self)
+    }
 
-        if let Error::Manager(error) = &self {
-            if matches!(error, ManagerError::PendingIssues { .. })
-                || matches!(error, ManagerError::Busy { .. })
-            {
-                status = StatusCode::UNPROCESSABLE_ENTITY;
-            }
-        }
-
-        (status, Json(body)).into_response()
+    /// Creates an UNPROCESSABLE_ENTITY (422) response from this error.
+    fn unprocessable_entity(self) -> Response {
+        ErrorResponse::unprocessable_entity(self)
     }
 }
 
@@ -95,7 +94,7 @@ impl ServerState {
     }
 }
 
-type ServerResult<T> = Result<T, Error>;
+// Handlers return Response directly for errors so they can choose the appropriate status code
 
 /// Sets up and returns the axum service for the manager module
 ///
@@ -132,13 +131,13 @@ pub fn server_with_state(state: ServerState) -> Result<Router, ServiceError> {
             "/questions",
             get(get_questions).post(ask_question).patch(update_question),
         )
-        .route("/licenses/:id", get(get_license))
+        .route("/licenses/{id}", get(get_license))
         .route(
             "/private/storage_model",
             get(get_storage_model).put(set_storage_model),
         )
         .route("/private/solve_storage_model", get(solve_storage_model))
-        .route("/private/resolvables/:id", put(set_resolvables))
+        .route("/private/resolvables/{id}", put(set_resolvables))
         .route("/private/download_logs", get(download_logs))
         .route("/private/password_check", post(check_password))
         .with_state(state))
@@ -149,12 +148,16 @@ pub fn server_with_state(state: ServerState) -> Result<Router, ServiceError> {
     path = "/status",
     context_path = "/api/v2",
     responses(
-        (status = 200, description = "Status of the installation."),
-        (status = 400, description = "Not possible to retrieve the status of the installation.")
+        (status = 200, description = "Status of the installation.", body = Status),
+        (status = 500, description = "Internal server error.", body = ErrorResponse)
     )
 )]
-async fn get_status(State(state): State<ServerState>) -> ServerResult<Json<Status>> {
-    let status = state.manager.call(progress::message::GetStatus).await?;
+async fn get_status(State(state): State<ServerState>) -> Result<Json<Status>, Response> {
+    let status = state
+        .manager
+        .call(progress::message::GetStatus)
+        .await
+        .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(Json(status))
 }
 
@@ -164,12 +167,16 @@ async fn get_status(State(state): State<ServerState>) -> ServerResult<Json<Statu
     path = "/system",
     context_path = "/api/v2",
     responses(
-        (status = 200, description = "System information."),
-        (status = 400, description = "Not possible to retrieve the system information.")
+        (status = 200, description = "System information.", body = SystemInfo),
+        (status = 500, description = "Internal server error.", body = ErrorResponse)
     )
 )]
-async fn get_system(State(state): State<ServerState>) -> ServerResult<Json<SystemInfo>> {
-    let system = state.manager.call(message::GetSystem).await?;
+async fn get_system(State(state): State<ServerState>) -> Result<Json<SystemInfo>, Response> {
+    let system = state
+        .manager
+        .call(message::GetSystem)
+        .await
+        .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(Json(system))
 }
 
@@ -179,12 +186,16 @@ async fn get_system(State(state): State<ServerState>) -> ServerResult<Json<Syste
     path = "/extended_config",
     context_path = "/api/v2",
     responses(
-        (status = 200, description = "Extended configuration"),
-        (status = 400, description = "Not possible to retrieve the configuration.")
+        (status = 200, description = "Extended configuration", body = Config),
+        (status = 500, description = "Internal server error.", body = ErrorResponse)
     )
 )]
-async fn get_extended_config(State(state): State<ServerState>) -> ServerResult<Json<Config>> {
-    let config = state.manager.call(message::GetExtendedConfig).await?;
+async fn get_extended_config(State(state): State<ServerState>) -> Result<Json<Config>, Response> {
+    let config = state
+        .manager
+        .call(message::GetExtendedConfig)
+        .await
+        .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(Json(config))
 }
 
@@ -194,12 +205,16 @@ async fn get_extended_config(State(state): State<ServerState>) -> ServerResult<J
     path = "/config",
     context_path = "/api/v2",
     responses(
-        (status = 200, description = "Configuration."),
-        (status = 400, description = "Not possible to retrieve the configuration.")
+        (status = 200, description = "Configuration.", body = Config),
+        (status = 500, description = "Internal server error.", body = ErrorResponse)
     )
 )]
-async fn get_config(State(state): State<ServerState>) -> ServerResult<Json<Config>> {
-    let config = state.manager.call(message::GetConfig).await?;
+async fn get_config(State(state): State<ServerState>) -> Result<Json<Config>, Response> {
+    let config = state
+        .manager
+        .call(message::GetConfig)
+        .await
+        .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(Json(config))
 }
 
@@ -213,13 +228,23 @@ async fn get_config(State(state): State<ServerState>) -> ServerResult<Json<Confi
     request_body(content = Value, description = "Configuration to apply."),
     responses(
         (status = 200, description = "The configuration was replaced. Other operations can be running in background."),
-        (status = 400, description = "Not possible to replace the configuration.")
+        (status = 400, description = "Invalid configuration schema or malformed JSON.", body = ErrorResponse),
+        (status = 500, description = "Internal server error.", body = ErrorResponse)
     )
 )]
-async fn put_config(State(state): State<ServerState>, Json(json): Json<Value>) -> ServerResult<()> {
-    config_schema::check(&json)?;
-    let config = serde_json::from_value(json)?;
-    state.manager.call(message::SetConfig::new(config)).await?;
+async fn put_config(
+    State(state): State<ServerState>,
+    Json(json): Json<Value>,
+) -> Result<(), Response> {
+    // Schema validation errors and JSON parsing errors are client errors (400)
+    config_schema::check(&json).map_err(|e| Error::from(e).bad_request())?;
+    let config = serde_json::from_value(json).map_err(|e| Error::from(e).bad_request())?;
+    // Manager errors are internal server errors (500)
+    state
+        .manager
+        .call(message::SetConfig::new(config))
+        .await
+        .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(())
 }
 
@@ -233,20 +258,24 @@ async fn put_config(State(state): State<ServerState>, Json(json): Json<Value>) -
     request_body(content = Patch, description = "Changes in the configuration."),
     responses(
         (status = 200, description = "The configuration was patched. Other operations can be running in background."),
-        (status = 400, description = "Not possible to patch the configuration.")
+        (status = 400, description = "Invalid configuration schema or malformed JSON.", body = ErrorResponse),
+        (status = 500, description = "Internal server error.", body = ErrorResponse)
     )
 )]
 async fn patch_config(
     State(state): State<ServerState>,
     Json(patch): Json<Patch>,
-) -> ServerResult<()> {
+) -> Result<(), Response> {
     if let Some(json) = patch.update {
-        config_schema::check(&json)?;
-        let config = serde_json::from_value(json)?;
+        // Schema validation errors and JSON parsing errors are client errors (400)
+        config_schema::check(&json).map_err(|e| Error::from(e).bad_request())?;
+        let config = serde_json::from_value(json).map_err(|e| Error::from(e).bad_request())?;
+        // Manager errors are internal server errors (500)
         state
             .manager
             .call(message::UpdateConfig::new(config))
-            .await?;
+            .await
+            .map_err(|e| Error::from(e).internal_server_error())?;
     }
     Ok(())
 }
@@ -257,12 +286,17 @@ async fn patch_config(
     path = "/proposal",
     context_path = "/api/v2",
     responses(
-        (status = 200, description = "Proposal successfully retrieved."),
-        (status = 400, description = "Not possible to retrieve the proposal.")
+        (status = 200, description = "Proposal successfully retrieved.", body = Proposal),
+        (status = 404, description = "Proposal not available yet."),
+        (status = 500, description = "Internal server error.", body = ErrorResponse)
     )
 )]
-async fn get_proposal(State(state): State<ServerState>) -> ServerResult<Response> {
-    let proposal = state.manager.call(message::GetProposal).await?;
+async fn get_proposal(State(state): State<ServerState>) -> Result<Response, Response> {
+    let proposal = state
+        .manager
+        .call(message::GetProposal)
+        .await
+        .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(to_option_response(proposal))
 }
 
@@ -273,11 +307,17 @@ async fn get_proposal(State(state): State<ServerState>) -> ServerResult<Response
     context_path = "/api/v2",
     responses(
         (status = 200, description = "Agama issues", body = Vec<IssueWithScope>),
-        (status = 400, description = "Not possible to retrieve the issues")
+        (status = 500, description = "Internal server error.", body = ErrorResponse)
     )
 )]
-async fn get_issues(State(state): State<ServerState>) -> ServerResult<Json<Vec<IssueWithScope>>> {
-    let issue_groups = state.manager.call(message::GetIssues).await?;
+async fn get_issues(
+    State(state): State<ServerState>,
+) -> Result<Json<Vec<IssueWithScope>>, Response> {
+    let issue_groups = state
+        .manager
+        .call(message::GetIssues)
+        .await
+        .map_err(|e| Error::from(e).internal_server_error())?;
 
     let issues = issue_groups
         .into_iter()
@@ -299,11 +339,15 @@ async fn get_issues(State(state): State<ServerState>) -> ServerResult<Json<Vec<I
     context_path = "/api/v2",
     responses(
         (status = 200, description = "Agama questions", body = HashMap<u32, QuestionSpec>),
-        (status = 400, description = "Not possible to retrieve the questions")
+        (status = 500, description = "Internal server error.", body = ErrorResponse)
     )
 )]
-async fn get_questions(State(state): State<ServerState>) -> ServerResult<Json<Vec<Question>>> {
-    let questions = state.questions.call(question::message::Get).await?;
+async fn get_questions(State(state): State<ServerState>) -> Result<Json<Vec<Question>>, Response> {
+    let questions = state
+        .questions
+        .call(question::message::Get)
+        .await
+        .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(Json(questions))
 }
 
@@ -314,17 +358,19 @@ async fn get_questions(State(state): State<ServerState>) -> ServerResult<Json<Ve
     context_path = "/api/v2",
     responses(
         (status = 200, description = "New question's ID", body = u32),
-        (status = 400, description = "Not possible to register the question")
+        (status = 400, description = "Malformed JSON.", body = ErrorResponse),
+        (status = 500, description = "Internal server error.", body = ErrorResponse)
     )
 )]
 async fn ask_question(
     State(state): State<ServerState>,
     Json(question): Json<QuestionSpec>,
-) -> ServerResult<Json<Question>> {
+) -> Result<Json<Question>, Response> {
     let question = state
         .questions
         .call(question::message::Ask::new(question))
-        .await?;
+        .await
+        .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(Json(question))
 }
 
@@ -336,25 +382,28 @@ async fn ask_question(
     request_body = UpdateQuestion,
     responses(
         (status = 200, description = "The question was answered or deleted"),
-        (status = 400, description = "It was not possible to update the question")
+        (status = 400, description = "Malformed JSON.", body = ErrorResponse),
+        (status = 500, description = "Internal server error.", body = ErrorResponse)
     )
 )]
 async fn update_question(
     State(state): State<ServerState>,
     Json(operation): Json<UpdateQuestion>,
-) -> ServerResult<()> {
+) -> Result<(), Response> {
     match operation {
         UpdateQuestion::Answer { id, answer } => {
             state
                 .questions
                 .call(question::message::Answer { id, answer })
-                .await?;
+                .await
+                .map_err(|e| Error::from(e).internal_server_error())?;
         }
         UpdateQuestion::Delete { id } => {
             state
                 .questions
                 .call(question::message::Delete { id })
-                .await?;
+                .await
+                .map_err(|e| Error::from(e).internal_server_error())?;
         }
     }
     Ok(())
@@ -371,30 +420,32 @@ struct LicenseQuery {
 /// the license in English.
 #[utoipa::path(
     get,
-    path = "/licenses/:id",
+    path = "/licenses/{id}",
     context_path = "/api/software",
     params(LicenseQuery),
     responses(
         (status = 200, description = "License with the given ID", body = LicenseContent),
-        (status = 400, description = "The specified language tag is not valid"),
-        (status = 404, description = "There is not license with the given ID")
+        (status = 400, description = "The specified language tag is not valid", body = ErrorResponse),
+        (status = 404, description = "There is not license with the given ID"),
+        (status = 500, description = "Internal server error.", body = ErrorResponse)
     )
 )]
 async fn get_license(
     State(state): State<ServerState>,
     Path(id): Path<String>,
     Query(query): Query<LicenseQuery>,
-) -> Result<Response, Error> {
+) -> Result<Response, Response> {
     let lang = query.lang.unwrap_or("en".to_string());
-
-    let Ok(lang) = lang.as_str().try_into() else {
-        return Ok(StatusCode::BAD_REQUEST.into_response());
-    };
+    let lang = lang
+        .as_str()
+        .try_into()
+        .map_err(|_| Error::MissingLanguageTag.bad_request())?;
 
     let license = state
         .manager
         .call(message::GetLicense::new(id.to_string(), lang))
-        .await?;
+        .await
+        .map_err(|e| Error::from(e).internal_server_error())?;
     if let Some(license) = license {
         Ok(Json(license).into_response())
     } else {
@@ -409,15 +460,25 @@ async fn get_license(
     request_body(content = Action, description = "Description of the action to run."),
     responses(
         (status = 200, description = "Action successfully ran."),
-        (status = 400, description = "Not possible to run the action.", body = Object),
-        (status = 422, description = "Action blocked by backend state", body = Object)
+        (status = 422, description = "Action blocked by backend state", body = ErrorResponse),
+        (status = 500, description = "Internal server error.", body = ErrorResponse)
     )
 )]
 async fn run_action(
     State(state): State<ServerState>,
     Json(action): Json<Action>,
-) -> ServerResult<()> {
-    state.manager.call(message::RunAction::new(action)).await?;
+) -> Result<(), Response> {
+    // RunAction can fail with PendingIssues or Busy errors (422) or other errors (500)
+    state
+        .manager
+        .call(message::RunAction::new(action))
+        .await
+        .map_err(|error| match &error {
+            ManagerError::PendingIssues { .. } | ManagerError::Busy { .. } => {
+                Error::from(error).unprocessable_entity()
+            }
+            _ => Error::from(error).internal_server_error(),
+        })?;
     Ok(())
 }
 
@@ -428,11 +489,17 @@ async fn run_action(
     context_path = "/api/v2",
     responses(
         (status = 200, description = "Storage model was successfully retrieved."),
-        (status = 400, description = "Not possible to retrieve the storage model.")
+        (status = 500, description = "Internal server error.", body = ErrorResponse)
     )
 )]
-async fn get_storage_model(State(state): State<ServerState>) -> ServerResult<Json<Option<Value>>> {
-    let model = state.manager.call(message::GetStorageModel).await?;
+async fn get_storage_model(
+    State(state): State<ServerState>,
+) -> Result<Json<Option<Value>>, Response> {
+    let model = state
+        .manager
+        .call(message::GetStorageModel)
+        .await
+        .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(Json(model))
 }
 
@@ -443,17 +510,19 @@ async fn get_storage_model(State(state): State<ServerState>) -> ServerResult<Jso
     context_path = "/api/v2",
     responses(
         (status = 200, description = "Set the storage model"),
-        (status = 400, description = "Not possible to set the storage model")
+        (status = 400, description = "Malformed JSON.", body = ErrorResponse),
+        (status = 500, description = "Internal server error.", body = ErrorResponse)
     )
 )]
 async fn set_storage_model(
     State(state): State<ServerState>,
     Json(model): Json<Value>,
-) -> ServerResult<()> {
+) -> Result<(), Response> {
     state
         .manager
         .call(message::SetStorageModel::new(model))
-        .await?;
+        .await
+        .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(())
 }
 
@@ -465,23 +534,24 @@ async fn set_storage_model(
     params(query::SolveStorageModel),
     responses(
         (status = 200, description = "Solve the storage model", body = String),
-        (status = 400, description = "Not possible to solve the storage model")
+        (status = 500, description = "Internal server error.", body = ErrorResponse)
     )
 )]
 async fn solve_storage_model(
     State(state): State<ServerState>,
     Query(params): Query<query::SolveStorageModel>,
-) -> Result<Json<Option<Value>>, Error> {
+) -> Result<Json<Option<Value>>, Response> {
     let solved_model = state
         .manager
         .call(message::SolveStorageModel::new(params.model))
-        .await?;
+        .await
+        .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(Json(solved_model))
 }
 
 #[utoipa::path(
     put,
-    path = "/resolvables/:id",
+    path = "/resolvables/{id}",
     context_path = "/api/v2",
     responses(
         (status = 200, description = "The resolvables list was updated.")
@@ -491,13 +561,14 @@ async fn set_resolvables(
     State(state): State<ServerState>,
     Path(id): Path<String>,
     Json(resolvables): Json<Vec<Resolvable>>,
-) -> ServerResult<()> {
+) -> Result<(), Response> {
     state
         .manager
         .cast(agama_software::message::SetResolvables::new(
             id,
             resolvables,
-        ))?;
+        ))
+        .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(())
 }
 
@@ -573,16 +644,18 @@ pub struct PasswordParams {
     description = "Performs a quality check on a given password",
     responses(
         (status = 200, description = "The password was checked", body = String),
-        (status = 400, description = "Could not check the password")
+        (status = 400, description = "Malformed JSON.", body = ErrorResponse),
+        (status = 500, description = "Internal server error.", body = ErrorResponse)
     )
 )]
 async fn check_password(
     State(state): State<ServerState>,
     Json(password): Json<PasswordParams>,
-) -> Result<Json<PasswordCheckResult>, Error> {
+) -> Result<Json<PasswordCheckResult>, Response> {
     let result = state
         .manager
         .call(users::message::CheckPassword::new(password.password))
-        .await?;
+        .await
+        .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(Json(result))
 }

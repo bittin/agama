@@ -48,6 +48,24 @@ export default {
   "%d devices available": [
     "%d 個のデバイスが利用可能です"
   ],
+  "%d duplicates skipped.": [
+    "%d 個の重複項目を読み飛ばしました。"
+  ],
+  "%d entries added, %d duplicates skipped.": [
+    "%d 個の項目を追加しました。 %d 個の重複項目を読み飛ばしました。"
+  ],
+  "%d entries added, %d invalid, %d duplicates skipped.": [
+    "%d 個の項目を追加しました。 %d 個の項目は正しくありませんでした。 %d 個の重複項目を読み飛ばしました。"
+  ],
+  "%d entries added, %d invalid.": [
+    "%d 個の項目を追加しました。 %d 個の項目は正しくありませんでした。"
+  ],
+  "%d entries added.": [
+    "%d 個の項目を追加しました。"
+  ],
+  "%d invalid entries removed.": [
+    "%d 個の正しくない項目を削除しました。"
+  ],
   "%d mode available": [
     "%d 個のモードが利用可能です"
   ],
@@ -56,6 +74,15 @@ export default {
   ],
   "%s - %s": [
     "%s - %s"
+  ],
+  "%s added but is invalid: %s. Select to edit.": [
+    "%s を追加しましたが、正しくありません: %s 。編集するには選択してください。"
+  ],
+  "%s added.": [
+    "%s を追加しました。"
+  ],
+  "%s already exists, skipped.": [
+    "%s は既に存在しているため、読み飛ばしました。"
   ],
   "%s and %d others": [
     "%s とその他 %d 個のアドレス"
@@ -69,11 +96,23 @@ export default {
   "%s disk": [
     "%s ディスク"
   ],
+  "%s entries": [
+    "%s の項目"
+  ],
   "%s has been registered with below information.": [
     "%s を下記の情報で登録しました。"
   ],
+  "%s is invalid: %s": [
+    "%s が正しくありません: %s"
+  ],
   "%s logo": [
     "%s ロゴ"
+  ],
+  "%s moved to input for editing.": [
+    "%s を編集のため入力欄に移動しました。"
+  ],
+  "%s removed.": [
+    "%s を削除しました。"
   ],
   "%s task active": [
     "%s 個の処理が動作中です"
@@ -81,20 +120,23 @@ export default {
   "%s will be created as a logical volume": [
     "%s を論理ボリューム内に作成します"
   ],
+  "%s will be created as a partition": [
+    "%s をパーティションとして作成します"
+  ],
   "%s will still contain the configured LVM groups and any partition needed to boot": [
     "%s には起動に必要な LVM グループとパーティションが含まれています"
   ],
   "%s with %d partitions": [
     "%s (%d 個のパーティション)"
   ],
-  "(bind by name)": [
-    "(名前で結びつけ)"
-  ],
   "(bound by MAC)": [
     "(MAC アドレスで結びつけ)"
   ],
   "(bound by name)": [
     "(名前で結びつけ)"
+  ],
+  "(optional)": [
+    "(任意)"
   ],
   "(step %s of %s)": [
     "(ステップ %s / %s)"
@@ -115,19 +157,28 @@ export default {
     "ファイルシステムはデバイス全体を使用する"
   ],
   "A generic minimum size of %1$s will be used for the new %2$s": [
-    "新しい %2$s に対しては少なくとも %1$s を使用します"
+    "新しい %2$s に対して少なくとも %1$s を使用します"
   ],
   "A generic size of %1$s will be used for the new %2$s": [
-    "新しい %2$s に対しては一般的なサイズ %1$s を使用します"
+    "新しい %2$s に対して一般的なサイズ %1$s を使用します"
   ],
   "A generic size range between %1$s and %2$s will be used for the new %3$s": [
-    "新しい %3$s に対しては一般的なサイズ %1$s から %2$s の範囲を使用します"
+    "新しい %3$s に対して一般的なサイズ %1$s から %2$s の範囲を使用します"
+  ],
+  "A logical volume may be deleted": [
+    "論理ボリュームを削除するかもしれません"
+  ],
+  "A logical volume may be shrunk": [
+    "論理ボリュームを縮小するかもしれません"
+  ],
+  "A logical volume will be deleted": [
+    "論理ボリュームを削除します"
+  ],
+  "A new logical volume will be created for %s": [
+    "%s に対して新しい論理ボリュームを作成します"
   ],
   "A new partition will be created for %s": [
     "%s に対して新しいパーティションを作成する"
-  ],
-  "A new volume will be created for %s": [
-    "%s に対しては新しいボリュームを作成します"
   ],
   "A partition may be deleted": [
     "パーティションを削除するかもしれません"
@@ -177,26 +228,14 @@ export default {
   "Add": [
     "追加"
   ],
-  "Add DNS": [
-    "DNS の追加"
+  "Add %s": [
+    "%s を追加"
   ],
   "Add LVM volume group": [
     "新規 LVM ボリュームグループの追加"
   ],
   "Add a partition or mount an existing one": [
     "パーティションの追加または既存のパーティションのマウント"
-  ],
-  "Add an address": [
-    "アドレスの追加"
-  ],
-  "Add another DNS": [
-    "その他の DNS の追加"
-  ],
-  "Add another address": [
-    "その他のアドレスの追加"
-  ],
-  "Add another search domain": [
-    "その他の検索ドメインの追加"
   ],
   "Add connection": [
     "接続の追加"
@@ -207,11 +246,11 @@ export default {
   "Add logical volume": [
     "論理ボリュームの追加"
   ],
+  "Add or use logical volume": [
+    "論理ボリュームの追加または使用"
+  ],
   "Add or use partition": [
     "パーティションの追加または使用"
-  ],
-  "Add search domain": [
-    "検索ドメインの追加"
   ],
   "Additional CHAP authentication performed by the initiator": [
     "イニシエータによる追加の CHAP 認証"
@@ -219,11 +258,8 @@ export default {
   "Address": [
     "アドレス"
   ],
-  "Addresses": [
-    "アドレス"
-  ],
-  "Addresses data list": [
-    "アドレスデータの一覧"
+  "Address and gateway assigned from the network": [
+    "アドレスとゲートウエイをネットワーク側から割り当てます"
   ],
   "Adjust the settings below to make the new system fit into the available space.": [
     "新しいシステムが利用可能な領域内に収まるように設定を調整してください。"
@@ -261,8 +297,17 @@ export default {
   "Already using all available disks": [
     "既に利用可能な全てのディスクを使用しています"
   ],
+  "An existing logical volume will be used for %s": [
+    "%s に対して既存の論理ボリュームを使用します"
+  ],
   "An existing partition will be used for %s": [
     "%s に対して既存のパーティションを使用する"
+  ],
+  "Any": [
+    "任意"
+  ],
+  "Any existing logical volume will be removed and all data in the volume group will be lost.": [
+    "全ての論理ボリュームを削除し、ボリュームグループ内に存在するデータを全て消去します。"
   ],
   "Any existing partition will be removed and all data in the disk will be lost.": [
     "全てのパーティションを削除し、ディスク内に存在するデータを全て消去します。"
@@ -270,11 +315,26 @@ export default {
   "Any partition needed to boot will be configured.": [
     "起動に必要なパーティションについても設定を行います。"
   ],
+  "As a new logical volume on %s": [
+    "%s に新しい論理ボリュームとして"
+  ],
   "As a new partition on %s": [
     "%s に新しいパーティションとして"
   ],
-  "At least one address must be provided for selected mode": [
-    "選択しているモードの場合、 1 つ以上のアドレスを設定しなければなりません"
+  "At least one DNS search domain is required": [
+    "1 つ以上の DNS 検索ドメインを設定する必要があります"
+  ],
+  "At least one DNS server is required": [
+    "1 つ以上の DNS サーバを設定する必要があります"
+  ],
+  "At least one IPv4 address is required": [
+    "1 つ以上の IPv4 アドレスを設定する必要があります"
+  ],
+  "At least one IPv6 address is required": [
+    "1 つ以上の IPv6 アドレスを設定する必要があります"
+  ],
+  "At least one logical volume will be deleted": [
+    "少なくとも 1 つ以上の論理ボリュームを削除します"
   ],
   "At least one partition will be deleted": [
     "少なくとも 1 つのパーティションを削除する"
@@ -294,8 +354,8 @@ export default {
   "Automatic": [
     "自動"
   ],
-  "Automatic (DHCP)": [
-    "自動 (DHCP)"
+  "Automatic + manual": [
+    "自動 + 手動"
   ],
   "Automatic LUN scan is disabled": [
     "自動 LUN スキャンが無効化されています"
@@ -420,23 +480,26 @@ export default {
   "Change selection": [
     "選択の変更"
   ],
-  "Change the disk to configure": [
-    "設定したいディスクの変更"
+  "Change the device to configure": [
+    "設定したいデバイスの変更"
   ],
-  "Change the disk to create %s": [
-    "%s を作成するディスクの変更"
+  "Change the device to create %s": [
+    "%s を作成するデバイスの変更"
   ],
-  "Change the disk to format as %s": [
-    "%s としてフォーマットするディスクの変更"
+  "Change the device to format as %s": [
+    "%s としてフォーマットするデバイスの変更"
   ],
-  "Change the disk to install the system": [
-    "システムのインストール先となるディスクの変更"
+  "Change the device to install the system": [
+    "システムのインストール先となるデバイスの変更"
   ],
   "Change the file system or mount point": [
     "ファイルシステムまたはマウントポイントの変更"
   ],
   "Change to %s": [
     "%s に変更"
+  ],
+  "Change volume group menu": [
+    "ボリュームグループメニューの変更"
   ],
   "Changes in these settings will immediately update the 'Result' section below.": [
     "これらの設定を変更すると、下記の '結果' セクションに即時に反映されます。"
@@ -450,14 +513,23 @@ export default {
   "Check whether Agama server is running.": [
     "Agama サーバが動作しているかどうかをご確認ください。"
   ],
+  "Choose a RAID device to define partitions or to mount": [
+    "パーティションの設定またはマウントを行う RAID デバイスを選択してください"
+  ],
   "Choose a disk for placing the boot loader": [
     "ブートローダを配置するディスクを選択してください"
+  ],
+  "Choose a disk to define partitions or to mount": [
+    "パーティションの設定またはマウントを行うディスクを選択してください"
   ],
   "Choose a mode": [
     "モードを選択"
   ],
   "Choose a product": [
     "利用可能な %d 個の製品から選択してください"
+  ],
+  "Choose a volume group to define logical volumes": [
+    "論理ボリュームを設定するボリュームグループを選択してください"
   ],
   "Choose device to bind by MAC": [
     "MAC アドレスでデバイスを識別します"
@@ -466,7 +538,13 @@ export default {
     "名前でデバイスを識別します"
   ],
   "Choose how the connection should be associated with a network device. This helps control which device the connection uses.": [
-    "接続とネットワークデバイスとの関連づけ方式を指定してください。これにより、接続が使用するデバイスを制御することができます。"
+    "接続とネットワークデバイスとの関連づけ方式を指定してください。これにより、接続時に使用するデバイスを制御することができます。"
+  ],
+  "Chosen by MAC": [
+    "MAC アドレスで選択"
+  ],
+  "Chosen by name": [
+    "名前で選択"
   ],
   "Clear": [
     "消去"
@@ -482,6 +560,9 @@ export default {
   ],
   "Close": [
     "閉じる"
+  ],
+  "Configuration from the network plus static addresses and gateway": [
+    "ネットワーク側からの設定に加え、固定のアドレスとゲートウエイを設定します"
   ],
   "Configuration read from the iSCSI Boot Firmware Table (iBFT). Initiator cannot be changed.": [
     "iSCSI Boot Firmware Table (iBFT) から読み込んだ設定です。イニシエータの設定は変更できません。"
@@ -509,6 +590,9 @@ export default {
   ],
   "Configure logical volume": [
     "論理ボリュームの設定"
+  ],
+  "Configure logical volume at %s": [
+    "%s への論理ボリュームの設定"
   ],
   "Configure partition": [
     "パーティションの設定"
@@ -585,6 +669,9 @@ export default {
   "Connection is bound to device %s.": [
     "接続時にデバイス %s を使用するようにします。"
   ],
+  "Connection not found": [
+    "接続が見つかりません"
+  ],
   "Connection not found or lost": [
     "接続が見つからないか、接続が失われています"
   ],
@@ -621,6 +708,9 @@ export default {
   "Current content": [
     "現在の内容"
   ],
+  "Current logical volumes will be kept": [
+    "現在の論理ボリュームを維持します"
+  ],
   "Current partitions will be kept": [
     "現在のパーティションを維持する"
   ],
@@ -651,6 +741,12 @@ export default {
   "DNS Search List": [
     "DNS 検索リスト"
   ],
+  "DNS search domains": [
+    "DNS 検索ドメイン"
+  ],
+  "DNS servers": [
+    "DNS サーバ"
+  ],
   "Deactivate": [
     "無効化"
   ],
@@ -660,8 +756,8 @@ export default {
   "Default file system for %s": [
     "%s に対する既定のファイルシステム"
   ],
-  "Default file system for generic logical volumes": [
-    "汎用パーティションに対する既定のファイルシステム"
+  "Default file system for generic logical volume": [
+    "汎用論理ボリュームに対する既定のファイルシステム"
   ],
   "Default file system for generic mount paths": [
     "一般的なマウント先の場合に使用する既定のファイルシステム"
@@ -705,6 +801,9 @@ export default {
   "Destroy current data and format device as": [
     "現在のデータを消去して下記の形式でデバイスをフォーマット:"
   ],
+  "Destroy current data and format logical volume as": [
+    "現在のデータを消去して下記の形式で論理ボリュームをフォーマット:"
+  ],
   "Destroy current data and format partition as": [
     "現在のデータを消去して下記の形式でパーティションをフォーマット:"
   ],
@@ -719,6 +818,9 @@ export default {
   ],
   "Device details": [
     "デバイスの詳細"
+  ],
+  "Device name": [
+    "デバイス名"
   ],
   "Discard": [
     "破棄"
@@ -768,9 +870,6 @@ export default {
   "Do not use": [
     "使用しない"
   ],
-  "Domain": [
-    "ドメイン"
-  ],
   "Down": [
     "停止中"
   ],
@@ -782,6 +881,24 @@ export default {
   ],
   "Download logs to troubleshoot or share with support.": [
     "ログをダウンロードして原因を調査するか、サポートに共有してください。"
+  ],
+  "E.g., 192.168.1.1": [
+    "例: 192.168.1.1"
+  ],
+  "E.g., 192.168.1.1 or 192.168.1.1/24. Prefix auto-added if omitted.": [
+    "例: 192.168.1.1, 192.168.1.1/24 等。プレフィクスを省略した場合、自動で設定されます。"
+  ],
+  "E.g., 2001:db8::1": [
+    "例: 2001:db8::1"
+  ],
+  "E.g., 2001:db8::1 or 2001:db8::1/64. Prefix auto-added if omitted.": [
+    "例: 2001:db8::1, 2001:db8::1/64 等。プレフィクスを省略した場合、自動で設定されます。"
+  ],
+  "E.g., 8.8.8.8 or 2001:4860:4860::8888": [
+    "例: 8.8.8.8, 2001:4860:4860::8888"
+  ],
+  "E.g., example.com": [
+    "例: example.com"
   ],
   "Edit": [
     "編集"
@@ -845,6 +962,9 @@ export default {
   ],
   "Enter a name for the volume group.": [
     "ボリュームグループに対する名前を入力してください。"
+  ],
+  "Enter or Tab to add; arrow keys to navigate entries, Ctrl+arrows to reorder, Escape to exit; Backspace or Delete to remove.": [
+    "Enter キーまたは Tab キーで追加、矢印キーで項目間の移動、 Ctrl+矢印キーで順序変更、 Esc キーで終了、Backspace もしくは Delete キーで削除をそれぞれ行います。"
   ],
   "Ethernet": [
     "イーサネット"
@@ -969,9 +1089,6 @@ export default {
   "Gateway": [
     "ゲートウエイ"
   ],
-  "Gateway can be defined only in 'Manual' mode": [
-    "'手動' モードの場合にのみゲートウエイを設定できます"
-  ],
   "GiB": [
     "GiB"
   ],
@@ -1005,9 +1122,6 @@ export default {
   "I have read and accept the [license] for %s": [
     "%s に対する [ライセンス] を受け入れます"
   ],
-  "IP Address": [
-    "IP アドレス"
-  ],
   "IP Addresses": [
     "IP アドレス"
   ],
@@ -1020,8 +1134,38 @@ export default {
   "IPv4": [
     "IPv4"
   ],
+  "IPv4 Addresses": [
+    "IPv4 アドレス"
+  ],
+  "IPv4 Gateway": [
+    "IPv4 ゲートウエイ"
+  ],
+  "IPv4 Settings": [
+    "IPv4 設定"
+  ],
+  "IPv4 gateway is required": [
+    "IPv4 ゲートウエイを設定する必要があります"
+  ],
   "IPv6": [
     "IPv6"
+  ],
+  "IPv6 Addresses": [
+    "IPv6 アドレス"
+  ],
+  "IPv6 Gateway": [
+    "IPv6 ゲートウエイ"
+  ],
+  "IPv6 Settings": [
+    "IPv6 設定"
+  ],
+  "IPv6 gateway is required": [
+    "IPv6 ゲートウエイを設定する必要があります"
+  ],
+  "Identify the connection device by its name in the system": [
+    "システム内に設定された名前で接続に使用するデバイスを区別します"
+  ],
+  "Identify the connection device by its physical address": [
+    "物理アドレスで接続に使用するデバイスを識別します"
   ],
   "If a local media was used to run this installer, remove it before the next boot.": [
     "このインストーラの起動に際してローカルメディアを使用している場合は、次回の再起動までの間にメディアを取り出しておいてください。"
@@ -1092,6 +1236,24 @@ export default {
   "Interface": [
     "インターフェイス"
   ],
+  "Invalid DNS search domain": [
+    "DNS 検索ドメインが正しくありません"
+  ],
+  "Invalid DNS server address": [
+    "DNS サーバのアドレスが正しくありません"
+  ],
+  "Invalid IPv4 address": [
+    "IPv4 アドレスが正しくありません"
+  ],
+  "Invalid IPv4 gateway": [
+    "IPv4 ゲートウエイが正しくありません"
+  ],
+  "Invalid IPv6 address": [
+    "IPv6 アドレスが正しくありません"
+  ],
+  "Invalid IPv6 gateway": [
+    "IPv6 ゲートウエイが正しくありません"
+  ],
   "Invalid [zFCP] settings": [
     "正しくない [zFCP] 設定です"
   ],
@@ -1103,9 +1265,6 @@ export default {
   ],
   "Invalid storage settings": [
     "正しくないストレージ設定です"
-  ],
-  "Ip prefix or netmask": [
-    "IP プレフィクスもしくはネットマスク"
   ],
   "Issue date": [
     "発行日"
@@ -1146,6 +1305,9 @@ export default {
   "JFS": [
     "JFS"
   ],
+  "Keep %s": [
+    "%s を維持"
+  ],
   "Keyboard": [
     "キーボード"
   ],
@@ -1179,6 +1341,9 @@ export default {
   "Let the installer propose a sensible size": [
     "インストーラに適切なサイズを提案させる"
   ],
+  "Level": [
+    "レベル"
+  ],
   "License acceptance is required to continue.": [
     "続行するにはライセンスの受け入れが必要です。"
   ],
@@ -1209,8 +1374,23 @@ export default {
   "Logical volume name": [
     "論理ボリューム名"
   ],
+  "Logical volumes": [
+    "論理ボリューム"
+  ],
   "Logical volumes for %s": [
     "%s に対する論理ボリューム"
+  ],
+  "Logical volumes that are not reused will be removed and that data will be lost.": [
+    "再利用するように設定していない論理ボリュームは削除され、データは失われます。"
+  ],
+  "Logical volumes that are not reused will be resized as needed.": [
+    "再利用するように設定していない論理ボリュームは、必要に応じてサイズ変更されます。"
+  ],
+  "Logical volumes that are not reused would be resized if needed.": [
+    "再利用するように設定していない論理ボリュームは、必要に応じてサイズ変更されます。"
+  ],
+  "Logical volumes will be used and created for %s": [
+    "%s 向けに論理ボリュームを使用して作成する"
   ],
   "Login": [
     "ログイン"
@@ -1220,6 +1400,9 @@ export default {
   ],
   "MAC": [
     "MAC"
+  ],
+  "MAC address": [
+    "MAC アドレス"
   ],
   "Make sure that the passsword is correct and try again.": [
     "パスワードが正しいことをご確認のうえ、やり直してください。"
@@ -1235,6 +1418,9 @@ export default {
   ],
   "Max channel": [
     "最大チャネル"
+  ],
+  "Members": [
+    "メンバー"
   ],
   "Memory": [
     "メモリ"
@@ -1332,6 +1518,9 @@ export default {
   "Name": [
     "名前"
   ],
+  "Name is required": [
+    "名前を指定する必要があります"
+  ],
   "Needs about %s": [
     "おおよそ %s が必要"
   ],
@@ -1350,14 +1539,29 @@ export default {
   "New Wi-Fi connection": [
     "新しい Wi-Fi 接続"
   ],
+  "New connection": [
+    "新しい接続"
+  ],
   "No": [
     "いいえ"
   ],
   "No DASD devices found in this machine.": [
     "このマシンには DASD デバイスが見つかりませんでした。"
   ],
+  "No LVM volume groups are available for selection.": [
+    "選択可能な LVM ボリュームグループがありません。"
+  ],
+  "No LVM volume groups found": [
+    "LVM ボリュームグループが見つかりませんでした"
+  ],
+  "No RAID devices found": [
+    "RAID デバイスが見つかりませんでした"
+  ],
   "No Wi-Fi networks were found": [
     "検出された Wi-Fi ネットワークはありません"
+  ],
+  "No additional logical volumes will be created": [
+    "追加の論理ボリュームは作成しません"
   ],
   "No additional partitions will be created": [
     "追加パーティションは作成しない"
@@ -1398,20 +1602,26 @@ export default {
   "No devices selected. Select one or more devices to perform bulk actions.": [
     "何もデバイスを選択していません。一括処理を実施する 1 つ以上のデバイスを選択してください。"
   ],
+  "No disks are available for selection.": [
+    "選択可能なディスクがありません。"
+  ],
+  "No disks found": [
+    "ディスクが見つかりませんでした"
+  ],
   "No iSCSI Boot Firmware Table (iBFT) found. The initiator can be [configured manually.]": [
     "iSCSI Boot Firmware Table (iBFT) が見つかりませんでした。イニシエータの設定は [手作業で実施できます。]"
   ],
   "No information available yet": [
     "まだ情報はありません"
   ],
-  "No logical volumes are defined yet": [
-    "何も論理ボリュームを設定していません"
-  ],
   "No partitions will be automatically configured for booting.": [
     "起動用のパーティションを自動設定しません。"
   ],
   "No partitions will be automatically configured for booting. Use with caution.": [
     "起動用のパーティションを自動設定しません。注意してお使いください。"
+  ],
+  "No software RAID devices are available for selection.": [
+    "選択可能なソフトウエア RAID デバイスがありません。"
   ],
   "No support is planned.": [
     "サポートを提供する計画はありません。"
@@ -1490,6 +1700,12 @@ export default {
   ],
   "On boot": [
     "システム起動時"
+  ],
+  "Only reused logical volumes and space not assigned to any logical volume will be used.": [
+    "再利用するよう設定した論理ボリュームと、論理ボリュームに割り当てられていない領域のみを使用します。"
+  ],
+  "Only reused logical volumes will be used.": [
+    "再利用するよう設定した論理ボリュームのみを使用します。"
   ],
   "Only reused partitions and space not assigned to any partition will be used.": [
     "再利用するよう設定したパーティションと、パーティションの設定されていない領域のみを使用します。"
@@ -1572,6 +1788,9 @@ export default {
   "Performs auto LUN scan": [
     "自動 LUN スキャンを実行"
   ],
+  "Physical volumes": [
+    "物理ボリューム"
+  ],
   "PiB": [
     "PiB"
   ],
@@ -1586,9 +1805,6 @@ export default {
   ],
   "Potential data loss affecting at least %s": [
     "少なくとも %s に影響する潜在的なデータ削除が発生します"
-  ],
-  "Prefix length or netmask": [
-    "プレフィクス長またはサブネットマスク"
   ],
   "Proceeding may result in data loss": [
     "続行することによりデータ削除が発生する可能性があります"
@@ -1628,6 +1844,9 @@ export default {
   ],
   "Question": [
     "質問"
+  ],
+  "RAID": [
+    "RAID"
   ],
   "Read only": [
     "読み込み専用"
@@ -1677,11 +1896,14 @@ export default {
   "Reload": [
     "再読み込み"
   ],
-  "Remove": [
-    "削除"
+  "Remove %s": [
+    "%s を削除"
   ],
   "Remove the configuration for this disk": [
     "このディスクに対する設定を削除"
+  ],
+  "Remove the configuration for this volume group": [
+    "このボリュームグループに対する設定の削除"
   ],
   "Repository load failed": [
     "リポジトリ読み込み失敗"
@@ -1712,6 +1934,9 @@ export default {
   ],
   "Retrieving error details": [
     "エラーの詳細を取得しています"
+  ],
+  "Reused logical volumes will not be shrunk": [
+    "再利用した論理ボリュームについては縮小しません"
   ],
   "Reused partitions will not be shrunk": [
     "再利用したパーティションは縮小しない"
@@ -1776,14 +2001,11 @@ export default {
   "Select %s": [
     "%s を選択"
   ],
-  "Select a device to define partitions or to mount": [
-    "パーティションの設定またはマウントを行うデバイスを選択してください"
+  "Select a device": [
+    "デバイスの選択"
   ],
   "Select a disk": [
     "ディスクの選択"
-  ],
-  "Select a disk to define partitions or to mount": [
-    "パーティションの設定またはマウントを行うディスクを選択してください"
   ],
   "Select a mode": [
     "モードの選択"
@@ -1803,11 +2025,14 @@ export default {
   "Select a product to continue.": [
     "続行するには製品を選択してください。"
   ],
-  "Select another device to define partitions or to mount": [
-    "パーティションの設定またはマウントを行う他のデバイスを選択してください"
+  "Select an existing device": [
+    "既存のデバイスを選択"
   ],
-  "Select another disk to define partitions or to mount": [
-    "パーティションの設定またはマウントを行う他のディスクを選択してください"
+  "Select another disk": [
+    "その他のディスクを選択"
+  ],
+  "Select another existing device": [
+    "その他の既存のデバイスを選択"
   ],
   "Select at least one disk.": [
     "少なくとも 1 つのディスクを選択してください。"
@@ -1817,6 +2042,9 @@ export default {
   ],
   "Select devices to perform bulk actions": [
     "一括処理を実施するデバイスを選択してください"
+  ],
+  "Select entries to edit or remove them. Or [remove all invalid entries.]": [
+    "編集または削除する項目を選択してください。もしくは [正しくない全ての項目を削除] することもできます。"
   ],
   "Select or enter a mount point": [
     "マウントポイントの選択または入力"
@@ -1833,11 +2061,17 @@ export default {
   "Select the zFCP controllers to activate:": [
     "有効化する zFCP コントローラを選択してください:"
   ],
+  "Select what to do with each logical volume in order to find space for allocating the new system.": [
+    "新しいシステムのインストール先となる領域を確保するため、各論理ボリュームに対してやるべきことを選択します。"
+  ],
+  "Select what to do with each logical volume.": [
+    "それぞれの論理ボリュームに対してやるべきことを選択してください。"
+  ],
   "Select what to do with each partition in order to find space for allocating the new system.": [
-    "新しいシステムのインストール先となる領域を確保するため、各パーティションに対してすべきことを選択します。"
+    "新しいシステムのインストール先となる領域を確保するため、各パーティションに対してやるべきことを選択します。"
   ],
   "Select what to do with each partition.": [
-    "パーティションの設定作業を独自に実施します。"
+    "それぞれのパーティションに対してやるべきことを選択してください。"
   ],
   "Selected disk cannot be changed": [
     "選択済みのディスクは変更できません"
@@ -1845,8 +2079,8 @@ export default {
   "Selected patterns": [
     "パターンの選択"
   ],
-  "Server IP": [
-    "サーバ IP"
+  "Selected volume group cannot be changed": [
+    "選択済みのボリュームグループは変更できません"
   ],
   "Server URL": [
     "サーバ URL"
@@ -1866,6 +2100,9 @@ export default {
   "Settings": [
     "設定"
   ],
+  "Several logical volumes will be deleted": [
+    "複数の論理ボリュームを削除します"
+  ],
   "Several partitions will be deleted": [
     "いくつかのパーティションを削除する"
   ],
@@ -1884,6 +2121,9 @@ export default {
   "Show more": [
     "表示を増やす"
   ],
+  "Shrink existing logical volumes": [
+    "既存の論理ボリュームを縮小する"
+  ],
   "Shrink existing partitions": [
     "既存のパーティションを縮小する"
   ],
@@ -1895,9 +2135,6 @@ export default {
   ],
   "Size limits must be numbers followed by a unit like GiB or GB": [
     "サイズ制限は GiB や GB のような単位を付けた数値でなければなりません"
-  ],
-  "Size limits must be numbers optionally followed by a unit like GiB or GB": [
-    "サイズ制限は数値でなければいけません。なお、 GiB や GB のように単位を付けることもできます"
   ],
   "Size mode": [
     "サイズのモード"
@@ -1914,11 +2151,32 @@ export default {
   "Software %s": [
     "ソフトウエア %s"
   ],
+  "Some DNS search domains are invalid": [
+    "DNS 検索ドメインの中に正しくない設定があります"
+  ],
+  "Some DNS server addresses are invalid": [
+    "DNS サーバの中に正しくない設定があります"
+  ],
+  "Some IPv4 addresses are invalid": [
+    "IPv4 アドレスの中に正しくない設定があります"
+  ],
+  "Some IPv6 addresses are invalid": [
+    "IPv6 アドレスの中に正しくない設定があります"
+  ],
+  "Some existing logical volumes may be shrunk": [
+    "いくつかの既存の論理ボリュームを縮小するかもしれません"
+  ],
   "Some existing partitions may be shrunk": [
     "いくつかの既存パーティションを縮小する"
   ],
   "Some installation repositories could not be loaded. The system cannot be installed without them.": [
     "インストール用リポジトリのうち、読み込めなかったものがあります。これらのリポジトリ無しにはシステムをインストールできません。"
+  ],
+  "Some logical volumes may be deleted": [
+    "いくつかの論理ボリュームを削除するかもしれません"
+  ],
+  "Some logical volumes may be shrunk": [
+    "複数の論理ボリュームを縮小するかもしれません"
   ],
   "Some of the elements in your AutoYaST profile are not supported.": [
     "お使いの AutoYaST プロファイルのうち、いくつかの要素がサポート対象外となっています。"
@@ -1940,6 +2198,9 @@ export default {
   ],
   "Startup": [
     "起動"
+  ],
+  "Static addresses and gateway": [
+    "固定のアドレスとゲートウエイ"
   ],
   "Static hostname": [
     "固定のホスト名"
@@ -2007,6 +2268,15 @@ export default {
   "The connection can be used by any available device.": [
     "接続時に利用可能な任意のデバイスを使用するようにします。"
   ],
+  "The connection could not be saved": [
+    "接続を保存できませんでした"
+  ],
+  "The connection does not exist or is no longer available.": [
+    "接続が存在していないか、利用できなくなっています。"
+  ],
+  "The connection is available for all devices": [
+    "この接続を全てのデバイスから利用できるようにします"
+  ],
   "The connection will be used only during installation and not available in the installed system.": [
     "接続をインストール時にのみ使用するものとし、インストール後は削除します。"
   ],
@@ -2025,8 +2295,14 @@ export default {
   "The current storage configuration has the following issue:": [
     "現在のストレージ設定には下記の問題があります:"
   ],
+  "The data is kept, but the current logical volumes will be resized as needed.": [
+    "既存のデータは保持しますが、必要に応じて既存の論理ボリュームのサイズ変更を行います。"
+  ],
   "The data is kept, but the current partitions will be resized as needed.": [
     "既存のデータは保持しますが、必要に応じて既存のパーティションのサイズ変更を行います。"
+  ],
+  "The data is kept. Only the space not assigned to any logical volume will be used.": [
+    "既存のデータを保持します。論理ボリュームに割り当てられていない空き領域のみを使用します。"
   ],
   "The data is kept. Only the space not assigned to any partition will be used.": [
     "既存のデータを保持します。パーティションに割り当てられていない空き領域のみを使用します。"
@@ -2106,17 +2382,11 @@ export default {
   "The maximum must be a number followed by a unit like GiB or GB": [
     "最大値は GiB や GB のような単位を付けた数値でなければなりません"
   ],
-  "The maximum must be a number optionally followed by a unit like GiB or GB": [
-    "最大サイズは数値でなければいけません。なお、 GiB や GB のように単位を付けることもできます"
-  ],
   "The minimum cannot be greater than the maximum": [
     "最小サイズは最大サイズより小さくなければいけません"
   ],
   "The minimum must be a number followed by a unit like GiB or GB": [
     "最小値は GiB や GB のような単位を付けた数値でなければなりません"
-  ],
-  "The minimum must be a number optionally followed by a unit like GiB or GB": [
-    "最小サイズは数値でなければいけません。なお、 GiB や GB のように単位を付けることもできます"
   ],
   "The modal selector offers a simplified interface designed for quick and straightforward use, without overwhelming the user.": [
     "このモーダル型の選択ページは、迅速で分かりやすく、かつユーザを混乱させることのないシンプルなインターフェイスを提供します。"
@@ -2193,6 +2463,9 @@ export default {
   "There are not disks available for the installation. You may need to configure some device.": [
     "インストールに利用できるディスクがありません。デバイスの設定を行う必要があるかもしれません。"
   ],
+  "There are not usable logical volumes": [
+    "利用可能な論理ボリュームがありません"
+  ],
   "There are not usable partitions": [
     "利用可能なパーティションがありません"
   ],
@@ -2237,6 +2510,9 @@ export default {
   ],
   "This space includes the base system and the selected software patterns, if any.": [
     "この容量にはシステムの基本部分のほか、選択したソフトウエアパターンが含まれます。"
+  ],
+  "This uses existing logical volumes at the volume group": [
+    "これはボリュームグループ内の既存の論理ボリュームを使用します"
   ],
   "This uses existing partitions at the disk": [
     "これはディスク内の既存パーティションを使用します"
@@ -2319,6 +2595,9 @@ export default {
   "Use": [
     "使用"
   ],
+  "Use LVM volume group %s": [
+    "LVM ボリュームグループ %s の使用"
+  ],
   "Use RAID %s": [
     "RAID %s を使用する"
   ],
@@ -2360,6 +2639,12 @@ export default {
   ],
   "Use available space": [
     "利用可能な領域を使用する"
+  ],
+  "Use custom DNS search domains": [
+    "独自の検索ドメインの使用"
+  ],
+  "Use custom DNS servers": [
+    "独自の DNS サーバを使用"
   ],
   "Use device %s": [
     "デバイス %s を使用する"
@@ -2430,6 +2715,9 @@ export default {
   "Use the disk without partitions": [
     "パーティション無しでディスクを使用する"
   ],
+  "Use the tabs to browse disks, RAID devices and LVM volume groups.": [
+    "ディスクや RAID, LVM ボリュームグループを参照するには、タブをお使いください。"
+  ],
   "Use these same settings for the selected product": [
     "選択した製品に対しても同じ設定を使用する"
   ],
@@ -2457,11 +2745,17 @@ export default {
   "Using an advanced storage configuration": [
     "高度なストレージ設定を使用します"
   ],
+  "Using an existing logical volume": [
+    "既存論理ボリュームの使用"
+  ],
   "Using an existing partition": [
     "既存パーティションの使用"
   ],
   "Using code ending in %s": [
     "末尾 %s のコードを使用"
+  ],
+  "Using logical volume %s": [
+    "論理ボリューム %s を使用"
   ],
   "Using partition %s": [
     "パーティション %s の使用"
@@ -2472,11 +2766,23 @@ export default {
   "View license": [
     "ライセンスの表示"
   ],
+  "Volume %s": [
+    "ボリューム %s"
+  ],
   "Volume group %s": [
     "ボリュームグループ %s"
   ],
+  "Volume group %s menu": [
+    "ボリュームグループ %s メニュー"
+  ],
   "Volume group '%s' already exists. Enter a different name.": [
     "ボリュームグループ '%s' は既に存在しています。別の名前を入力してください。"
+  ],
+  "Volume groups cannot be formatted": [
+    "ボリュームグループはフォーマットできません"
+  ],
+  "Volumes %s": [
+    "ボリューム %s"
   ],
   "WPA & WPA2 Personal": [
     "WPA および WPA2 Personal"
@@ -2579,9 +2885,6 @@ export default {
   ],
   "partition": [
     "パーティション"
-  ],
-  "proposal.Device": [
-    "提案.デバイス"
   ],
   "reset to defaults": [
     "既定値に戻す"

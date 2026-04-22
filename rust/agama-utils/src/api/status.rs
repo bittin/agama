@@ -22,7 +22,7 @@ use crate::api::progress::Progress;
 use serde::{Deserialize, Serialize};
 
 // Information about the status of the installation.
-#[derive(Clone, Debug, Default, Deserialize, Serialize, utoipa::ToSchema)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, utoipa::ToSchema, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct Status {
     /// Stage of the installation
@@ -46,4 +46,10 @@ pub enum Stage {
     Finished,
     /// Installation failed
     Failed,
+}
+
+impl Stage {
+    pub fn is_last(&self) -> bool {
+        matches!(self, Stage::Finished | Stage::Failed)
+    }
 }

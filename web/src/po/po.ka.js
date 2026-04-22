@@ -51,6 +51,24 @@ export default {
   "%d devices available": [
     "ხელმისაწვდომია %d მოწყობილობა"
   ],
+  "%d duplicates skipped.": [
+    "%d გამეორება გამოტოვებულია."
+  ],
+  "%d entries added, %d duplicates skipped.": [
+    "%d ჩანაწერი დამატებულია. %d გამეორება გამოტოვებულია."
+  ],
+  "%d entries added, %d invalid, %d duplicates skipped.": [
+    "%d ჩანაწერი დაემატა, %d არასწორია, გამოტოვებულია %d გამეორებული."
+  ],
+  "%d entries added, %d invalid.": [
+    "%d ჩანაწერი დამატებულია. %d არასწორია."
+  ],
+  "%d entries added.": [
+    "%d ჩანაწერი დამატებულია."
+  ],
+  "%d invalid entries removed.": [
+    "%d არასწორი ჩანაწერი წაიშალა."
+  ],
   "%d mode available": [
     "ხელმისაწვდომია %d რეჟიმი",
     "ხელმისაწვდომია %d რეჟიმი"
@@ -61,6 +79,15 @@ export default {
   ],
   "%s - %s": [
     "%s - %s"
+  ],
+  "%s added but is invalid: %s. Select to edit.": [
+    ""
+  ],
+  "%s added.": [
+    "%s დამატებულია."
+  ],
+  "%s already exists, skipped.": [
+    "%s უკვე არსებობს. გამოტოვებულია."
   ],
   "%s and %d others": [
     "%s და კიდევ %d"
@@ -74,11 +101,23 @@ export default {
   "%s disk": [
     "%s დისკი"
   ],
+  "%s entries": [
+    "%s ჩანაწერი"
+  ],
   "%s has been registered with below information.": [
     "%s დარეგისტრირებულია შემდეგი ინფორმაციით ქვემოთ."
   ],
+  "%s is invalid: %s": [
+    "%s არასწორია: %s"
+  ],
   "%s logo": [
     "%s-ის ლოგო"
+  ],
+  "%s moved to input for editing.": [
+    "%s გადატანილია შეყვანაზე ჩასასწორებლად."
+  ],
+  "%s removed.": [
+    "%s წაშლილია."
   ],
   "%s task active": [
     "აქტიურია %s ამოცანა",
@@ -88,20 +127,24 @@ export default {
     "%s შეიქმნება ლოგიკური ტომის სახით",
     "%s შეიქმნება ლოგიკური ტომების სახით"
   ],
+  "%s will be created as a partition": [
+    "%s შეიქმნება, როგორც დანაყოფი",
+    "%s შეიქმნება, როგორც დანაყოფი"
+  ],
   "%s will still contain the configured LVM groups and any partition needed to boot": [
     ""
   ],
   "%s with %d partitions": [
     "%s %d დანაყოფით"
   ],
-  "(bind by name)": [
-    "(მიბმული სახელით)"
-  ],
   "(bound by MAC)": [
     "(მიბმა MAC-ით)"
   ],
   "(bound by name)": [
     "(მიბმა სახელით)"
+  ],
+  "(optional)": [
+    "(არასავალდებულო)"
   ],
   "(step %s of %s)": [
     "(ნაბიჯი %s %s-დან)"
@@ -131,13 +174,22 @@ export default {
   "A generic size range between %1$s and %2$s will be used for the new %3$s": [
     ""
   ],
+  "A logical volume may be deleted": [
+    "შეიძლება წაიშალოს ლოგიკური ტომი"
+  ],
+  "A logical volume may be shrunk": [
+    "ლოგიკური ტომი, შეიძლება, დაპატარავდეს"
+  ],
+  "A logical volume will be deleted": [
+    "წაიშლება ლოგიკური ტომი"
+  ],
+  "A new logical volume will be created for %s": [
+    "%s-ისთვის შეიქმნება ახალი ლოგიკური ტომი",
+    "%s-ისთვის შეიქმნება ახალი ლოგიკური ტომები"
+  ],
   "A new partition will be created for %s": [
     "%s-სთვის შეიქმნება ახალი დანაყოფი",
     "%s-სთვის შეიქმნება ახალი დანაყოფები"
-  ],
-  "A new volume will be created for %s": [
-    "%s-სთვის შეიქმნება ახალი ტომი",
-    "%s-სთვის შეიქმნება ახალი ტომები"
   ],
   "A partition may be deleted": [
     "დანაყოფი შეიძლება წაიშალოს"
@@ -188,26 +240,14 @@ export default {
   "Add": [
     "დამატება"
   ],
-  "Add DNS": [
-    "DNS-ის დამატება"
+  "Add %s": [
+    "%s-ის დამატება"
   ],
   "Add LVM volume group": [
     "LVM ტომების ჯგუფის დამატება"
   ],
   "Add a partition or mount an existing one": [
     "დაამატეთ დანაყოფი, ან მიამაგრეთ არსებული"
-  ],
-  "Add an address": [
-    "მისამართის დამატება"
-  ],
-  "Add another DNS": [
-    "კიდევ ერთი DNS-ის დამატება"
-  ],
-  "Add another address": [
-    "სხვა მისამართის დამატება"
-  ],
-  "Add another search domain": [
-    "კიდევ ერთი ძებნის დომენის დამატება"
   ],
   "Add connection": [
     "კავშირის დამატება"
@@ -218,11 +258,11 @@ export default {
   "Add logical volume": [
     "ლოგიკური ტომის დამატება"
   ],
+  "Add or use logical volume": [
+    "ლოგიკური ტომის დამატება, ან გამოყენება"
+  ],
   "Add or use partition": [
     "დანაყოფის დამატება ან გამოყენება"
-  ],
-  "Add search domain": [
-    "ძებნის დომენის დამატება"
   ],
   "Additional CHAP authentication performed by the initiator": [
     "ინიციატორის მიერ შესრულებული დამატებითი CHAP ავთენტიკაცია"
@@ -230,11 +270,8 @@ export default {
   "Address": [
     "მისამართი"
   ],
-  "Addresses": [
-    "მისამართები"
-  ],
-  "Addresses data list": [
-    "მისამართის მონაცემების სია"
+  "Address and gateway assigned from the network": [
+    "მისამართი და ნაგულისხმევი რაუტერი მინიჭებულია ქსელიდან"
   ],
   "Adjust the settings below to make the new system fit into the available space.": [
     ""
@@ -272,9 +309,19 @@ export default {
   "Already using all available disks": [
     "უკვე ვიყენებ ყველა ხელმისაწვდომ დისკს"
   ],
+  "An existing logical volume will be used for %s": [
+    "არსებული ლოგიკური ტომი იქნება გამოყენებული %s-სთვის",
+    "არსებული ლოგიკური ტომები იქნება გამოყენებული %s-სთვის"
+  ],
   "An existing partition will be used for %s": [
     "არსებული დანაყოფი იქნება გამოყენებული %s-სთვის",
     "არსებული დანაყოფები იქნება გამოყენებული %s-სთვის"
+  ],
+  "Any": [
+    "ნებისმიერი"
+  ],
+  "Any existing logical volume will be removed and all data in the volume group will be lost.": [
+    ""
   ],
   "Any existing partition will be removed and all data in the disk will be lost.": [
     ""
@@ -282,11 +329,26 @@ export default {
   "Any partition needed to boot will be configured.": [
     "ასევე მოხდება ჩასატვირთად საჭირო დანაყოფების მორგება."
   ],
+  "As a new logical volume on %s": [
+    "როგორც ახალი ლოგიკური ტომი %s-ზე"
+  ],
   "As a new partition on %s": [
     "როგორც ახალი დანაყოფი %s-ზე"
   ],
-  "At least one address must be provided for selected mode": [
-    "მონიშნული რეჟიმისთვის საჭიროა, სულ ცოტა, ერთი მისამართი"
+  "At least one DNS search domain is required": [
+    "აუცილებელია, სულ ცოტა, ერთი DNS ძებნის დომენი"
+  ],
+  "At least one DNS server is required": [
+    "საჭიროა, სულ ცოტა, ერთი DNS სერვერი"
+  ],
+  "At least one IPv4 address is required": [
+    "აუცილებელია, სულ ცოტა, ერთი IPv4 მისამართი"
+  ],
+  "At least one IPv6 address is required": [
+    "აუცილებელია, სულ ცოტა, ერთი IPv6 მისამართი"
+  ],
+  "At least one logical volume will be deleted": [
+    "წაიშლება, სულ ცოტა, ერთი ლოგიკური ტომი"
   ],
   "At least one partition will be deleted": [
     "წაიშლება, სულ ცოტა, ერთი დანაყოფი"
@@ -306,8 +368,8 @@ export default {
   "Automatic": [
     "ავტომატური"
   ],
-  "Automatic (DHCP)": [
-    "ავტომატური (მხოლოდ DHCP)"
+  "Automatic + manual": [
+    "ავტო + ხელით"
   ],
   "Automatic LUN scan is disabled": [
     "LUN-ის ავტომატური სკანირება გამორთულია"
@@ -432,23 +494,26 @@ export default {
   "Change selection": [
     "მონიშნულის შეცვლა"
   ],
-  "Change the disk to configure": [
+  "Change the device to configure": [
     "შეცვალეთ დისკი მოსარგებად"
   ],
-  "Change the disk to create %s": [
+  "Change the device to create %s": [
     "შეცვალეთ დისკი %s-ის შესაქმნელად"
   ],
-  "Change the disk to format as %s": [
-    "დისკის შეცვლა, რომ დაფორმატდეს, როგორც %s"
+  "Change the device to format as %s": [
+    "მოწყობილობის შეცვლა, რომ დაფორმატდეს, როგორც %s"
   ],
-  "Change the disk to install the system": [
-    "შეცვალეთ დისკი სისტემის დასაყენებლად"
+  "Change the device to install the system": [
+    "შეცვალეთ მოწყობილობა სისტემის დასაყენებლად"
   ],
   "Change the file system or mount point": [
     "ფილური სისტემის ან მიმაგრების წერტილის შეცვლა"
   ],
   "Change to %s": [
     "%s-ზე შეცვლა"
+  ],
+  "Change volume group menu": [
+    "ტომების ჯგუფის შეცვლის მენიუ"
   ],
   "Changes in these settings will immediately update the 'Result' section below.": [
     "ამ პარამეტრის შეცვლა დაუყოვნებლივ განაახლებს ქვემორე სექციას 'შედეგი'."
@@ -462,8 +527,14 @@ export default {
   "Check whether Agama server is running.": [
     "შეამოწმეთ, გაშვებულია თუ არა Agama server."
   ],
+  "Choose a RAID device to define partitions or to mount": [
+    "აირჩიეთ RAID მოწყობილობა დანაყოფების აღწერისთვის, ან მისამაგრებლად"
+  ],
   "Choose a disk for placing the boot loader": [
     "აირჩიეთ დისკის ჩამტვირთავის განსათავსებლად"
+  ],
+  "Choose a disk to define partitions or to mount": [
+    "დისკის არჩევა დანაყოფების აღწერისთვის, ან მისამაგრებლად"
   ],
   "Choose a mode": [
     "რეჟიმის არჩევა"
@@ -471,6 +542,9 @@ export default {
   "Choose a product": [
     "პროდუქტის არჩევა",
     "არჩევა %d ხელმისაწვდომი პროდუქტიდან"
+  ],
+  "Choose a volume group to define logical volumes": [
+    "აირჩიეთ ტომების ჯგუფი ლოგიკური ტომების აღსაწერად"
   ],
   "Choose device to bind by MAC": [
     "აირჩიეთ მოწყობილობა MAC-ით მისაბმელად"
@@ -480,6 +554,12 @@ export default {
   ],
   "Choose how the connection should be associated with a network device. This helps control which device the connection uses.": [
     ""
+  ],
+  "Chosen by MAC": [
+    "არჩეულია MAC-ით"
+  ],
+  "Chosen by name": [
+    "არჩეულია სახელით"
   ],
   "Clear": [
     "გაწმენდა"
@@ -495,6 +575,9 @@ export default {
   ],
   "Close": [
     "დახურვა"
+  ],
+  "Configuration from the network plus static addresses and gateway": [
+    ""
   ],
   "Configuration read from the iSCSI Boot Firmware Table (iBFT). Initiator cannot be changed.": [
     "iSCSI-დან ჩამტვირთავი მიკროკოდიდან (iBFT) წაკითხული კონფიგურაცია. ინიციატორის შეცვლა შეუძლებელია."
@@ -522,6 +605,9 @@ export default {
   ],
   "Configure logical volume": [
     "ლოგიკური ტომის მორგება"
+  ],
+  "Configure logical volume at %s": [
+    "ლოგიკური ტომის მორგება %s-ზე"
   ],
   "Configure partition": [
     "დანაყოფის მორგება"
@@ -599,6 +685,9 @@ export default {
   "Connection is bound to device %s.": [
     "კავშირი მიბმულია მოწყობილობაზე %s."
   ],
+  "Connection not found": [
+    "კავშირი აღმოჩენილი არაა"
+  ],
   "Connection not found or lost": [
     "კავშირის ვერ ვიპოვე, ან დაიკარგა"
   ],
@@ -635,6 +724,9 @@ export default {
   "Current content": [
     "მიმდინარე შემცველობა"
   ],
+  "Current logical volumes will be kept": [
+    "არსებული ლოგიკური ტომები შენარჩუნდება"
+  ],
   "Current partitions will be kept": [
     "არსებული დანაყოფები შენარჩუნდება"
   ],
@@ -665,6 +757,12 @@ export default {
   "DNS Search List": [
     "DNS ძებნის სია"
   ],
+  "DNS search domains": [
+    "DNS-ში ძებნის დომენები"
+  ],
+  "DNS servers": [
+    "DNS სერვერები"
+  ],
   "Deactivate": [
     "დეაქტივაცია"
   ],
@@ -674,8 +772,8 @@ export default {
   "Default file system for %s": [
     "ნაგულისხმევი ფაილური სისტემა %s-სთვის"
   ],
-  "Default file system for generic logical volumes": [
-    "ნაგულისხმევი ფაილური ზოგადი ლოგიკური ტომებისთვის"
+  "Default file system for generic logical volume": [
+    "ნაგულისხმევი ფაილური ზოგადი ლოგიკური ტომისთვის"
   ],
   "Default file system for generic mount paths": [
     "ნაგულისხმევი ფაილური სისტემა ზოგადი მიმაგრების წერტილებისთვის"
@@ -719,6 +817,9 @@ export default {
   "Destroy current data and format device as": [
     "არსებული მონაცემების განადგურება და დანაყოფის დაფორმატება, როგორც"
   ],
+  "Destroy current data and format logical volume as": [
+    "არსებული მონაცემების განადგურება და ლოგიკური ტომის დაფორმატება, როგორც"
+  ],
   "Destroy current data and format partition as": [
     "მიმდინარე მონაცემების განადგურება და დანაყოფის დაფორმატება, როგორც"
   ],
@@ -733,6 +834,9 @@ export default {
   ],
   "Device details": [
     "მოწყობილობის დეტალები"
+  ],
+  "Device name": [
+    "მოწყობილობის სახელი"
   ],
   "Discard": [
     "მოცილება"
@@ -782,9 +886,6 @@ export default {
   "Do not use": [
     "არ გამოიყენო"
   ],
-  "Domain": [
-    "დომენი"
-  ],
   "Down": [
     "გამორთ"
   ],
@@ -796,6 +897,24 @@ export default {
   ],
   "Download logs to troubleshoot or share with support.": [
     "ჟურნალის გადმოწერა პრობლემების გადასაჭრელად, ან მხარდაჭერის გუნდთან გასაზიარებლად."
+  ],
+  "E.g., 192.168.1.1": [
+    "მაგ: 192.168.1.1"
+  ],
+  "E.g., 192.168.1.1 or 192.168.1.1/24. Prefix auto-added if omitted.": [
+    ""
+  ],
+  "E.g., 2001:db8::1": [
+    "მაგ: 2001:db8::1"
+  ],
+  "E.g., 2001:db8::1 or 2001:db8::1/64. Prefix auto-added if omitted.": [
+    ""
+  ],
+  "E.g., 8.8.8.8 or 2001:4860:4860::8888": [
+    "მაგ: 8.8.8.8 ან 2001:4860:4860::8888"
+  ],
+  "E.g., example.com": [
+    "მაგ: example.com"
   ],
   "Edit": [
     "ჩასწორება"
@@ -859,6 +978,9 @@ export default {
   ],
   "Enter a name for the volume group.": [
     "შეიყვანეთ სახელი ტომების ჯგუფისთვის."
+  ],
+  "Enter or Tab to add; arrow keys to navigate entries, Ctrl+arrows to reorder, Escape to exit; Backspace or Delete to remove.": [
+    ""
   ],
   "Ethernet": [
     "Ethernet"
@@ -985,9 +1107,6 @@ export default {
   "Gateway": [
     "ნაგულისხმევი რაუტერი"
   ],
-  "Gateway can be defined only in 'Manual' mode": [
-    "ნაგულისხმევი რაუტერის მითითება, მხოლოდ, 'ხელით' რეჟიმში შეიძლება"
-  ],
   "GiB": [
     "გიბ"
   ],
@@ -1022,9 +1141,6 @@ export default {
   "I have read and accept the [license] for %s": [
     "მე წავიკითხე და დავეთანხმე ლიცენზიას %s-სთვის"
   ],
-  "IP Address": [
-    "IP მისამართი"
-  ],
   "IP Addresses": [
     "IP მისამართები"
   ],
@@ -1037,8 +1153,38 @@ export default {
   "IPv4": [
     "IPv4"
   ],
+  "IPv4 Addresses": [
+    "IPv4 მისამართები"
+  ],
+  "IPv4 Gateway": [
+    "IPv4 ნაგულისხმევი რაუტერი"
+  ],
+  "IPv4 Settings": [
+    "IPv4-ის მორგება"
+  ],
+  "IPv4 gateway is required": [
+    "IPv4 ნაგულისხმევი რაუტერი აუცილებელია"
+  ],
   "IPv6": [
     "IPv6"
+  ],
+  "IPv6 Addresses": [
+    "IPv6 მისამართები"
+  ],
+  "IPv6 Gateway": [
+    "IPv6 ნაგულისხმევი რაუტერი"
+  ],
+  "IPv6 Settings": [
+    "IPv6-ის მორგება"
+  ],
+  "IPv6 gateway is required": [
+    "IPv6 ნაგულისხმევი რაუტერი აუცილებელია"
+  ],
+  "Identify the connection device by its name in the system": [
+    ""
+  ],
+  "Identify the connection device by its physical address": [
+    "კავშირის მოწყობილობის იდენტიფიკაცია მისი ფიზიკური მისამართით"
   ],
   "If a local media was used to run this installer, remove it before the next boot.": [
     ""
@@ -1109,6 +1255,24 @@ export default {
   "Interface": [
     "ინტერფეისი"
   ],
+  "Invalid DNS search domain": [
+    "არასწორი DNS-ში ძებნის დომენი"
+  ],
+  "Invalid DNS server address": [
+    "არასწორი DNS სერვერის მისამართი"
+  ],
+  "Invalid IPv4 address": [
+    "არასწორი IPv4 მისამართი"
+  ],
+  "Invalid IPv4 gateway": [
+    "არასწორი IPv4 ნაგულისხმევი რაუტერი"
+  ],
+  "Invalid IPv6 address": [
+    "არასწორი IPv6 მისამართი"
+  ],
+  "Invalid IPv6 gateway": [
+    "არასწორი IPv6 ნაგულისხმევი რაუტერი"
+  ],
   "Invalid [zFCP] settings": [
     "არასწორი [zFCP] პარამეტრები"
   ],
@@ -1120,9 +1284,6 @@ export default {
   ],
   "Invalid storage settings": [
     "არასწორი საცავის პარამეტრები"
-  ],
-  "Ip prefix or netmask": [
-    "ip პრეფიქსი ან ქსელის ნიღაბი"
   ],
   "Issue date": [
     "გამოცემის თარიღი"
@@ -1163,6 +1324,9 @@ export default {
   "JFS": [
     "JFS"
   ],
+  "Keep %s": [
+    "%s-ის შენარჩუნება"
+  ],
   "Keyboard": [
     "კლავიატურა"
   ],
@@ -1196,6 +1360,9 @@ export default {
   "Let the installer propose a sensible size": [
     "დაყენების პროგრამისთვის ზომის შეთავაზების უფლების დართვა"
   ],
+  "Level": [
+    "დონე"
+  ],
   "License acceptance is required to continue.": [
     "გასაგრძელებლად ლიცენზიაზე თანხმობა აუცილებელია."
   ],
@@ -1226,8 +1393,23 @@ export default {
   "Logical volume name": [
     "ლოგიკური ტომის სახელი"
   ],
+  "Logical volumes": [
+    "ლოგიკური ტომები"
+  ],
   "Logical volumes for %s": [
     "ლოგიკური ტომები %s-სთვის"
+  ],
+  "Logical volumes that are not reused will be removed and that data will be lost.": [
+    "ლოგიკური ტომები, რომლებიც არ გამოიყენება თავიდან, წაიშლება და ზედ არსებული მონაცემები დაიკარგება."
+  ],
+  "Logical volumes that are not reused will be resized as needed.": [
+    "ლოგიკური ტომებს, რომლებიც არ გამოიყენება თავიდან, ზომა საჭიროებისამებრ შეეცვლებათ."
+  ],
+  "Logical volumes that are not reused would be resized if needed.": [
+    "ლოგიკურ ტომებს, რომლებიც თავიდან არ გამოიყენება, შეიძლება, ზომა საჭიროებისამებრ შეეცვალოს."
+  ],
+  "Logical volumes will be used and created for %s": [
+    "ლოგიკური ტომები, რომლებიც გამოყენებული და შექმნილი იქნება '%s'-სთვის"
   ],
   "Login": [
     "შესვლა"
@@ -1237,6 +1419,9 @@ export default {
   ],
   "MAC": [
     "MAC"
+  ],
+  "MAC address": [
+    "MAC მისამართი"
   ],
   "Make sure that the passsword is correct and try again.": [
     "დარწმუნდით, რომ პაროლი სწორია და თავიდან სცადეთ."
@@ -1252,6 +1437,9 @@ export default {
   ],
   "Max channel": [
     "მაქს. არხი"
+  ],
+  "Members": [
+    "წევრები"
   ],
   "Memory": [
     "მეხსიერება"
@@ -1351,6 +1539,9 @@ export default {
   "Name": [
     "სახელი"
   ],
+  "Name is required": [
+    "სახელი აუცილებელია"
+  ],
   "Needs about %s": [
     "საჭიროა დაახლ %s"
   ],
@@ -1369,14 +1560,29 @@ export default {
   "New Wi-Fi connection": [
     "ახალი WiFi მიერთება"
   ],
+  "New connection": [
+    "ახალი კავშირი"
+  ],
   "No": [
     "არა"
   ],
   "No DASD devices found in this machine.": [
     "ამ მანქანაში DASD მოწყობილობები აღმოჩენილი არაა."
   ],
+  "No LVM volume groups are available for selection.": [
+    "მოსანიშნად LVM ტომის ჯგუფები ხელმისაწვდომი არაა."
+  ],
+  "No LVM volume groups found": [
+    "LVM-ის ტომის ჯგუფები აღმოჩენილი არაა"
+  ],
+  "No RAID devices found": [
+    "RAID მოწყობილობები აღმოჩენილი არაა"
+  ],
   "No Wi-Fi networks were found": [
     "WiFi ქსელები აღმოჩენილი არაა"
+  ],
+  "No additional logical volumes will be created": [
+    "დამატებითი ლოგიკური ტომები არ შეიქმნება"
   ],
   "No additional partitions will be created": [
     "დამატებითი დანაყოფები არ შეიქმნება"
@@ -1417,20 +1623,26 @@ export default {
   "No devices selected. Select one or more devices to perform bulk actions.": [
     "მოწყობილობები მონიშნული არაა. ქმედებებისთვის მონიშნეთ ერთი, ან მეტი მოწყობილობა."
   ],
+  "No disks are available for selection.": [
+    "მოსანიშნად დისკები ხელმისაწვდომი არაა."
+  ],
+  "No disks found": [
+    "დისკები აღმოჩენილი არაა"
+  ],
   "No iSCSI Boot Firmware Table (iBFT) found. The initiator can be [configured manually.]": [
     "iSCSI-ის ჩატვირთვის მიკროკოდის ცხრილი (iBFT) აღმოჩენილი არაა. ინიციატორი შეგიძლიათ, [ხელით მოირგოთ.]"
   ],
   "No information available yet": [
     "ჯერ ინფორმაცია ხელმისაწვდომი არაა"
   ],
-  "No logical volumes are defined yet": [
-    "ლოგიკური ტომები ჯერ აღწერილი არაა"
-  ],
   "No partitions will be automatically configured for booting.": [
     "ჩასატვირთად დანაყოფების ავტომატური მორგება არ მოხდება."
   ],
   "No partitions will be automatically configured for booting. Use with caution.": [
     "ჩასატვირთად დანაყოფების ავტომატური მორგება არ მოხდება. ფრთხილად გამოიყენეთ."
+  ],
+  "No software RAID devices are available for selection.": [
+    "მოსანიშნად პროგრამული RAID მოწყობილობები ხელმისაწვდომი არაა."
   ],
   "No support is planned.": [
     "მხარდაჭერა დაგეგმილი არაა."
@@ -1509,6 +1721,12 @@ export default {
   ],
   "On boot": [
     "ჩატვირთვისას"
+  ],
+  "Only reused logical volumes and space not assigned to any logical volume will be used.": [
+    "გამოყენებული იქნება, მხოლოდ, თავიდან გამოყენებული ლოგიკური ტომები და ადგილი, რომელიც ლოგიკურ ტომებზე მინიჭებული არაა."
+  ],
+  "Only reused logical volumes will be used.": [
+    "გამოყენებული იქნება, მხოლოდ, თავიდან გამოყენებული ლოგიკური ტომები."
   ],
   "Only reused partitions and space not assigned to any partition will be used.": [
     "გამოყენებული იქნება, მხოლოდ, თავიდან გამოყენებული დანაყოფები და ადგილი, რომელიც დანაყოფებზე მინიჭებული არაა."
@@ -1591,6 +1809,9 @@ export default {
   "Performs auto LUN scan": [
     "ასრულებს ავტომატურ LUN-ის სკანირებას"
   ],
+  "Physical volumes": [
+    "ფიზიკური ტომები"
+  ],
   "PiB": [
     "პიბ"
   ],
@@ -1605,9 +1826,6 @@ export default {
   ],
   "Potential data loss affecting at least %s": [
     "პოტენციური მონაცემთა კარგვა, რომელიც, მინიმუმ, ეხება სისტემას %s"
-  ],
-  "Prefix length or netmask": [
-    "პრეფიქსის სიგრძე ან ნეტმასკა"
   ],
   "Proceeding may result in data loss": [
     "გაგრძელებამ, შეიძლება, მონაცემთა კარგვა გამოიწვიოს"
@@ -1647,6 +1865,9 @@ export default {
   ],
   "Question": [
     "კითხვა"
+  ],
+  "RAID": [
+    "RAID"
   ],
   "Read only": [
     "მხოლოდ-წაკითხვადი"
@@ -1696,11 +1917,14 @@ export default {
   "Reload": [
     "თავიდან ჩატვირთვა"
   ],
-  "Remove": [
-    "წაშლა"
+  "Remove %s": [
+    "%s-ის წაშლა"
   ],
   "Remove the configuration for this disk": [
     "ამ დისკის კონფიგურაციის წაშლა"
+  ],
+  "Remove the configuration for this volume group": [
+    "ამ ტომების ჯგუფის კონფიგურაციის წაშლა"
   ],
   "Repository load failed": [
     "რეპოზიტორიის ჩატვირთვა ჩავარდა"
@@ -1732,6 +1956,9 @@ export default {
   ],
   "Retrieving error details": [
     "შეცდომის დეტალების მიღება"
+  ],
+  "Reused logical volumes will not be shrunk": [
+    "თავიდან გამოყენებული დანაყოფები არ დაპატარავდება"
   ],
   "Reused partitions will not be shrunk": [
     "თავიდან გამოყენებული დანაყოფების დაპატარავება შეუძლებელია"
@@ -1796,14 +2023,11 @@ export default {
   "Select %s": [
     "%s-ის არჩევა"
   ],
-  "Select a device to define partitions or to mount": [
-    "აირჩიეთ დისკი დანაყოფების აღწერისთვის, ან მისამაგრებლად"
+  "Select a device": [
+    "აირჩიეთ მოწყობილობა"
   ],
   "Select a disk": [
     "აირჩიეთ დისკი"
-  ],
-  "Select a disk to define partitions or to mount": [
-    "აირჩიეთ დისკი დანაყოფების აღწერისთვის, ან მიმაგრებისთვის"
   ],
   "Select a mode": [
     "აირჩიეთ რეჟიმი"
@@ -1824,11 +2048,14 @@ export default {
   "Select a product to continue.": [
     "გასაგრძელებლად აირჩიეთ პროდუქტი."
   ],
-  "Select another device to define partitions or to mount": [
-    "აირჩიეთ სხვა დისკი დანაყოფების აღწერის, ან მიმაგრებისთვის"
+  "Select an existing device": [
+    "არსებული მოწყობილობის არჩევა"
   ],
-  "Select another disk to define partitions or to mount": [
-    "აირჩიეთ სხვა დისკი დანაყოფების აღწერისთვის, ან მიმაგრებისთვის"
+  "Select another disk": [
+    "სხვა დისკის არჩევა"
+  ],
+  "Select another existing device": [
+    "სხვა არსებული მოწყობილობის არჩევა"
   ],
   "Select at least one disk.": [
     "აირჩიეთ, სულ ცოტა, ერთი დისკი."
@@ -1838,6 +2065,9 @@ export default {
   ],
   "Select devices to perform bulk actions": [
     "აირჩიეთ მოწყობილობები ერთზე მეტი ქმედებისთვის"
+  ],
+  "Select entries to edit or remove them. Or [remove all invalid entries.]": [
+    ""
   ],
   "Select or enter a mount point": [
     "აირჩიეთ, ან შეიყვანეთ მიმაგრების წერტილი"
@@ -1854,6 +2084,12 @@ export default {
   "Select the zFCP controllers to activate:": [
     "აირჩიეთ გასააქტიურებელი zFCP კონტრილერები:"
   ],
+  "Select what to do with each logical volume in order to find space for allocating the new system.": [
+    ""
+  ],
+  "Select what to do with each logical volume.": [
+    "აირჩიეთ, რა მოუვა თითოეულ ლოგიკურ ტომს."
+  ],
   "Select what to do with each partition in order to find space for allocating the new system.": [
     ""
   ],
@@ -1866,8 +2102,8 @@ export default {
   "Selected patterns": [
     "მონიშნული ნიმუშები"
   ],
-  "Server IP": [
-    "სერვერის IP"
+  "Selected volume group cannot be changed": [
+    "არჩეული ტომების ჯგუფის შეცვლა შეუძლებელია"
   ],
   "Server URL": [
     "სერვერის URL"
@@ -1886,6 +2122,9 @@ export default {
   ],
   "Settings": [
     "მორგება"
+  ],
+  "Several logical volumes will be deleted": [
+    "წაიშლება რამდენიმე ლოგიკური ტომი"
   ],
   "Several partitions will be deleted": [
     "წაიშლება რამდენიმე დანაყოფი"
@@ -1906,6 +2145,9 @@ export default {
   "Show more": [
     "მეტის ჩვენება"
   ],
+  "Shrink existing logical volumes": [
+    "არსებული ლოგიკური ტომების დაპატარავება"
+  ],
   "Shrink existing partitions": [
     "არსებული დანაყოფების დაპატარავება"
   ],
@@ -1917,9 +2159,6 @@ export default {
   ],
   "Size limits must be numbers followed by a unit like GiB or GB": [
     "ზომის ლიმიტი უნდა წარმოადგენდეს რიცხვს, რომელსაც ზომა მოჰყვება (მაგ: GiB ან GB)"
-  ],
-  "Size limits must be numbers optionally followed by a unit like GiB or GB": [
-    ""
   ],
   "Size mode": [
     "ზომის რეჟიმი"
@@ -1936,11 +2175,32 @@ export default {
   "Software %s": [
     "პროგრამული %s"
   ],
+  "Some DNS search domains are invalid": [
+    "ზოგიერთი DNS-ში ძებნის დომენი არასწორია"
+  ],
+  "Some DNS server addresses are invalid": [
+    "ზოგიერთი DNS სერვერის მისამართი არასწორია"
+  ],
+  "Some IPv4 addresses are invalid": [
+    "ზოგიერთი IPv4 მისამართი არასწორია"
+  ],
+  "Some IPv6 addresses are invalid": [
+    "ზოგიერთი IPv6 მისამართი არასწორია"
+  ],
+  "Some existing logical volumes may be shrunk": [
+    "ზოგიერთი არსებული ლოგიკური ტომი, შეიძლება, დაპატარავდეს"
+  ],
   "Some existing partitions may be shrunk": [
     "ზოგიერთი არსებული დანაყოფი, შეიძლება, დაპატარავდეს"
   ],
   "Some installation repositories could not be loaded. The system cannot be installed without them.": [
     ""
+  ],
+  "Some logical volumes may be deleted": [
+    "შეიძლება წაიშალოს რამდენიმე ლოგიკური ტომი"
+  ],
+  "Some logical volumes may be shrunk": [
+    "ზოგიერთი დანაყოფი, შეიძლება, დაპატარავდეს"
   ],
   "Some of the elements in your AutoYaST profile are not supported.": [
     "AutoYaST-ის პროფილის ზოგიერთი ელემენტი მხარდაჭერილი არაა."
@@ -1962,6 +2222,9 @@ export default {
   ],
   "Startup": [
     "გაშვება"
+  ],
+  "Static addresses and gateway": [
+    "სტატიკური მისამართები და ნაგულისხმევი რაუტერი"
   ],
   "Static hostname": [
     "სტატიკური ჰოსტის სახელი"
@@ -2032,6 +2295,15 @@ export default {
   "The connection can be used by any available device.": [
     "კავშირის გამოყენება ნებისმიერ ხელმისაწვდომ მოწყობილობას შეუძლია."
   ],
+  "The connection could not be saved": [
+    "კავშირის შენახვა შეუძლებელია"
+  ],
+  "The connection does not exist or is no longer available.": [
+    "კავშირი არ არსებობს, ან ხელმისაწვდომი აღარაა."
+  ],
+  "The connection is available for all devices": [
+    "კავშირი ხელმისაწვდომია ყველა მოწყობილობისთვის"
+  ],
   "The connection will be used only during installation and not available in the installed system.": [
     ""
   ],
@@ -2051,8 +2323,14 @@ export default {
     "",
     ""
   ],
+  "The data is kept, but the current logical volumes will be resized as needed.": [
+    "მონაცემები შენარჩუნება, მაგრამ არსებული ლოგიკური ტომების ზომა შეიცვლება, თუ ეს საჭირო იქნება."
+  ],
   "The data is kept, but the current partitions will be resized as needed.": [
     "მონაცემები შენარჩუნება, მაგრამ არსებული დანაყოფების ზომა შეიცვლება, თუ ეს საჭირო იქნება."
+  ],
+  "The data is kept. Only the space not assigned to any logical volume will be used.": [
+    "მონაცემები შენარჩუნდება. გამოყენებული იქნება, მხოლოდ ადგილი, რომელიც დანაყოფებზე მინიჭებული არაა."
   ],
   "The data is kept. Only the space not assigned to any partition will be used.": [
     ""
@@ -2136,16 +2414,10 @@ export default {
   "The maximum must be a number followed by a unit like GiB or GB": [
     ""
   ],
-  "The maximum must be a number optionally followed by a unit like GiB or GB": [
-    ""
-  ],
   "The minimum cannot be greater than the maximum": [
     "მინიმუმი მაქსიმუმზე მეტი ვერ იქნება"
   ],
   "The minimum must be a number followed by a unit like GiB or GB": [
-    ""
-  ],
-  "The minimum must be a number optionally followed by a unit like GiB or GB": [
     ""
   ],
   "The modal selector offers a simplified interface designed for quick and straightforward use, without overwhelming the user.": [
@@ -2223,6 +2495,9 @@ export default {
   "There are not disks available for the installation. You may need to configure some device.": [
     ""
   ],
+  "There are not usable logical volumes": [
+    "გამოყენებადი ლოგიკური ტომები აღმოჩენილი არაა"
+  ],
   "There are not usable partitions": [
     "გამოყენებადი დანაყოფები აღმოჩენილი არაა"
   ],
@@ -2269,6 +2544,9 @@ export default {
   ],
   "This space includes the base system and the selected software patterns, if any.": [
     "ეს სივრცე შეიცავს საბაზისო სისტემას და არჩეულ პროგრამის ნიმუშებს, თუ არსებობს."
+  ],
+  "This uses existing logical volumes at the volume group": [
+    "ეს იყენებს არსებულ ლოგიკურ ტომებს ტომების ჯგუფში"
   ],
   "This uses existing partitions at the disk": [
     "ეს იყენებს დისკზე არსებულ დანაყოფებს"
@@ -2351,6 +2629,9 @@ export default {
   "Use": [
     "გამოყენება"
   ],
+  "Use LVM volume group %s": [
+    "LVM-ის ტომების ჯგუფის %s გამოყენება"
+  ],
   "Use RAID %s": [
     "RAID %s-ის გამოყენება"
   ],
@@ -2392,6 +2673,12 @@ export default {
   ],
   "Use available space": [
     "ხელმისაწვდომი ადგილის გამოყენება"
+  ],
+  "Use custom DNS search domains": [
+    "მომხმარებლის DNS-ში ძებნის დომენების გამოყენება"
+  ],
+  "Use custom DNS servers": [
+    "მომხმარებლის DNS სერვერების გამოყენება"
   ],
   "Use device %s": [
     "მოწყობილობის %s გამოყენება"
@@ -2462,6 +2749,9 @@ export default {
   "Use the disk without partitions": [
     "დისკის გამოყენება დანაყოფების გარეშე"
   ],
+  "Use the tabs to browse disks, RAID devices and LVM volume groups.": [
+    ""
+  ],
   "Use these same settings for the selected product": [
     "იგივე პარამეტრების გამოყენება მონიშნული პროდუქტისთვის"
   ],
@@ -2489,11 +2779,17 @@ export default {
   "Using an advanced storage configuration": [
     "საცავის დამატებითი კონფიგურაცია"
   ],
+  "Using an existing logical volume": [
+    "გამოიყენება არსებული ლოგიკური ტომი"
+  ],
   "Using an existing partition": [
     "არსებული დანაყოფის გამოყენება"
   ],
   "Using code ending in %s": [
     "გამოიყენება კოდი, რომელიც სრულდება %s-ით"
+  ],
+  "Using logical volume %s": [
+    "გამოიყენება ლოგიკური ტომი %s"
   ],
   "Using partition %s": [
     "გამოიყენება დანაყოფი %s"
@@ -2504,11 +2800,23 @@ export default {
   "View license": [
     "ლიცენზიის ნახვა"
   ],
+  "Volume %s": [
+    "ტომი %s"
+  ],
   "Volume group %s": [
     "ტომების ჯგუფი %s"
   ],
+  "Volume group %s menu": [
+    "ტომების ჯგუფის %s მენიუ"
+  ],
   "Volume group '%s' already exists. Enter a different name.": [
     "ტომების ჯგუფი '%s' უკვე არსებობს. შეიყვანეთ განსხვავებული სახელი."
+  ],
+  "Volume groups cannot be formatted": [
+    "ტომის ჯგუფების დაფორმატება შეუძლებელია"
+  ],
+  "Volumes %s": [
+    "ტომები %s"
   ],
   "WPA & WPA2 Personal": [
     "WPA & WPA2 პერსონალური"
@@ -2611,9 +2919,6 @@ export default {
   ],
   "partition": [
     "დანაყოფი"
-  ],
-  "proposal.Device": [
-    "proposal.Device"
   ],
   "reset to defaults": [
     "ჩამოყრა ნაგულისხმევზე"

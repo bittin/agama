@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) [2025] SUSE LLC
+# Copyright (c) [2025-2026] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -196,7 +196,9 @@ shared_examples "with encryption" do
       let(:encryption) do
         {
           pervasiveLuks2: {
-            password: "12345"
+            password: "12345",
+            apqns:    ["01.0001", "01.0002"],
+            keyType:  "CCA-AESCIPHER"
           }
         }
       end
@@ -208,7 +210,9 @@ shared_examples "with encryption" do
         expect(encryption_json).to eq(
           {
             pervasiveLuks2: {
-              password: "12345"
+              password: "12345",
+              apqns:    ["01.0001", "01.0002"],
+              keyType:  "CCA-AESCIPHER"
             }
           }
         )
