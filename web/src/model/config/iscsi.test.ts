@@ -50,20 +50,25 @@ describe("model/config/iscsi", () => {
     describe("when config targets are empty or undefined", () => {
       it("does not crash and returns a config with empty targets", () => {
         expect(
-          iscsiModel.removeTarget({}, mockTarget.name, mockTarget.address, mockTarget.port)
+          iscsiModel.removeTarget({}, mockTarget.name, mockTarget.address, mockTarget.port),
         ).toEqual({ targets: [] });
-        
+
         expect(
-          iscsiModel.removeTarget({ targets: [] }, mockTarget.name, mockTarget.address, mockTarget.port)
+          iscsiModel.removeTarget(
+            { targets: [] },
+            mockTarget.name,
+            mockTarget.address,
+            mockTarget.port,
+          ),
         ).toEqual({ targets: [] });
-        
+
         expect(
           iscsiModel.removeTarget(
             { targets: undefined },
             mockTarget.name,
             mockTarget.address,
-            mockTarget.port
-          )
+            mockTarget.port,
+          ),
         ).toEqual({ targets: [] });
       });
     });
