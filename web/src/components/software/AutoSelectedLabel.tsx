@@ -29,7 +29,7 @@ import { _ } from "~/i18n";
  */
 export default function AutoSelectedLabel(): React.ReactNode {
   return (
-    <Label color="blue" isCompact>
+    <Label color="teal" isCompact>
       {/* TRANSLATORS: label shown for patterns automatically selected as dependencies */}
       {_("auto selected")}
     </Label>

@@ -21,7 +21,7 @@
  */
 
 import React from "react";
-import { screen, within } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { installerRender } from "~/test-utils";
 import { patchConfig } from "~/api";
 import testingPatterns from "./patterns.test.json";
@@ -61,57 +61,137 @@ jest.mock("~/api", () => ({
 }));
 
 describe("SoftwarePatternsSelection", () => {
-  it("displays the pattern in the correct order", async () => {
+  it("renders one h3 per category, in order", async () => {
     installerRender(<SoftwarePatternsSelection />);
-    const headings = screen.getAllByRole("heading", { level: 3 });
+    const headings = await screen.findAllByRole("heading", { level: 3 });
     const headingsText = headings.map((node) => node.textContent);
-    expect(headingsText).toEqual([
-      "Patterns",
-      "Graphical Environments",
-      "Base Technologies",
-      "Desktop Functions",
-    ]);
-
-    // the "Base Technologies" pattern group
-    const baseGroup = await screen.findByRole("list", { name: "Base Technologies" });
-    // the "Base Technologies" pattern items
-    const items = within(baseGroup).getAllByRole("listitem");
-    expect(items[0]).toHaveTextContent(/YaST Base Utilities/);
-    expect(items[1]).toHaveTextContent(/YaST Desktop Utilities/);
-    expect(items[2]).toHaveTextContent(/YaST Server Utilities/);
+    expect(headingsText[0]).toMatch(/^Graphical Environments/);
+    expect(headingsText[1]).toMatch(/^Base Technologies/);
+    expect(headingsText[2]).toMatch(/^Desktop Functions/);
+    expect(headings).toHaveLength(3);
   });
 
-  it("displays only the matching patterns when filtering", async () => {
+  it("renders each category containing its patterns in order", async () => {
+    installerRender(<SoftwarePatternsSelection />);
+
+    await screen.findByRole("heading", { name: /Base Technologies/, level: 3 });
+    // Find the checkboxes that come after the Base Technologies heading
+    const allCheckboxes = screen.getAllByRole("checkbox");
+    const baseStartIndex = allCheckboxes.findIndex((c) => c.id === "yast2_basis");
+    const ids = allCheckboxes.slice(baseStartIndex, baseStartIndex + 4).map((c) => c.id);
+    // Order is driven by the `order` field on each pattern.
+    expect(ids).toEqual(["yast2_basis", "yast2_desktop", "yast2_server", "preselected_pattern"]);
+  });
+
+  it("renders a search input with placeholder and accessible name", async () => {
+    installerRender(<SoftwarePatternsSelection />);
+    // The textbox has an aria-label for screen readers
+    const searchInput = await screen.findByRole("textbox", {
+      name: /Filter by name and description/,
+    });
+    // And a placeholder for sighted users
+    expect(searchInput).toHaveAttribute("placeholder", "Filter by name and description");
+  });
+
+  it("shows a per-category 'X of Y selected' counter", async () => {
+    installerRender(<SoftwarePatternsSelection />);
+    // 3 of 4 in Base Technologies are auto-selected in the mock proposal
+    // (yast2_basis, yast2_desktop, preselected_pattern); yast2_server is "none".
+    await screen.findByText(/3 of 4 selected/);
+  });
+
+  it("updates the counter live as the user toggles a checkbox", async () => {
     const { user } = installerRender(<SoftwarePatternsSelection />);
 
-    // enter "multimedia" into the search filter
-    const searchFilter = await screen.findByRole("textbox", { name: /Filter/ });
-    await user.type(searchFilter, "multimedia");
+    await screen.findByText(/3 of 4 selected/);
 
-    const headings = screen.getAllByRole("heading", { level: 3 });
-    const headingsText = headings.map((node) => node.textContent);
-    expect(headingsText).toEqual(["Patterns", "Desktop Functions"]);
+    const serverCheckbox = screen.getByRole("checkbox", { name: /YaST Server/ });
+    await user.click(serverCheckbox);
 
-    const desktopGroup = screen.getByRole("list", { name: "Desktop Functions" });
-    expect(within(desktopGroup).queryByText(/Multimedia$/)).toBeInTheDocument();
-    expect(within(desktopGroup).queryByText(/Office Software/)).not.toBeInTheDocument();
+    screen.getByText(/4 of 4 selected/);
   });
 
-  it("displays the checkbox reflecting the current pattern selection status", async () => {
-    installerRender(<SoftwarePatternsSelection />);
+  it("toggles the checkbox when the user clicks its label", async () => {
+    const { user } = installerRender(<SoftwarePatternsSelection />);
 
-    // the "Base Technologies" pattern group
-    const baseGroup = await screen.findByRole("list", { name: "Base Technologies" });
+    const checkbox = await screen.findByRole("checkbox", { name: /YaST Server/ });
+    expect(checkbox).not.toBeChecked();
 
-    const basisCheckbox = await within(baseGroup).findByRole("checkbox", {
-      name: /Unselect YaST Base/,
+    await user.click(screen.getByText(/YaST Server Utilities/));
+    expect(checkbox).toBeChecked();
+  });
+
+  it("hides the 'auto selected' label on an AUTO pattern once the user touches it", async () => {
+    const { user } = installerRender(<SoftwarePatternsSelection />);
+    const y2BasisPattern = testingPatterns.find((p) => p.name === "yast2_basis");
+
+    const basisCheckbox = await screen.findByRole("checkbox", {
+      name: y2BasisPattern.summary,
     });
-    expect(basisCheckbox).toBeChecked();
 
-    const serverCheckbox = await within(baseGroup).findByRole("checkbox", {
-      name: /Select YaST Server/,
+    // 5 patterns are AUTO in the mock: yast2_basis, yast2_desktop, office,
+    // multimedia, and preselected_pattern.
+    expect(screen.getAllByText(/auto selected/i)).toHaveLength(5);
+
+    await user.click(basisCheckbox);
+
+    expect(screen.queryAllByText(/auto selected/i)).toHaveLength(4);
+  });
+
+  describe("when the search filter is active", () => {
+    it("shows the match count with total context on the filter input badge", async () => {
+      const { user } = installerRender(<SoftwarePatternsSelection />);
+
+      const searchFilter = await screen.findByRole("textbox", { name: /Filter/ });
+      await user.type(searchFilter, "multimedia");
+
+      screen.getByText(/1 of 10 patterns/);
     });
-    expect(serverCheckbox).not.toBeChecked();
+
+    it("shows an explicit empty state on the filter input badge when nothing matches", async () => {
+      const { user } = installerRender(<SoftwarePatternsSelection />);
+
+      const searchFilter = await screen.findByRole("textbox", { name: /Filter/ });
+      await user.type(searchFilter, "zzz-nothing-matches");
+
+      screen.getByText("No patterns match");
+      expect(screen.queryByText(/0 of \d+ patterns/)).toBeNull();
+    });
+
+    it("keeps every category visible and shows a placeholder for the empty ones", async () => {
+      const { user } = installerRender(<SoftwarePatternsSelection />);
+
+      const searchFilter = await screen.findByRole("textbox", { name: /Filter/ });
+      await user.type(searchFilter, "multimedia");
+
+      const headings = screen.getAllByRole("heading", { level: 3 });
+      expect(headings).toHaveLength(3);
+
+      screen.getByRole("checkbox", { name: /Multimedia/ });
+      expect(screen.queryByRole("checkbox", { name: /Office/ })).toBeNull();
+
+      screen.getByRole("heading", { name: /Base Technologies/, level: 3 });
+      screen.getByRole("heading", { name: /Graphical Environments/, level: 3 });
+
+      const placeholders = screen.getAllByText(/No patterns match the filter/i);
+      expect(placeholders).toHaveLength(2);
+    });
+
+    it("shows the match count or the empty-state placeholder next to each per-category counter", async () => {
+      const { user } = installerRender(<SoftwarePatternsSelection />);
+
+      const searchFilter = await screen.findByRole("textbox", { name: /Filter/ });
+      await user.type(searchFilter, "multimedia");
+
+      screen.getByText(/3 of 4 selected/);
+
+      // n_() picks the singular form at count === 1: "1 matches the filter".
+      screen.getByText(/1 matches the filter/);
+
+      expect(screen.queryByText(/0 match the filter/)).toBeNull();
+      const emptyStates = screen.getAllByText(/No patterns match the filter/i);
+      expect(emptyStates).toHaveLength(2);
+    });
   });
 
   describe("when submitting the form", () => {
@@ -124,7 +204,7 @@ describe("SoftwarePatternsSelection", () => {
       const y2BasisPattern = testingPatterns.find((p) => p.name === "yast2_basis");
 
       const basisCheckbox = await screen.findByRole("checkbox", {
-        name: `Unselect ${y2BasisPattern.summary}`,
+        name: y2BasisPattern.summary,
       });
       expect(basisCheckbox).toBeChecked();
 
@@ -149,7 +229,7 @@ describe("SoftwarePatternsSelection", () => {
       const gnomePattern = testingPatterns.find((p) => p.name === "gnome");
 
       const gnomeCheckbox = await screen.findByRole("checkbox", {
-        name: `Unselect ${gnomePattern.summary}`,
+        name: gnomePattern.summary,
       });
       expect(gnomeCheckbox).toBeChecked();
 
@@ -174,7 +254,7 @@ describe("SoftwarePatternsSelection", () => {
       const kdePattern = testingPatterns.find((p) => p.name === "kde");
 
       const kdeCheckbox = await screen.findByRole("checkbox", {
-        name: `Select ${kdePattern.summary}`,
+        name: kdePattern.summary,
       });
       expect(kdeCheckbox).not.toBeChecked();
 
@@ -210,7 +290,7 @@ describe("SoftwarePatternsSelection", () => {
 
       // Touch one pattern (select kde)
       const kdeCheckbox = await screen.findByRole("checkbox", {
-        name: `Select ${kdePattern.summary}`,
+        name: kdePattern.summary,
       });
       await user.click(kdeCheckbox);
 
@@ -259,7 +339,7 @@ describe("SoftwarePatternsSelection", () => {
 
       // Make a change to make form dirty (toggle gnome off then on)
       const gnomeCheckbox = await screen.findByRole("checkbox", {
-        name: `Unselect ${gnomePattern.summary}`,
+        name: gnomePattern.summary,
       });
       await user.click(gnomeCheckbox);
       await user.click(gnomeCheckbox);
@@ -283,7 +363,7 @@ describe("SoftwarePatternsSelection", () => {
       const y2BasisPattern = testingPatterns.find((p) => p.name === "yast2_basis");
 
       const basisCheckbox = await screen.findByRole("checkbox", {
-        name: `Unselect ${y2BasisPattern.summary}`,
+        name: y2BasisPattern.summary,
       });
       expect(basisCheckbox).toBeChecked();
 
@@ -317,26 +397,26 @@ describe("SoftwarePatternsSelection scope", () => {
   it("shows only desktop patterns when scope is 'desktops'", async () => {
     installerRender(<SoftwarePatternsSelection scope="desktops" />);
 
-    expect(await screen.findByRole("checkbox", { name: /GNOME/ })).toBeInTheDocument();
-    expect(await screen.findByRole("checkbox", { name: /KDE/ })).toBeInTheDocument();
-    expect(screen.queryByRole("checkbox", { name: /YaST Base/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole("checkbox", { name: /Multimedia/ })).not.toBeInTheDocument();
+    await screen.findByRole("checkbox", { name: /GNOME/ });
+    await screen.findByRole("checkbox", { name: /KDE/ });
+    expect(screen.queryByRole("checkbox", { name: /YaST Base/ })).toBeNull();
+    expect(screen.queryByRole("checkbox", { name: /Multimedia/ })).toBeNull();
   });
 
   it("shows only non-desktop patterns when scope is 'other'", async () => {
     installerRender(<SoftwarePatternsSelection scope="other" />);
 
-    expect(await screen.findByRole("checkbox", { name: /YaST Base/ })).toBeInTheDocument();
-    expect(await screen.findByRole("checkbox", { name: /Multimedia/ })).toBeInTheDocument();
-    expect(screen.queryByRole("checkbox", { name: /GNOME/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole("checkbox", { name: /KDE/ })).not.toBeInTheDocument();
+    await screen.findByRole("checkbox", { name: /YaST Base/ });
+    await screen.findByRole("checkbox", { name: /Multimedia/ });
+    expect(screen.queryByRole("checkbox", { name: /GNOME/ })).toBeNull();
+    expect(screen.queryByRole("checkbox", { name: /KDE/ })).toBeNull();
   });
 
   it("preserves REMOVED desktop patterns (in the 'remove' key) when submitting with scope 'other'", async () => {
     const { user } = installerRender(<SoftwarePatternsSelection scope="other" />);
 
     // Touch a non-desktop pattern to make the form dirty
-    const serverCheckbox = await screen.findByRole("checkbox", { name: /Select YaST Server/ });
+    const serverCheckbox = await screen.findByRole("checkbox", { name: /YaST Server/ });
     await user.click(serverCheckbox);
 
     const acceptButton = screen.getByRole("button", { name: "Accept" });
@@ -357,7 +437,7 @@ describe("SoftwarePatternsSelection scope", () => {
     const { user } = installerRender(<SoftwarePatternsSelection scope="desktops" />);
 
     // Touch a desktop pattern to make the form dirty
-    const kdeCheckbox = await screen.findByRole("checkbox", { name: /Select KDE/ });
+    const kdeCheckbox = await screen.findByRole("checkbox", { name: /KDE/ });
     await user.click(kdeCheckbox);
 
     const acceptButton = screen.getByRole("button", { name: "Accept" });
@@ -384,7 +464,7 @@ describe("SoftwarePatternsSelection scope", () => {
     const { user } = installerRender(<SoftwarePatternsSelection scope="other" />);
 
     // Touch a non-desktop pattern to make the form dirty
-    const serverCheckbox = await screen.findByRole("checkbox", { name: /Select YaST Server/ });
+    const serverCheckbox = await screen.findByRole("checkbox", { name: /YaST Server/ });
     await user.click(serverCheckbox);
 
     const acceptButton = screen.getByRole("button", { name: "Accept" });
