@@ -22,10 +22,11 @@
 
 import React from "react";
 import { formOptions } from "@tanstack/react-form";
-import { useNavigate, useParams } from "react-router";
+import { generatePath, useNavigate, useParams } from "react-router";
 import { isEmpty, shake, unique } from "radashi";
 import { Alert, ActionGroup, Flex, Form } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
+import { BreadcrumbProps } from "~/components/core/Breadcrumbs";
 import NestedContent from "~/components/core/NestedContent";
 import ResourceNotFound from "~/components/core/ResourceNotFound";
 import IpSettings from "~/components/network/IpSettings";
@@ -756,10 +757,23 @@ function EditConnectionForm() {
  */
 export default function ConnectionForm() {
   const { id } = useParams();
-  // TRANSLATORS: page title and breadcrumb label for creating a new connection.
-  const title = id ?? _("New connection");
-  // TRANSLATORS: breadcrumb label for the network configuration section.
-  const breadcrumbs = [{ label: _("Network"), path: NETWORK.root }, { label: title }];
+  const breadcrumbs: BreadcrumbProps[] = [
+    // TRANSLATORS: breadcrumb label for the network configuration section.
+    { label: _("Network"), path: NETWORK.root },
+  ];
+  if (id) {
+    breadcrumbs.push(
+      { label: id, path: generatePath(NETWORK.connection.details, { id }) },
+      // TRANSLATORS: breadcrumb label for the connection-edit form. Keep the
+      // noun ("connection"): the previous crumb is the connection name, so a
+      // bare "Edit" reads fine visually but leaves screen-reader users without
+      // the object being acted on when the crumb is announced on its own.
+      { label: _("Edit connection") },
+    );
+  } else {
+    // TRANSLATORS: breadcrumb label for the new-connection form.
+    breadcrumbs.push({ label: _("New connection") });
+  }
 
   return (
     <Page breadcrumbs={breadcrumbs}>
