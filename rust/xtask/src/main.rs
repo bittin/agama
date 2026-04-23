@@ -60,11 +60,29 @@ mod tasks {
         use agama_server::web::docs_aide;
 
         let openapi = docs_aide::build().await;
+        let out_dir = output_dir()?;
+
+        // Generate JSON format
         let json = serde_json::to_string_pretty(&openapi)?;
-        let path = output_dir()?.join("openapi.json");
-        let mut file = File::create(&path)?;
-        file.write_all(json.as_bytes())?;
-        println!("Generate the OpenAPI specification at {}.", path.display());
+        let json_path = out_dir.join("openapi.json");
+        let mut json_file = File::create(&json_path)?;
+        json_file.write_all(json.as_bytes())?;
+        println!(
+            "Generated OpenAPI specification (JSON) at {}.",
+            json_path.display()
+        );
+
+        // Generate YAML format
+        let yaml = serde_yaml::to_string(&openapi)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+        let yaml_path = out_dir.join("openapi.yaml");
+        let mut yaml_file = File::create(&yaml_path)?;
+        yaml_file.write_all(yaml.as_bytes())?;
+        println!(
+            "Generated OpenAPI specification (YAML) at {}.",
+            yaml_path.display()
+        );
+
         Ok(())
     }
 }
