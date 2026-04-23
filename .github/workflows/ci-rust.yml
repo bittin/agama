@@ -259,6 +259,7 @@ jobs:
     - name: Install required packages
       run: zypper --non-interactive install --allow-downgrade
         clang-devel
+        dbus-1-daemon
         gcc-c++
         git
         libopenssl-3-devel
