@@ -176,9 +176,7 @@ fn get_status_docs(op: TransformOperation) -> TransformOperation {
             installation progress.",
         )
         .tag("Status & Monitoring")
-        .response_with::<200, Json<Status>, _>(|res| {
-            res.description("Status of the installation")
-        })
+        .response_with::<200, Json<Status>, _>(|res| res.description("Status of the installation"))
         .response_with::<500, Json<ErrorResponse>, _>(|res| {
             res.description("Internal server error")
         })
@@ -455,9 +453,7 @@ fn ask_question_docs(op: TransformOperation) -> TransformOperation {
         .response_with::<200, Json<Question>, _>(|res| {
             res.description("Question created successfully")
         })
-        .response_with::<400, Json<ErrorResponse>, _>(|res| {
-            res.description("Malformed JSON")
-        })
+        .response_with::<400, Json<ErrorResponse>, _>(|res| res.description("Malformed JSON"))
         .response_with::<500, Json<ErrorResponse>, _>(|res| {
             res.description("Internal server error")
         })
@@ -496,9 +492,7 @@ fn update_question_docs(op: TransformOperation) -> TransformOperation {
         )
         .tag("Issues & Questions")
         .response::<200, ()>()
-        .response_with::<400, Json<ErrorResponse>, _>(|res| {
-            res.description("Malformed JSON")
-        })
+        .response_with::<400, Json<ErrorResponse>, _>(|res| res.description("Malformed JSON"))
         .response_with::<500, Json<ErrorResponse>, _>(|res| {
             res.description("Internal server error")
         })
