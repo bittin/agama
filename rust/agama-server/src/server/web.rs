@@ -38,7 +38,7 @@ use agama_utils::{
     },
     progress, question,
 };
-use aide::axum::routing::{get_with, post_with, put_with};
+use aide::axum::routing::{get_with, post_with, put};
 use aide::axum::ApiRouter;
 use aide::transform::TransformOperation;
 use axum::{
@@ -147,10 +147,7 @@ pub fn server_with_state(state: ServerState) -> Result<ApiRouter, ServiceError> 
                 .patch_with(update_question, update_question_docs),
         )
         .api_route("/licenses/{id}", get_with(get_license, get_license_docs))
-        .api_route(
-            "/resolvables/{id}",
-            put_with(set_resolvables, set_resolvables_docs),
-        )
+        .route("/resolvables/{id}", put(set_resolvables))
         .route(
             "/private/storage_model",
             get(get_storage_model).put(set_storage_model),
@@ -554,11 +551,6 @@ async fn set_resolvables(
         ))
         .map_err(|e| Error::from(e).internal_server_error())?;
     Ok(())
-}
-
-fn set_resolvables_docs(op: TransformOperation) -> TransformOperation {
-    op.description("Update the resolvables list")
-        .response::<200, ()>()
 }
 
 fn to_option_response<T: Serialize>(value: Option<T>) -> Response {
