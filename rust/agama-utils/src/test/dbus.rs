@@ -105,10 +105,7 @@ impl DBusServer<Stopped> {
     async fn start(self) -> Result<DBusServer<Started>, zbus::Error> {
         let conf_file = Self::find_dbus_config();
         if !conf_file.exists() {
-            panic!(
-                "Could not find dbus-test.conf at {}",
-                conf_file.display()
-            );
+            panic!("Could not find dbus-test.conf at {}", conf_file.display());
         }
 
         let mut child = Command::new("/usr/bin/dbus-daemon")
