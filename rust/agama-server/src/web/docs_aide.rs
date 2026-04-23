@@ -21,7 +21,11 @@
 use std::path::PathBuf;
 
 use agama_utils::{api::Event, test};
-use aide::openapi::{Info, OpenApi, Server};
+use aide::openapi::{
+    Contact, ExternalDocumentation, Info, License, OpenApi, ReferenceOr, SecurityScheme, Server,
+    Tag,
+};
+use indexmap::IndexMap;
 use tokio::sync::broadcast;
 
 use crate::test_utils;
@@ -43,6 +47,18 @@ pub async fn build() -> OpenApi {
                 See https://agama-project.github.io for more information."
                     .to_string(),
             ),
+            contact: Some(Contact {
+                name: Some("Agama Project Team".to_string()),
+                url: Some("https://github.com/agama-project/agama".to_string()),
+                email: Some("agama-devel@lists.opensuse.org".to_string()),
+                ..Default::default()
+            }),
+            license: Some(License {
+                name: "GPL-2.0".to_string(),
+                identifier: None,
+                url: Some("https://www.gnu.org/licenses/old-licenses/gpl-2.0.html".to_string()),
+                ..Default::default()
+            }),
             ..Default::default()
         },
         servers: vec![
@@ -57,8 +73,62 @@ pub async fn build() -> OpenApi {
                 ..Default::default()
             },
         ],
+        tags: vec![
+            Tag {
+                name: "Status & Monitoring".to_string(),
+                description: Some(
+                    "Endpoints for monitoring installation status and progress".to_string(),
+                ),
+                ..Default::default()
+            },
+            Tag {
+                name: "Configuration".to_string(),
+                description: Some("System configuration management".to_string()),
+                ..Default::default()
+            },
+            Tag {
+                name: "Actions".to_string(),
+                description: Some("Installation actions and commands".to_string()),
+                ..Default::default()
+            },
+            Tag {
+                name: "Issues & Questions".to_string(),
+                description: Some("Problem tracking and interactive questions".to_string()),
+                ..Default::default()
+            },
+            Tag {
+                name: "Licensing".to_string(),
+                description: Some("License management and retrieval".to_string()),
+                ..Default::default()
+            },
+        ],
+        external_docs: Some(ExternalDocumentation {
+            description: Some("Full Agama documentation".to_string()),
+            url: "https://agama-project.github.io".to_string(),
+            ..Default::default()
+        }),
         ..Default::default()
     };
+
+    // Add security schemes
+    if api.components.is_none() {
+        api.components = Some(Default::default());
+    }
+    if let Some(components) = &mut api.components {
+        let mut security_schemes = IndexMap::new();
+        security_schemes.insert(
+            "bearerAuth".to_string(),
+            ReferenceOr::Item(SecurityScheme::Http {
+                scheme: "bearer".to_string(),
+                bearer_format: Some("JWT".to_string()),
+                description: Some(
+                    "JWT token obtained from the authentication endpoint".to_string(),
+                ),
+                extensions: IndexMap::new(),
+            }),
+        );
+        components.security_schemes = security_schemes;
+    }
 
     let share_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../test/share");
     std::env::set_var("AGAMA_SHARE_DIR", share_dir.display().to_string());

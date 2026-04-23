@@ -168,8 +168,17 @@ async fn get_status(State(state): State<ServerState>) -> Result<Json<Status>, Re
 }
 
 fn get_status_docs(op: TransformOperation) -> TransformOperation {
-    op.description("Get the installer status")
-        .response_with::<200, Json<Status>, _>(|res| res.description("Status of the installation"))
+    op.id("getInstallerStatus")
+        .summary("Get installer status")
+        .description(
+            "Returns the current status of the installation process including active \
+            progresses and stage information. This endpoint can be polled to monitor \
+            installation progress.",
+        )
+        .tag("Status & Monitoring")
+        .response_with::<200, Json<Status>, _>(|res| {
+            res.description("Status of the installation")
+        })
         .response_with::<500, Json<ErrorResponse>, _>(|res| {
             res.description("Internal server error")
         })
@@ -186,8 +195,16 @@ async fn get_system(State(state): State<ServerState>) -> Result<Json<SystemInfo>
 }
 
 fn get_system_docs(op: TransformOperation) -> TransformOperation {
-    op.description("Get the installer status")
-        .response_with::<200, Json<SystemInfo>, _>(|res| res.description("Get system information."))
+    op.id("getSystemInfo")
+        .summary("Get system information")
+        .description(
+            "Returns detailed information about the installation system including hardware \
+            details, platform information, and system capabilities.",
+        )
+        .tag("Status & Monitoring")
+        .response_with::<200, Json<SystemInfo>, _>(|res| {
+            res.description("System information retrieved successfully")
+        })
         .response_with::<500, Json<ErrorResponse>, _>(|res| {
             res.description("Internal server error")
         })
@@ -204,8 +221,17 @@ async fn get_extended_config(State(state): State<ServerState>) -> Result<Json<Co
 }
 
 fn get_extended_config_docs(op: TransformOperation) -> TransformOperation {
-    op.description("Returns the extended configuration.")
-        .response_with::<200, Json<Config>, _>(|res| res.description("Extended configuration"))
+    op.id("getExtendedConfiguration")
+        .summary("Get extended configuration")
+        .description(
+            "Returns the extended configuration including computed defaults and \
+            system-generated values. Use this endpoint to see the complete configuration \
+            including values not explicitly set by the user.",
+        )
+        .tag("Configuration")
+        .response_with::<200, Json<Config>, _>(|res| {
+            res.description("Extended configuration retrieved successfully")
+        })
         .response_with::<500, Json<ErrorResponse>, _>(|res| {
             res.description("Internal server error")
         })
@@ -222,8 +248,13 @@ async fn get_config(State(state): State<ServerState>) -> Result<Json<Config>, Re
 }
 
 fn get_config_docs(op: TransformOperation) -> TransformOperation {
-    op.description("Returns the configuration.")
-        .response_with::<200, Json<Config>, _>(|res| res.description("Configuration."))
+    op.id("getConfiguration")
+        .summary("Get configuration")
+        .description("Returns the current user-defined configuration.")
+        .tag("Configuration")
+        .response_with::<200, Json<Config>, _>(|res| {
+            res.description("Configuration retrieved successfully")
+        })
         .response_with::<500, Json<ErrorResponse>, _>(|res| {
             res.description("Internal server error")
         })
@@ -249,10 +280,17 @@ async fn put_config(
 }
 
 fn put_config_docs(op: TransformOperation) -> TransformOperation {
-    op.description("Updates the configuration.\n\nReplaces the whole configuration. If some value is missing, it will be removed.")
+    op.id("updateConfiguration")
+        .summary("Update configuration")
+        .description(
+            "Replaces the entire configuration. Any fields not included in the request \
+            will be removed from the configuration. For partial updates, use PATCH instead. \
+            The request body should be a JSON object conforming to the Config schema.",
+        )
+        .tag("Configuration")
         .response::<200, ()>()
         .response_with::<400, Json<ErrorResponse>, _>(|res| {
-            res.description("Invalid configuration schema or malformed JSON.")
+            res.description("Invalid configuration schema or malformed JSON")
         })
         .response_with::<500, Json<ErrorResponse>, _>(|res| {
             res.description("Internal server error")
@@ -281,10 +319,17 @@ async fn patch_config(
 }
 
 fn patch_config_docs(op: TransformOperation) -> TransformOperation {
-    op.description("Patches the configuration.\n\nIt only changes the specified values, keeping the rest as they are.")
+    op.id("patchConfiguration")
+        .summary("Patch configuration")
+        .description(
+            "Partially updates the configuration. Only the specified fields will be changed, \
+            all other fields remain unchanged. This is the preferred method for making \
+            incremental configuration changes.",
+        )
+        .tag("Configuration")
         .response::<200, ()>()
         .response_with::<400, Json<ErrorResponse>, _>(|res| {
-            res.description("Invalid configuration schema or malformed JSON.")
+            res.description("Invalid configuration schema or malformed JSON")
         })
         .response_with::<500, Json<ErrorResponse>, _>(|res| {
             res.description("Internal server error")
@@ -302,9 +347,16 @@ async fn get_proposal(State(state): State<ServerState>) -> Result<Response, Resp
 }
 
 fn get_proposal_docs(op: TransformOperation) -> TransformOperation {
-    op.description("Returns how the target system is configured (proposal).")
+    op.id("getInstallationProposal")
+        .summary("Get installation proposal")
+        .description(
+            "Returns the proposed configuration for the target system. The proposal is \
+            generated based on the current configuration and represents how the system \
+            will be configured when installed.",
+        )
+        .tag("Configuration")
         .response_with::<200, Json<Proposal>, _>(|res| {
-            res.description("Proposal successfully retrieved.")
+            res.description("Proposal successfully retrieved")
         })
         .response::<404, ()>()
         .response_with::<500, Json<ErrorResponse>, _>(|res| {
@@ -336,8 +388,17 @@ async fn get_issues(
 }
 
 fn get_issues_docs(op: TransformOperation) -> TransformOperation {
-    op.description("Returns the list of issues.")
-        .response_with::<200, Json<Vec<IssueWithScope>>, _>(|res| res.description("Agama issues"))
+    op.id("listIssues")
+        .summary("List issues")
+        .description(
+            "Returns the list of all current issues detected during the installation process. \
+            Issues represent problems or warnings that may need to be addressed before \
+            proceeding with the installation.",
+        )
+        .tag("Issues & Questions")
+        .response_with::<200, Json<Vec<IssueWithScope>>, _>(|res| {
+            res.description("List of issues with their scopes")
+        })
         .response_with::<500, Json<ErrorResponse>, _>(|res| {
             res.description("Internal server error")
         })
@@ -354,8 +415,17 @@ async fn get_questions(State(state): State<ServerState>) -> Result<Json<Vec<Ques
 }
 
 fn get_questions_docs(op: TransformOperation) -> TransformOperation {
-    op.description("Returns the issues for each scope.")
-        .response_with::<200, Json<Vec<Question>>, _>(|res| res.description("Agama questions"))
+    op.id("listQuestions")
+        .summary("List questions")
+        .description(
+            "Returns all pending questions that require user input. Questions represent \
+            interactive prompts where the installer needs additional information or \
+            decisions from the user.",
+        )
+        .tag("Issues & Questions")
+        .response_with::<200, Json<Vec<Question>>, _>(|res| {
+            res.description("List of pending questions")
+        })
         .response_with::<500, Json<ErrorResponse>, _>(|res| {
             res.description("Internal server error")
         })
@@ -375,9 +445,19 @@ async fn ask_question(
 }
 
 fn ask_question_docs(op: TransformOperation) -> TransformOperation {
-    op.description("Registers a new question.")
-        .response_with::<200, Json<Question>, _>(|res| res.description("New question's ID"))
-        .response_with::<400, Json<ErrorResponse>, _>(|res| res.description("Malformed JSON."))
+    op.id("createQuestion")
+        .summary("Create question")
+        .description(
+            "Registers a new question for user interaction. The question will be added to \
+            the list of pending questions and can be answered or deleted later.",
+        )
+        .tag("Issues & Questions")
+        .response_with::<200, Json<Question>, _>(|res| {
+            res.description("Question created successfully")
+        })
+        .response_with::<400, Json<ErrorResponse>, _>(|res| {
+            res.description("Malformed JSON")
+        })
         .response_with::<500, Json<ErrorResponse>, _>(|res| {
             res.description("Internal server error")
         })
@@ -408,9 +488,17 @@ async fn update_question(
 }
 
 fn update_question_docs(op: TransformOperation) -> TransformOperation {
-    op.description("Updates the question collection by answering or removing a question.")
+    op.id("updateQuestion")
+        .summary("Update question")
+        .description(
+            "Updates the question collection by answering or removing a question. Use this \
+            endpoint to provide an answer to a pending question or to dismiss it.",
+        )
+        .tag("Issues & Questions")
         .response::<200, ()>()
-        .response_with::<400, Json<ErrorResponse>, _>(|res| res.description("Malformed JSON."))
+        .response_with::<400, Json<ErrorResponse>, _>(|res| {
+            res.description("Malformed JSON")
+        })
         .response_with::<500, Json<ErrorResponse>, _>(|res| {
             res.description("Internal server error")
         })
@@ -459,9 +547,16 @@ async fn get_license(
 
 #[allow(dead_code)]
 fn get_license_docs(op: TransformOperation) -> TransformOperation {
-    op.description("Returns the license content.\n\nOptionally it can receive a language tag (RFC 5646). Otherwise, it returns the license in English.")
+    op.id("getLicenseById")
+        .summary("Get license by ID")
+        .description(
+            "Returns the content of a specific license. Optionally accepts a language tag \
+            (RFC 5646) via the 'lang' query parameter. If no language is specified, the \
+            license is returned in English.",
+        )
+        .tag("Licensing")
         .response_with::<200, Json<LicenseContent>, _>(|res| {
-            res.description("License with the given ID")
+            res.description("License retrieved successfully")
         })
         .response_with::<400, Json<ErrorResponse>, _>(|res| {
             res.description("The specified language tag is not valid")
@@ -491,10 +586,17 @@ async fn run_action(
 }
 
 fn run_action_docs(op: TransformOperation) -> TransformOperation {
-    op.description("Run an action")
+    op.id("executeAction")
+        .summary("Execute action")
+        .description(
+            "Executes an installation action such as starting the installation process or \
+            probing hardware. Some actions may be blocked if there are pending issues or \
+            if the system is busy.",
+        )
+        .tag("Actions")
         .response::<200, ()>()
         .response_with::<422, Json<ErrorResponse>, _>(|res| {
-            res.description("Action blocked by backend state")
+            res.description("Action blocked by backend state (e.g., pending issues or system busy)")
         })
         .response_with::<500, Json<ErrorResponse>, _>(|res| {
             res.description("Internal server error")
