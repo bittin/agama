@@ -443,8 +443,7 @@ function SoftwarePatternsSelection({ scope = "all" }: { scope?: Scope }) {
                           <NestedContent>
                             <Stack hasGutter>
                               {groupVisible.map((pattern) => {
-                                const isAutoSelected =
-                                  selection[pattern.name] === SelectedBy.AUTO;
+                                const isAutoSelected = selection[pattern.name] === SelectedBy.AUTO;
                                 const isDirty = fieldMeta[pattern.name]?.isDirty ?? false;
 
                                 return (
@@ -454,12 +453,8 @@ function SoftwarePatternsSelection({ scope = "all" }: { scope?: Scope }) {
                                     label={pattern.summary}
                                     description={pattern.description}
                                     isChecked={!!formValues[pattern.name]}
-                                    onChange={(value) =>
-                                      form.setFieldValue(pattern.name, value)
-                                    }
-                                    extra={
-                                      isAutoSelected && !isDirty && <AutoSelectedLabel />
-                                    }
+                                    onChange={(value) => form.setFieldValue(pattern.name, value)}
+                                    extra={isAutoSelected && !isDirty && <AutoSelectedLabel />}
                                   />
                                 );
                               })}
