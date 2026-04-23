@@ -191,7 +191,16 @@ impl NetworkState {
         let from = PathBuf::from(CONNECTIONS_PATH);
         let to = PathBuf::from(self.target_dir()).join(CONNECTIONS_PATH.trim_start_matches('/'));
 
-        self.copy_connections(&from, &to)?;
+        self.copy_files(&from, &to)?;
+
+        const NETWORKD_PATH: &str = "/run/agama/systemd/network";
+        const TARGET_NETWORKD_PATH: &str = "/etc/systemd/network";
+        let from = PathBuf::from(NETWORKD_PATH);
+        let to =
+            PathBuf::from(self.target_dir()).join(TARGET_NETWORKD_PATH.trim_start_matches('/'));
+
+        self.copy_files(&from, &to)?;
+
         self.enable_service(self.target_dir()).await
     }
 
@@ -213,7 +222,11 @@ impl NetworkState {
         Ok(())
     }
 
-    fn copy_connections(&self, from: &Path, to: &Path) -> Result<(), NetworkStateError> {
+    fn copy_files(&self, from: &Path, to: &Path) -> Result<(), NetworkStateError> {
+        if !from.exists() {
+            return Ok(());
+        }
+
         if !to.exists() {
             std::fs::create_dir_all(to).map_err(|e| NetworkStateError::IoError(e.to_string()))?;
         }
@@ -621,7 +634,7 @@ mod tests {
     }
 
     #[test]
-    fn test_copy_connections() {
+    fn test_copy_files() {
         use std::fs;
 
         let tmp_dir = std::env::temp_dir().join(format!("test_agama_network_{}", Uuid::new_v4()));
@@ -631,10 +644,11 @@ mod tests {
         fs::create_dir_all(&source).unwrap();
         fs::write(source.join("conn1.nmconnection"), "content1").unwrap();
         fs::write(source.join("conn2.nmconnection"), "content2").unwrap();
+        fs::write(source.join("device.link"), "link content").unwrap();
         fs::create_dir(source.join("ignored_dir")).unwrap();
 
         let state = NetworkState::default();
-        state.copy_connections(&source, &dest).unwrap();
+        state.copy_files(&source, &dest).unwrap();
 
         assert!(dest.join("conn1.nmconnection").exists());
         assert_eq!(
@@ -646,7 +660,13 @@ mod tests {
             fs::read_to_string(dest.join("conn2.nmconnection")).unwrap(),
             "content2"
         );
+        assert!(dest.join("device.link").exists());
         assert!(!dest.join("ignored_dir").exists());
+
+        let dest_link = tmp_dir.join("dest_link");
+        state.copy_files(&source, &dest_link).unwrap();
+        assert!(dest_link.join("device.link").exists());
+        assert!(dest_link.join("conn1.nmconnection").exists());
 
         fs::remove_dir_all(tmp_dir).unwrap();
     }

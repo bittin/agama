@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-23 06:09+0000\n"
-"PO-Revision-Date: 2026-03-20 07:04+0000\n"
+"POT-Creation-Date: 2026-04-17 16:58+0000\n"
+"PO-Revision-Date: 2026-04-18 09:04+0000\n"
 "Last-Translator: Luna  Jernberg <bittin@opensuse.org>\n"
 "Language-Team: Swedish <https://l10n.opensuse.org/projects/agama/agama-rust-"
 "master/sv/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 5.17\n"
 
 #: agama-autoinstall/src/questions.rs:41 agama-utils/src/api/question.rs:293
 #: agama-utils/src/question/start.rs:54
@@ -28,6 +28,103 @@ msgstr "Nej"
 #: agama-utils/src/question/start.rs:54
 msgid "Yes"
 msgstr "Ja"
+
+#: agama-cli/src/progress.rs:116
+msgid "Calculating the installation proposal:"
+msgstr "Beräknar installationsförslag:"
+
+#: agama-cli/src/progress.rs:118
+msgid "Installing the system:"
+msgstr "Installerar systemet:"
+
+#: agama-cli/src/progress.rs:217
+msgid "Installation is ready to start."
+msgstr "Installation är redo att starta."
+
+#: agama-cli/src/progress.rs:220
+msgid "Waiting to start installation"
+msgstr "Väntar på att starta installation"
+
+#: agama-cli/src/progress.rs:228
+msgid "Installation successfully finished"
+msgstr "Installation har slutförts"
+
+#: agama-cli/src/progress.rs:229
+msgid "Installation failed"
+msgstr "Installation misslyckades"
+
+#: agama-cli/src/progress.rs:242
+msgid ""
+"There are unanswered questions. Please use `agama questions` command or web "
+"interface to answer them:"
+msgstr ""
+"Det finns obesvarade frågor. Använd kommandot `agama questions` eller "
+"webbgränssnittet för att besvara dem:"
+
+#: agama-cli/src/progress.rs:254
+msgid "Installer is failed to calculate the installation proposal."
+msgstr ""
+"Installationsprogrammet misslyckades med att beräkna installationsförslag."
+
+#: agama-cli/src/progress.rs:258
+msgid "There are these issues blocking installation:"
+msgstr "Det finns följande problem som blockerar installationen:"
+
+#: agama-cli/src/progress.rs:271
+msgid "Details"
+msgstr "Detaljer"
+
+#: agama-cli/src/progress.rs:281
+msgid "Manager"
+msgstr "Hanterare"
+
+#: agama-cli/src/progress.rs:282
+msgid "Network"
+msgstr "Nätverk"
+
+#: agama-cli/src/progress.rs:283
+msgid "Hostname"
+msgstr "Värdnamn"
+
+#: agama-cli/src/progress.rs:284
+msgid "Localization"
+msgstr "Lokalisering"
+
+#: agama-cli/src/progress.rs:285
+msgid "Product"
+msgstr "Produkt"
+
+#: agama-cli/src/progress.rs:286
+msgid "Software"
+msgstr "Programvara"
+
+#: agama-cli/src/progress.rs:287
+msgid "Storage"
+msgstr "Lagring"
+
+#: agama-cli/src/progress.rs:288
+msgid "Files"
+msgstr "Filer"
+
+#: agama-cli/src/progress.rs:289
+msgid "iSCSI"
+msgstr "iSCSI"
+
+#: agama-cli/src/progress.rs:290
+msgid "DASD"
+msgstr "DASD"
+
+#: agama-cli/src/progress.rs:291
+msgid "zFCP"
+msgstr "zFCP"
+
+#: agama-cli/src/progress.rs:292
+msgid "Users"
+msgstr "Användare"
+
+#: agama-cli/src/progress.rs:342
+msgid "Current step"
+msgstr "Nuvarande steg"
 
 #. TRANSLATORS: %s is replaced by the script name.
 #: agama-files/src/service.rs:198

@@ -31,6 +31,7 @@ use axum::Router;
 mod auth;
 mod config;
 pub mod docs;
+pub mod error;
 mod http;
 mod service;
 mod state;

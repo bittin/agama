@@ -28,6 +28,8 @@ use serde::{Deserialize, Serialize};
     Clone,
     Debug,
     Eq,
+    Ord,
+    PartialOrd,
     Hash,
     strum::EnumString,
     strum::Display,
