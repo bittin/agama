@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Apr 23 11:53:49 UTC 2026 - Josef Reidinger <jreidinger@suse.com>
+
+- Fix "Accept" button when connecting to iscsi target
+  (gh#agama-project/agama#3418)
+
+-------------------------------------------------------------------
 Tue Apr 14 17:36:57 UTC 2026 - Imobach Gonzalez Sosa <igonzalezsosa@suse.com>
 
 - Version 20
