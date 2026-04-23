@@ -75,9 +75,41 @@ impl DBusServer<Stopped> {
         }
     }
 
+    /// Find the dbus-test.conf file by checking multiple locations.
+    ///
+    /// First checks AGAMA_SHARE_DIR if set, then falls back to common locations.
+    fn find_dbus_config() -> std::path::PathBuf {
+        let candidates = if let Ok(share_dir) = std::env::var("AGAMA_SHARE_DIR") {
+            vec![
+                std::path::PathBuf::from(&share_dir).join("dbus-test.conf"),
+                std::path::PathBuf::from("../share/dbus-test.conf"),
+                std::path::PathBuf::from("../test/share/dbus-test.conf"),
+            ]
+        } else {
+            vec![
+                std::path::PathBuf::from("../share/dbus-test.conf"),
+                std::path::PathBuf::from("../test/share/dbus-test.conf"),
+            ]
+        };
+
+        for candidate in candidates {
+            if candidate.exists() {
+                return candidate;
+            }
+        }
+
+        // Return the first candidate as fallback (will trigger error later)
+        std::path::PathBuf::from("../share/dbus-test.conf")
+    }
+
     async fn start(self) -> Result<DBusServer<Started>, zbus::Error> {
-        let share_dir = std::env::var("AGAMA_SHARE_DIR").unwrap_or("../share".to_string());
-        let conf_file = std::path::PathBuf::from(share_dir).join("dbus-test.conf");
+        let conf_file = Self::find_dbus_config();
+        if !conf_file.exists() {
+            panic!(
+                "Could not find dbus-test.conf at {}",
+                conf_file.display()
+            );
+        }
 
         let mut child = Command::new("/usr/bin/dbus-daemon")
             .arg("--config-file")
