@@ -408,8 +408,13 @@ function SoftwarePatternsSelection({ scope = "all" }: { scope?: Scope }) {
               </div>
             </PageSection>
 
-            <form.Subscribe selector={(s) => s.values as Record<string, boolean>}>
-              {(formValues) => (
+            <form.Subscribe
+              selector={(s) => ({
+                values: s.values as Record<string, boolean>,
+                fieldMeta: s.fieldMeta,
+              })}
+            >
+              {({ values: formValues, fieldMeta }) => (
                 <Stack hasGutter>
                   {sortGroupNames(allGroups).map((groupName) => {
                     const groupAll = allGroups[groupName];
@@ -437,21 +442,27 @@ function SoftwarePatternsSelection({ scope = "all" }: { scope?: Scope }) {
                         {groupVisible.length > 0 && (
                           <NestedContent>
                             <Stack hasGutter>
-                              {groupVisible.map((pattern) => (
-                                <PatternCheckbox
-                                  key={pattern.name}
-                                  id={pattern.name}
-                                  label={pattern.summary}
-                                  description={pattern.description}
-                                  isChecked={!!formValues[pattern.name]}
-                                  onChange={(value) => form.setFieldValue(pattern.name, value)}
-                                  extra={
-                                    selection[pattern.name] === SelectedBy.AUTO && (
-                                      <AutoSelectedLabel />
-                                    )
-                                  }
-                                />
-                              ))}
+                              {groupVisible.map((pattern) => {
+                                const isAutoSelected =
+                                  selection[pattern.name] === SelectedBy.AUTO;
+                                const isDirty = fieldMeta[pattern.name]?.isDirty ?? false;
+
+                                return (
+                                  <PatternCheckbox
+                                    key={pattern.name}
+                                    id={pattern.name}
+                                    label={pattern.summary}
+                                    description={pattern.description}
+                                    isChecked={!!formValues[pattern.name]}
+                                    onChange={(value) =>
+                                      form.setFieldValue(pattern.name, value)
+                                    }
+                                    extra={
+                                      isAutoSelected && !isDirty && <AutoSelectedLabel />
+                                    }
+                                  />
+                                );
+                              })}
                             </Stack>
                           </NestedContent>
                         )}

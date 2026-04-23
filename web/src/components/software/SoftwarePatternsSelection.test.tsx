@@ -21,7 +21,7 @@
  */
 
 import React from "react";
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import { installerRender } from "~/test-utils";
 import { patchConfig } from "~/api";
 import testingPatterns from "./patterns.test.json";
@@ -119,6 +119,24 @@ describe("SoftwarePatternsSelection", () => {
 
     await user.click(screen.getByText(/YaST Server Utilities/));
     expect(checkbox).toBeChecked();
+  });
+
+  it("hides the 'auto selected' label on an AUTO pattern once the user touches it", async () => {
+    const { user } = installerRender(<SoftwarePatternsSelection />);
+    const y2BasisPattern = testingPatterns.find((p) => p.name === "yast2_basis");
+
+    const basisCheckbox = await screen.findByRole("checkbox", {
+      name: y2BasisPattern.summary,
+    });
+    const row = basisCheckbox.closest('[class*="pf-v6-l-flex"]');
+
+    // yast2_basis is AUTO in the mock: the label is rendered in the row.
+    expect(within(row).queryAllByText(/auto selected/i)).toHaveLength(1);
+
+    await user.click(basisCheckbox);
+
+    // Once the field is dirty, the row no longer shows the label.
+    expect(within(row).queryAllByText(/auto selected/i)).toHaveLength(0);
   });
 
   describe("when the search filter is active", () => {
