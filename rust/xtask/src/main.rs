@@ -73,8 +73,7 @@ mod tasks {
         );
 
         // Generate YAML format
-        let yaml = serde_yaml::to_string(&openapi)
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+        let yaml = serde_yaml::to_string(&openapi).map_err(std::io::Error::other)?;
         let yaml_path = out_dir.join("openapi.yaml");
         let mut yaml_file = File::create(&yaml_path)?;
         yaml_file.write_all(yaml.as_bytes())?;
