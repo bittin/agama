@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Thu Apr 23 15:59:34 UTC 2026 - David Diaz <dgonzalez@suse.com>
+
+- Expose the product-level `desktop_selection` option and the
+  pattern-level `desktop` property through the API so the web UI
+  can group desktop environments and alert when none is picked
+  (gh#agama-project/agama#3390, gh#agama-project/agama#3403).
+
+-------------------------------------------------------------------
 Tue Apr 21 07:27:36 UTC 2026 - Clemens Famulla-Conrad <cfamullaconrad@suse.com>
 
 - network: Add ignore_auto_routes[46] and never_default[46]
