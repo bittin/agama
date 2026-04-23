@@ -421,7 +421,16 @@ fn update_question_docs(op: TransformOperation) -> TransformOperation {
 
 #[derive(Deserialize, JsonSchema)]
 struct LicenseQuery {
+    /// License language
     lang: Option<String>,
+}
+
+#[derive(Deserialize, JsonSchema)]
+#[schemars(inline)]
+// Needed by aide to document path params (see https://github.com/tamasfe/aide/discussions/281).
+struct LicenseParams {
+    /// License identifier (e.g., "license.final")
+    id: String,
 }
 
 /// Returns the license content.
@@ -430,7 +439,7 @@ struct LicenseQuery {
 /// the license in English.
 async fn get_license(
     State(state): State<ServerState>,
-    Path(id): Path<String>,
+    Path(license): Path<LicenseParams>,
     Query(query): Query<LicenseQuery>,
 ) -> Result<Response, Response> {
     let lang = query.lang.unwrap_or("en".to_string());
@@ -441,7 +450,7 @@ async fn get_license(
 
     let license = state
         .manager
-        .call(message::GetLicense::new(id.to_string(), lang))
+        .call(message::GetLicense::new(license.id.to_string(), lang))
         .await
         .map_err(|e| Error::from(e).internal_server_error())?;
     if let Some(license) = license {
