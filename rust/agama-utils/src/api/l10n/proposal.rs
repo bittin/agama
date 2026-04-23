@@ -26,7 +26,7 @@ use serde_with::{serde_as, DisplayFromStr};
 /// Describes what Agama proposes for the target system.
 #[serde_as]
 #[derive(Clone, Debug, Deserialize, Serialize, JsonSchema)]
-#[schemars(rename = "l10n::Proposal")]
+#[schemars(rename = "l10n.Proposal")]
 pub struct Proposal {
     /// Keymap (e.g., "us", "cz(qwerty)", etc.).
     #[serde_as(as = "DisplayFromStr")]
