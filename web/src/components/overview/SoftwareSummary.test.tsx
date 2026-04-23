@@ -166,7 +166,7 @@ describe("SoftwareSummary", () => {
         screen.getByText("Requires 5.95 GiB");
       });
 
-      it("falls back to 'Default selection' without a sub-line when the proposal size is not available", () => {
+      it("falls back to 'Default selection' without a summary description when the proposal size is not available", () => {
         mockUseProposalFn.mockReturnValue({ usedSpace: 0, patterns: {} });
         mockUseSelectedPatternsFn.mockReturnValue([]);
 
@@ -178,13 +178,23 @@ describe("SoftwareSummary", () => {
     });
 
     describe("and a desktop is selected", () => {
-      it("shows the desktop as the headline and size as the sub-line", () => {
+      it("shows the desktop as the headline and size as the summary description", () => {
         mockUseSelectedPatternsFn.mockReturnValue([gnome]);
 
         installerRender(<SoftwareSummary />);
 
         screen.getByText("GNOME Desktop");
-        screen.getByText("Includes 1 pattern. Requires 5.95 GiB");
+        screen.getByText("Requires 5.95 GiB");
+        expect(screen.queryByText(/additional pattern/)).toBeNull();
+      });
+
+      it("counts only non-desktop patterns in the summary description", () => {
+        mockUseSelectedPatternsFn.mockReturnValue([gnome, yast2Basis]);
+
+        installerRender(<SoftwareSummary />);
+
+        screen.getByText("GNOME Desktop");
+        screen.getByText("Includes 1 additional pattern. Requires 5.95 GiB");
       });
 
       it("shows the desktop count when several are selected", () => {
@@ -198,7 +208,8 @@ describe("SoftwareSummary", () => {
         screen.getByText("2 desktops selected");
         expect(screen.queryByText("GNOME Desktop")).toBeNull();
         expect(screen.queryByText("KDE Plasma")).toBeNull();
-        screen.getByText("Includes 2 patterns. Requires 5.95 GiB");
+        screen.getByText("Requires 5.95 GiB");
+        expect(screen.queryByText(/additional pattern/)).toBeNull();
       });
     });
 
@@ -207,7 +218,7 @@ describe("SoftwareSummary", () => {
         mockUseIsDesktopMissingFn.mockReturnValue(true);
       });
 
-      it("shows 'No desktop selected' as the headline and size as the sub-line", () => {
+      it("shows 'No desktop selected' as the headline and size as the summary description", () => {
         mockUseSelectedPatternsFn.mockReturnValue([]);
 
         installerRender(<SoftwareSummary />);
@@ -222,7 +233,7 @@ describe("SoftwareSummary", () => {
         installerRender(<SoftwareSummary />);
 
         expect(screen.getByText("No desktop selected")).toHaveClass(textStyles.fontWeightBold);
-        screen.getByText("Includes 1 pattern. Requires 5.95 GiB");
+        screen.getByText("Includes 1 additional pattern. Requires 5.95 GiB");
       });
     });
   });

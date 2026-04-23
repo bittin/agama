@@ -101,9 +101,9 @@ const Value = () => {
 };
 
 /**
- * Renders the sub-line of the software summary.
+ * Renders the description of the software summary.
  *
- * When the headline is a desktop or the missing-desktop hint, the sub-line
+ * When the headline is a desktop or the missing-desktop hint, the description
  * combines the pattern count (if any) with the required install size in a
  * single translatable sentence so translators can adjust punctuation and
  * order. When the headline already conveys the count, only the required
@@ -120,16 +120,20 @@ const Description = () => {
 
   const size = xbytes(proposal.usedSpace * 1024, { iec: true });
   const hasDesktopContext = isDesktopMissing || patterns.some((p) => p.desktop);
-  const qty = patterns.length;
+  const additionalQty = patterns.filter((p) => !p.desktop).length;
 
-  if (hasDesktopContext && qty > 0) {
+  if (hasDesktopContext && additionalQty > 0) {
     return sprintf(
-      // TRANSLATORS: software summary sub-line combining the count of
-      // selected patterns with the required install size. %1$d is a number
-      // of selected patterns; %2$s is a human-readable disk size
-      // (e.g. "5.95 GiB").
-      n_("Includes %1$d pattern. Requires %2$s", "Includes %1$d patterns. Requires %2$s", qty),
-      qty,
+      // TRANSLATORS: software summary description combining the count of
+      // non-desktop patterns selected on top of the desktop with the
+      // required install size. %1$d is a number of additional patterns;
+      // %2$s is a human-readable disk size (e.g. "5.95 GiB").
+      n_(
+        "Includes %1$d additional pattern. Requires %2$s",
+        "Includes %1$d additional patterns. Requires %2$s",
+        additionalQty,
+      ),
+      additionalQty,
       size,
     );
   }
