@@ -33,6 +33,9 @@ pub mod schemas {
     ///
     /// Example:
     /// ```
+    /// # use agama_utils::openapi::schemas::IpInetSchema;
+    /// # use cidr::IpInet;
+    ///
     /// #[derive(schemars::JsonSchema)]
     /// struct NetworkConfig {
     ///     #[schemars(with = "IpInetSchema")]
