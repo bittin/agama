@@ -60,7 +60,7 @@ pub async fn build() -> OpenApi {
         ..Default::default()
     };
 
-    let share_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../share");
+    let share_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../test/share");
     std::env::set_var("AGAMA_SHARE_DIR", share_dir.display().to_string());
 
     let (events_tx, _events_rx) = broadcast::channel::<Event>(16);
