@@ -22,7 +22,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
-#[schemars(rename = "l10n::SystemConfig")]
+#[schemars(rename = "l10n.SystemConfig")]
 pub struct SystemConfig {
     pub locale: Option<String>,
     pub keymap: Option<String>,
