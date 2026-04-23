@@ -102,20 +102,13 @@ describe("ConnectionForm", () => {
     expect(screen.getByLabelText("Name")).toHaveValue("Bond");
   });
 
-  it("does not show WIFI in the connection type selector for new connections", async () => {
-    const { user } = installerRender(<ConnectionForm />);
-    await user.click(screen.getByLabelText("Type"));
-    expect(screen.queryByRole("option", { name: "WIFI" })).not.toBeInTheDocument();
-  });
-
   describe("Bond connection", () => {
     it("shows bond fields when type is Bond", async () => {
       const { user } = installerRender(<ConnectionForm />);
 
       await user.click(screen.getByLabelText("Type"));
       await user.click(screen.getByText("Bond"));
-      await waitFor(() => expect(screen.queryByLabelText("Bond mode")).toBeInTheDocument());
-      screen.getByLabelText("Bond mode");
+      await screen.findByLabelText("Bond mode");
       screen.getByText("Bond ports");
     });
 
@@ -125,7 +118,7 @@ describe("ConnectionForm", () => {
       // Switch to Bond
       await user.click(screen.getByLabelText("Type"));
       await user.click(screen.getByText("Bond"));
-      await waitFor(() => expect(screen.getByLabelText("Device name")).toHaveValue("bond0"));
+      expect(await screen.findByLabelText("Device name")).toHaveValue("bond0");
 
       // Switch back to Ethernet
       await user.click(screen.getByLabelText("Type"));
@@ -365,21 +358,6 @@ describe("ConnectionForm", () => {
     it("does not show the name field since it cannot be changed", () => {
       installerRender(<ConnectionForm />);
       expect(screen.queryByLabelText("Name")).not.toBeInTheDocument();
-    });
-
-    it("disables the connection type selector", () => {
-      installerRender(<ConnectionForm />);
-      expect(screen.getByLabelText("Type")).toBeDisabled();
-    });
-
-    it("shows WIFI as the selected type when editing a WIFI connection", () => {
-      mockUseSystem.mockReturnValue({
-        connections: [buildConnection("wlan0", { wireless: { ssid: "test-wifi" } })],
-      });
-      mockParams({ id: "wlan0" });
-      installerRender(<ConnectionForm />);
-      expect(screen.getByLabelText("Type")).toHaveTextContent("WIFI");
-      expect(screen.getByLabelText("Type")).toBeDisabled();
     });
 
     it("pre-selects Manual IPv4 when the connection uses manual IPv4 addressing", () => {

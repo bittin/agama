@@ -483,27 +483,16 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
     listeners: isEditing ? undefined : { onMount: ({ formApi }) => syncName(formApi) },
   });
 
-  const typeOptions = () => {
-    const options = [
-      {
-        value: ConnectionType.BOND,
-        label: N_("Bond"),
-        description: "Bond",
-      },
-      {
-        value: ConnectionType.WIFI,
-        label: N_("WIFI"),
-        description: "Wireless",
-      },
-      {
-        value: ConnectionType.ETHERNET,
-        label: N_("Ethernet"),
-        description: "Ethernet",
-      },
-    ];
-
-    return isEditing ? options : options.filter((o) => o.value !== ConnectionType.WIFI);
-  };
+  const typeOptions = () => [
+    {
+      value: ConnectionType.BOND,
+      label: N_("Bond"),
+    },
+    {
+      value: ConnectionType.ETHERNET,
+      label: N_("Ethernet"),
+    },
+  ];
 
   return (
     <form.AppForm>
@@ -543,39 +532,40 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
           }
         </form.Subscribe>
 
-        <form.AppField name="type" listeners={{ onChange: () => syncName(form) }}>
-          {(field) => (
-            <field.DropdownField
-              isDisabled={isEditing}
-              label={
-                // TRANSLATORS: checkbox label for custom DNS server configuration.
-                _("Type")
-              }
-              options={typeOptions().map(({ value, label }) => ({
-                value,
-                // eslint-disable-next-line agama-i18n/string-literals
-                label: _(label),
-              }))}
-            />
-          )}
-        </form.AppField>
-
         {!isEditing && (
-          <form.AppField name="name">
-            {(field) => (
-              <field.TextField
-                label={
-                  // TRANSLATORS: label for the network connection profile name field.
-                  _("Name")
-                }
-              />
-            )}
-          </form.AppField>
+          <>
+            <form.AppField name="type" listeners={{ onChange: () => syncName(form) }}>
+              {(field) => (
+                <field.DropdownField
+                  label={
+                    // TRANSLATORS: checkbox label for custom DNS server configuration.
+                    _("Type")
+                  }
+                  options={typeOptions().map(({ value, label }) => ({
+                    value,
+                    // eslint-disable-next-line agama-i18n/string-literals
+                    label: _(label),
+                  }))}
+                />
+              )}
+            </form.AppField>
+
+            <form.AppField name="name">
+              {(field) => (
+                <field.TextField
+                  label={
+                    // TRANSLATORS: label for the network connection profile name field.
+                    _("Name")
+                  }
+                />
+              )}
+            </form.AppField>
+          </>
         )}
 
         <form.Subscribe selector={(s) => s.values.type}>
           {(type) =>
-            ![ConnectionType.BOND, ConnectionType.BRIDGE, ConnectionType.VLAN].includes(type) && (
+            [ConnectionType.ETHERNET, ConnectionType.WIFI].includes(type) && (
               <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
                 <BindingModeSelector form={form} />
 

@@ -26,7 +26,7 @@ import { connectionFormOptions } from "~/components/network/ConnectionForm";
 import { withForm } from "~/hooks/form";
 import { useDevices } from "~/hooks/model/system/network";
 import { BondMode, ConnectionType } from "~/types/network";
-import { _ } from "~/i18n";
+import { _, formatList } from "~/i18n";
 
 /**
  * Bond mode options.
@@ -98,7 +98,7 @@ const BondSettings = withForm({
                     }
                     helperText={
                       // TRANSLATORS: helper text for the bond options field.
-                      _("E.g., primary=eth1")
+                      _("E.g., downdelay=0, primary=eth1, miimon=100, lacp_rate=fast")
                     }
                   />
                 )}
@@ -112,17 +112,7 @@ const BondSettings = withForm({
                     }
                     helperText={
                       // TRANSLATORS: helper text for the bond ports field. %s is a list of available devices.
-                      sprintf(_("Available devices: %s"), devices.map((d) => d.name).join(", "))
-                    }
-                    displayValue={(name) => {
-                      const device = devices.find((d) => d.name === name);
-                      return device ? sprintf(_("%s - %s"), device.name, device.macAddress) : name;
-                    }}
-                    validateOnChange={(v) =>
-                      devices.some((d) => d.name === v)
-                        ? undefined
-                        : // TRANSLATORS: validation error for an invalid bond port entry.
-                          _("Invalid device name")
+                      sprintf(_("Available devices: %s"), formatList(devices.map((d) => d.name)))
                     }
                     skipDuplicates
                   />

@@ -88,24 +88,35 @@ function TestForm({
 }
 
 describe("BondSettings", () => {
-  it("renders bond fields", () => {
+  it("renders bond fields", async () => {
     installerRender(<TestForm />);
 
-    screen.getByLabelText("Bond mode");
-    screen.getByLabelText("Bond options");
-    screen.getByText("Bond ports");
+    await screen.findByLabelText("Bond mode");
+    await screen.findByLabelText("Bond options");
+    await screen.findByText("Bond ports");
     screen.getByRole("textbox", { name: "Bond ports" });
-    screen.getByText(/Available devices: enp1s0, enp2s0/);
+    screen.getByText(/Available devices: enp1s0 and enp2s0/);
   });
 
-  it("allows defining the device name for a new bond connection", () => {
+  it("displays bond ports", async () => {
+    const { user } = installerRender(<TestForm />);
+
+    const input = await screen.findByRole("textbox", { name: "Bond ports" });
+    await user.type(input, "enp1s0{enter}");
+    await user.type(input, "br0{enter}");
+
+    expect(await screen.findByText("enp1s0")).toBeInTheDocument();
+    expect(await screen.findByText("br0")).toBeInTheDocument();
+  });
+
+  it("allows defining the device name for a new bond connection", async () => {
     installerRender(<TestForm />);
 
-    const ifaceField = screen.getByLabelText("Device name");
+    const ifaceField = await screen.findByLabelText("Device name");
     expect(ifaceField).toBeInTheDocument();
   });
 
-  it("does not allow defining the device name when editing", () => {
+  it("does not allow defining the device name when editing", async () => {
     installerRender(<TestForm isEditing />);
 
     expect(screen.queryByLabelText("Device name")).not.toBeInTheDocument();
@@ -114,7 +125,7 @@ describe("BondSettings", () => {
   it("shows an error when no bond ports are selected", async () => {
     const { user } = installerRender(<TestForm />);
 
-    await user.click(screen.getByRole("button", { name: "Accept" }));
+    await user.click(await screen.findByRole("button", { name: "Accept" }));
 
     await screen.findByText("At least one bond port is required");
   });
@@ -123,7 +134,7 @@ describe("BondSettings", () => {
     const { user } = installerRender(<TestForm />);
 
     // Default mode is balance-rr, which does not support 'primary'
-    await user.type(screen.getByLabelText("Bond options"), "primary=enp1s0{enter}");
+    await user.type(await screen.findByLabelText("Bond options"), "primary=enp1s0{enter}");
     await user.type(screen.getByRole("textbox", { name: "Bond ports" }), "enp1s0{enter}");
 
     await user.click(screen.getByRole("button", { name: "Accept" }));
@@ -138,7 +149,7 @@ describe("BondSettings", () => {
       <TestForm defaultValues={{ bondMode: BondMode.ACTIVE_BACKUP }} />,
     );
 
-    await user.type(screen.getByLabelText("Bond options"), "primary=enp1s0{enter}");
+    await user.type(await screen.findByLabelText("Bond options"), "primary=enp1s0{enter}");
     await user.type(screen.getByRole("textbox", { name: "Bond ports" }), "enp1s0{enter}");
 
     await user.click(screen.getByRole("button", { name: "Accept" }));
