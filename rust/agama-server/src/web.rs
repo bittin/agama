@@ -30,7 +30,7 @@ use aide::axum::ApiRouter;
 
 mod auth;
 mod config;
-pub mod docs_aide;
+pub mod docs;
 pub mod error;
 mod http;
 mod service;

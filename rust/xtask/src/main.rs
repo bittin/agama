@@ -57,9 +57,9 @@ mod tasks {
 
     /// Generate Agama's OpenAPI specification.
     pub async fn generate_openapi() -> std::io::Result<()> {
-        use agama_server::web::docs_aide;
+        use agama_server::web::docs;
 
-        let openapi = docs_aide::build().await;
+        let openapi = docs::build().await;
         let out_dir = output_dir()?;
 
         // Generate JSON format
