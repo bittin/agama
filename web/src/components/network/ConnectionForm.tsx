@@ -485,16 +485,7 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
     listeners: isEditing ? undefined : { onMount: ({ formApi }) => syncName(formApi) },
   });
 
-  const typeOptions = () => [
-    {
-      value: ConnectionType.BOND,
-      label: N_("Bond"),
-    },
-    {
-      value: ConnectionType.ETHERNET,
-      label: N_("Ethernet"),
-    },
-  ];
+  const typeOptions = () => ConnectionType.options([ConnectionType.BOND, ConnectionType.ETHERNET]);
 
   return (
     <form.AppForm>
@@ -543,11 +534,7 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
                     // TRANSLATORS: checkbox label for custom DNS server configuration.
                     _("Type")
                   }
-                  options={typeOptions().map(({ value, label }) => ({
-                    value,
-                    // eslint-disable-next-line agama-i18n/string-literals
-                    label: _(label),
-                  }))}
+                  options={typeOptions()}
                 />
               )}
             </form.AppField>

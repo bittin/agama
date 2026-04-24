@@ -21,6 +21,7 @@
  */
 
 import { isBoolean, isEmpty, isObject } from "radashi";
+import { _, N_ } from "~/i18n";
 import {
   buildAddress,
   buildAddresses,
@@ -28,6 +29,35 @@ import {
   formatIp,
   securityFromFlags,
 } from "~/utils/network";
+
+export enum ConnectionType {
+  ETHERNET = "ethernet",
+  WIFI = "wireless",
+  LOOPBACK = "loopback",
+  BOND = "bond",
+  BRIDGE = "bridge",
+  VLAN = "vlan",
+  UNKNOWN = "unknown",
+}
+
+export namespace ConnectionType {
+  const labels: Record<ConnectionType, string> = {
+    [ConnectionType.ETHERNET]: N_("Ethernet"),
+    [ConnectionType.WIFI]: N_("Wi-Fi"),
+    [ConnectionType.LOOPBACK]: N_("Loopback"),
+    [ConnectionType.BOND]: N_("Bond"),
+    [ConnectionType.BRIDGE]: N_("Bridge"),
+    [ConnectionType.VLAN]: N_("VLAN"),
+    [ConnectionType.UNKNOWN]: N_("Unknown"),
+  };
+
+  /** Returns the translated label for the connection type */
+  export const label = (type: ConnectionType): string => _(labels[type]);
+
+  /** Returns options for a dropdown/select component */
+  export const options = (types: ConnectionType[]): { value: ConnectionType; label: string }[] =>
+    types.map((type) => ({ value: type, label: label(type) }));
+}
 
 /**
  * Enum for AccessPoint flags
@@ -76,16 +106,6 @@ enum BondMode {
   LACP = "802.3ad",
   BALANCE_TLB = "balance-tlb",
   BALANCE_ALB = "balance-alb",
-}
-
-enum ConnectionType {
-  ETHERNET = "ethernet",
-  WIFI = "wireless",
-  LOOPBACK = "loopback",
-  BOND = "bond",
-  BRIDGE = "bridge",
-  VLAN = "vlan",
-  UNKNOWN = "unknown",
 }
 
 enum DeviceState {
@@ -569,7 +589,6 @@ export {
   ConnectionState,
   ConnectionStatus,
   ConnectionMethod,
-  ConnectionType,
   Device,
   DeviceState,
   DeviceType,
