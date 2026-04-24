@@ -550,7 +550,7 @@ fn get_license_docs(op: TransformOperation) -> TransformOperation {
             (RFC 5646) via the 'lang' query parameter. If no language is specified, the \
             license is returned in English.",
         )
-        .tag("Status & Monitoring")
+        .tag("Miscellaneous")
         .response_with::<200, Json<LicenseContent>, _>(|res| {
             res.description("License retrieved successfully")
         })

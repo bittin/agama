@@ -105,6 +105,11 @@ pub async fn build() -> OpenApi {
                 description: Some("Problem tracking and interactive questions".to_string()),
                 ..Default::default()
             },
+            Tag {
+                name: "Miscellaneous".to_string(),
+                description: Some("Miscellaneous information".to_string()),
+                ..Default::default()
+            },
         ],
         external_docs: Some(ExternalDocumentation {
             description: Some("Full Agama documentation".to_string()),
