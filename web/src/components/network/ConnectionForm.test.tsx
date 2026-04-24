@@ -237,17 +237,6 @@ describe("ConnectionForm", () => {
     expect(screen.queryByText("IPv6 Addresses")).not.toBeInTheDocument();
   });
 
-  it("shows an error when addresses are invalid in automatic + manual mode", async () => {
-    const { user } = installerRender(<ConnectionForm />);
-    await user.type(screen.getByLabelText("Name"), "Test");
-    await user.click(screen.getByLabelText("IPv4 Settings"));
-    await user.click(screen.getByRole("option", { name: /^Automatic \+ manual/ }));
-    await user.type(screen.getByLabelText("IPv4 Addresses"), "not-an-ip{Enter}");
-    await user.click(screen.getByRole("button", { name: "Accept" }));
-    await screen.findByText(/Invalid IPv4 address/);
-    expect(mockMutateAsync).not.toHaveBeenCalled();
-  });
-
   it("submits empty addresses when both settings are automatic", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
@@ -607,6 +596,19 @@ describe("ConnectionForm", () => {
   });
 
   describe("validation", () => {
+    describe("IP Settings", () => {
+      it("shows an error when IPv4 addresses are invalid", async () => {
+        const { user } = installerRender(<ConnectionForm />);
+        await user.type(screen.getByLabelText("Name"), "Test");
+        await user.click(screen.getByLabelText("IPv4 Settings"));
+        await user.click(screen.getByRole("option", { name: /^Automatic \+ manual/ }));
+        await user.type(screen.getByLabelText("IPv4 Addresses"), "not-an-ip{Enter}");
+        await user.click(screen.getByRole("button", { name: "Accept" }));
+        await screen.findByText(/Invalid IPv4 address/);
+        expect(mockMutateAsync).not.toHaveBeenCalled();
+      });
+    });
+
     describe("Bond", () => {
       it("shows an error when no bond ports are selected", async () => {
         const { user } = installerRender(<ConnectionForm />);
