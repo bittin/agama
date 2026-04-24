@@ -121,6 +121,7 @@ export const connectionFormOptions = formOptions({
     customDns: false,
     customDnsSearch: false,
     bindingMode: "none" as ConnectionBindingMode,
+    bondIface: "",
     bondMode: BondMode.BALANCE_ROUND_ROBIN as BondMode,
     bondOptions: [] as string[],
     bondPorts: [] as string[],
@@ -327,6 +328,11 @@ export function validateConnectionForm(formValues: FormValues): FormFieldErrors 
       // TRANSLATORS: validation error for the DNS search domains field.
       _("Some DNS search domains are invalid"),
     ),
+    bondIface:
+      formValues.type === ConnectionType.BOND && !formValues.bondIface.trim()
+        ? // TRANSLATORS: validation error for the bond device name field.
+          _("Device name is required")
+        : undefined,
     bondMode:
       formValues.type === ConnectionType.BOND && !formValues.bondMode.trim()
         ? // TRANSLATORS: validation error for the bond mode field.
@@ -348,11 +354,6 @@ export function validateConnectionForm(formValues: FormValues): FormFieldErrors 
             "The 'primary' option is only valid for 'active-backup', 'balance-tlb', and 'balance-alb' modes",
           )
         : undefined,
-    iface:
-      formValues.type === ConnectionType.BOND && !formValues.iface.trim()
-        ? // TRANSLATORS: validation error for the bond device name field.
-          _("Device name is required")
-        : undefined,
   });
 
   if (!isEmpty(fieldErrors)) return fieldErrors;
@@ -372,8 +373,16 @@ function buildConnection(formValues: FormValues): Connection {
     ? formValues.addresses6.map(buildAddress)
     : [];
 
+  let iface = "";
+
+  if (formValues.type === ConnectionType.BOND) {
+    iface = formValues.bondIface;
+  } else if (formValues.bindingMode === "iface") {
+    iface = formValues.iface;
+  }
+
   return new Connection(formValues.name, {
-    iface: formValues.bindingMode === "iface" ? formValues.iface : "",
+    iface,
     macAddress: formValues.bindingMode === "mac" ? formValues.ifaceMac : "",
     method4: MODE_TO_METHOD[formValues.ipv4Mode],
     gateway4: ipv4Addresses.length > 0 ? formValues.gateway4 : "",
@@ -428,39 +437,13 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
   const syncName = (formApi) => {
     const type = formApi.getFieldValue("type");
 
-    if (!formApi.getFieldMeta("name")?.isDirty) {
-      const existingIds = new Set(systemConns.map((c) => c.id));
-      formApi.setFieldValue("name", generateConnectionName(type, existingIds), {
-        dontUpdateMeta: true,
-        dontRunListeners: true,
-      });
-    }
+    if (formApi.getFieldMeta("name")?.isDirty) return;
 
-    if (type === ConnectionType.BOND && !isEditing) {
-      if (!formApi.getFieldValue("iface") || formApi.getFieldValue("iface") === devices[0]?.name) {
-        formApi.setFieldValue("iface", "bond0", {
-          dontUpdateMeta: true,
-          dontRunListeners: true,
-        });
-      }
-      formApi.setFieldValue("bindingMode", "iface", {
-        dontUpdateMeta: true,
-        dontRunListeners: true,
-      });
-    } else if (!isEditing) {
-      if (formApi.getFieldValue("iface") === "bond0") {
-        formApi.setFieldValue("iface", devices[0]?.name ?? "", {
-          dontUpdateMeta: true,
-          dontRunListeners: true,
-        });
-      }
-      if (formApi.getFieldValue("bindingMode") === "iface") {
-        formApi.setFieldValue("bindingMode", "none", {
-          dontUpdateMeta: true,
-          dontRunListeners: true,
-        });
-      }
-    }
+    const existingIds = new Set(systemConns.map((c) => c.id));
+    formApi.setFieldValue("name", generateConnectionName(type, existingIds), {
+      dontUpdateMeta: true,
+      dontRunListeners: true,
+    });
   };
 
   const form = useAppForm({
