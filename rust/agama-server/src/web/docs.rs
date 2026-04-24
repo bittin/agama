@@ -84,9 +84,9 @@ pub async fn build() -> OpenApi {
                 ..Default::default()
             },
             Tag {
-                name: "Status & Monitoring".to_string(),
+                name: "System & Monitoring".to_string(),
                 description: Some(
-                    "Endpoints for monitoring installation status and progress".to_string(),
+                    "System information, installation status, and progress monitoring".to_string(),
                 ),
                 ..Default::default()
             },
@@ -103,11 +103,6 @@ pub async fn build() -> OpenApi {
             Tag {
                 name: "Issues & Questions".to_string(),
                 description: Some("Problem tracking and interactive questions".to_string()),
-                ..Default::default()
-            },
-            Tag {
-                name: "Miscellaneous".to_string(),
-                description: Some("Miscellaneous information".to_string()),
                 ..Default::default()
             },
         ],

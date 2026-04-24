@@ -175,7 +175,7 @@ fn get_status_docs(op: TransformOperation) -> TransformOperation {
             stage and the progress of the ongoing actions. This endpoint can be polled to monitor \
             installation progress.",
         )
-        .tag("Status & Monitoring")
+        .tag("System & Monitoring")
         .response_with::<200, Json<Status>, _>(|res| res.description("Status of the installation"))
         .response_with::<500, Json<ErrorResponse>, _>(|res| {
             res.description("Internal server error")
@@ -200,7 +200,7 @@ fn get_system_docs(op: TransformOperation) -> TransformOperation {
             details, platform information, and system capabilities. It includes Agama specific \
             information like the list of available products for installation.",
         )
-        .tag("Status & Monitoring")
+        .tag("System & Monitoring")
         .response_with::<200, Json<SystemInfo>, _>(|res| {
             res.description("System information retrieved successfully")
         })
@@ -550,7 +550,7 @@ fn get_license_docs(op: TransformOperation) -> TransformOperation {
             (RFC 5646) via the 'lang' query parameter. If no language is specified, the \
             license is returned in English.",
         )
-        .tag("Miscellaneous")
+        .tag("System & Monitoring")
         .response_with::<200, Json<LicenseContent>, _>(|res| {
             res.description("License retrieved successfully")
         })
