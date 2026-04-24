@@ -30,34 +30,39 @@ import {
   securityFromFlags,
 } from "~/utils/network";
 
-export enum ConnectionType {
-  ETHERNET = "ethernet",
-  WIFI = "wireless",
-  LOOPBACK = "loopback",
-  BOND = "bond",
-  BRIDGE = "bridge",
-  VLAN = "vlan",
-  UNKNOWN = "unknown",
-}
+const connectionTypeValues = {
+  ETHERNET: "ethernet",
+  WIFI: "wireless",
+  LOOPBACK: "loopback",
+  BOND: "bond",
+  BRIDGE: "bridge",
+  VLAN: "vlan",
+  UNKNOWN: "unknown",
+} as const;
 
-export namespace ConnectionType {
-  const labels: Record<ConnectionType, string> = {
-    [ConnectionType.ETHERNET]: N_("Ethernet"),
-    [ConnectionType.WIFI]: N_("Wi-Fi"),
-    [ConnectionType.LOOPBACK]: N_("Loopback"),
-    [ConnectionType.BOND]: N_("Bond"),
-    [ConnectionType.BRIDGE]: N_("Bridge"),
-    [ConnectionType.VLAN]: N_("VLAN"),
-    [ConnectionType.UNKNOWN]: N_("Unknown"),
-  };
+export type ConnectionType = (typeof connectionTypeValues)[keyof typeof connectionTypeValues];
+
+const connectionTypeLabels: Record<ConnectionType, string> = {
+  [connectionTypeValues.ETHERNET]: N_("Ethernet"),
+  [connectionTypeValues.WIFI]: N_("Wi-Fi"),
+  [connectionTypeValues.LOOPBACK]: N_("Loopback"),
+  [connectionTypeValues.BOND]: N_("Bond"),
+  [connectionTypeValues.BRIDGE]: N_("Bridge"),
+  [connectionTypeValues.VLAN]: N_("VLAN"),
+  [connectionTypeValues.UNKNOWN]: N_("Unknown"),
+};
+
+export const ConnectionType = {
+  ...connectionTypeValues,
 
   /** Returns the translated label for the connection type */
-  export const label = (type: ConnectionType): string => _(labels[type]);
+  // eslint-disable-next-line agama-i18n/string-literals
+  label: (type: ConnectionType): string => _(connectionTypeLabels[type]),
 
   /** Returns options for a dropdown/select component */
-  export const options = (types: ConnectionType[]): { value: ConnectionType; label: string }[] =>
-    types.map((type) => ({ value: type, label: label(type) }));
-}
+  options: (types: ConnectionType[]): { value: ConnectionType; label: string }[] =>
+    types.map((type) => ({ value: type, label: ConnectionType.label(type) })),
+};
 
 /**
  * Enum for AccessPoint flags

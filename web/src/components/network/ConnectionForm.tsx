@@ -58,7 +58,7 @@ import {
   isValidNameserver,
   isValidDNSSearchDomain,
 } from "~/utils/network";
-import { _, N_ } from "~/i18n";
+import { _ } from "~/i18n";
 import { Link } from "../core";
 
 /**
@@ -107,7 +107,7 @@ const MODE_TO_METHOD: Record<FormIpMode, ConnectionMethod> = {
 export const connectionFormOptions = formOptions({
   defaultValues: {
     name: "",
-    type: ConnectionType.ETHERNET,
+    type: ConnectionType.ETHERNET as ConnectionType,
     iface: "",
     ifaceMac: "",
     ipv4Mode: FormIpMode.AUTO as FormIpMode,
@@ -554,7 +554,7 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
 
         <form.Subscribe selector={(s) => s.values.type}>
           {(type) =>
-            [ConnectionType.ETHERNET, ConnectionType.WIFI].includes(type) && (
+            ([ConnectionType.ETHERNET, ConnectionType.WIFI] as ConnectionType[]).includes(type) && (
               <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
                 <BindingModeSelector form={form} />
 
