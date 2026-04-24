@@ -191,6 +191,10 @@ pub struct IpConfig {
     pub ip6_privacy: Option<i32>,
     pub dns_priority4: Option<i32>,
     pub dns_priority6: Option<i32>,
+    pub ignore_auto_routes4: Option<bool>,
+    pub ignore_auto_routes6: Option<bool>,
+    pub never_default4: Option<bool>,
+    pub never_default6: Option<bool>,
     pub link_local4: LinkLocal,
 }
 
