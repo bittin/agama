@@ -1,4 +1,4 @@
-// Copyright (c) [2025] SUSE LLC
+// Copyright (c) [2025-2026] SUSE LLC
 //
 // All Rights Reserved.
 //
@@ -50,12 +50,23 @@ pub struct Product {
     pub registration: bool,
     /// License ID
     pub license: Option<String>,
+    /// Desktop selection mode
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub desktop_selection: Option<DesktopSelection>,
     /// Translations
     #[serde(skip_serializing_if = "Option::is_none")]
     pub translations: Option<Translations>,
     /// Product modes
     #[serde(default)]
     pub modes: Vec<ProductMode>,
+}
+
+/// Desktop selection mode for a product
+#[derive(Clone, Debug, Serialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub enum DesktopSelection {
+    Optional,
+    Suggested,
 }
 
 #[derive(Clone, Default, Debug, Serialize, JsonSchema)]
