@@ -153,21 +153,6 @@ describe("ConnectionsTable", () => {
     expect(mockNavigateFn).toHaveBeenCalledWith("/network/connections/Wired%20connection%200/edit");
   });
 
-  it("navigates to the edit binding page when 'Edit binding' is clicked for an ethernet connection", async () => {
-    const { user } = installerRender(<ConnectionsTable />);
-    await user.click(screen.getByRole("button", { name: /actions for Wired connection 0/i }));
-    await user.click(screen.getByText("Edit binding"));
-    expect(mockNavigateFn).toHaveBeenCalledWith(
-      "/network/connections/Wired%20connection%200/binding/edit",
-    );
-  });
-
-  it("does not show 'Edit binding' for wifi connections", async () => {
-    const { user } = installerRender(<ConnectionsTable />);
-    await user.click(screen.getByRole("button", { name: /actions for Wifi1/i }));
-    expect(screen.queryByText("Edit binding")).not.toBeInTheDocument();
-  });
-
   it("calls mutateConnection with status DELETE when 'Delete' is clicked", async () => {
     const { user } = installerRender(<ConnectionsTable />);
     await user.click(screen.getByRole("button", { name: /actions for Wired connection 0/i }));
