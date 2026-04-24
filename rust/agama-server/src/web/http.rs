@@ -22,6 +22,7 @@
 
 use super::{auth::AuthError, state::ServiceState};
 use agama_lib::auth::{AuthToken, TokenClaims};
+use aide::OperationIo;
 use axum::{
     extract::{Query, State},
     http::{header, HeaderMap, HeaderValue, StatusCode},
@@ -44,13 +45,15 @@ pub async fn ping() -> Json<PingResponse> {
     })
 }
 
-#[derive(Serialize, JsonSchema)]
+#[derive(Serialize, JsonSchema, OperationIo)]
+#[aide(output)]
 pub struct AuthResponse {
     /// Bearer token to use on subsequent calls
     token: String,
 }
 
-#[derive(Deserialize, JsonSchema)]
+#[derive(Deserialize, JsonSchema, OperationIo)]
+#[aide(input)]
 pub struct LoginRequest {
     /// User password
     pub password: String,

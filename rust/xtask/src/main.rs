@@ -59,11 +59,14 @@ mod tasks {
     pub async fn generate_openapi() -> std::io::Result<()> {
         use agama_server::web::docs;
 
-        let openapi = docs::build().await;
         let out_dir = output_dir()?;
 
-        // Generate JSON format
-        let json = serde_json::to_string_pretty(&openapi)?;
+        // Generate JSON format (includes post-processing for aide serialization quirks)
+        let json_value = docs::build_json()
+            .await
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+
+        let json = serde_json::to_string_pretty(&json_value)?;
         let json_path = out_dir.join("openapi.json");
         let mut json_file = File::create(&json_path)?;
         json_file.write_all(json.as_bytes())?;
@@ -73,7 +76,7 @@ mod tasks {
         );
 
         // Generate YAML format
-        let yaml = serde_yaml::to_string(&openapi).map_err(std::io::Error::other)?;
+        let yaml = serde_yaml::to_string(&json_value).map_err(std::io::Error::other)?;
         let yaml_path = out_dir.join("openapi.yaml");
         let mut yaml_file = File::create(&yaml_path)?;
         yaml_file.write_all(yaml.as_bytes())?;
