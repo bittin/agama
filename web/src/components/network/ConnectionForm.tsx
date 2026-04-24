@@ -60,7 +60,6 @@ import {
   isValidDNSSearchDomain,
 } from "~/utils/network";
 import { _ } from "~/i18n";
-import { Link } from "../core";
 
 /**
  * Form IP mode values.
