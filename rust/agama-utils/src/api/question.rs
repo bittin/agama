@@ -351,10 +351,11 @@ impl SelectionOption {
 ///
 /// They are usually presented as the button in a form.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, JsonSchema)]
+#[schemars(rename = "questions.Action")]
 pub struct Action {
     /// Action value.
     pub id: String,
-    /// Localized option.
+    /// Description of the action.
     pub label: String,
 }
 
@@ -372,6 +373,7 @@ impl Action {
 /// It includes the action and, optionally, and additional value which depends
 /// on the question field.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, JsonSchema)]
+#[schemars(rename = "questions.Answer")]
 pub struct Answer {
     #[serde(alias = "answer")]
     pub action: String,

@@ -23,7 +23,7 @@ use std::path::PathBuf;
 use agama_utils::{api::Event, test};
 use aide::openapi::{
     Contact, ExternalDocumentation, Info, License, OpenApi, ReferenceOr, SecurityScheme, Server,
-    Tag,
+    ServerVariable, Tag,
 };
 use indexmap::IndexMap;
 use tokio::sync::broadcast;
@@ -42,8 +42,6 @@ pub async fn build() -> OpenApi {
             version: env!("CARGO_PKG_VERSION").to_string(),
             description: Some(
                 "Complete HTTP API for the Agama installer. \
-                This unified specification includes endpoints for system configuration, \
-                installation profiles, and utility functions. \
                 See https://agama-project.github.io for more information."
                     .to_string(),
             ),
@@ -61,18 +59,19 @@ pub async fn build() -> OpenApi {
             }),
             ..Default::default()
         },
-        servers: vec![
-            Server {
-                url: "http://localhost".to_string(),
-                description: Some("Local development server".to_string()),
-                ..Default::default()
-            },
-            Server {
-                url: "https://agama.local".to_string(),
-                description: Some("Agama server (default hostname)".to_string()),
-                ..Default::default()
-            },
-        ],
+        servers: vec![Server {
+            url: "{agamaUrl}".to_string(),
+            description: Some("Agama instance URL".to_string()),
+            variables: IndexMap::from([(
+                "agamaUrl".to_string(),
+                ServerVariable {
+                    default: "https://agama.local".to_string(),
+                    description: Some("URL of the Agama instance".to_string()),
+                    ..Default::default()
+                },
+            )]),
+            ..Default::default()
+        }],
         tags: vec![
             Tag {
                 name: "Status & Monitoring".to_string(),
@@ -94,11 +93,6 @@ pub async fn build() -> OpenApi {
             Tag {
                 name: "Issues & Questions".to_string(),
                 description: Some("Problem tracking and interactive questions".to_string()),
-                ..Default::default()
-            },
-            Tag {
-                name: "Licensing".to_string(),
-                description: Some("License management and retrieval".to_string()),
                 ..Default::default()
             },
         ],

@@ -28,6 +28,7 @@ use serde_json::Value;
 #[serde(rename_all = "camelCase")]
 pub struct Patch {
     /// Update for the current config.
+    #[schemars(with = "Option<Config>")]
     pub update: Option<Value>,
 }
 

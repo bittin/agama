@@ -171,8 +171,8 @@ fn get_status_docs(op: TransformOperation) -> TransformOperation {
     op.id("getInstallerStatus")
         .summary("Get installer status")
         .description(
-            "Returns the current status of the installation process including active \
-            progresses and stage information. This endpoint can be polled to monitor \
+            "Returns the current status of the installation process, including the current \
+            stage and the progress of the ongoing actions. This endpoint can be polled to monitor \
             installation progress.",
         )
         .tag("Status & Monitoring")
@@ -197,7 +197,8 @@ fn get_system_docs(op: TransformOperation) -> TransformOperation {
         .summary("Get system information")
         .description(
             "Returns detailed information about the installation system including hardware \
-            details, platform information, and system capabilities.",
+            details, platform information, and system capabilities. It includes Agama specific \
+            information like the list of available products for installation.",
         )
         .tag("Status & Monitoring")
         .response_with::<200, Json<SystemInfo>, _>(|res| {
@@ -286,6 +287,7 @@ fn put_config_docs(op: TransformOperation) -> TransformOperation {
             The request body should be a JSON object conforming to the Config schema.",
         )
         .tag("Configuration")
+        .input::<Json<Config>>() // Override the auto-detected Json<Value> with Config schema
         .response::<200, ()>()
         .response_with::<400, Json<ErrorResponse>, _>(|res| {
             res.description("Invalid configuration schema or malformed JSON")
@@ -548,7 +550,7 @@ fn get_license_docs(op: TransformOperation) -> TransformOperation {
             (RFC 5646) via the 'lang' query parameter. If no language is specified, the \
             license is returned in English.",
         )
-        .tag("Licensing")
+        .tag("Status & Monitoring")
         .response_with::<200, Json<LicenseContent>, _>(|res| {
             res.description("License retrieved successfully")
         })
