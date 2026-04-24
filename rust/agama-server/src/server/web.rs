@@ -541,7 +541,6 @@ async fn get_license(
     }
 }
 
-#[allow(dead_code)]
 fn get_license_docs(op: TransformOperation) -> TransformOperation {
     op.id("getLicenseById")
         .summary("Get license by ID")
