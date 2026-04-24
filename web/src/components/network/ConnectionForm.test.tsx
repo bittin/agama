@@ -605,4 +605,65 @@ describe("ConnectionForm", () => {
       );
     });
   });
+
+  describe("validation", () => {
+    describe("Bond", () => {
+      it("shows an error when no bond ports are selected", async () => {
+        const { user } = installerRender(<ConnectionForm />);
+
+        await user.click(screen.getByLabelText("Type"));
+        await user.click(screen.getByText("Bond"));
+        await user.type(await screen.findByLabelText("Name"), "test-bond");
+
+        await user.click(screen.getByRole("button", { name: "Accept" }));
+
+        await screen.findByText("At least one bond port is required");
+        expect(mockMutateAsync).not.toHaveBeenCalled();
+      });
+
+      it("shows an error when 'primary' option is used with an invalid bond mode", async () => {
+        const { user } = installerRender(<ConnectionForm />);
+
+        await user.click(screen.getByLabelText("Type"));
+        await user.click(screen.getByText("Bond"));
+        await user.type(await screen.findByLabelText("Name"), "test-bond");
+
+        // Default mode is balance-rr, which does not support 'primary'
+        await user.type(screen.getByLabelText("Bond options"), "primary=enp1s0{enter}");
+        await user.type(screen.getByRole("textbox", { name: "Bond ports" }), "enp1s0{enter}");
+
+        await user.click(screen.getByRole("button", { name: "Accept" }));
+
+        await screen.findByText(
+          "The 'primary' option is only valid for 'active-backup', 'balance-tlb', and 'balance-alb' modes",
+        );
+        expect(mockMutateAsync).not.toHaveBeenCalled();
+      });
+
+      it("allows 'primary' option with active-backup mode", async () => {
+        const { user } = installerRender(<ConnectionForm />);
+
+        await user.click(screen.getByLabelText("Type"));
+        await user.click(screen.getByText("Bond"));
+        await user.type(await screen.findByLabelText("Name"), "test-bond");
+
+        await user.click(screen.getByLabelText("Bond mode"));
+        await user.click(screen.getByRole("option", { name: /active-backup/ }));
+
+        await user.type(screen.getByLabelText("Bond options"), "primary=enp1s0{enter}");
+        await user.type(screen.getByRole("textbox", { name: "Bond ports" }), "enp1s0{enter}");
+
+        await user.click(screen.getByRole("button", { name: "Accept" }));
+
+        await waitFor(() => {
+          expect(
+            screen.queryByText(
+              "The 'primary' option is only valid for 'active-backup', 'balance-tlb', and 'balance-alb' modes",
+            ),
+          ).not.toBeInTheDocument();
+          expect(mockMutateAsync).toHaveBeenCalled();
+        });
+      });
+    });
+  });
 });

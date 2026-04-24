@@ -264,7 +264,7 @@ function validateGateway(
  * values are valid. Validation is intentionally done here rather than in
  * per-field onSubmit validators — see the {@link ConnectionForm} remarks.
  */
-export function validateConnectionForm(formValues: FormValues): FormFieldErrors | undefined {
+function validateConnectionForm(formValues: FormValues): FormFieldErrors | undefined {
   const validAddresses4 = formValues.addresses4.filter(isValidIPv4Address);
   const validAddresses6 = formValues.addresses6.filter(isValidIPv6Address);
 

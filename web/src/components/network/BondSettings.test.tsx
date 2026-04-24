@@ -21,11 +21,11 @@
  */
 
 import React from "react";
-import { screen, waitFor } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { installerRender } from "~/test-utils";
 import { useAppForm } from "~/hooks/form";
-import { connectionFormOptions, validateConnectionForm } from "~/components/network/ConnectionForm";
-import { BondMode, ConnectionType, DeviceState } from "~/types/network";
+import { connectionFormOptions } from "~/components/network/ConnectionForm";
+import { ConnectionType, DeviceState } from "~/types/network";
 import BondSettings from "./BondSettings";
 
 const mockDevice1 = {
@@ -61,28 +61,11 @@ function TestForm({
       type: ConnectionType.BOND,
       ...defaultValues,
     },
-    validators: {
-      onSubmitAsync: async ({ value }) => {
-        const errors = validateConnectionForm(value);
-        if (errors) return { fields: errors };
-      },
-    },
   });
 
   return (
     <form.AppForm>
       <BondSettings form={form} isEditing={isEditing} />
-      <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
-        {([canSubmit, isSubmitting]) => (
-          <button
-            type="submit"
-            disabled={!canSubmit || isSubmitting}
-            onClick={() => form.handleSubmit()}
-          >
-            Accept
-          </button>
-        )}
-      </form.Subscribe>
     </form.AppForm>
   );
 }
@@ -120,46 +103,5 @@ describe("BondSettings", () => {
     installerRender(<TestForm isEditing />);
 
     expect(screen.queryByLabelText("Device name")).not.toBeInTheDocument();
-  });
-
-  it("shows an error when no bond ports are selected", async () => {
-    const { user } = installerRender(<TestForm />);
-
-    await user.click(await screen.findByRole("button", { name: "Accept" }));
-
-    await screen.findByText("At least one bond port is required");
-  });
-
-  it("shows an error when 'primary' option is used with an invalid bond mode", async () => {
-    const { user } = installerRender(<TestForm />);
-
-    // Default mode is balance-rr, which does not support 'primary'
-    await user.type(await screen.findByLabelText("Bond options"), "primary=enp1s0{enter}");
-    await user.type(screen.getByRole("textbox", { name: "Bond ports" }), "enp1s0{enter}");
-
-    await user.click(screen.getByRole("button", { name: "Accept" }));
-
-    await screen.findByText(
-      "The 'primary' option is only valid for 'active-backup', 'balance-tlb', and 'balance-alb' modes",
-    );
-  });
-
-  it("allows 'primary' option with active-backup mode", async () => {
-    const { user } = installerRender(
-      <TestForm defaultValues={{ bondMode: BondMode.ACTIVE_BACKUP }} />,
-    );
-
-    await user.type(await screen.findByLabelText("Bond options"), "primary=enp1s0{enter}");
-    await user.type(screen.getByRole("textbox", { name: "Bond ports" }), "enp1s0{enter}");
-
-    await user.click(screen.getByRole("button", { name: "Accept" }));
-
-    await waitFor(() => {
-      expect(
-        screen.queryByText(
-          "The 'primary' option is only valid for 'active-backup', 'balance-tlb', and 'balance-alb' modes",
-        ),
-      ).not.toBeInTheDocument();
-    });
   });
 });
