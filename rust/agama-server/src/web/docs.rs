@@ -187,24 +187,20 @@ fn add_auth_endpoint(api: &mut OpenApi) {
     let mut auth_path = PathItem::default();
 
     // POST /api/auth - Login
-    auth_path.post = Some(Operation::default());
-    if let Some(op) = &mut auth_path.post {
-        let _ = login_docs(TransformOperation::new(op));
-        // Override security to empty array (login doesn't require auth)
-        op.security = vec![];
-    }
+    let mut login_op = Operation::default();
+    let _ = login_docs(TransformOperation::new(&mut login_op));
+    login_op.security = vec![]; // Override global security - login doesn't require auth
+    auth_path.post = Some(login_op);
 
     // GET /api/auth - Check session
-    auth_path.get = Some(Operation::default());
-    if let Some(op) = &mut auth_path.get {
-        let _ = session_docs(TransformOperation::new(op));
-    }
+    let mut session_op = Operation::default();
+    let _ = session_docs(TransformOperation::new(&mut session_op));
+    auth_path.get = Some(session_op);
 
     // DELETE /api/auth - Logout
-    auth_path.delete = Some(Operation::default());
-    if let Some(op) = &mut auth_path.delete {
-        let _ = logout_docs(TransformOperation::new(op));
-    }
+    let mut logout_op = Operation::default();
+    let _ = logout_docs(TransformOperation::new(&mut logout_op));
+    auth_path.delete = Some(logout_op);
 
     if let Some(paths) = &mut api.paths {
         paths
