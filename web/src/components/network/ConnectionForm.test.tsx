@@ -88,6 +88,10 @@ describe("ConnectionForm", () => {
     screen.getByText("IPv6 Settings");
     screen.getByText("Use custom DNS servers");
     screen.getByText("Use custom DNS search domains");
+
+    // Bond settings should not be visible for Ethernet
+    expect(screen.queryByLabelText("Bond mode")).not.toBeInTheDocument();
+    expect(screen.queryByText("Bond ports")).not.toBeInTheDocument();
   });
 
   it("prefills the name based on the selected type", async () => {

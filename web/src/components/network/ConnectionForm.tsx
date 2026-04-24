@@ -22,7 +22,7 @@
 
 import React from "react";
 import { formOptions } from "@tanstack/react-form";
-import { useNavigate, useParams } from "react-router";
+import { generatePath, useNavigate, useParams } from "react-router";
 import { isEmpty, shake, unique } from "radashi";
 import { Alert, ActionGroup, Flex, Form } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
@@ -58,6 +58,7 @@ import {
   isValidDNSSearchDomain,
 } from "~/utils/network";
 import { _, N_ } from "~/i18n";
+import { Link } from "../core";
 
 /**
  * Form IP mode values.
@@ -594,7 +595,11 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
           }
         </form.Subscribe>
 
-        <BondSettings form={form} isEditing={isEditing} />
+        <form.Subscribe selector={(s) => s.values.type}>
+          {(type) =>
+            type === ConnectionType.BOND && <BondSettings form={form} isEditing={isEditing} />
+          }
+        </form.Subscribe>
 
         <IpSettings form={form} protocol="ipv4" />
 
@@ -721,9 +726,12 @@ function EditConnectionForm() {
 
   if (!connection) return <ConnectionNotFound />;
 
-  const connectionInstance = new Connection(connection.id, connection);
-
-  return <ConnectionFormContent defaults={connectionToFormValues(connectionInstance)} isEditing />;
+  return (
+    <ConnectionFormContent
+      defaults={connectionToFormValues(new Connection(connection.id, connection))}
+      isEditing
+    />
+  );
 }
 
 /**
@@ -747,7 +755,14 @@ function EditConnectionForm() {
 export default function ConnectionForm() {
   const { id } = useParams();
   // TRANSLATORS: page title and breadcrumb label for creating a new connection.
-  const title = id ?? _("New connection");
+  const title = id ? (
+    <Link to={generatePath(NETWORK.wiredConnection, { id })} variant="link">
+      {id}
+    </Link>
+  ) : (
+    _("New connection")
+  );
+
   // TRANSLATORS: breadcrumb label for the network configuration section.
   const breadcrumbs = [{ label: _("Network"), path: NETWORK.root }, { label: title }];
 

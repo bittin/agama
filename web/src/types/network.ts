@@ -261,6 +261,7 @@ type APIRoute = {
 
 type APIConnection = {
   id: string;
+  bond?: Bond;
   interface?: string;
   macAddress?: string;
   addresses?: string[];
