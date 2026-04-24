@@ -1,4 +1,17 @@
 -------------------------------------------------------------------
+Fri Apr 24 08:37:21 UTC 2026 - Imobach Gonzalez Sosa <igonzalezsosa@suse.com>
+
+- Extend the OpenAPI specification (gh#agama-project/agama#3414):
+  - Add missing summaries, operation IDs and descriptions to each
+    path.
+  - Use tags to classify the paths.
+  - Add missing schemas.
+  - Add authentication paths and security the specification.
+  - Update "cargo xtask openapi" to generate the specification in
+    JSON and YAML formats.
+  - Replace utoipa with aide to generate the documentation.
+
+-------------------------------------------------------------------
 Tue Apr 21 07:27:36 UTC 2026 - Clemens Famulla-Conrad <cfamullaconrad@suse.com>
 
 - network: Add ignore_auto_routes[46] and never_default[46]
