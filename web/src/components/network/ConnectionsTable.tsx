@@ -47,12 +47,7 @@ import { useDevices, useSystem } from "~/hooks/model/system/network";
 import { sortCollection } from "~/utils";
 import { connectionType, formatIp } from "~/utils/network";
 import { _ } from "~/i18n";
-import {
-  Connection,
-  ConnectionStatus,
-  ConnectionType,
-  Device,
-} from "~/types/network";
+import { Connection, ConnectionStatus, ConnectionType, Device } from "~/types/network";
 import { NETWORK } from "~/routes/paths";
 
 /**
@@ -333,7 +328,6 @@ export default function ConnectionsTable() {
         updateSorting={onSortingChange}
         itemActions={(c: Connection) => {
           const isWifi = !!c.wireless;
-          const isBond = !!c.bond;
           const isConnected = c.status === ConnectionStatus.UP;
           const isDisconnected = c.status === ConnectionStatus.DOWN;
           const canConnect = !isWifi || systemState.wirelessEnabled;
@@ -351,11 +345,6 @@ export default function ConnectionsTable() {
               id: "edit",
               title: _("Edit connection"),
               onClick: () => navigate(generatePath(NETWORK.editConnection, { id: c.id })),
-            },
-            !(isWifi || isBond) && {
-              id: "editBinding",
-              title: _("Edit binding"),
-              onClick: () => navigate(generatePath(NETWORK.editBindingSettings, { id: c.id })),
             },
             {
               isSeparator: true,
