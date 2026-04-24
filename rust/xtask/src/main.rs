@@ -62,9 +62,7 @@ mod tasks {
         let out_dir = output_dir()?;
 
         // Generate JSON format (includes post-processing for aide serialization quirks)
-        let json_value = docs::build_json()
-            .await
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+        let json_value = docs::build_json().await.map_err(std::io::Error::other)?;
 
         let json = serde_json::to_string_pretty(&json_value)?;
         let json_path = out_dir.join("openapi.json");
