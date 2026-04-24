@@ -83,6 +83,28 @@ describe("SoftwarePatternsSelection", () => {
     expect(ids).toEqual(["yast2_basis", "yast2_desktop", "yast2_server", "preselected_pattern"]);
   });
 
+  it("sorts patterns by their order field within each category", async () => {
+    installerRender(<SoftwarePatternsSelection />);
+
+    await screen.findByRole("heading", { name: /Graphical Environments/, level: 3 });
+    const allCheckboxes = screen.getAllByRole("checkbox");
+
+    // Graphical Environments patterns should be ordered by their order field:
+    // gnome (1010), kde (1110), xfce (1310), basic_desktop (1802)
+    const graphicalStartIndex = allCheckboxes.findIndex((c) => c.id === "gnome");
+    const graphicalIds = allCheckboxes
+      .slice(graphicalStartIndex, graphicalStartIndex + 4)
+      .map((c) => c.id);
+    expect(graphicalIds).toEqual(["gnome", "kde", "xfce", "basic_desktop"]);
+
+    // Desktop Functions patterns should be ordered: multimedia (1580), office (1640)
+    const desktopFuncStartIndex = allCheckboxes.findIndex((c) => c.id === "multimedia");
+    const desktopFuncIds = allCheckboxes
+      .slice(desktopFuncStartIndex, desktopFuncStartIndex + 2)
+      .map((c) => c.id);
+    expect(desktopFuncIds).toEqual(["multimedia", "office"]);
+  });
+
   it("renders a search input with placeholder and accessible name", async () => {
     installerRender(<SoftwarePatternsSelection />);
     // The textbox has an aria-label for screen readers
@@ -191,6 +213,19 @@ describe("SoftwarePatternsSelection", () => {
       expect(screen.queryByText(/0 match the filter/)).toBeNull();
       const emptyStates = screen.getAllByText(/No patterns match the filter/i);
       expect(emptyStates).toHaveLength(2);
+    });
+
+    it("maintains pattern order when filtering", async () => {
+      const { user } = installerRender(<SoftwarePatternsSelection />);
+
+      const searchFilter = await screen.findByRole("textbox", { name: /Filter/ });
+      await user.type(searchFilter, "yast");
+
+      // Should match yast2_basis (1220), yast2_desktop (1222), yast2_server (1224)
+      // in order by their order field
+      const visibleCheckboxes = screen.getAllByRole("checkbox");
+      const ids = visibleCheckboxes.map((c) => c.id);
+      expect(ids).toEqual(["yast2_basis", "yast2_desktop", "yast2_server"]);
     });
   });
 
