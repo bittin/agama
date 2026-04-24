@@ -45,7 +45,7 @@ import SimpleSelector from "~/components/core/SimpleSelector";
 import { useConnections, useConnectionMutation } from "~/hooks/model/config/network";
 import { useDevices, useSystem } from "~/hooks/model/system/network";
 import { sortCollection } from "~/utils";
-import { formatIp } from "~/utils/network";
+import { connectionType, formatIp } from "~/utils/network";
 import { _ } from "~/i18n";
 import { Connection, ConnectionStatus, ConnectionType, Device } from "~/types/network";
 import { NETWORK } from "~/routes/paths";
@@ -116,7 +116,7 @@ const filterConnections = (
     }
 
     if (type && type !== "all") {
-      const connType = c.type();
+      const connType = connectionType(c);
       if (type === "wifi" && connType !== ConnectionType.WIFI) return false;
       if (type === "ethernet" && connType !== ConnectionType.ETHERNET) return false;
       if (type === "bond" && connType !== ConnectionType.BOND) return false;
@@ -155,12 +155,12 @@ const createColumns = (devices: Device[]) => [
   {
     name: _("Type"),
     value: (c: Connection) => {
-      const type = c.type();
+      const type = connectionType(c);
       if (type === ConnectionType.WIFI) return _("Wi-Fi");
       if (type === ConnectionType.BOND) return _("Bond");
       return _("Ethernet");
     },
-    sortingKey: (c: Connection) => c.type(),
+    sortingKey: (c: Connection) => connectionType(c),
   },
   {
     name: _("Status"),

@@ -47,6 +47,7 @@ import { NETWORK } from "~/routes/paths";
 import {
   buildAddress,
   connectionBindingMode,
+  connectionType,
   ensureIPPrefix,
   formatIp,
   generateConnectionName,
@@ -167,7 +168,7 @@ function connectionToFormValues(connection: Connection): Partial<FormValues> {
 
   return {
     name: connection.id,
-    type: connection.type(),
+    type: connectionType(connection),
     iface: connection.iface ?? "",
     ifaceMac: connection.macAddress ?? "",
     bindingMode: connectionBindingMode(connection),
@@ -726,12 +727,7 @@ function EditConnectionForm() {
 
   if (!connection) return <ConnectionNotFound />;
 
-  return (
-    <ConnectionFormContent
-      defaults={connectionToFormValues(new Connection(connection.id, connection))}
-      isEditing
-    />
-  );
+  return <ConnectionFormContent defaults={connectionToFormValues(connection)} isEditing />;
 }
 
 /**

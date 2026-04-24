@@ -28,11 +28,26 @@ import {
   ApSecurityFlags,
   Connection,
   ConnectionBindingMode,
+  ConnectionType,
   Device,
   IPAddress,
   Route,
   SecurityProtocols,
 } from "~/types/network";
+
+/**
+ * Returns the type for the given connection.
+ */
+const connectionType = (connection: Connection): ConnectionType => {
+  const { wireless, bond } = connection;
+  if (wireless) {
+    return ConnectionType.WIFI;
+  } else if (bond) {
+    return ConnectionType.BOND;
+  } else {
+    return ConnectionType.ETHERNET;
+  }
+};
 
 /**
  * Check if an IP is valid
@@ -337,6 +352,7 @@ export {
   buildRoutes,
   connectionAddresses,
   connectionBindingMode,
+  connectionType,
   ensureIPPrefix,
   formatIp,
   generateConnectionName,

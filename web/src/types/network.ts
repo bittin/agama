@@ -362,17 +362,6 @@ class Connection {
     }
   }
 
-  type() {
-    const { wireless, bond } = this;
-    if (wireless) {
-      return ConnectionType.WIFI;
-    } else if (bond) {
-      return ConnectionType.BOND;
-    } else {
-      return ConnectionType.ETHERNET;
-    }
-  }
-
   static fromApi(connection: APIConnection) {
     const { id, status, interface: iface, ...options } = connection;
     const nameservers = connection.nameservers || [];
