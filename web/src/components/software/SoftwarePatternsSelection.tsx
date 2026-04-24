@@ -31,7 +31,7 @@ import {
   Stack,
   Title,
 } from "@patternfly/react-core";
-import { group } from "radashi";
+import { group, sort } from "radashi";
 import { sprintf } from "sprintf-js";
 import { formOptions } from "@tanstack/react-form";
 import { useNavigate } from "react-router";
@@ -332,8 +332,9 @@ function SoftwarePatternsSelection({ scope = "all" }: { scope?: Scope }) {
 
   // Build the canonical category list from the unfiltered scope so categories
   // never disappear as the user types.
-  const allGroups = groupPatterns(scopedPatterns);
-  const visiblePatterns = filterPatterns(scopedPatterns, searchValue);
+  const sortedPatterns = sort(scopedPatterns, (p) => p.order);
+  const allGroups = groupPatterns(sortedPatterns);
+  const visiblePatterns = filterPatterns(sortedPatterns, searchValue);
   const visibleByCategory = group(visiblePatterns, (p) => p.category);
   const isFiltering = searchValue.trim() !== "";
 
@@ -354,7 +355,7 @@ function SoftwarePatternsSelection({ scope = "all" }: { scope?: Scope }) {
           _("No patterns match")
         : // TRANSLATORS: search results badge on the filter input.
           // %1$d is matches found, %2$d is the total number of patterns.
-          sprintf(_("%1$d of %2$d patterns"), visiblePatterns.length, scopedPatterns.length);
+          sprintf(_("%1$d of %2$d patterns"), visiblePatterns.length, sortedPatterns.length);
   }
 
   return (
