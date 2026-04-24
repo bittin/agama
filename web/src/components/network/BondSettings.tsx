@@ -25,8 +25,10 @@ import { sprintf } from "sprintf-js";
 import { connectionFormOptions } from "~/components/network/ConnectionForm";
 import { withForm } from "~/hooks/form";
 import { useDevices } from "~/hooks/model/system/network";
-import { BondMode, ConnectionType } from "~/types/network";
-import { _ } from "~/i18n";
+import { BondMode } from "~/types/network";
+import { _, formatList } from "~/i18n";
+import Text from "../core/Text";
+import { Flex } from "@patternfly/react-core";
 
 /**
  * Bond mode options.
@@ -58,80 +60,72 @@ const BondSettings = withForm({
     const devices = useDevices();
 
     return (
-      <form.Subscribe selector={(s) => s.values.type}>
-        {(type) =>
-          type === ConnectionType.BOND && (
-            <>
-              {!isEditing && (
-                <form.AppField name="iface">
-                  {(field) => (
-                    <field.TextField
-                      label={
-                        // TRANSLATORS: label for the network interface name field.
-                        _("Device name")
-                      }
-                      helperText={
-                        // TRANSLATORS: helper text for the bond device name field.
-                        _("E.g., bond0")
-                      }
-                    />
-                  )}
-                </form.AppField>
-              )}
-              <form.AppField name="bondMode">
-                {(field) => (
-                  <field.DropdownField
-                    label={
-                      // TRANSLATORS: label for the bond mode field.
-                      _("Bond mode")
-                    }
-                    options={bondModeOptions()}
-                  />
-                )}
-              </form.AppField>
-              <form.AppField name="bondOptions">
-                {(field) => (
-                  <field.ArrayField
-                    label={
-                      // TRANSLATORS: label for the bond options field.
-                      _("Bond options")
-                    }
-                    helperText={
-                      // TRANSLATORS: helper text for the bond options field.
-                      _("E.g., primary=eth1")
-                    }
-                  />
-                )}
-              </form.AppField>
-              <form.AppField name="bondPorts">
-                {(field) => (
-                  <field.ArrayField
-                    label={
-                      // TRANSLATORS: label for the bond ports field.
-                      _("Bond ports")
-                    }
-                    helperText={
-                      // TRANSLATORS: helper text for the bond ports field. %s is a list of available devices.
-                      sprintf(_("Available devices: %s"), devices.map((d) => d.name).join(", "))
-                    }
-                    displayValue={(name) => {
-                      const device = devices.find((d) => d.name === name);
-                      return device ? sprintf(_("%s - %s"), device.name, device.macAddress) : name;
-                    }}
-                    validateOnChange={(v) =>
-                      devices.some((d) => d.name === v)
-                        ? undefined
-                        : // TRANSLATORS: validation error for an invalid bond port entry.
-                          _("Invalid device name")
-                    }
-                    skipDuplicates
-                  />
-                )}
-              </form.AppField>
-            </>
-          )
-        }
-      </form.Subscribe>
+      <>
+        {isEditing && (
+          <>
+            <Flex>
+              <Text isBold>{_("Device")}</Text>
+              <Text>{form.getFieldValue("iface")}</Text>
+            </Flex>
+          </>
+        )}
+        {!isEditing && (
+          <form.AppField name="iface">
+            {(field) => (
+              <field.TextField
+                label={
+                  // TRANSLATORS: label for the network interface name field.
+                  _("Device name")
+                }
+                helperText={
+                  // TRANSLATORS: helper text for the bond device name field.
+                  _("E.g., bond0")
+                }
+              />
+            )}
+          </form.AppField>
+        )}
+        <form.AppField name="bondMode">
+          {(field) => (
+            <field.DropdownField
+              label={
+                // TRANSLATORS: label for the bond mode field.
+                _("Bond mode")
+              }
+              options={bondModeOptions()}
+            />
+          )}
+        </form.AppField>
+        <form.AppField name="bondOptions">
+          {(field) => (
+            <field.ArrayField
+              label={
+                // TRANSLATORS: label for the bond options field.
+                _("Bond options")
+              }
+              helperText={
+                // TRANSLATORS: helper text for the bond options field.
+                _("E.g., downdelay=0, primary=eth1, miimon=100, lacp_rate=fast")
+              }
+            />
+          )}
+        </form.AppField>
+        <form.AppField name="bondPorts">
+          {(field) => (
+            <field.ArrayField
+              label={
+                // TRANSLATORS: label for the bond ports field.
+                _("Bond ports")
+              }
+              helperText={
+                // TRANSLATORS: helper text for the bond ports field. %s is a list of available devices.
+                sprintf(_("Available devices: %s"), formatList(devices.map((d) => d.name)))
+              }
+              skipDuplicates
+            />
+          )}
+        </form.AppField>
+      </>
     );
   },
 });

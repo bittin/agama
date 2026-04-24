@@ -48,6 +48,7 @@ import { NETWORK } from "~/routes/paths";
 import {
   buildAddress,
   connectionBindingMode,
+  connectionType,
   ensureIPPrefix,
   formatIp,
   generateConnectionName,
@@ -58,7 +59,8 @@ import {
   isValidNameserver,
   isValidDNSSearchDomain,
 } from "~/utils/network";
-import { _, N_ } from "~/i18n";
+import { _ } from "~/i18n";
+import { Link } from "../core";
 
 /**
  * Form IP mode values.
@@ -106,7 +108,7 @@ const MODE_TO_METHOD: Record<FormIpMode, ConnectionMethod> = {
 export const connectionFormOptions = formOptions({
   defaultValues: {
     name: "",
-    type: ConnectionType.ETHERNET,
+    type: ConnectionType.ETHERNET as ConnectionType,
     iface: "",
     ifaceMac: "",
     ipv4Mode: FormIpMode.AUTO as FormIpMode,
@@ -167,7 +169,7 @@ function connectionToFormValues(connection: Connection): Partial<FormValues> {
 
   return {
     name: connection.id,
-    type: connection.type(),
+    type: connectionType(connection),
     iface: connection.iface ?? "",
     ifaceMac: connection.macAddress ?? "",
     bindingMode: connectionBindingMode(connection),
@@ -484,27 +486,7 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
     listeners: isEditing ? undefined : { onMount: ({ formApi }) => syncName(formApi) },
   });
 
-  const typeOptions = () => {
-    const options = [
-      {
-        value: ConnectionType.BOND,
-        label: N_("Bond"),
-        description: "Bond",
-      },
-      {
-        value: ConnectionType.WIFI,
-        label: N_("WIFI"),
-        description: "Wireless",
-      },
-      {
-        value: ConnectionType.ETHERNET,
-        label: N_("Ethernet"),
-        description: "Ethernet",
-      },
-    ];
-
-    return isEditing ? options : options.filter((o) => o.value !== ConnectionType.WIFI);
-  };
+  const typeOptions = () => ConnectionType.options([ConnectionType.BOND, ConnectionType.ETHERNET]);
 
   return (
     <form.AppForm>
@@ -544,39 +526,36 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
           }
         </form.Subscribe>
 
-        <form.AppField name="type" listeners={{ onChange: () => syncName(form) }}>
-          {(field) => (
-            <field.DropdownField
-              isDisabled={isEditing}
-              label={
-                // TRANSLATORS: checkbox label for custom DNS server configuration.
-                _("Type")
-              }
-              options={typeOptions().map(({ value, label }) => ({
-                value,
-                // eslint-disable-next-line agama-i18n/string-literals
-                label: _(label),
-              }))}
-            />
-          )}
-        </form.AppField>
-
         {!isEditing && (
-          <form.AppField name="name">
-            {(field) => (
-              <field.TextField
-                label={
-                  // TRANSLATORS: label for the network connection profile name field.
-                  _("Name")
-                }
-              />
-            )}
-          </form.AppField>
+          <>
+            <form.AppField name="type" listeners={{ onChange: () => syncName(form) }}>
+              {(field) => (
+                <field.DropdownField
+                  label={
+                    // TRANSLATORS: checkbox label for custom DNS server configuration.
+                    _("Type")
+                  }
+                  options={typeOptions()}
+                />
+              )}
+            </form.AppField>
+
+            <form.AppField name="name">
+              {(field) => (
+                <field.TextField
+                  label={
+                    // TRANSLATORS: label for the network connection profile name field.
+                    _("Name")
+                  }
+                />
+              )}
+            </form.AppField>
+          </>
         )}
 
         <form.Subscribe selector={(s) => s.values.type}>
           {(type) =>
-            ![ConnectionType.BOND, ConnectionType.BRIDGE, ConnectionType.VLAN].includes(type) && (
+            ([ConnectionType.ETHERNET, ConnectionType.WIFI] as ConnectionType[]).includes(type) && (
               <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
                 <BindingModeSelector form={form} />
 
@@ -605,7 +584,11 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
           }
         </form.Subscribe>
 
-        <BondSettings form={form} isEditing={isEditing} />
+        <form.Subscribe selector={(s) => s.values.type}>
+          {(type) =>
+            type === ConnectionType.BOND && <BondSettings form={form} isEditing={isEditing} />
+          }
+        </form.Subscribe>
 
         <IpSettings form={form} protocol="ipv4" />
 
@@ -732,9 +715,7 @@ function EditConnectionForm() {
 
   if (!connection) return <ConnectionNotFound />;
 
-  const connectionInstance = new Connection(connection.id, connection);
-
-  return <ConnectionFormContent defaults={connectionToFormValues(connectionInstance)} isEditing />;
+  return <ConnectionFormContent defaults={connectionToFormValues(connection)} isEditing />;
 }
 
 /**
@@ -761,6 +742,7 @@ export default function ConnectionForm() {
     // TRANSLATORS: breadcrumb label for the network configuration section.
     { label: _("Network"), path: NETWORK.root },
   ];
+
   if (id) {
     breadcrumbs.push(
       { label: id, path: generatePath(NETWORK.connection.details, { id }) },

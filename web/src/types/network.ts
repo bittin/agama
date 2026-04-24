@@ -21,6 +21,7 @@
  */
 
 import { isBoolean, isEmpty, isObject } from "radashi";
+import { _, N_ } from "~/i18n";
 import {
   buildAddress,
   buildAddresses,
@@ -28,6 +29,40 @@ import {
   formatIp,
   securityFromFlags,
 } from "~/utils/network";
+
+const connectionTypeValues = {
+  ETHERNET: "ethernet",
+  WIFI: "wireless",
+  LOOPBACK: "loopback",
+  BOND: "bond",
+  BRIDGE: "bridge",
+  VLAN: "vlan",
+  UNKNOWN: "unknown",
+} as const;
+
+export type ConnectionType = (typeof connectionTypeValues)[keyof typeof connectionTypeValues];
+
+const connectionTypeLabels: Record<ConnectionType, string> = {
+  [connectionTypeValues.ETHERNET]: N_("Ethernet"),
+  [connectionTypeValues.WIFI]: N_("Wi-Fi"),
+  [connectionTypeValues.LOOPBACK]: N_("Loopback"),
+  [connectionTypeValues.BOND]: N_("Bond"),
+  [connectionTypeValues.BRIDGE]: N_("Bridge"),
+  [connectionTypeValues.VLAN]: N_("VLAN"),
+  [connectionTypeValues.UNKNOWN]: N_("Unknown"),
+};
+
+export const ConnectionType = {
+  ...connectionTypeValues,
+
+  /** Returns the translated label for the connection type */
+  // eslint-disable-next-line agama-i18n/string-literals
+  label: (type: ConnectionType): string => _(connectionTypeLabels[type]),
+
+  /** Returns options for a dropdown/select component */
+  options: (types: ConnectionType[]): { value: ConnectionType; label: string }[] =>
+    types.map((type) => ({ value: type, label: ConnectionType.label(type) })),
+};
 
 /**
  * Enum for AccessPoint flags
@@ -76,16 +111,6 @@ enum BondMode {
   LACP = "802.3ad",
   BALANCE_TLB = "balance-tlb",
   BALANCE_ALB = "balance-alb",
-}
-
-enum ConnectionType {
-  ETHERNET = "ethernet",
-  WIFI = "wireless",
-  LOOPBACK = "loopback",
-  BOND = "bond",
-  BRIDGE = "bridge",
-  VLAN = "vlan",
-  UNKNOWN = "unknown",
 }
 
 enum DeviceState {
@@ -261,6 +286,7 @@ type APIRoute = {
 
 type APIConnection = {
   id: string;
+  bond?: Bond;
   interface?: string;
   macAddress?: string;
   addresses?: string[];
@@ -358,17 +384,6 @@ class Connection {
 
     for (const [key, value] of Object.entries(options)) {
       if (isBoolean(value) || !isEmpty(value)) this[key] = value;
-    }
-  }
-
-  type() {
-    const { wireless, bond } = this;
-    if (wireless) {
-      return ConnectionType.WIFI;
-    } else if (bond) {
-      return ConnectionType.BOND;
-    } else {
-      return ConnectionType.ETHERNET;
     }
   }
 
@@ -579,7 +594,6 @@ export {
   ConnectionState,
   ConnectionStatus,
   ConnectionMethod,
-  ConnectionType,
   Device,
   DeviceState,
   DeviceType,
