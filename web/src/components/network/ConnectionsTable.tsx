@@ -336,15 +336,12 @@ export default function ConnectionsTable() {
             {
               id: "details",
               title: _("Details"),
-              onClick: () => {
-                // FIXME: create a shared connection page and route
-                navigate(generatePath(NETWORK.wiredConnection, { id: c.id }));
-              },
+              onClick: () => navigate(generatePath(NETWORK.connection.details, { id: c.id })),
             },
             {
               id: "edit",
               title: _("Edit connection"),
-              onClick: () => navigate(generatePath(NETWORK.editConnection, { id: c.id })),
+              onClick: () => navigate(generatePath(NETWORK.connection.edit, { id: c.id })),
             },
             {
               isSeparator: true,

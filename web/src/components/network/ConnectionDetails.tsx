@@ -40,7 +40,7 @@ import {
 import { generatePath } from "react-router";
 import Text from "~/components/core/Text";
 import { Link, NestedContent, Page } from "~/components/core";
-import InstallationOnlySwitch from "./InstallationOnlySwitch";
+import InstallationOnlySwitch from "~/components/network/InstallationOnlySwitch";
 import { Connection, Device } from "~/types/network";
 import { connectionBindingMode, formatIp } from "~/utils/network";
 import { NETWORK } from "~/routes/paths";
@@ -74,7 +74,7 @@ const BindingSettings = ({ connection }: { connection: Connection }) => {
       pfCardProps={{ isPlain: false, isFullHeight: false }}
       actions={
         <Link
-          to={generatePath(NETWORK.editBindingSettings, {
+          to={generatePath(NETWORK.connection.editBinding, {
             id: connection.id,
           })}
         >
@@ -285,14 +285,14 @@ const DevicesDetails = ({ connection }: { connection: Connection }) => {
   );
 };
 
-const ConnectionDetails = ({ connection }: { connection: Connection }) => {
+const SettingsCard = ({ connection }: { connection: Connection }) => {
   const gateways = [connection.gateway4, connection.gateway6];
   return (
     <Page.Section
       title={_("Settings")}
       pfCardProps={{ isPlain: false, isFullHeight: false }}
       actions={
-        <Link to={generatePath(NETWORK.editConnection, { id: connection.id })}>
+        <Link to={generatePath(NETWORK.connection.edit, { id: connection.id })}>
           {_("Edit connection settings")}
         </Link>
       }
@@ -367,12 +367,12 @@ const ConnectionDetails = ({ connection }: { connection: Connection }) => {
   );
 };
 
-export default function WiredConnectionDetails({ connection }: { connection: Connection }) {
+export default function ConnectionDetails({ connection }: { connection: Connection }) {
   return (
     <Grid hasGutter>
       <GridItem md={6}>
         <Stack hasGutter>
-          <ConnectionDetails connection={connection} />
+          <SettingsCard connection={connection} />
         </Stack>
       </GridItem>
       <GridItem md={6} order={{ default: "1", md: "2" }}>
