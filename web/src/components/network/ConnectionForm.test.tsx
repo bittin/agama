@@ -614,12 +614,26 @@ describe("ConnectionForm", () => {
     });
 
     describe("Bond", () => {
+      it("shows an error when no device name is defined", async () => {
+        const { user } = installerRender(<ConnectionForm />);
+
+        await user.click(screen.getByLabelText("Type"));
+        await user.click(screen.getByText("Bond"));
+        await user.type(await screen.findByLabelText("Name"), "test-bond");
+
+        await user.click(screen.getByRole("button", { name: "Accept" }));
+
+        await screen.findByText("Device name is required");
+        expect(mockMutateAsync).not.toHaveBeenCalled();
+      });
+
       it("shows an error when no bond ports are selected", async () => {
         const { user } = installerRender(<ConnectionForm />);
 
         await user.click(screen.getByLabelText("Type"));
         await user.click(screen.getByText("Bond"));
         await user.type(await screen.findByLabelText("Name"), "test-bond");
+        await user.type(await screen.findByLabelText("Device name"), "bond0");
 
         await user.click(screen.getByRole("button", { name: "Accept" }));
 
@@ -633,6 +647,7 @@ describe("ConnectionForm", () => {
         await user.click(screen.getByLabelText("Type"));
         await user.click(screen.getByText("Bond"));
         await user.type(await screen.findByLabelText("Name"), "test-bond");
+        await user.type(await screen.findByLabelText("Device name"), "bond0");
 
         // Default mode is balance-rr, which does not support 'primary'
         await user.type(screen.getByLabelText("Bond options"), "primary=enp1s0{enter}");
@@ -652,6 +667,7 @@ describe("ConnectionForm", () => {
         await user.click(screen.getByLabelText("Type"));
         await user.click(screen.getByText("Bond"));
         await user.type(await screen.findByLabelText("Name"), "test-bond");
+        await user.type(await screen.findByLabelText("Device name"), "bond0");
 
         await user.click(screen.getByLabelText("Bond mode"));
         await user.click(screen.getByRole("option", { name: /active-backup/ }));
