@@ -27,8 +27,6 @@ import { withForm } from "~/hooks/form";
 import { useDevices } from "~/hooks/model/system/network";
 import { BondMode } from "~/types/network";
 import { _, formatList } from "~/i18n";
-import Text from "../core/Text";
-import { Flex } from "@patternfly/react-core";
 
 /**
  * Bond mode options.
@@ -61,17 +59,11 @@ const BondSettings = withForm({
 
     return (
       <>
-        {isEditing && (
-          <>
-            <Flex>
-              <Text isBold>{_("Device")}</Text>
-              <Text>{form.getFieldValue("iface")}</Text>
-            </Flex>
-          </>
-        )}
-        {!isEditing && (
-          <form.AppField name="bondIface">
-            {(field) => (
+        <form.AppField name="bondIface">
+          {(field) =>
+            isEditing ? (
+              <field.ReadOnlyField label={_("Device name")} />
+            ) : (
               <field.TextField
                 label={
                   // TRANSLATORS: label for the network interface name field.
@@ -82,9 +74,9 @@ const BondSettings = withForm({
                   _("E.g., bond0")
                 }
               />
-            )}
-          </form.AppField>
-        )}
+            )
+          }
+        </form.AppField>
         <form.AppField name="bondMode">
           {(field) => (
             <field.DropdownField
