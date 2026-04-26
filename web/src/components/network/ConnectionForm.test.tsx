@@ -116,22 +116,26 @@ describe("ConnectionForm", () => {
       screen.getByText("Bond ports");
     });
 
-    it("resets the device name when switching from Bond back to Ethernet", async () => {
+    it("preserves user input when switching between connection types", async () => {
       const { user } = installerRender(<ConnectionForm />);
 
-      // Switch to Bond
+      // Switch to Bond and enter a device name
+      await user.click(screen.getByLabelText("Type"));
+      await user.click(screen.getByText("Bond"));
+      const deviceNameField = await screen.findByLabelText("Device name");
+      await user.type(deviceNameField, "bond0");
+      expect(deviceNameField).toHaveValue("bond0");
+
+      // Switch to Ethernet and select a binding mode
+      await user.click(screen.getByLabelText("Type"));
+      await user.click(screen.getByText("Ethernet"));
+      await user.click(screen.getByLabelText("Device"));
+      await user.click(screen.getByRole("option", { name: /^Chosen by name/ }));
+
+      // Switch back to Bond - the device name should be preserved
       await user.click(screen.getByLabelText("Type"));
       await user.click(screen.getByText("Bond"));
       expect(await screen.findByLabelText("Device name")).toHaveValue("bond0");
-
-      // Switch back to Ethernet
-      await user.click(screen.getByLabelText("Type"));
-      await user.click(screen.getByText("Ethernet"));
-
-      // It should not show the Bond's device name field anymore
-      expect(screen.queryByDisplayValue("bond0")).not.toBeInTheDocument();
-      // Binding mode should be back to "Any" (default)
-      expect(screen.getByLabelText("Device")).toHaveTextContent("Any");
     });
   });
 

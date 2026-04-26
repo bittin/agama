@@ -70,7 +70,7 @@ const BondSettings = withForm({
           </>
         )}
         {!isEditing && (
-          <form.AppField name="iface">
+          <form.AppField name="bondIface">
             {(field) => (
               <field.TextField
                 label={
