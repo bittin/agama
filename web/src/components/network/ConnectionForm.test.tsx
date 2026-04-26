@@ -241,17 +241,6 @@ describe("ConnectionForm", () => {
     expect(screen.queryByText("IPv6 Addresses")).not.toBeInTheDocument();
   });
 
-  it("shows an error when addresses are invalid in automatic + manual mode", async () => {
-    const { user } = installerRender(<ConnectionForm />);
-    await user.type(screen.getByLabelText("Name"), "Test");
-    await user.click(screen.getByLabelText("IPv4 Settings"));
-    await user.click(screen.getByRole("option", { name: /^Automatic \+ manual/ }));
-    await user.type(screen.getByLabelText("IPv4 Addresses"), "not-an-ip{Enter}");
-    await user.click(screen.getByRole("button", { name: "Accept" }));
-    await screen.findByText(/Invalid IPv4 address/);
-    expect(mockMutateAsync).not.toHaveBeenCalled();
-  });
-
   it("submits empty addresses when both settings are automatic", async () => {
     const { user } = installerRender(<ConnectionForm />);
     await user.type(screen.getByLabelText("Name"), "Testing Connection 1");
@@ -607,6 +596,80 @@ describe("ConnectionForm", () => {
           expect.objectContaining({ dnsSearchList: [] }),
         ),
       );
+    });
+  });
+
+  describe("validation", () => {
+    describe("IP Settings", () => {
+      it("shows an error when IPv4 addresses are invalid", async () => {
+        const { user } = installerRender(<ConnectionForm />);
+        await user.type(screen.getByLabelText("Name"), "Test");
+        await user.click(screen.getByLabelText("IPv4 Settings"));
+        await user.click(screen.getByRole("option", { name: /^Automatic \+ manual/ }));
+        await user.type(screen.getByLabelText("IPv4 Addresses"), "not-an-ip{Enter}");
+        await user.click(screen.getByRole("button", { name: "Accept" }));
+        await screen.findByText(/Invalid IPv4 address/);
+        expect(mockMutateAsync).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("Bond", () => {
+      it("shows an error when no bond ports are selected", async () => {
+        const { user } = installerRender(<ConnectionForm />);
+
+        await user.click(screen.getByLabelText("Type"));
+        await user.click(screen.getByText("Bond"));
+        await user.type(await screen.findByLabelText("Name"), "test-bond");
+
+        await user.click(screen.getByRole("button", { name: "Accept" }));
+
+        await screen.findByText("At least one bond port is required");
+        expect(mockMutateAsync).not.toHaveBeenCalled();
+      });
+
+      it("shows an error when 'primary' option is used with an invalid bond mode", async () => {
+        const { user } = installerRender(<ConnectionForm />);
+
+        await user.click(screen.getByLabelText("Type"));
+        await user.click(screen.getByText("Bond"));
+        await user.type(await screen.findByLabelText("Name"), "test-bond");
+
+        // Default mode is balance-rr, which does not support 'primary'
+        await user.type(screen.getByLabelText("Bond options"), "primary=enp1s0{enter}");
+        await user.type(screen.getByRole("textbox", { name: "Bond ports" }), "enp1s0{enter}");
+
+        await user.click(screen.getByRole("button", { name: "Accept" }));
+
+        await screen.findByText(
+          "The 'primary' option is only valid for 'active-backup', 'balance-tlb', and 'balance-alb' modes",
+        );
+        expect(mockMutateAsync).not.toHaveBeenCalled();
+      });
+
+      it("allows 'primary' option with active-backup mode", async () => {
+        const { user } = installerRender(<ConnectionForm />);
+
+        await user.click(screen.getByLabelText("Type"));
+        await user.click(screen.getByText("Bond"));
+        await user.type(await screen.findByLabelText("Name"), "test-bond");
+
+        await user.click(screen.getByLabelText("Bond mode"));
+        await user.click(screen.getByRole("option", { name: /active-backup/ }));
+
+        await user.type(screen.getByLabelText("Bond options"), "primary=enp1s0{enter}");
+        await user.type(screen.getByRole("textbox", { name: "Bond ports" }), "enp1s0{enter}");
+
+        await user.click(screen.getByRole("button", { name: "Accept" }));
+
+        await waitFor(() => {
+          expect(
+            screen.queryByText(
+              "The 'primary' option is only valid for 'active-backup', 'balance-tlb', and 'balance-alb' modes",
+            ),
+          ).not.toBeInTheDocument();
+          expect(mockMutateAsync).toHaveBeenCalled();
+        });
+      });
     });
   });
 });
