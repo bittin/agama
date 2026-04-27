@@ -23,7 +23,7 @@
 import React from "react";
 import { formOptions } from "@tanstack/react-form";
 import { generatePath, useNavigate, useParams } from "react-router";
-import { isEmpty, shake, unique } from "radashi";
+import { unique } from "radashi";
 import { Alert, ActionGroup, Flex, Form } from "@patternfly/react-core";
 import Page from "~/components/core/Page";
 import { BreadcrumbProps } from "~/components/core/Breadcrumbs";
@@ -52,14 +52,12 @@ import {
   ensureIPPrefix,
   formatIp,
   generateConnectionName,
-  isValidIPv4,
-  isValidIPv6,
   isValidIPv4Address,
-  isValidIPv6Address,
   isValidNameserver,
   isValidDNSSearchDomain,
 } from "~/utils/network";
 import { _ } from "~/i18n";
+import { validateConnectionForm } from "./connectionFormValidation";
 
 /**
  * Form IP mode values.
@@ -129,7 +127,6 @@ export const connectionFormOptions = formOptions({
 });
 
 type FormValues = typeof connectionFormOptions.defaultValues;
-type FormFieldErrors = Partial<Record<keyof FormValues, string>>;
 
 /**
  * Infers the form IPvX mode from a stored {@link ConnectionMethod} and addresses.
@@ -188,176 +185,6 @@ function connectionToFormValues(connection: Connection): Partial<FormValues> {
     bondOptions: connection.bond?.options ? connection.bond.options.split(" ") : [],
     bondPorts: connection.bond?.ports ?? [],
   };
-}
-
-/**
- * Returns an error when the given list is active and has invalid or missing entries.
- * Returns undefined when inactive or when all entries are valid.
- *
- * @param active - Whether the list should be validated at all.
- * @param emptyMsg - Error to return when the list is empty. Omit for optional
- *   lists where entries are not required but must be valid when provided.
- */
-function validateActiveList(
-  active: boolean,
-  values: string[],
-  isValid: (v: string) => boolean,
-  emptyMsg: string | undefined,
-  invalidMsg: string,
-): string | undefined {
-  if (!active) return undefined;
-  if (emptyMsg !== undefined && values.length === 0) return emptyMsg;
-  if (values.some((v) => !isValid(v))) return invalidMsg;
-}
-
-/**
- * Returns an error for an IP addresses list based on the current IP mode.
- *
- * - MANUAL: addresses are required and must be valid.
- * - ADVANCED_AUTO: addresses are required and must be valid.
- * - AUTO: no validation.
- */
-function validateIpAddresses(
-  mode: FormIpMode,
-  addresses: string[],
-  isValid: (v: string) => boolean,
-  emptyMsg: string,
-  invalidMsg: string,
-): string | undefined {
-  const required = ADDRESS_REQUIRED_MODES.includes(mode);
-  const active = required || addresses.length > 0;
-  return validateActiveList(
-    active,
-    addresses,
-    isValid,
-    required ? emptyMsg : undefined,
-    invalidMsg,
-  );
-}
-
-/**
- * Returns an error for a gateway value under its protocol mode.
- *
- * - MANUAL: gateway is required and must be valid.
- * - ADVANCED_AUTO: gateway is optional but must be valid when provided.
- * - AUTO: no validation.
- */
-function validateGateway(
-  mode: FormIpMode,
-  gateway: string,
-  validAddresses: string[],
-  isValid: (v: string) => boolean,
-  emptyMsg: string,
-  invalidMsg: string,
-): string | undefined {
-  if (mode === FormIpMode.MANUAL) {
-    if (!gateway) return emptyMsg;
-    return isValid(gateway) ? undefined : invalidMsg;
-  }
-  if (mode === FormIpMode.ADVANCED_AUTO && gateway) {
-    return isValid(gateway) ? undefined : invalidMsg;
-  }
-}
-
-/**
- * Validates the connection form values.
- *
- * Returns a map of field errors when validation fails, or undefined when all
- * values are valid. Validation is intentionally done here rather than in
- * per-field onSubmit validators — see the {@link ConnectionForm} remarks.
- */
-function validateConnectionForm(formValues: FormValues): FormFieldErrors | undefined {
-  const validAddresses4 = formValues.addresses4.filter(isValidIPv4Address);
-  const validAddresses6 = formValues.addresses6.filter(isValidIPv6Address);
-
-  const fieldErrors = shake({
-    // TRANSLATORS: validation error for the connection name field.
-    name: !formValues.name.trim() ? _("Name is required") : undefined,
-    addresses4: validateIpAddresses(
-      formValues.ipv4Mode,
-      formValues.addresses4,
-      isValidIPv4Address,
-      // TRANSLATORS: validation error for the IPv4 addresses field.
-      _("At least one IPv4 address is required"),
-      // TRANSLATORS: validation error for the IPv4 addresses field.
-      _("Some IPv4 addresses are invalid"),
-    ),
-    addresses6: validateIpAddresses(
-      formValues.ipv6Mode,
-      formValues.addresses6,
-      isValidIPv6Address,
-      // TRANSLATORS: validation error for the IPv6 addresses field.
-      _("At least one IPv6 address is required"),
-      // TRANSLATORS: validation error for the IPv6 addresses field.
-      _("Some IPv6 addresses are invalid"),
-    ),
-    gateway4: validateGateway(
-      formValues.ipv4Mode,
-      formValues.gateway4,
-      validAddresses4,
-      isValidIPv4,
-      // TRANSLATORS: validation error for the IPv4 gateway field.
-      _("IPv4 gateway is required"),
-      // TRANSLATORS: validation error for the IPv4 gateway field.
-      _("Invalid IPv4 gateway"),
-    ),
-    gateway6: validateGateway(
-      formValues.ipv6Mode,
-      formValues.gateway6,
-      validAddresses6,
-      isValidIPv6,
-      // TRANSLATORS: validation error for the IPv6 gateway field.
-      _("IPv6 gateway is required"),
-      // TRANSLATORS: validation error for the IPv6 gateway field.
-      _("Invalid IPv6 gateway"),
-    ),
-    nameservers: validateActiveList(
-      formValues.customDns,
-      formValues.nameservers,
-      isValidNameserver,
-      // TRANSLATORS: validation error for the DNS servers field.
-      _("At least one DNS server is required"),
-      // TRANSLATORS: validation error for the DNS servers field.
-      _("Some DNS server addresses are invalid"),
-    ),
-    dnsSearchList: validateActiveList(
-      formValues.customDnsSearch,
-      formValues.dnsSearchList,
-      isValidDNSSearchDomain,
-      // TRANSLATORS: validation error for the DNS search domains field.
-      _("At least one DNS search domain is required"),
-      // TRANSLATORS: validation error for the DNS search domains field.
-      _("Some DNS search domains are invalid"),
-    ),
-    bondIface:
-      formValues.type === ConnectionType.BOND && !formValues.bondIface.trim()
-        ? // TRANSLATORS: validation error for the bond device name field.
-          _("Device name is required")
-        : undefined,
-    bondMode:
-      formValues.type === ConnectionType.BOND && !formValues.bondMode.trim()
-        ? // TRANSLATORS: validation error for the bond mode field.
-          _("Bond mode is required")
-        : undefined,
-    bondPorts:
-      formValues.type === ConnectionType.BOND && formValues.bondPorts.length === 0
-        ? // TRANSLATORS: validation error for the bond ports field.
-          _("At least one bond port is required")
-        : undefined,
-    bondOptions:
-      formValues.type === ConnectionType.BOND &&
-      ![BondMode.ACTIVE_BACKUP, BondMode.BALANCE_TLB, BondMode.BALANCE_ALB].includes(
-        formValues.bondMode,
-      ) &&
-      formValues.bondOptions.some((o) => o.startsWith("primary="))
-        ? // TRANSLATORS: validation error for the bond options field when the 'primary' option is used in an invalid mode.
-          _(
-            "The 'primary' option is only valid for 'active-backup', 'balance-tlb', and 'balance-alb' modes",
-          )
-        : undefined,
-  });
-
-  if (!isEmpty(fieldErrors)) return fieldErrors;
 }
 
 /**
