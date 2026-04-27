@@ -30,7 +30,11 @@ import Link from "~/components/core/Link";
 import Text from "~/components/core/Text";
 import { useProposal } from "~/hooks/model/proposal/software";
 import { useProgressTracking } from "~/hooks/use-progress-tracking";
-import { useIsDesktopMissing, useSelectedPatterns } from "~/hooks/model/system/software";
+import {
+  useAvailablePatterns,
+  useIsDesktopMissing,
+  useSelectedPatterns,
+} from "~/hooks/model/system/software";
 import { useIssues } from "~/hooks/model/issue";
 import { SOFTWARE } from "~/routes/paths";
 import { _, n_ } from "~/i18n";
@@ -53,8 +57,8 @@ const patternsCount = (qty: number): string =>
  * Renders the headline text for the software summary.
  *
  * Priority order:
- *   1. "No desktop selected" hint when the product suggests one and none is
- *      selected.
+ *   1. "No desktop selected" hint when the product suggests one, desktops are
+ *      available, but none is selected.
  *   2. The selected desktop's summary when exactly one is selected.
  *   3. "N desktops selected" when more than one desktop is selected.
  *   4. "Using N additional patterns" when the user picked non-desktop
@@ -64,9 +68,10 @@ const patternsCount = (qty: number): string =>
 const Value = () => {
   const patterns = useSelectedPatterns();
   const isDesktopMissing = useIsDesktopMissing();
+  const { desktops: availableDesktops } = useAvailablePatterns();
   const desktops = patterns.filter((p) => p.desktop);
 
-  if (isDesktopMissing) {
+  if (isDesktopMissing && availableDesktops.length > 0) {
     // TRANSLATORS: shown in the software summary when no desktop is selected.
     return <Text isBold>{_("No desktop selected")}</Text>;
   }
