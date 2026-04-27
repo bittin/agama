@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Apr 27 11:00:16 UTC 2026 - David Diaz <dgonzalez@suse.com>
+
+- Handle desktop selection when no desktop environments are available
+  (gh#agama-project/agama#3436, related to gh#agama-project/agama#3420).
+
+-------------------------------------------------------------------
 Fri Apr 24 15:21:18 UTC 2026 - David Diaz <dgonzalez@suse.com>
 
 - Sort software patterns by their order field within each category
