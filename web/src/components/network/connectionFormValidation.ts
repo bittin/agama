@@ -37,8 +37,9 @@
 
 import { sprintf } from "sprintf-js";
 import { isEmpty, shake } from "radashi";
-import { BondMode, ConnectionType } from "~/types/network";
+import { BondMode } from "~/types/network";
 import {
+  CONNECTION_TYPE,
   isValidIPv4,
   isValidIPv6,
   isValidIPv4Address,
@@ -218,7 +219,7 @@ function validateCommonFields(formValues: FormValues): Partial<FormFieldErrors> 
  * Validates bond-specific fields.
  */
 function validateBondFields(formValues: FormValues): Partial<FormFieldErrors> {
-  if (formValues.type !== ConnectionType.BOND) return {};
+  if (formValues.type !== CONNECTION_TYPE.BOND) return {};
 
   return {
     // TRANSLATORS: validation error for the bond device name field.

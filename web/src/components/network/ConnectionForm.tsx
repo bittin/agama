@@ -49,6 +49,8 @@ import {
   buildAddress,
   connectionBindingMode,
   connectionType,
+  CONNECTION_TYPE,
+  connectionTypeLabel,
   ensureIPPrefix,
   formatIp,
   generateConnectionName,
@@ -101,11 +103,14 @@ const MODE_TO_METHOD: Record<FormIpMode, ConnectionMethod> = {
  *
  * Sub-components spread these options in their `withForm` definition so
  * TanStack Form can infer the field types, enabling type-safe props.
+ *
+ * Note: Type casts widen literal defaults to their union types, allowing
+ * fields to accept any value from the union, not just the initial value.
  */
 export const connectionFormOptions = formOptions({
   defaultValues: {
     name: "",
-    type: ConnectionType.ETHERNET as ConnectionType,
+    type: CONNECTION_TYPE.ETHERNET as ConnectionType,
     iface: "",
     ifaceMac: "",
     ipv4Mode: FormIpMode.AUTO as FormIpMode,
@@ -127,6 +132,11 @@ export const connectionFormOptions = formOptions({
 });
 
 type FormValues = typeof connectionFormOptions.defaultValues;
+
+/**
+ * Connection types supported by this form.
+ */
+const SUPPORTED_CONNECTION_TYPES = [CONNECTION_TYPE.ETHERNET, CONNECTION_TYPE.BOND] as const;
 
 /**
  * Infers the form IPvX mode from a stored {@link ConnectionMethod} and addresses.
@@ -203,7 +213,7 @@ function buildConnection(formValues: FormValues): Connection {
 
   let iface = "";
 
-  if (formValues.type === ConnectionType.BOND) {
+  if (formValues.type === CONNECTION_TYPE.BOND) {
     iface = formValues.bondIface;
   } else if (formValues.bindingMode === "iface") {
     iface = formValues.iface;
@@ -220,7 +230,7 @@ function buildConnection(formValues: FormValues): Connection {
     nameservers: formValues.customDns ? formValues.nameservers : [],
     dnsSearchList: formValues.customDnsSearch ? formValues.dnsSearchList : [],
     bond:
-      formValues.type === ConnectionType.BOND
+      formValues.type === CONNECTION_TYPE.BOND
         ? {
             mode: formValues.bondMode,
             options: formValues.bondOptions.join(" "),
@@ -296,8 +306,6 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
     listeners: isEditing ? undefined : { onMount: ({ formApi }) => syncName(formApi) },
   });
 
-  const typeOptions = () => ConnectionType.options([ConnectionType.BOND, ConnectionType.ETHERNET]);
-
   return (
     <form.AppForm>
       <Form
@@ -345,7 +353,10 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
                     // TRANSLATORS: checkbox label for custom DNS server configuration.
                     _("Type")
                   }
-                  options={typeOptions()}
+                  options={SUPPORTED_CONNECTION_TYPES.map((type) => ({
+                    value: type,
+                    label: connectionTypeLabel(type),
+                  }))}
                 />
               )}
             </form.AppField>
@@ -365,7 +376,9 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
 
         <form.Subscribe selector={(s) => s.values.type}>
           {(type) =>
-            ([ConnectionType.ETHERNET, ConnectionType.WIFI] as ConnectionType[]).includes(type) && (
+            ([CONNECTION_TYPE.ETHERNET, CONNECTION_TYPE.WIFI] as ConnectionType[]).includes(
+              type,
+            ) && (
               <Flex alignItems={{ default: "alignItemsFlexEnd" }} gap={{ default: "gapMd" }}>
                 <BindingModeSelector form={form} />
 
@@ -396,7 +409,7 @@ function ConnectionFormContent({ defaults, isEditing = false }: ConnectionFormCo
 
         <form.Subscribe selector={(s) => s.values.type}>
           {(type) =>
-            type === ConnectionType.BOND && <BondSettings form={form} isEditing={isEditing} />
+            type === CONNECTION_TYPE.BOND && <BondSettings form={form} isEditing={isEditing} />
           }
         </form.Subscribe>
 
