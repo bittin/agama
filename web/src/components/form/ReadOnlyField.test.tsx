@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [2022-2024] SUSE LLC
+ * Copyright (c) [2026] SUSE LLC
  *
  * All Rights Reserved.
  *
@@ -20,5 +20,27 @@
  * find current contact information at www.suse.com.
  */
 
-export { default as NetworkPage } from "./NetworkPage";
-export { default as ConnectionPage } from "./ConnectionPage";
+import React from "react";
+import { screen } from "@testing-library/react";
+import { installerRender } from "~/test-utils";
+import { useAppForm } from "~/hooks/form";
+
+function ReadOnlyFieldForm() {
+  const form = useAppForm({ defaultValues: { connectionType: "Bond" } });
+
+  return (
+    <form.AppForm>
+      <form.AppField name="connectionType">
+        {(field) => <field.ReadOnlyField label="Type" />}
+      </form.AppField>
+    </form.AppForm>
+  );
+}
+
+describe("ReadOnlyField", () => {
+  it("renders the label and value", () => {
+    installerRender(<ReadOnlyFieldForm />);
+    screen.getByText("Type");
+    screen.getByText("Bond");
+  });
+});
