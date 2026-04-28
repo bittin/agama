@@ -29,12 +29,15 @@ const L10N = {
 
 const NETWORK = {
   root: "/network",
-  newConnection: "/network/connections/new",
-  editConnection: "/network/connections/:id/edit",
-  editBindingSettings: "/network/connections/:id/binding/edit",
-  wiredConnection: "/network/wired_connection/:id",
-  newWiFiConnection: "/network/wifi_networks/new",
-  wifiConnection: "/network/wifi_networks/:id",
+  connection: {
+    new: "/network/connections/new",
+    details: "/network/connections/:id/details",
+    edit: "/network/connections/:id/edit",
+    editBinding: "/network/connections/:id/binding/edit",
+  },
+  wifi: {
+    new: "/network/wifi_networks/new",
+  },
 };
 
 const PRODUCT = {

@@ -26,6 +26,7 @@ import ArrayField from "~/components/form/ArrayField";
 import CancelButton from "~/components/form/CancelButton";
 import CheckboxField from "~/components/form/CheckboxField";
 import DropdownField from "~/components/form/DropdownField";
+import ReadOnlyField from "~/components/form/ReadOnlyField";
 import SubmitButton from "~/components/form/SubmitButton";
 import TextField from "~/components/form/TextField";
 
@@ -41,6 +42,7 @@ const { useAppForm, withForm } = createFormHook({
     ArrayField,
     CheckboxField,
     DropdownField,
+    ReadOnlyField,
     TextField,
   },
   formComponents: { CancelButton, SubmitButton },
