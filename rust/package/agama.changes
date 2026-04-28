@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Apr 28 11:02:40 UTC 2026 - Imobach Gonzalez Sosa <igonzalezsosa@suse.com>
+
+- Fix the path to the /private/resolvables/{id} endpoint (bsc#1262995).
+
+-------------------------------------------------------------------
 Mon Apr 27 16:12:45 UTC 2026 - Ladislav Slezák <lslezak@suse.com>
 
 - Prefer local media to download (gh#agama-project/agama#3405),
