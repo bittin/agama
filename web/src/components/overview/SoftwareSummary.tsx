@@ -30,11 +30,7 @@ import Link from "~/components/core/Link";
 import Text from "~/components/core/Text";
 import { useProposal } from "~/hooks/model/proposal/software";
 import { useProgressTracking } from "~/hooks/use-progress-tracking";
-import {
-  useAvailablePatterns,
-  useIsDesktopMissing,
-  useSelectedPatterns,
-} from "~/hooks/model/system/software";
+import { useIsDesktopMissing, useSelectedPatterns } from "~/hooks/model/system/software";
 import { useIssues } from "~/hooks/model/issue";
 import { SOFTWARE } from "~/routes/paths";
 import { _, n_ } from "~/i18n";
@@ -68,10 +64,9 @@ const patternsCount = (qty: number): string =>
 const Value = () => {
   const patterns = useSelectedPatterns();
   const isDesktopMissing = useIsDesktopMissing();
-  const { desktops: availableDesktops } = useAvailablePatterns();
   const desktops = patterns.filter((p) => p.desktop);
 
-  if (isDesktopMissing && availableDesktops.length > 0) {
+  if (isDesktopMissing) {
     // TRANSLATORS: shown in the software summary when no desktop is selected.
     return <Text isBold>{_("No desktop selected")}</Text>;
   }
