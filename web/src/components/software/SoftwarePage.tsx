@@ -82,15 +82,11 @@ const NothingSelected = ({
 );
 
 /**
- * Informational empty state shown when no desktop patterns are available.
+ * Informational empty state shown when patterns are not available.
  */
-const NoDesktopsAvailable = () => (
-  // TRANSLATORS: empty state title when no desktop environments are available
-  <EmptyState headingLevel="h4" titleText={_("No desktops available")} variant="sm">
-    <EmptyStateBody>
-      {/* TRANSLATORS: explanation shown when the product has no desktop environments */}
-      {_("This product does not provide desktop environments.")}
-    </EmptyStateBody>
+const NoAvailable = ({ title, body }: { title: string; body: string }) => (
+  <EmptyState headingLevel="h4" titleText={title} variant="sm">
+    <EmptyStateBody>{body}</EmptyStateBody>
   </EmptyState>
 );
 
@@ -286,6 +282,42 @@ const SoftwarePageContent = () => {
 
   if (isEmpty(proposal.patterns)) return <PatternSelectionUnavailable />;
 
+  const desktopsEmptyContent =
+    allDesktops.length === 0 ? (
+      <NoAvailable
+        // TRANSLATORS: empty state title when no desktop environments are available
+        title={_("No desktops available")}
+        // TRANSLATORS: explanation shown when the product has no desktop environments
+        body={_("This product does not provide desktop environments.")}
+      />
+    ) : (
+      <NothingSelected
+        to={PATHS.desktopSelection}
+        // TRANSLATORS: hint shown when no desktop environment has been chosen
+        body={_("Select a desktop environment to get a graphical interface.")}
+        // TRANSLATORS: button to go to the desktop environment selection page
+        buttonText={_("Select a desktop")}
+      />
+    );
+
+  const additionalPatternsEmptyContent =
+    allOtherPatterns.length === 0 ? (
+      <NoAvailable
+        // TRANSLATORS: empty state title when no additional patterns are available
+        title={_("No additional patterns available")}
+        // TRANSLATORS: explanation shown when the product has no additional patterns
+        body={_("This product does not provide additional patterns.")}
+      />
+    ) : (
+      <NothingSelected
+        to={PATHS.patternsSelection}
+        // TRANSLATORS: hint shown when no additional software patterns have been chosen
+        body={_("Select one or more to extend the system.")}
+        // TRANSLATORS: button to go to the pattern selection page
+        buttonText={_("Select patterns")}
+      />
+    );
+
   return (
     <>
       <Content>
@@ -307,19 +339,7 @@ const SoftwarePageContent = () => {
             patterns={desktops}
             selection={proposal.patterns}
             selectionPath={PATHS.desktopSelection}
-            emptyContent={
-              allDesktops.length === 0 ? (
-                <NoDesktopsAvailable />
-              ) : (
-                <NothingSelected
-                  to={PATHS.desktopSelection}
-                  // TRANSLATORS: hint shown when no desktop environment has been chosen
-                  body={_("Select a desktop environment to get a graphical interface.")}
-                  // TRANSLATORS: button to go to the desktop environment selection page
-                  buttonText={_("Select a desktop")}
-                />
-              )
-            }
+            emptyContent={desktopsEmptyContent}
           />
         </GridItem>
         <GridItem lg={6}>
@@ -335,15 +355,7 @@ const SoftwarePageContent = () => {
             patterns={otherPatterns}
             selection={proposal.patterns}
             selectionPath={PATHS.patternsSelection}
-            emptyContent={
-              <NothingSelected
-                to={PATHS.patternsSelection}
-                // TRANSLATORS: hint shown when no additional software patterns have been chosen
-                body={_("Select one or more to extend the system.")}
-                // TRANSLATORS: button to go to the pattern selection page
-                buttonText={_("Select patterns")}
-              />
-            }
+            emptyContent={additionalPatternsEmptyContent}
           />
         </GridItem>
       </Grid>
