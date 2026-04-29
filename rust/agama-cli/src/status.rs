@@ -22,6 +22,7 @@ use agama_lib::monitor::InstallationStatus;
 use agama_utils::api::status::Stage;
 use gettextrs::gettext;
 use serde::Serialize;
+use std::fmt;
 
 /// A single enum representing current state of the installation process.
 #[derive(Debug, Serialize, PartialEq)]
@@ -38,7 +39,7 @@ pub enum InstallationEnum {
     /// The installation is in progress.
     Installing,
     /// The installation finished successfully.
-    Succeed,
+    Succeeded,
     /// The installation failed.
     Failed,
 }
@@ -46,7 +47,7 @@ pub enum InstallationEnum {
 impl InstallationEnum {
     pub fn from_status(status: &InstallationStatus) -> Self {
         if status.status.stage == Stage::Finished {
-            return Self::Succeed;
+            return Self::Succeeded;
         }
         if status.status.stage == Stage::Failed {
             return Self::Failed;
@@ -66,17 +67,20 @@ impl InstallationEnum {
             return Self::Installing;
         }
     }
+}
 
-    pub fn print_human_readable(&self) -> String {
-        match self {
+impl fmt::Display for InstallationEnum {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let text = match self {
             Self::Failed => gettext("Installation failed."),
-            Self::Succeed => gettext("Installation finished successfully."),
+            Self::Succeeded => gettext("Installation finished successfully."),
             Self::Ready => gettext("Installation is ready to start."),
             Self::Installing => gettext("Installation is in progress."),
             Self::Proposing => gettext("Installation is being proposed."),
             Self::Question => gettext("There are unanswered questions. Please use `agama questions` command or web interface to answer them."),
             Self::Issues => gettext("The installer failed to calculate the installation proposal. There are issues blocking the installation."),
-        }
+        };
+        write!(f, "{}", text)
     }
 }
 
@@ -98,23 +102,26 @@ impl StatusReport {
             data: status,
         }
     }
+}
 
-    pub fn print_human_readable(&self) {
-        println!("{}", self.installation.print_human_readable());
-        println!("");
-        println!("{}", gettext("Details:"));
+impl fmt::Display for StatusReport {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "{}", self.installation)?;
+        writeln!(f)?;
+        write!(f, "{}", gettext("Details:"))?;
         if !self.data.questions.is_empty() {
-            println!("{}", gettext("Open questions:"));
+            write!(f, "\n{}", gettext("Open questions:"))?;
             for q in &self.data.questions {
-                println!("  - {}", q.spec.text);
+                write!(f, "\n  - {}", q.spec.text)?;
             }
         }
         if !self.data.issues.is_empty() {
-            println!("{}", gettext("Blocking issues:"));
+            write!(f, "\n{}", gettext("Blocking issues:"))?;
             for i in &self.data.issues {
-                println!("  - {}", i.issue.description);
+                write!(f, "\n  - {}", i.issue.description)?;
             }
         }
+        Ok(())
     }
 }
 
@@ -143,7 +150,7 @@ mod tests {
         status.status.stage = Stage::Finished;
         assert_eq!(
             InstallationEnum::from_status(&status),
-            InstallationEnum::Succeed
+            InstallationEnum::Succeeded
         );
     }
 
@@ -185,23 +192,38 @@ mod tests {
     #[test]
     fn test_from_status_ready() {
         let status = default_status();
-        assert_eq!(InstallationEnum::from_status(&status), InstallationEnum::Ready);
+        assert_eq!(
+            InstallationEnum::from_status(&status),
+            InstallationEnum::Ready
+        );
     }
 
     #[test]
     fn test_from_status_proposing() {
         let mut status = default_status();
         status.status.stage = Stage::Configuring;
-        status.status.progresses.push(Progress::new(Scope::Manager, 1, "step".to_string()));
-        assert_eq!(InstallationEnum::from_status(&status), InstallationEnum::Proposing);
+        status
+            .status
+            .progresses
+            .push(Progress::new(Scope::Manager, 1, "step".to_string()));
+        assert_eq!(
+            InstallationEnum::from_status(&status),
+            InstallationEnum::Proposing
+        );
     }
 
     #[test]
     fn test_from_status_installing() {
         let mut status = default_status();
         status.status.stage = Stage::Installing;
-        status.status.progresses.push(Progress::new(Scope::Manager, 1, "step".to_string()));
-        assert_eq!(InstallationEnum::from_status(&status), InstallationEnum::Installing);
+        status
+            .status
+            .progresses
+            .push(Progress::new(Scope::Manager, 1, "step".to_string()));
+        assert_eq!(
+            InstallationEnum::from_status(&status),
+            InstallationEnum::Installing
+        );
     }
 
     #[test]
@@ -217,22 +239,66 @@ mod tests {
         let mut status = default_status();
 
         status.status.stage = Stage::Configuring;
-        status.status.progresses.push(Progress::new(Scope::Manager, 1, "step".to_string()));
+        status
+            .status
+            .progresses
+            .push(Progress::new(Scope::Manager, 1, "step".to_string()));
         status.issues.push(IssueWithScope {
             scope: Scope::Manager,
             issue: Issue::new("class", "description"),
         });
-        status.questions.push(Question::new(1, QuestionSpec::new("text", "class")));
+        status
+            .questions
+            .push(Question::new(1, QuestionSpec::new("text", "class")));
 
         // Precedence 1: Question over issues and proposing
-        assert_eq!(InstallationEnum::from_status(&status), InstallationEnum::Question);
+        assert_eq!(
+            InstallationEnum::from_status(&status),
+            InstallationEnum::Question
+        );
 
         // Precedence 2: Issues over proposing
         status.questions.clear();
-        assert_eq!(InstallationEnum::from_status(&status), InstallationEnum::Issues);
+        assert_eq!(
+            InstallationEnum::from_status(&status),
+            InstallationEnum::Issues
+        );
 
         // Precedence 3: Proposing over ready
         status.issues.clear();
-        assert_eq!(InstallationEnum::from_status(&status), InstallationEnum::Proposing);
+        assert_eq!(
+            InstallationEnum::from_status(&status),
+            InstallationEnum::Proposing
+        );
+    }
+
+    #[test]
+    fn test_status_report_display_ready() {
+        let status = default_status();
+        let report = StatusReport::new(status);
+        let output = report.to_string();
+        assert!(output.contains("Installation is ready to start."));
+        assert!(output.contains("Details:"));
+        assert!(!output.contains("Open questions:"));
+        assert!(!output.contains("Blocking issues:"));
+    }
+
+    #[test]
+    fn test_status_report_display_with_issues_and_questions() {
+        let mut status = default_status();
+        status.issues.push(IssueWithScope {
+            scope: Scope::Manager,
+            issue: Issue::new("class1", "This is a blocking issue."),
+        });
+        status.questions.push(Question::new(
+            1,
+            QuestionSpec::new("What is your name?", "class2"),
+        ));
+        let report = StatusReport::new(status);
+        let output = report.to_string();
+        assert!(output.contains("There are unanswered questions."));
+        assert!(output.contains("Details:"));
+        assert!(output.contains("Open questions:\n  - What is your name?"));
+        assert!(output.contains("Blocking issues:\n  - This is a blocking issue."));
     }
 }

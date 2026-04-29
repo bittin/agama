@@ -42,9 +42,15 @@ use tokio::time::sleep;
 use url::Url;
 
 use crate::{
-    auth::run as run_auth_cmd, auth_tokens_file::AuthTokensFile, commands::{Commands, Format},
-    config::run as run_config_cmd, error::CliError, events::run as run_events_cmd,
-    logs::run as run_logs_cmd, progress::ProgressMonitor, questions::run as run_questions_cmd,
+    auth::run as run_auth_cmd,
+    auth_tokens_file::AuthTokensFile,
+    commands::{Commands, Format},
+    config::run as run_config_cmd,
+    error::CliError,
+    events::run as run_events_cmd,
+    logs::run as run_logs_cmd,
+    progress::ProgressMonitor,
+    questions::run as run_questions_cmd,
 };
 
 mod auth;
@@ -165,8 +171,12 @@ async fn print_status(http: &BaseHTTPClient, format: Format) -> anyhow::Result<(
     let status = Monitor::get_installation_status(http).await?;
     let report = StatusReport::new(status);
     match format {
-        Format::Json => { println!("{}", serde_json::to_string_pretty(&report)?); }
-        Format::Text => { report.print_human_readable(); }
+        Format::Json => {
+            println!("{}", serde_json::to_string_pretty(&report)?);
+        }
+        Format::Text => {
+            println!("{}", report);
+        }
     }
     Ok(())
 }

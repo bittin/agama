@@ -25,7 +25,7 @@ use crate::config::ConfigCommands;
 use crate::logs::LogsCommands;
 use crate::questions::QuestionsCommands;
 use crate::FinishMethod;
-use clap::{Subcommand,ValueEnum};
+use clap::{Subcommand, ValueEnum};
 
 #[derive(ValueEnum, Debug, Clone)]
 pub enum Format {
@@ -133,11 +133,11 @@ pub enum Commands {
     Monitor,
 
     /// Prints the current state of the installation (e.g., waiting, blocked, running, or finished).
-    Status { 
+    Status {
         /// Specify in which format status will be shown
         #[arg(long, value_enum, default_value_t = Format::Text)]
         format: Format,
-     },
+    },
 
     /// Display Agama events.
     Events {
