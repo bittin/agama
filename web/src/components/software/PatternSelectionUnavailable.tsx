@@ -139,7 +139,7 @@ export default function PatternSelectionUnavailable() {
         description={
           // TRANSLATORS: shown when the product provides zero patterns
           _(
-            "This product does not allow selecting software at installation time. You can add additional software after the installation is complete.",
+            "This product does not allow selecting software at installation time. Additional software can be added after the installation is complete.",
           )
         }
       />

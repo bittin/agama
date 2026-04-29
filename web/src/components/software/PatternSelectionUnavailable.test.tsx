@@ -128,7 +128,7 @@ describe("PatternSelectionUnavailable", () => {
         mockUseAvailablePatterns.mockReturnValue({ all: [], desktops: [], other: [] });
 
         installerRender(<PatternSelectionUnavailable />);
-        screen.getByText(/This product does not allow selecting software at installation time/);
+        screen.getByText(/Additional software can be added after the installation is complete/);
       });
 
       it("does not show any links", () => {
