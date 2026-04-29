@@ -26,14 +26,20 @@ import { installerRender } from "~/test-utils";
 import PatternSelectionUnavailable from "./PatternSelectionUnavailable";
 
 const mockUseIssues = jest.fn();
+const mockUseAvailablePatterns = jest.fn();
 
 jest.mock("~/hooks/model/issue", () => ({
   useIssues: (scope) => mockUseIssues(scope),
 }));
 
+jest.mock("~/hooks/model/system/software", () => ({
+  useAvailablePatterns: () => mockUseAvailablePatterns(),
+}));
+
 describe("PatternSelectionUnavailable", () => {
   it("renders the unavailable message", () => {
     mockUseIssues.mockReturnValue([]);
+    mockUseAvailablePatterns.mockReturnValue({ all: [], desktops: [], other: [] });
 
     installerRender(<PatternSelectionUnavailable />);
     screen.getByText("Software selection is not available");
@@ -48,6 +54,7 @@ describe("PatternSelectionUnavailable", () => {
           description: "Product registration is required",
         },
       ]);
+      mockUseAvailablePatterns.mockReturnValue({ all: [], desktops: [], other: [] });
 
       installerRender(<PatternSelectionUnavailable />);
       screen.getByText("Product registration is required");
@@ -61,6 +68,7 @@ describe("PatternSelectionUnavailable", () => {
           description: "Product registration is required",
         },
       ]);
+      mockUseAvailablePatterns.mockReturnValue({ all: [], desktops: [], other: [] });
 
       installerRender(<PatternSelectionUnavailable />);
       const link = screen.getByRole("link", { name: /Go to registration/ });
@@ -77,6 +85,7 @@ describe("PatternSelectionUnavailable", () => {
           description: "Base product is not available",
         },
       ]);
+      mockUseAvailablePatterns.mockReturnValue({ all: [], desktops: [], other: [] });
 
       installerRender(<PatternSelectionUnavailable />);
       screen.getByText("Base product is not available");
@@ -90,6 +99,7 @@ describe("PatternSelectionUnavailable", () => {
           description: "Base product is not available",
         },
       ]);
+      mockUseAvailablePatterns.mockReturnValue({ all: [], desktops: [], other: [] });
 
       installerRender(<PatternSelectionUnavailable />);
       screen.getByText(/This might be due to network connectivity/);
@@ -103,6 +113,7 @@ describe("PatternSelectionUnavailable", () => {
           description: "Base product is not available",
         },
       ]);
+      mockUseAvailablePatterns.mockReturnValue({ all: [], desktops: [], other: [] });
 
       installerRender(<PatternSelectionUnavailable />);
       const link = screen.getByRole("link", { name: /Go to network settings/ });
@@ -111,11 +122,48 @@ describe("PatternSelectionUnavailable", () => {
   });
 
   describe("when there are no product issues", () => {
-    it("does not show any links", () => {
-      mockUseIssues.mockReturnValue([]);
+    describe("and there are zero patterns available", () => {
+      it("shows message about adding software after installation", () => {
+        mockUseIssues.mockReturnValue([]);
+        mockUseAvailablePatterns.mockReturnValue({ all: [], desktops: [], other: [] });
 
-      installerRender(<PatternSelectionUnavailable />);
-      expect(screen.queryByRole("link")).not.toBeInTheDocument();
+        installerRender(<PatternSelectionUnavailable />);
+        screen.getByText(/This product does not allow selecting software at installation time/);
+      });
+
+      it("does not show any links", () => {
+        mockUseIssues.mockReturnValue([]);
+        mockUseAvailablePatterns.mockReturnValue({ all: [], desktops: [], other: [] });
+
+        installerRender(<PatternSelectionUnavailable />);
+        expect(screen.queryByRole("link")).not.toBeInTheDocument();
+      });
+    });
+
+    describe("and patterns exist but selection could not be loaded", () => {
+      it("shows generic error message", () => {
+        mockUseIssues.mockReturnValue([]);
+        mockUseAvailablePatterns.mockReturnValue({
+          all: [{ name: "base", summary: "Base System", description: "...", desktop: false }],
+          desktops: [],
+          other: [{ name: "base", summary: "Base System", description: "...", desktop: false }],
+        });
+
+        installerRender(<PatternSelectionUnavailable />);
+        screen.getByText(/The software selection could not be loaded/);
+      });
+
+      it("does not show any links", () => {
+        mockUseIssues.mockReturnValue([]);
+        mockUseAvailablePatterns.mockReturnValue({
+          all: [{ name: "base", summary: "Base System", description: "...", desktop: false }],
+          desktops: [],
+          other: [{ name: "base", summary: "Base System", description: "...", desktop: false }],
+        });
+
+        installerRender(<PatternSelectionUnavailable />);
+        expect(screen.queryByRole("link")).not.toBeInTheDocument();
+      });
     });
   });
 });
