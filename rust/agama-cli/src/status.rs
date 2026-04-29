@@ -62,9 +62,9 @@ impl InstallationEnum {
             return Self::Ready;
         }
         if status.status.stage == Stage::Configuring {
-            return Self::Proposing;
+            Self::Proposing
         } else {
-            return Self::Installing;
+            Self::Installing
         }
     }
 }
