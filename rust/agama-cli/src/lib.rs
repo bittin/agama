@@ -31,12 +31,15 @@ use agama_lib::{
     error::ServiceError,
     http::{BaseHTTPClient, WebSocketClient},
     manager::ManagerHTTPClient,
+    monitor::{InstallationStatus, Monitor},
 };
 use agama_transfer::Transfer;
 use agama_utils::api::{self, status::Stage, FinishMethod, IssueWithScope};
 use anyhow::Context;
 use clap::{Args, Parser};
 use fluent_uri::UriRef;
+use gettextrs::gettext;
+use serde::Serialize;
 use tokio::time::sleep;
 use url::Url;
 
@@ -155,6 +158,112 @@ async fn finish(
         .unwrap_or_else(|| FinishMethod::from_kernel_cmdline().unwrap_or(FinishMethod::Reboot));
     let manager = ManagerHTTPClient::new(http);
     manager.finish(method).await?;
+    Ok(())
+}
+
+/// single enum representing current state of the installation process
+#[derive(Debug, Serialize)]
+enum InstallationEnum {
+    /// Installation currently proposing installation configuration
+    Proposing,
+    /// Installation waiting for question to be answered
+    Question,
+    /// Installation has some issues blocking it to start
+    Issues,
+    /// Installation is ready to start
+    Ready,
+    /// Installation is in progress
+    Installing,
+    /// Installation is finished successfully
+    Succeed,
+    /// Installation failed
+    Failed,
+}
+
+impl InstallationEnum {
+    pub fn from_status(status: &InstallationStatus) -> Self {
+        if status.status.stage == Stage::Finished {
+            return Self::Succeed;
+        }
+        if status.status.stage == Stage::Failed {
+            return Self::Failed;
+        }
+        if !status.questions.is_empty() {
+            return Self::Question;
+        };
+        if !status.issues.is_empty() {
+            return Self::Issues;
+        };
+        if status.status.progresses.is_empty() {
+            return Self::Ready;
+        }
+        if status.status.stage == Stage::Configuring {
+            return Self::Proposing;
+        } else {
+            return Self::Installing;
+        }
+    }
+
+    pub fn print_human_readable(&self) -> String {
+        match self {
+            Self::Failed => gettextrs::gettext("Installation failed."),
+            Self::Succeed => gettextrs::gettext("Installation finished successfully."),
+            Self::Ready => gettextrs::gettext("Installation is ready to start."),
+            Self::Installing => gettextrs::gettext("Installation is in progress."),
+            Self::Proposing => gettextrs::gettext("Installation is being proposed."),
+            Self::Question => gettextrs::gettext("There are unanswered questions. Please use `agama questions` command or web interface to answer them."),
+            Self::Issues => gettextrs::gettext("Installer is failed to calculate the installation proposal. There are issues blocking installation."),
+        }
+    }
+}
+
+/// Holds data for agama status command
+#[derive(Debug, Serialize)]
+struct StatusReport {
+    /// current state of the installation process
+    installation: InstallationEnum,
+    /// more detailed data compiled from backend from status, questions and issues call
+    #[serde(flatten)]
+    data: InstallationStatus,
+}
+
+impl StatusReport {
+    fn new(status: InstallationStatus) -> Self {
+        let installation_enum = InstallationEnum::from_status(&status);
+        Self {
+            installation: installation_enum,
+            data: status,
+        }
+    }
+
+    fn print_human_readable(&self) {
+        println!("{}", self.installation.print_human_readable());
+        println!("");
+        println!("{}", gettextrs::gettext("Details:"));
+        if !self.data.questions.is_empty() {
+            println!("{}", gettext("Open questions:"));
+            for q in &self.data.questions {
+                println!("  - {}", q.spec.text);
+            }
+        }
+        if !self.data.issues.is_empty() {
+            println!("{}", gettext("Blocking issues:"));
+            for i in &self.data.issues {
+                println!("  - {}", i.issue.description);
+            }
+        }
+    }
+}
+
+async fn print_status(http: &BaseHTTPClient, json: bool) -> anyhow::Result<()> {
+    let status = Monitor::get_installation_status(http).await?;
+    let report = StatusReport::new(status);
+    if json {
+        println!("{}", serde_json::to_string_pretty(&report)?);
+    } else {
+        // TODO: human readable translated output
+        report.print_human_readable();
+    }
     Ok(())
 }
 
@@ -339,6 +448,10 @@ pub async fn run_command(cli: Cli) -> anyhow::Result<()> {
         Commands::Monitor => {
             let (http, ws) = build_clients(api_url, cli.opts.insecure).await?;
             show_progress(http, ws, false).await?;
+        }
+        Commands::Status { json } => {
+            let client = build_http_client(api_url, cli.opts.insecure, true).await?;
+            print_status(&client, json).await?;
         }
         Commands::Events { pretty } => {
             let ws_client = build_ws_client(api_url, cli.opts.insecure).await?;

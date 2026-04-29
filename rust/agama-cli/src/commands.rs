@@ -121,8 +121,11 @@ pub enum Commands {
         method: Option<FinishMethod>,
     },
 
-    /// Monitors the Agama service.
+    /// Continuosly monitors the Agama service until it finishes.
     Monitor,
+
+    /// Display current agama status.
+    Status { json: bool },
 
     /// Display Agama events.
     Events {
